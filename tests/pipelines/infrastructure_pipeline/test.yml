@@ -9,7 +9,7 @@ resources:
 variables:
   PipelinePoolTest: Mare Nectaris
 
-pool: ${{ variables.PipelinePoolTest }} # Variable defined within template, overridable via template parameter 'PipelinePool'.
+pool: ${{ PipelinePoolTest }} # Variable defined within template, overridable via template parameter 'PipelinePool'.
 
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
