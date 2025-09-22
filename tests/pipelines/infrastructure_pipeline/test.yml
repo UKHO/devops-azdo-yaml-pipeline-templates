@@ -6,6 +6,8 @@ resources:
       name: UKHO/devops-azdo-yaml-pipeline-templates
       ref: refs/heads/initial-template-for-deploying-terraform
 
+pool: ${{ variables.PipelinePool }} # Variable defined within template, overridable via template parameter 'PipelinePool'.
+
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
