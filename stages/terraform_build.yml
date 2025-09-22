@@ -1,0 +1,12 @@
+﻿parameters:
+  - name: RelativePathToTerraformFiles
+    type: string
+    displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
+
+stages:
+  - stage: Build
+    displayName: "Build"
+    jobs:
+      template: ../jobs/publish_terraform_artifact.yml
+      parameters:
+        RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
