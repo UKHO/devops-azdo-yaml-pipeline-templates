@@ -1,0 +1,11 @@
+﻿resources:
+  repositories:
+    - repository: PipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+
+extends:
+  template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
+  parameters:
+    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
