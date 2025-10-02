@@ -1,0 +1,123 @@
+﻿parameters:
+  - name: ServiceConnectionEndpoint
+    type: string
+    default: 'Snyk'
+    displayName: 'Snyk service connection endpoint'
+
+  - name: ScanTestType
+    type: string
+    values: [app, container, code, iac]
+    default: 'app'
+    displayName: 'Type of scan test to run'
+
+  - name: DockerImageName
+    type: string
+    default: ''
+    displayName: 'Container image name (if applicable)'
+
+  - name: DockerFilePath
+    type: string
+    default: ''
+    displayName: 'Path to Dockerfile (relative to repo root or working directory)'
+
+  - name: TargetFile
+    type: string
+    default: ''
+    displayName: 'Path to manifest file to test (relative to repo root or working directory)'
+
+  - name: SeverityThreshold
+    type: string
+    values: ['', low, medium, high, critical]
+    default: 'low'
+    displayName: 'Severity threshold for testing. Leave blank for no threshold.'
+
+  - name: CodeSeverityThreshold
+    type: string
+    values: ['', low, medium, high]
+    default: 'low'
+    displayName: 'Severity threshold for Snyk Code testing. Leave blank for no threshold.'
+
+  - name: MonitorWhen
+    type: string
+    values: [always, noIssuesFound, never]
+    default: 'always'
+    displayName: 'Snyk monitor run condition'
+
+  - name: FailOnIssues
+    type: boolean
+    default: true
+    displayName: 'Fail build if issues are found'
+
+  - name: FailOnType
+    type: string
+    values: ['', all, patchable, upgradable] # FailOnType is not a required parameter, there '' is a valid value.
+    default: ''
+    displayName: 'Fail build based on issue type'
+
+  - name: ProjectName
+    type: string
+    default: ''
+    displayName: 'Snyk project name'
+
+  - name: Organization
+    type: string
+    default: ''
+    displayName: 'Organization name (or ID) in Snyk'
+
+  - name: TestDirectory
+    type: string
+    default: '$(Build.SourcesDirectory)'
+    displayName: 'Test (Working) Directory'
+
+  - name: ReportFileName
+    type: string
+    default: ''
+    displayName: 'Custom file name for the Reports'
+
+  - name: AdditionalArguments
+    type: string
+    default: ''
+    displayName: 'Additional command-line args for Snyk CLI (advanced)'
+
+steps:
+  - task: UkhoSnykScanTask@0
+    displayName: "Snyk '${{ parameters.ScanTestType }}' Scan"
+    inputs:
+      serviceConnectionEndpoint: ${{ parameters.ServiceConnectionEndpoint }}
+      testType: ${{ parameters.ScanTestType }}
+      failOnIssues: ${{ parameters.FailOnIssues }}
+      testDirectory: ${{ parameters.TestDirectory }}
+
+      # Optional common
+      ${{ if ne(parameters.ProjectName, '') }}:
+        projectName: ${{ parameters.ProjectName }}
+      ${{ if ne(parameters.Organization, '') }}:
+        organization: ${{ parameters.Organization }}
+      ${{ if ne(parameters.AdditionalArguments, '') }}:
+        additionalArguments: ${{ parameters.AdditionalArguments }}
+      ${{ if ne(parameters.ReportFileName, '') }}:
+        reportFileName: ${{ parameters.ReportFileName }}
+      ${{ if ne(parameters.FailOnType, '') }}:
+        failOnType: ${{ parameters.FailOnType }}
+
+      # App-only
+      ${{ if eq(parameters.ScanTestType, 'app') }}:
+        severityThreshold: ${{ parameters.SeverityThreshold }}
+        monitorWhen: ${{ parameters.MonitorWhen }}
+        ${{ if ne(parameters.TargetFile, '') }}:
+          targetFile: ${{ parameters.TargetFile }}
+
+      # Container-only
+      ${{ if eq(parameters.ScanTestType, 'container') }}:
+        severityThreshold: ${{ parameters.SeverityThreshold }}
+        monitorWhen: ${{ parameters.MonitorWhen }}
+        dockerImageName: ${{ parameters.DockerImageName }}
+        ${{ if ne(parameters.DockerFilePath, '') }}:
+          dockerfilePath: ${{ parameters.DockerFilePath }}
+
+      # Code-only
+      ${{ if eq(parameters.ScanTestType, 'code') }}:
+        codeSeverityThreshold: ${{ parameters.CodeSeverityThreshold }}
+
+      # IaC-only (no extra inputs in task schema)
+      ${{ if eq(parameters.ScanTestType, 'iac') }}: {}
