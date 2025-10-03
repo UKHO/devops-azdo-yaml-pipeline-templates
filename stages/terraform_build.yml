@@ -1,4 +1,9 @@
 ﻿parameters:
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Artifact Name for Target Path to be saved as.'
+
   - name: RelativePathToTerraformFiles
     type: string
     displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
@@ -9,4 +14,5 @@ stages:
     jobs:
       - template: ../jobs/publish_terraform_artifact.yml
         parameters:
+          ArtifactName: ${{ parameters.ArtifactName }}
           RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
