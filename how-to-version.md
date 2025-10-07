@@ -29,7 +29,7 @@ We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline templat
 
 ## 📘 Examples
 
-All the examples listed below are placed in the worst case scenario category. For example, an item in the breaking change list could in certain cases may not be a breaking change. This list should be used as a guideline, only through testing will breaking changes be fully understood.
+All the examples listed below are placed in the worst case scenario category. For example, an item in the breaking change list could in certain cases not be a breaking change. This list should be used as a guideline; only through testing will breaking changes be fully understood.
 
 ### 🚨 MAJOR (Breaking Changes)
 
