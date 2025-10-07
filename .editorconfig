@@ -2,7 +2,7 @@
 # https://editor.timseverien.com/#config
 root = true
 
-[*.{tfvars,yml,tf,yaml}]
+[*]
 charset = utf-8
 end_of_line = lf
 indent_size = 2
