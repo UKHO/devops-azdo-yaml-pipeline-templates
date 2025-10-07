@@ -7,6 +7,7 @@ Centralised repository for reusable Azure DevOps (AzDO) YAML pipeline templates 
 ## 🎯 Purpose
 
 Provide a **single source of truth** for standardised pipeline templates that:
+
 - Promote reusable and composable pipeline design.
 - Enforce security, quality, and compliance checks.
 - Support both .NET and platform-agnostic workloads.

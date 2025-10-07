@@ -4,7 +4,7 @@
 
 We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline template repositories.
 
-**Format:**  
+**Format:**
 `vMAJOR.MINOR.PATCH` (e.g., `v2.4.1`)
 
 ---
