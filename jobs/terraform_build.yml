@@ -10,13 +10,11 @@
 
 jobs:
   - job: PublishTerraformArtifact
-    variables:
-      terraformTargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Publish Terraform Artifact"
     steps:
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: ${{ variables.terraformTargetPath }}
+          TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
           ArtifactName: ${{ parameters.ArtifactName }}
