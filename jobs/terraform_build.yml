@@ -1,0 +1,20 @@
+﻿parameters:
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Artifact Name for Target Path to be saved as.'
+
+  - name: RelativePathToTerraformFiles
+    type: string
+    displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
+
+jobs:
+  - job: PublishTerraformArtifact
+    workspace:
+      clean: all
+    displayName: "Publish Terraform Artifact"
+    steps:
+      - template: ../tasks/publish_pipeline_artifact.yml
+        parameters:
+          TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+          ArtifactName: ${{ parameters.ArtifactName }}

@@ -1,0 +1,17 @@
+﻿parameters:
+  - name: ArtifactName
+    type: string
+    default: 'Drop'
+    displayName: 'Artifact Name for Target Path to be saved as.'
+
+  - name: TargetPath
+    type: string
+    default: '$(Pipeline.Workspace)'
+    displayName: 'Target Path to publish as artifact.'
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: "Publish Pipeline Artifact '${{ parameters.ArtifactName }}'"
+    inputs:
+      artifact: ${{ parameters.ArtifactName }}
+      targetPath: ${{ parameters.TargetPath }}

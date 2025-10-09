@@ -1,0 +1,18 @@
+﻿parameters:
+  - name: PipelinePool
+    type: string
+    default: "Mare Nectaris"
+    displayName: "The pool that the pipeline will run from the highest level."
+
+  - name: RelativePathToTerraformFiles
+    type: string
+    displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
+
+variables:
+  - name: PipelinePool
+    value: ${{ parameters.PipelinePool }}
+
+stages:
+  - template: ../stages/terraform_build.yml
+    parameters:
+      RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
