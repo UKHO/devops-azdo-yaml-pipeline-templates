@@ -1,0 +1,42 @@
+﻿parameters:
+  - name: PipelinePool
+    type: string
+    default: "Mare Nectaris"
+    displayName: "The pool that the pipeline will run from the highest level."
+
+  - name: AzDOServiceConnection
+    type: string
+
+variables:
+  - name: PipelinePool
+    value: ${{ parameters.PipelinePool }}
+
+stages:
+  - stage: Deploy
+    displayName: "Deploy"
+    jobs:
+      - job:
+        workspace:
+          clean: all
+        steps:
+          - task: TerraformInstaller@1
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: 'latest'
+
+          - task: TerraformTask@5
+            displayName: Run Terraform Init
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: ${{ parameters.AzDOServiceConnection }}
+              backendAzureRmStorageAccountName: 'ukhodoctfstatesa'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'compliance-testing.tfstate'
+
+          - task: TerraformTask@5
+            displayName: Run Terraform Apply
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: ${{ parameters.AzDOServiceConnection }}
