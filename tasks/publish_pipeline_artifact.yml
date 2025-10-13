@@ -27,6 +27,7 @@ parameters:
 
   - name: Properties
     type: string
+    default: ''
     displayName: 'Custom properties for the artifact'
 
 steps:
