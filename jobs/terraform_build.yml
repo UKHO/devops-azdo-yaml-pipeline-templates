@@ -6,14 +6,33 @@
 
   - name: RelativePathToTerraformFiles
     type: string
+    default: ''
     displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
 
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: "Version of Terraform CLI tool to use with the terraform files."
+
 jobs:
-  - job: PublishTerraformArtifact
+  - job: TerraformBuild
     workspace:
       clean: all
-    displayName: "Publish Terraform Artifact"
+    displayName: "Terraform Build"
     steps:
+      - checkout: self
+        displayName: "Checkout self repository"
+
+      - template: ../tasks/terraform_installer.yml
+        parameters:
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+
+      - template: ../tasks/terraform_init.yml
+        parameters:
+          DisableBackend: true
+
+      # Run Terraform Validation
+
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
