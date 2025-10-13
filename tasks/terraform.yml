@@ -1,0 +1,173 @@
+﻿# Build Category: Terraform Infrastructure as Code Wrapper
+# Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
+# Azure DevOps Task: TerraformTask@5 (Microsoft DevLabs Custom Terraform Tasks)
+# Extension: ms-devlabs.custom-terraform-tasks
+#
+# Features:
+# - Single-cloud provider supported (Azure)
+# - Conditional parameter validation
+# - Comprehensive backend configuration support
+# - Command-specific parameter handling
+# - Fail-fast error handling
+#
+# Usage Examples:
+# - Init: command: 'init'
+# - Plan: command: 'plan', command_options: '-out tfplan'
+# - Apply: command: 'apply', command_options: 'tfplan'
+# - Custom: command: 'custom', custom_command: 'workspace list'
+#
+# Notes
+# - Other cloud providers have been excluded.
+# - Following azurerm parameters not included:
+#   - backendAzureRmOverrideSubscriptionID
+#   - backendAzureRmUseIdTokenGeneration
+#   - backendAzureRmUseCliFlagsForAuthentication
+#   - environmentAzureRmOverrideSubscriptionID
+#   - environmentAzureRmUseIdTokenGeneration
+
+parameters:
+  # Core Configuration
+  - name: Provider
+    type: string
+    displayName: 'Cloud provider to use'
+    default: 'azurerm'
+    values:
+      - azurerm
+
+  - name: Command
+    type: string
+    displayName: 'Terraform command to execute'
+    values:
+      - init
+      - validate
+      - show
+      - plan
+      - apply
+      - output
+      - destroy
+      - custom
+
+  - name: WorkingDirectory
+    type: string
+    displayName: 'Working directory for Terraform files'
+    default: '$(System.DefaultWorkingDirectory)'
+
+  # Command Options
+  - name: CommandOptions
+    type: string
+    displayName: 'Additional command arguments'
+    default: ''
+    # Examples:
+    # - Plan: '-out tfplan'
+    # - Apply: 'tfplan' or '-auto-approve'
+    # - Destroy: '-auto-approve'
+
+  - name: CustomCommand
+    type: string
+    displayName: 'Custom Terraform command (when command = custom)'
+    default: ''
+    # Examples: 'workspace list', 'state list', 'providers'
+
+  # Output Configuration (for show/output commands)
+  - name: OutputTo
+    type: string
+    displayName: 'Output destination for show/output commands'
+    default: 'console'
+    values:
+      - console
+      - file
+
+  - name: OutputFileName
+    type: string
+    displayName: 'Output file name (when OutputTo = file)'
+    default: ''
+
+  - name: OutputFormat
+    type: string
+    displayName: 'Output format for show command'
+    default: 'default'
+    values:
+      - default
+      - json
+
+  # Azure Backend Configuration (for init command)
+  - name: BackendAzureServiceConnection
+    type: string
+    displayName: 'Azure service connection for backend'
+    default: ''
+
+  - name: BackendAzureStorageAccountName
+    type: string
+    displayName: 'Azure storage account name for backend'
+    default: ''
+
+  - name: BackendAzureContainerName
+    type: string
+    displayName: 'Azure storage container name for backend'
+    default: ''
+
+  - name: BackendAzureBlobName
+    type: string
+    displayName: 'Azure storage blob name for state file'
+    default: ''
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    displayName: 'Azure resource group name for storage account'
+    default: ''
+
+  # Provider Environment Configuration (for plan/apply/destroy commands)
+  - name: EnvironmentAzureServiceConnection
+    type: string
+    displayName: 'Azure service connection for providers'
+    default: ''
+
+steps:
+  - task: TerraformTask@5
+    displayName: 'Terraform ${{ parameters.Command }}'
+    name: TerraformTask
+    inputs:
+      # Core Configuration
+      provider: '${{ parameters.Provider }}'
+      command: '${{ parameters.Command }}'
+      ${{ if ne(parameters.WorkingDirectory, '') }}:
+        workingDirectory: '${{ parameters.WorkingDirectory }}'
+
+      # Command Options
+      ${{ if ne(parameters.CommandOptions, '') }}:
+        commandOptions: '${{ parameters.CommandOptions }}'
+
+      ${{ if and(eq(parameters.Command, 'custom'), ne(parameters.CustomCommand, '')) }}:
+        customCommand: '${{ parameters.CustomCommand }}'
+
+      # Output Configuration (show/output commands)
+      ${{ if and(or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')), ne(parameters.OutputTo, 'console')) }}:
+        outputTo: '${{ parameters.OutputTo }}'
+
+      ${{ if and(eq(parameters.OutputTo, 'file'), ne(parameters.OutputFileName, '')) }}:
+        fileName: '${{ parameters.OutputFileName }}'
+
+      ${{ if and(eq(parameters.Command, 'show'), ne(parameters.OutputFormat, 'default')) }}:
+        outputFormat: '${{ parameters.OutputFormat }}'
+
+      # Azure Backend Configuration (init command)
+      ${{ if and(eq(parameters.Command, 'init'), eq(parameters.Provider, 'azurerm')) }}:
+        ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
+          backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
+
+        ${{ if ne(parameters.BackendAzureStorageAccountName, '') }}:
+          backendAzureRmStorageAccountName: '${{ parameters.BackendAzureStorageAccountName }}'
+
+        ${{ if ne(parameters.BackendAzureContainerName, '') }}:
+          backendAzureRmContainerName: '${{ parameters.BackendAzureContainerName }}'
+
+        ${{ if ne(parameters.BackendAzureBlobName, '') }}:
+          backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
+
+        ${{ if ne(parameters.BackendAzureStorageAccountResourceGroupName, '') }}:
+          backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
+
+      # Azure Provider Configuration (plan/apply/destroy commands)
+      ${{ if and(or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')), eq(parameters.Provider, 'azurerm')) }}:
+        ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
+          environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'
