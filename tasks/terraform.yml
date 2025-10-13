@@ -1,6 +1,6 @@
-﻿# Name: Terraform Base
 # Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
-# Azure DevOps Task: TerraformTask@5
+# Azure DevOps Task: TerraformTask@5 (Microsoft DevLabs Custom Terraform Tasks)
+# Extension: ms-devlabs.custom-terraform-tasks
 #
 # Features:
 # - Single-cloud provider supported (Azure)
@@ -105,7 +105,7 @@ parameters:
 
   - name: BackendAzureStorageAccountResourceGroupName
     type: string
-    displayName: 'Azure resource group name for backend'
+    displayName: 'Azure resource group name for storage account'
     default: ''
 
   - name: DisableBackend
