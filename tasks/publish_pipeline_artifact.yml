@@ -1,13 +1,33 @@
-﻿parameters:
+﻿# Template: Utility - Publish Pipeline Artifact
+# Purpose: Standardized wrapper for PublishPipelineArtifact@1 task
+# Underlying Task: PublishPipelineArtifact@1
+# Usage: Publish build artifacts to Azure DevOps pipeline
+
+parameters:
   - name: ArtifactName
     type: string
-    default: 'Drop'
-    displayName: 'Artifact Name for Target Path to be saved as.'
+    default: 'drop'
+    displayName: 'Name of the artifact to publish'
 
   - name: TargetPath
     type: string
     default: '$(Pipeline.Workspace)'
-    displayName: 'Target Path to publish as artifact.'
+    displayName: 'Path to files or folder to publish'
+
+  - name: PublishLocation
+    type: string
+    values: [pipeline, container]
+    default: 'pipeline'
+    displayName: 'Artifact publish location'
+
+  - name: Parallel
+    type: boolean
+    default: false
+    displayName: 'Upload files in parallel'
+
+  - name: Properties
+    type: string
+    displayName: 'Custom properties for the artifact'
 
 steps:
   - task: PublishPipelineArtifact@1
@@ -15,3 +35,9 @@ steps:
     inputs:
       artifact: ${{ parameters.ArtifactName }}
       targetPath: ${{ parameters.TargetPath }}
+      publishLocation: ${{ parameters.PublishLocation }}
+      parallel: ${{ parameters.Parallel }}
+
+      # Optional parameters with conditional inclusion
+      ${{ if ne(parameters.Properties, '') }}:
+        properties: ${{ parameters.Properties }}
