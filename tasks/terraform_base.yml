@@ -124,7 +124,7 @@ parameters:
 steps:
   - task: TerraformTask@5
     displayName: 'Terraform ${{ parameters.Command }}'
-    name: TerraformTask
+    name: TerraformTask_${{ parameters.Command }}
     inputs:
       # Core Configuration
       provider: '${{ parameters.Provider }}'
