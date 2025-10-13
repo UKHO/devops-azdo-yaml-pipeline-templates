@@ -1,7 +1,6 @@
-﻿# Build Category: Terraform Infrastructure as Code Wrapper
+﻿# Name: Terraform Base
 # Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
-# Azure DevOps Task: TerraformTask@5 (Microsoft DevLabs Custom Terraform Tasks)
-# Extension: ms-devlabs.custom-terraform-tasks
+# Azure DevOps Task: TerraformTask@5
 #
 # Features:
 # - Single-cloud provider supported (Azure)
