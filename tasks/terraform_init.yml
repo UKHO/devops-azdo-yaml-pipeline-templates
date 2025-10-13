@@ -1,0 +1,47 @@
+﻿# Name: Terraform Init
+# Purpose: Wrapper for init command using the terraform base file
+# Azure DevOps Task: TerraformTask@5
+
+parameters:
+  - name: BackendAzureServiceConnection
+    type: string
+    displayName: 'Azure service connection for backend'
+    default: ''
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    displayName: 'Azure resource group name for storage account'
+    default: ''
+
+  - name: BackendAzureStorageAccountName
+    type: string
+    displayName: 'Azure storage account name for backend'
+    default: ''
+
+  - name: BackendAzureContainerName
+    type: string
+    displayName: 'Azure storage container name for backend'
+    default: ''
+
+  - name: BackendAzureBlobName
+    type: string
+    displayName: 'Azure storage blob name for state file'
+    default: ''
+
+  - name: DisableBackend
+    type: boolean
+    displayName: 'For whether to configure the backend or not'
+    default: false
+
+steps:
+  - template: terraform_base.yml
+    parameters:
+      Command: init
+      ${{ if eq(parameters.DisableBackend, true) }}:
+        CommandOptions: '-backend=false'
+      ${{ else }}:
+        BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
+        BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+        BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+        BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+        BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
