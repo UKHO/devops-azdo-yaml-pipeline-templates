@@ -31,7 +31,7 @@ jobs:
         parameters:
           DisableBackend: true
 
-      # Run Terraform Validation
+      - template: ../tasks/terraform_validate.yml
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
