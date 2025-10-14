@@ -13,7 +13,7 @@
     default: 'latest'
     displayName: "Version of Terraform CLI tool to use with the terraform files."
 
-  - name: PreBuildSteps
+  - name: TerraformBuildInjectionSteps
     type: stepList
     default: []
     displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
@@ -27,4 +27,4 @@ stages:
     parameters:
       RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
-      PreBuildSteps: ${{ parameters.PreBuildSteps }}
+      TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}

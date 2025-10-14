@@ -14,7 +14,7 @@
     default: 'latest'
     displayName: "Version of Terraform CLI tool to use with the terraform files."
 
-  - name: PreBuildSteps
+  - name: TerraformBuildInjectionSteps
     type: stepList
     default: []
     displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
@@ -32,7 +32,7 @@ jobs:
         displayName: "Checkout self repository"
         path: ${{ variables.RepositoryCheckoutPath }}
 
-      - ${{ each step in parameters.PreBuildSteps }}:
+      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
 
       - template: ../tasks/terraform_installer.yml
@@ -54,6 +54,10 @@ jobs:
         displayName: "Clean the directory post validation"
         clean: true
         path: ${{ variables.RepositoryCheckoutPath }}
+
+      # Repeat TerraformBuildInjectionSteps on clean code
+      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
+          - ${{ step }}
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
