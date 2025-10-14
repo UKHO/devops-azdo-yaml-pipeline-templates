@@ -23,6 +23,7 @@
 #   - backendAzureRmUseCliFlagsForAuthentication
 #   - environmentAzureRmOverrideSubscriptionID
 #   - environmentAzureRmUseIdTokenGeneration
+# - TerraformTask does not support '-backend=false' without requiring the need of 'backendServiceArm' parameter, see 'DisableBackend' parameter usage
 
 parameters:
   # Core Configuration
