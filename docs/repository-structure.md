@@ -1,4 +1,6 @@
-﻿```text
+﻿# Repository Structure
+
+```text
 devops-azdo-yaml-pipeline-templates/
 ├── .github/
 │   ├── copilot-instructions.yml
