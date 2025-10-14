@@ -34,12 +34,13 @@ parameters:
     default: false
 
 steps:
-  - template: terraform_base.yml
-    parameters:
-      Command: init
-      ${{ if eq(parameters.DisableBackend, true) }}:
-        CommandOptions: '-backend=false'
-      ${{ else }}:
+  - ${{ if eq(parameters.DisableBackend, true) }}:
+    - script: |
+        terraform init backend=false
+  - ${{ else }}:
+    - template: terraform_base.yml
+      parameters:
+        Command: init
         BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
         BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
         BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
