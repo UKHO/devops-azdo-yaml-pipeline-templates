@@ -16,6 +16,8 @@
 
 jobs:
   - job: TerraformBuild
+    variables:
+      TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Terraform Build"
@@ -27,6 +29,10 @@ jobs:
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
 
+      - template: ../tasks/set_directory.yml
+        parameters:
+          TargetPath: ${{ variables.TargetPath }}
+
       - template: ../tasks/terraform_init.yml
         parameters:
           DisableBackend: true
@@ -35,5 +41,5 @@ jobs:
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+          TargetPath: ${{ variables.TargetPath }}
           ArtifactName: ${{ parameters.ArtifactName }}
