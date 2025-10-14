@@ -17,8 +17,8 @@
 jobs:
   - job: TerraformBuild
     variables:
-      RepositoryCheckoutPath: $(Pipeline.Workspace)/self-repository
-      TerraformWorkingDirectory: ${{ variables.RepositoryCheckoutPath }}/${{ parameters.RelativePathToTerraformFiles }}
+      RepositoryCheckoutPath: self-repository
+      TerraformWorkingDirectory: $(Pipeline.Workspace)/${{ variables.RepositoryCheckoutPath }}/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Terraform Build"
