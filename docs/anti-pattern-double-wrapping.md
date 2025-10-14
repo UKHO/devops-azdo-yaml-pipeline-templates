@@ -70,6 +70,37 @@ Another issue was that consumers could bypass secondary wrappers and use the bas
 
 To resolve these issues, the team decided to eliminate both base and secondary wrappers in favor of a single, comprehensive `terraform.yml` template. This unified template incorporated all necessary logic, including the special `init` behavior, making it easier to maintain and extend.
 
+```yaml
+parameters:
+  # ... other parameters ...
+  - name: Command
+    type: string
+    displayName: 'Terraform command to execute'
+    values:
+      - init
+      # ... other values ...
+      - custom
+
+  - name: DisableBackend
+    type: boolean
+    displayName: 'Disable the backend configuration when init'
+    default: false
+
+steps:
+  - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
+      - script: 'terraform init -backend=false'
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_Init
+        workingDirectory: ${{ parameters.WorkingDirectory }}
+
+  - ${{ else }}:
+      - task: TerraformTask@5
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_${{ parameters.Command }}
+```
+
+Care was taken to keep displayName and name values consistent for consumers.
+
 Example job using the unified template:
 
 ```yaml
