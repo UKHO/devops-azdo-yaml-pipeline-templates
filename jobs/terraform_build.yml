@@ -17,13 +17,14 @@
 jobs:
   - job: TerraformBuild
     variables:
-      TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+      TargetPath: $(Pipeline.Workspace)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Terraform Build"
     steps:
       - checkout: self
         displayName: "Checkout self repository"
+        path: $(Pipeline.Workspace)
 
       - template: ../tasks/terraform_installer.yml
         parameters:
@@ -40,10 +41,11 @@ jobs:
           Command: validate
           WorkingDirectory: ${{ variables.TargetPath }}
 
-      #- checkout: self
-      #  displayName: "Clean the directory post validation"
-      #  clean: true
-#
+      - checkout: self
+        displayName: "Clean the directory post validation"
+        clean: true
+        path: $(Pipeline.Workspace)
+
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: ${{ variables.TargetPath }}
