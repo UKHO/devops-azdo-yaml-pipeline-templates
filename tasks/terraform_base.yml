@@ -49,7 +49,7 @@ parameters:
   - name: WorkingDirectory
     type: string
     displayName: 'Working directory for Terraform files'
-    default: '$(System.DefaultWorkingDirectory)'
+    default: '$(Pipeline.Workspace)'
 
   # Command Options
   - name: CommandOptions
