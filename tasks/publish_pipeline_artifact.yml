@@ -16,7 +16,7 @@ parameters:
 
   - name: PublishLocation
     type: string
-    values: [pipeline, container]
+    values: [ pipeline, container ]
     default: 'pipeline'
     displayName: 'Artifact publish location'
 
