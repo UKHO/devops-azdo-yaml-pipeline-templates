@@ -36,7 +36,7 @@ parameters:
 steps:
   - ${{ if eq(parameters.DisableBackend, true) }}:
     - script: |
-        terraform init backend=false
+        terraform init -backend=false
   - ${{ else }}:
     - template: terraform_base.yml
       parameters:
