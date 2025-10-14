@@ -1,4 +1,4 @@
-﻿resources:
+resources:
   repositories:
     - repository: PipelineTemplates
       type: github
