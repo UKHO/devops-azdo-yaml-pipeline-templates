@@ -105,7 +105,7 @@ parameters:
 
   - name: BackendAzureStorageAccountResourceGroupName
     type: string
-    displayName: 'Azure resource group name for storage account'
+    displayName: 'Azure resource group name for backend'
     default: ''
 
   - name: DisableBackend
