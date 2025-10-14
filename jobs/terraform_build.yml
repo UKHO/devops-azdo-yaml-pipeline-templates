@@ -29,11 +29,16 @@ jobs:
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
 
-      - template: ../tasks/terraform_init.yml
+      - template: ../tasks/terraform.yml
         parameters:
+          Command: init
           DisableBackend: true
+          WorkingDirectory: ${{ variables.TargetPath }}
 
-      - template: ../tasks/terraform_validate.yml
+      - template: ../tasks/terraform.yml
+        parameters:
+          Command: validate
+          WorkingDirectory: ${{ variables.TargetPath }}
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:

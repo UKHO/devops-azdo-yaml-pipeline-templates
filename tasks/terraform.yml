@@ -115,6 +115,11 @@ parameters:
     displayName: 'Azure resource group name for storage account'
     default: ''
 
+  - name: DisableBackend
+    type: boolean
+    displayName: 'Disable the backend configuration when init'
+    default: false
+
   # Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
     type: string
@@ -122,51 +127,58 @@ parameters:
     default: ''
 
 steps:
-  - task: TerraformTask@5
-    displayName: 'Terraform ${{ parameters.Command }}'
-    name: TerraformTask_${{ parameters.Command }}
-    inputs:
-      # Core Configuration
-      provider: '${{ parameters.Provider }}'
-      command: '${{ parameters.Command }}'
-      ${{ if ne(parameters.WorkingDirectory, '') }}:
-        workingDirectory: '${{ parameters.WorkingDirectory }}'
+  - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
+      - script: 'terraform init -backend=false'
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_Init
+        workingDirectory: ${{ parameters.WorkingDirectory }}
 
-      # Command Options
-      ${{ if ne(parameters.CommandOptions, '') }}:
-        commandOptions: '${{ parameters.CommandOptions }}'
+  - ${{ else }}:
+      - task: TerraformTask@5
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_${{ parameters.Command }}
+        inputs:
+          # Core Configuration
+          provider: '${{ parameters.Provider }}'
+          command: '${{ parameters.Command }}'
+          ${{ if ne(parameters.WorkingDirectory, '') }}:
+            workingDirectory: '${{ parameters.WorkingDirectory }}'
 
-      ${{ if and(eq(parameters.Command, 'custom'), ne(parameters.CustomCommand, '')) }}:
-        customCommand: '${{ parameters.CustomCommand }}'
+          # Command Options
+          ${{ if ne(parameters.CommandOptions, '') }}:
+            commandOptions: '${{ parameters.CommandOptions }}'
 
-      # Output Configuration (show/output commands)
-      ${{ if and(or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')), ne(parameters.OutputTo, 'console')) }}:
-        outputTo: '${{ parameters.OutputTo }}'
+          ${{ if and(eq(parameters.Command, 'custom'), ne(parameters.CustomCommand, '')) }}:
+            customCommand: '${{ parameters.CustomCommand }}'
 
-      ${{ if and(eq(parameters.OutputTo, 'file'), ne(parameters.OutputFileName, '')) }}:
-        fileName: '${{ parameters.OutputFileName }}'
+          # Output Configuration (show/output commands)
+          ${{ if and(or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')), ne(parameters.OutputTo, 'console')) }}:
+            outputTo: '${{ parameters.OutputTo }}'
 
-      ${{ if and(eq(parameters.Command, 'show'), ne(parameters.OutputFormat, 'default')) }}:
-        outputFormat: '${{ parameters.OutputFormat }}'
+          ${{ if and(eq(parameters.OutputTo, 'file'), ne(parameters.OutputFileName, '')) }}:
+            fileName: '${{ parameters.OutputFileName }}'
 
-      # Azure Backend Configuration (init command)
-      ${{ if and(eq(parameters.Command, 'init'), eq(parameters.Provider, 'azurerm')) }}:
-        ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
-          backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
+          ${{ if and(eq(parameters.Command, 'show'), ne(parameters.OutputFormat, 'default')) }}:
+            outputFormat: '${{ parameters.OutputFormat }}'
 
-        ${{ if ne(parameters.BackendAzureStorageAccountName, '') }}:
-          backendAzureRmStorageAccountName: '${{ parameters.BackendAzureStorageAccountName }}'
+          # Azure Backend Configuration (init command)
+          ${{ if and(eq(parameters.Command, 'init'), eq(parameters.Provider, 'azurerm')) }}:
+            ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
+              backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
 
-        ${{ if ne(parameters.BackendAzureContainerName, '') }}:
-          backendAzureRmContainerName: '${{ parameters.BackendAzureContainerName }}'
+            ${{ if ne(parameters.BackendAzureStorageAccountName, '') }}:
+              backendAzureRmStorageAccountName: '${{ parameters.BackendAzureStorageAccountName }}'
 
-        ${{ if ne(parameters.BackendAzureBlobName, '') }}:
-          backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
+            ${{ if ne(parameters.BackendAzureContainerName, '') }}:
+              backendAzureRmContainerName: '${{ parameters.BackendAzureContainerName }}'
 
-        ${{ if ne(parameters.BackendAzureStorageAccountResourceGroupName, '') }}:
-          backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
+            ${{ if ne(parameters.BackendAzureBlobName, '') }}:
+              backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
 
-      # Azure Provider Configuration (plan/apply/destroy commands)
-      ${{ if and(or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')), eq(parameters.Provider, 'azurerm')) }}:
-        ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
-          environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'
+            ${{ if ne(parameters.BackendAzureStorageAccountResourceGroupName, '') }}:
+              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
+
+          # Azure Provider Configuration (plan/apply/destroy commands)
+          ${{ if and(or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')), eq(parameters.Provider, 'azurerm')) }}:
+            ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
+              environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'

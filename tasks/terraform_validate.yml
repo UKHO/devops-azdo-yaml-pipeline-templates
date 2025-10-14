@@ -1,8 +1,0 @@
-﻿# Name: Terraform Validate
-# Purpose: Wrapper for validate command using the terraform base file
-# Azure DevOps Task: TerraformTask@5
-
-steps:
-  - template: terraform_base.yml
-    parameters:
-      Command: validate
