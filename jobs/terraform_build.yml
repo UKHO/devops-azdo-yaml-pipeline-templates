@@ -40,10 +40,10 @@ jobs:
           Command: validate
           WorkingDirectory: ${{ variables.TargetPath }}
 
-      - checkout: self
-        displayName: "Clean the directory post validation"
-        clean: true
-
+      #- checkout: self
+      #  displayName: "Clean the directory post validation"
+      #  clean: true
+#
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: ${{ variables.TargetPath }}
