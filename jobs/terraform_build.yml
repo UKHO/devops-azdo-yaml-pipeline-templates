@@ -14,6 +14,11 @@
     default: 'latest'
     displayName: "Version of Terraform CLI tool to use with the terraform files."
 
+  - name: PreBuildSteps
+    type: stepList
+    default: []
+    displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
+
 jobs:
   - job: TerraformBuild
     variables:
@@ -26,6 +31,9 @@ jobs:
       - checkout: self
         displayName: "Checkout self repository"
         path: ${{ variables.RepositoryCheckoutPath }}
+
+      - ${{ each step in parameters.PreBuildSteps }}:
+          - ${{ step }}
 
       - template: ../tasks/terraform_installer.yml
         parameters:
