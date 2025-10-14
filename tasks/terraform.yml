@@ -26,14 +26,6 @@
 # - TerraformTask does not support '-backend=false' without requiring the need of 'backendServiceArm' parameter, see 'DisableBackend' parameter usage
 
 parameters:
-  # Core Configuration
-  - name: Provider
-    type: string
-    displayName: 'Cloud provider to use'
-    default: 'azurerm'
-    values:
-      - azurerm
-
   - name: Command
     type: string
     displayName: 'Terraform command to execute'
@@ -113,12 +105,12 @@ parameters:
 
   - name: BackendAzureStorageAccountResourceGroupName
     type: string
-    displayName: 'Azure resource group name for storage account'
+    displayName: 'Azure resource group name for backend'
     default: ''
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Disable the backend configuration when init'
+    displayName: 'Disable the backend configuration when executing init command'
     default: false
 
   # Provider Environment Configuration (for plan/apply/destroy commands)
@@ -140,7 +132,7 @@ steps:
         name: TerraformTask_${{ parameters.Command }}
         inputs:
           # Core Configuration
-          provider: '${{ parameters.Provider }}'
+          provider: 'azurerm'
           command: '${{ parameters.Command }}'
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: '${{ parameters.WorkingDirectory }}'
