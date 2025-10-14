@@ -16,7 +16,7 @@ extends:
     TerraformVersion: 1.1.9
     PreBuildSteps:
       - pwsh: |
-          $path = "tests/pipelines/infrastructure_pipeline/terraform/main.tf"
+          $path = "devops-azdo-yaml-pipeline-templates/tests/pipelines/infrastructure_pipeline/terraform/main.tf"
           $content = Get-Content $path
           $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
           if ($terraformStart -ge 0) {
