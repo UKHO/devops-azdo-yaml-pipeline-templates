@@ -10,3 +10,4 @@
 
 - [How to Version](docs/how-to-version.md)
 - [Repository Structure](docs/repository-structure.md)
+- [Do not double wrap](docs/do-not-double-wrap.md)
