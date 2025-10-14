@@ -29,10 +29,6 @@ jobs:
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
 
-      - template: ../tasks/set_directory.yml
-        parameters:
-          TargetPath: ${{ variables.TargetPath }}
-
       - template: ../tasks/terraform_init.yml
         parameters:
           DisableBackend: true
