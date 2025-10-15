@@ -9,6 +9,7 @@
 Standardized wrapper for PublishPipelineArtifact@1 task that provides consistent artifact publishing functionality across pipelines. This task publishes build artifacts to Azure DevOps pipeline storage with support for parallel uploads and custom properties.
 
 **Hidden Functionality**:
+
 - Conditional parameter inclusion for optional properties
 - Consistent naming patterns across all artifact publishing scenarios
 - Automatic display name generation with artifact name
@@ -129,6 +130,7 @@ Properties: 'key1=value1;key2=value2;version=$(Build.BuildNumber)'
 ```
 
 Common property patterns:
+
 - Version information: `version=$(Build.BuildNumber)`
 - Environment targeting: `environment=production`
 - Build metadata: `buildType=release;platform=x64`
@@ -144,5 +146,6 @@ Common property patterns:
 ---
 
 **Related Documentation**:
+
 - [Terraform Build Job](../jobs/terraform_build.md) - Uses this task to publish terraform artifacts
 - [Azure DevOps Artifacts Documentation](https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/) - Official artifact documentation

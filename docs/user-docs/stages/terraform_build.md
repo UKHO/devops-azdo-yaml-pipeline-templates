@@ -9,6 +9,7 @@
 The Terraform Build stage template orchestrates the build process for Terraform configurations by coordinating the terraform_build job. This stage provides a single-stage wrapper that handles Terraform validation, initialization, and artifact publishing within a structured pipeline stage.
 
 **Hidden Functionality**:
+
 - Creates a dedicated "Build" stage for clear pipeline visualization
 - Passes through all parameters to the underlying terraform_build job
 - Provides stage-level coordination for Terraform build processes
@@ -115,6 +116,7 @@ stages:
 ### TerraformBuildInjectionSteps
 
 Custom steps executed within the terraform build job at two points in the workflow:
+
 1. Before terraform initialization and validation
 2. After workspace cleanup, before final artifact packaging
 
@@ -145,6 +147,7 @@ TerraformBuildInjectionSteps:
 ---
 
 **Related Documentation**:
+
 - [Terraform Build Job](../jobs/terraform_build.md) - The job template used by this stage
 - [Terraform Deploy Stage](terraform_deploy.md) - Companion deployment stage
 - [Infrastructure Pipeline](../pipelines/infrastructure_pipeline.md) - Complete pipeline using this stage

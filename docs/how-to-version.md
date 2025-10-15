@@ -94,11 +94,11 @@ git push origin v1.3.0
 Before merging:
 
 1. Is this change **breaking**?
-    - ✅ Yes → Bump MAJOR
+  - ✅ Yes → Bump MAJOR
 2. Does it **add functionality**?
-    - ✅ Yes → Bump MINOR
+  - ✅ Yes → Bump MINOR
 3. Is it a **bug fix or internal improvement**?
-    - ✅ Yes → Bump PATCH
+  - ✅ Yes → Bump PATCH
 4. Update the `CHANGELOG.md` accordingly.
 5. Apply a new Git tag after merge.
 
