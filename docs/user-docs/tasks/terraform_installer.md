@@ -9,6 +9,7 @@
 Standardized wrapper for TerraformInstaller@1 task with consistent parameter naming and version specification support. This task installs the specified version of Terraform CLI with snake_case parameter standardization and fail-fast error handling.
 
 **Hidden Functionality**:
+
 - Supports semantic versioning patterns (e.g., '1.11.x' for latest patch)
 - Handles version ranges (e.g., '>=1.10.0')
 - Provides consistent parameter naming across all terraform-related templates
@@ -102,5 +103,6 @@ TerraformVersion: '>=1.4.0'       # Minimum version
 ---
 
 **Related Documentation**:
+
 - [Terraform Task](terraform.md) - Uses terraform CLI installed by this task
 - [Terraform Build Job](../jobs/terraform_build.md) - Includes this task for CLI installation

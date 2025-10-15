@@ -9,6 +9,7 @@
 The Terraform Build job template provides a standardized workflow for building, validating, and packaging Terraform configurations as pipeline artifacts. This job performs terraform initialization, validation, and artifact publishing while supporting custom injection steps for additional build requirements.
 
 **Hidden Functionality**:
+
 - Performs `terraform validate` command to ensure Terraform files are syntactically correct
 - Executes injection steps twice: once before validation and again on clean code
 - Automatically handles workspace cleanup between validation and final packaging
@@ -93,6 +94,7 @@ jobs:
 ### TerraformBuildInjectionSteps
 
 Custom steps that are executed at two points in the job workflow:
+
 1. Before terraform initialization and validation
 2. After workspace cleanup, before final artifact packaging
 
@@ -124,5 +126,6 @@ TerraformBuildInjectionSteps:
 ---
 
 **Related Documentation**:
+
 - [Terraform Task](../tasks/terraform.md) - Core terraform command execution
 - [Terraform Deploy Stage](../stages/terraform_deploy.md) - Deployment workflows using this job

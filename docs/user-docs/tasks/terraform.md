@@ -9,6 +9,7 @@
 Standardized wrapper for TerraformTask@5 with Azure (azurerm) focus. This task provides comprehensive terraform command execution with conditional parameter validation, backend configuration support, and fail-fast error handling. Supports all major terraform commands with Azure-specific optimizations.
 
 **Hidden Functionality**:
+
 - Automatically handles `-backend=false` for init commands when DisableBackend is true
 - Provides conditional parameter validation based on command type
 - Azure-only provider support (other cloud providers excluded by design)
@@ -133,6 +134,7 @@ This template wraps the Microsoft TerraformTask@5 and has no template dependenci
 ### DisableBackend
 
 When set to `true` for init commands, automatically executes `terraform init -backend=false` instead of using the TerraformTask@5. This is useful for:
+
 - Validation-only scenarios
 - Local development
 - When backend configuration is not available
@@ -168,5 +170,6 @@ BackendAzureStorageAccountResourceGroupName: 'rg'    # Resource group containing
 ---
 
 **Related Documentation**:
+
 - [Terraform Build Job](../jobs/terraform_build.md) - Uses this task for validation and initialization
 - [Terraform Installer Task](terraform_installer.md) - Installs terraform before using this task

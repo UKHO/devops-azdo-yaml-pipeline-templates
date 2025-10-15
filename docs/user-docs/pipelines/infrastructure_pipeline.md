@@ -9,6 +9,7 @@
 The Infrastructure Pipeline template provides a complete CI pipeline for Terraform-based infrastructure code. This pipeline orchestrates the terraform build process with configurable agent pools and supports custom build injection steps for enhanced validation and preprocessing.
 
 **Hidden Functionality**:
+
 - Sets pipeline-level variables from parameters for downstream usage
 - Configures agent pool selection at the highest pipeline level
 - Provides a complete CI pipeline focused solely on build/validation (no deployment)
@@ -169,6 +170,7 @@ PipelinePool: 'Mare Nectaris'       # Default pool name
 ### TerraformBuildInjectionSteps
 
 Custom steps executed within the terraform build workflow. These steps run at two points:
+
 1. Before terraform initialization and validation
 2. After workspace cleanup, before final artifact packaging
 
@@ -214,6 +216,7 @@ The pipeline sets the following variables for use in downstream templates:
 ---
 
 **Related Documentation**:
+
 - [Terraform Build Stage](../stages/terraform_build.md) - The stage template used by this pipeline
 - [Terraform Build Job](../jobs/terraform_build.md) - The underlying job implementation
 - [Azure DevOps Extends Templates](https://docs.microsoft.com/en-us/azure/devops/pipelines/security/templates) - Template extension documentation
