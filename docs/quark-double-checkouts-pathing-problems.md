@@ -25,19 +25,19 @@ To avoid pathing issues:
   - job: TerraformBuild
     variables:
       RepositoryCheckoutPath: $(Build.Repository.Name)
-      TerraformWorkingDirectory: $(Pipeline.Workspace)/${{ variables.RepositoryCheckoutPath }}/${{ parameters.RelativePathToTerraformFiles }}
+      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Terraform Build"
     steps:
       - checkout: self
         displayName: "Checkout self repository"
-        path: ${{ variables.RepositoryCheckoutPath }}
+        path: $(RepositoryCheckoutPath)
 
       # ... terraform tasks ...
 
       - checkout: self
         displayName: "Clean the directory post validation"
         clean: true
-        path: ${{ variables.RepositoryCheckoutPath }}
+        path: $(RepositoryCheckoutPath)
 ```
