@@ -16,26 +16,31 @@ Sync Impact Report:
 ## Core Principles
 
 ### I. Template Hierarchy (NON-NEGOTIABLE)
+
 Templates MUST follow the four-tier hierarchy: Pipeline → Stage → Job → Task. Each tier has distinct responsibilities: Pipelines orchestrate stages across environments, Stages coordinate jobs with proper sequencing, Jobs organize tasks and handle OS-specific concerns, Tasks wrap Microsoft tasks for consistent functionality across versions. No tier may bypass its designated responsibility or directly invoke elements from non-adjacent tiers.
 
 **Rationale**: This separation ensures maintainability, reusability, and clear responsibility boundaries that consumers can depend on.
 
 ### II. Backward Compatibility First
+
 All changes MUST preserve existing consumer functionality unless explicitly marked as MAJOR version breaking changes. New features MUST be optional with safe defaults that maintain current behavior. Parameter removal, renaming, or default value changes require MAJOR version increment per semantic versioning rules defined in `docs/how-to-version.md`.
 
 **Rationale**: Consumers expect template stability and rare breaking changes to maintain their CI/CD pipeline reliability.
 
-### III. Self-Documenting Templates  
+### III. Self-Documenting Templates
+
 Every template MUST include comprehensive inline documentation with descriptive parameter displayNames, purpose comments, and usage examples. All parameters MUST have clear descriptions explaining their impact. Template files serve as primary documentation source alongside `docs/user-docs/` for high-level guidance.
 
 **Rationale**: Templates must be immediately understandable without external documentation dependencies.
 
 ### IV. Semantic Versioning Compliance
+
 All changes MUST follow Semantic Versioning 2.0.0 with strict adherence to MAJOR (breaking), MINOR (additive), PATCH (fixes) classifications. Version bumps MUST be validated against `docs/how-to-version.md` guidelines. Git tags are mandatory for all releases from main branch only.
 
 **Rationale**: Predictable versioning enables consumers to safely upgrade and plan for breaking changes.
 
 ### V. Test-Driven Development
+
 All template changes MUST include corresponding test cases in `tests/` directory. New templates require both positive and negative test scenarios. Template modifications require regression testing to verify no unintended behavior changes. Tests must validate template functionality across supported scenarios.
 
 **Rationale**: Template reliability is critical for consumer CI/CD pipeline success and organizational trust.
