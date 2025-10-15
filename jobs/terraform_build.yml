@@ -23,14 +23,14 @@ jobs:
   - job: TerraformBuild
     variables:
       RepositoryCheckoutPath: $(Build.Repository.Name)
-      TerraformWorkingDirectory: $(Pipeline.Workspace)/${{ variables.RepositoryCheckoutPath }}/${{ parameters.RelativePathToTerraformFiles }}
+      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     displayName: "Terraform Build"
     steps:
       - checkout: self
         displayName: "Checkout self repository"
-        path: ${{ variables.RepositoryCheckoutPath }}
+        path: $(RepositoryCheckoutPath)
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
@@ -43,17 +43,17 @@ jobs:
         parameters:
           Command: init
           DisableBackend: true
-          WorkingDirectory: ${{ variables.TerraformWorkingDirectory }}
+          WorkingDirectory: $(TerraformWorkingDirectory)
 
       - template: ../tasks/terraform.yml
         parameters:
           Command: validate
-          WorkingDirectory: ${{ variables.TerraformWorkingDirectory }}
+          WorkingDirectory: $(TerraformWorkingDirectory)
 
       - checkout: self
         displayName: "Clean the directory post validation"
         clean: true
-        path: ${{ variables.RepositoryCheckoutPath }}
+        path: $(RepositoryCheckoutPath)
 
       # Repeat TerraformBuildInjectionSteps on clean code
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
@@ -61,5 +61,5 @@ jobs:
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: ${{ variables.TerraformWorkingDirectory }}
+          TargetPath: $(TerraformWorkingDirectory)
           ArtifactName: ${{ parameters.ArtifactName }}

@@ -64,7 +64,7 @@ jobs:
       - template: ../tasks/terraform_validate.yml
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: ${{ variables.TargetPath }}
+          TargetPath: $(TargetPath)
           ArtifactName: ${{ parameters.ArtifactName }}
 ```
 
@@ -118,14 +118,14 @@ Example job using the unified template:
         parameters:
           Command: init
           DisableBackend: true
-          WorkingDirectory: ${{ variables.TargetPath }}
+          WorkingDirectory: $(TargetPath)
       - template: ../tasks/terraform.yml
         parameters:
           Command: validate
-          WorkingDirectory: ${{ variables.TargetPath }}
+          WorkingDirectory: $(TargetPath)
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: ${{ variables.TargetPath }}
+          TargetPath: $(TargetPath)
           ArtifactName: ${{ parameters.ArtifactName }}
 ```
 

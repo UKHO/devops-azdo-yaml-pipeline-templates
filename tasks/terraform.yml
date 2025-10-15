@@ -155,7 +155,7 @@ steps:
             outputFormat: '${{ parameters.OutputFormat }}'
 
           # Azure Backend Configuration (init command)
-          ${{ if and(eq(parameters.Command, 'init'), eq(parameters.Provider, 'azurerm')) }}:
+          ${{ if eq(parameters.Command, 'init') }}:
             ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
               backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
 
@@ -172,6 +172,6 @@ steps:
               backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
 
           # Azure Provider Configuration (plan/apply/destroy commands)
-          ${{ if and(or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')), eq(parameters.Provider, 'azurerm')) }}:
+          ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')) }}:
             ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
               environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'
