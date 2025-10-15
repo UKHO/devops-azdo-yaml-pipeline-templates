@@ -15,7 +15,7 @@
 
   - name: TerraformBuildInjectionSteps
     type: stepList
-    default: []
+    default: [ ]
     displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
 
 stages:
