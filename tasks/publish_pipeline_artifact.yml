@@ -6,7 +6,7 @@
 parameters:
   - name: ArtifactName
     type: string
-    default: 'drop'
+    default: 'Drop'
     displayName: 'Name of the artifact to publish'
 
   - name: TargetPath
