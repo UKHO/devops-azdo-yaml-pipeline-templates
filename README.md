@@ -15,8 +15,8 @@ Provide a **single source of truth** for standardised pipeline templates that:
 
 Documentation on the templates appears in two locations:
 
-- The templates themselves; time/effort has been invested to make sure that any parameters have correct displayNames and the file included a small comment section on the template itself
-- The [user docs](docs/user-docs/README.md); this provide highlevel documentation regarding the pipelines that are available.
+- The templates themselves: parameters include accurate display name values and a concise commented header;
+- The [user docs](docs/user-docs/README.md): these provide high-level documentation on the available pipelines.
 
 ## Contributing to the templates
 
