@@ -2,6 +2,7 @@
 # Purpose: Standardized wrapper for PublishPipelineArtifact@1 task
 # Underlying Task: PublishPipelineArtifact@1
 # Usage: Publish build artifacts to Azure DevOps pipeline
+# Notes: filepath publish location is not implement
 
 parameters:
   - name: ArtifactName
@@ -14,17 +15,6 @@ parameters:
     default: '$(Pipeline.Workspace)'
     displayName: 'Path to files or folder to publish'
 
-  - name: PublishLocation
-    type: string
-    values: [ pipeline, container ]
-    default: 'pipeline'
-    displayName: 'Artifact publish location'
-
-  - name: Parallel
-    type: boolean
-    default: false
-    displayName: 'Upload files in parallel'
-
   - name: Properties
     type: string
     default: ''
@@ -36,8 +26,7 @@ steps:
     inputs:
       artifact: ${{ parameters.ArtifactName }}
       targetPath: ${{ parameters.TargetPath }}
-      publishLocation: ${{ parameters.PublishLocation }}
-      parallel: ${{ parameters.Parallel }}
+      publishLocation: 'pipeline'
 
       # Optional parameters with conditional inclusion
       ${{ if ne(parameters.Properties, '') }}:
