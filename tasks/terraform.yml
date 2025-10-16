@@ -1,29 +1,35 @@
-﻿# Name: Terraform Base
-# Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
-# Azure DevOps Task: TerraformTask@5
-#
-# Features:
-# - Single-cloud provider supported (Azure)
-# - Conditional parameter validation
-# - Comprehensive backend configuration support
-# - Command-specific parameter handling
-# - Fail-fast error handling
+﻿# Terraform Task Template
+# 
+# Wraps: TerraformTask@5 (Azure DevOps Terraform extension)
+# Purpose: Standardized wrapper for Terraform operations with Azure focus
 #
 # Usage Examples:
-# - Init: command: 'init'
-# - Plan: command: 'plan', command_options: '-out tfplan'
-# - Apply: command: 'apply', command_options: 'tfplan'
-# - Custom: command: 'custom', custom_command: 'workspace list'
+#   - template: ../tasks/terraform.yml
+#     parameters:
+#       Command: 'init'
+#       DisableBackend: true
+#       WorkingDirectory: '$(Build.SourcesDirectory)/terraform'
 #
-# Notes
-# - Other cloud providers have been excluded.
-# - Following azurerm parameters not included:
-#   - backendAzureRmOverrideSubscriptionID
-#   - backendAzureRmUseIdTokenGeneration
-#   - backendAzureRmUseCliFlagsForAuthentication
-#   - environmentAzureRmOverrideSubscriptionID
-#   - environmentAzureRmUseIdTokenGeneration
-# - TerraformTask does not support '-backend=false' without requiring the need of 'backendServiceArm' parameter, see 'DisableBackend' parameter usage
+#   - template: ../tasks/terraform.yml  
+#     parameters:
+#       Command: 'plan'
+#       CommandOptions: '-out=tfplan'
+#       EnvironmentAzureServiceConnection: 'Azure-ServiceConnection'
+#
+#   - template: ../tasks/terraform.yml
+#     parameters:
+#       Command: 'apply' 
+#       CommandOptions: 'tfplan'
+#       EnvironmentAzureServiceConnection: 'Azure-ServiceConnection'
+#
+# Known Issues:
+# - Only Azure (azurerm) provider is implemented as the organization primarily uses Azure
+# - The init command doesn't work with '-backend=false' flag using the TerraformTask@5,
+#   therefore when DisableBackend=true, a script task is used instead of TerraformTask@5
+# - Some advanced azurerm parameters are excluded for simplicity:
+#   backendAzureRmOverrideSubscriptionID, backendAzureRmUseIdTokenGeneration,
+#   backendAzureRmUseCliFlagsForAuthentication, environmentAzureRmOverrideSubscriptionID,
+#   environmentAzureRmUseIdTokenGeneration
 
 parameters:
   - name: Command

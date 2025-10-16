@@ -1,4 +1,9 @@
-﻿parameters:
+﻿# Terraform Build Stage Template
+#
+# Purpose: Orchestrates Terraform build process through a single build stage containing validation and artifact creation
+# Features: Parameter pass-through to job template, single-stage build workflow
+#
+parameters:
   - name: ArtifactName
     type: string
     default: 'TerraformArtifact'

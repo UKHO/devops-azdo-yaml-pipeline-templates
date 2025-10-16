@@ -1,4 +1,9 @@
-﻿parameters:
+﻿# Infrastructure Pipeline Template
+#
+# Purpose: Complete CI pipeline for Terraform infrastructure validation and artifact creation
+# Features: Configurable agent pools, Terraform validation workflow, artifact publishing
+#
+parameters:
   - name: PipelinePool
     type: string
     default: "Mare Nectaris"

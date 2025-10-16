@@ -1,7 +1,28 @@
-﻿# Template: Utility - Publish Pipeline Artifact
-# Purpose: Standardized wrapper for PublishPipelineArtifact@1 task
-# Underlying Task: PublishPipelineArtifact@1
-# Usage: Publish build artifacts to Azure DevOps pipeline
+﻿# Publish Pipeline Artifact Task Template
+#
+# Wraps: PublishPipelineArtifact@1 (Built-in Azure DevOps task)
+# Purpose: Publishes build artifacts to Azure DevOps pipeline storage with consistent parameter handling
+#
+# Usage Examples:
+#   - template: ../tasks/publish_pipeline_artifact.yml
+#     parameters:
+#       ArtifactName: 'terraform-files'
+#       TargetPath: '$(Build.SourcesDirectory)/terraform'
+#
+#   - template: ../tasks/publish_pipeline_artifact.yml
+#     parameters:
+#       ArtifactName: 'build-output'
+#       TargetPath: '$(Build.ArtifactStagingDirectory)'
+#       Parallel: true
+#
+#   - template: ../tasks/publish_pipeline_artifact.yml
+#     parameters:
+#       ArtifactName: 'container-artifact'
+#       TargetPath: './dist'
+#       PublishLocation: 'container'
+#
+# Known Issues:
+# - None known - this is a standard Azure DevOps built-in task wrapper
 
 parameters:
   - name: ArtifactName

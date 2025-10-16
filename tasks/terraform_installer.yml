@@ -1,18 +1,25 @@
-﻿# Tool Category: Terraform CLI Installer Wrapper
-# Purpose: Standardised wrapper for TerraformInstaller@1 task with consistent parameter naming
-# Azure DevOps Task: TerraformInstaller@1 (Microsoft DevLabs Custom Terraform Tasks)
-# Extension: ms-devlabs.custom-terraform-tasks
+﻿# Terraform Installer Task Template
 #
-# Features:
-# - Snake_case parameter standardization
-# - Version specification with latest support
-# - Conditional parameter validation
-# - Fail-fast error handling
+# Wraps: TerraformInstaller@1 (Microsoft DevLabs Custom Terraform Tasks)
+# Extension: ms-devlabs.custom-terraform-tasks
+# Purpose: Installs specified version of Terraform CLI with consistent parameter naming
 #
 # Usage Examples:
-# - Latest: terraform_version: 'latest'
-# - Specific: terraform_version: '1.11.3'
-# - Semantic: terraform_version: '1.11.x'
+#   - template: ../tasks/terraform_installer.yml
+#     parameters:
+#       TerraformVersion: 'latest'
+#
+#   - template: ../tasks/terraform_installer.yml  
+#     parameters:
+#       TerraformVersion: '1.5.0'
+#
+#   - template: ../tasks/terraform_installer.yml
+#     parameters:
+#       TerraformVersion: '1.5.x'  # Latest patch in 1.5 series
+#
+# Known Issues:
+# - Requires the ms-devlabs.custom-terraform-tasks extension to be installed in Azure DevOps
+# - Version ranges (e.g., '>=1.10.0') support may vary by extension version
 
 parameters:
   - name: TerraformVersion

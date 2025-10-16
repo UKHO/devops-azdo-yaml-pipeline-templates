@@ -1,4 +1,9 @@
-﻿parameters:
+﻿# Terraform Build Job Template
+# 
+# Purpose: Executes Terraform validation and builds artifact containing validated Terraform files
+# Features: Clean workspace policy, injection step support, comprehensive validation workflow
+#
+parameters:
   - name: ArtifactName
     type: string
     default: 'TerraformArtifact'
