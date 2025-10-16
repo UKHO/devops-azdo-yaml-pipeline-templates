@@ -1,6 +1,6 @@
 # Infrastructure Pipeline
 
-A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardized approach for Terraform-based infrastructure deployments with built-in validation and artefact publishing capabilities.
+A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardized approach for Terraform-based infrastructure deployments with built-in validation and artifact publishing capabilities.
 
 # Important Notices
 
@@ -56,7 +56,7 @@ extends:
 
 This parameter allows you to inject custom steps that will be executed twice during the pipeline:
 1. Before Terraform initialisation and validation
-2. After workspace clean-up on clean code (before artefact publishing)
+2. After workspace clean-up on clean code (before artifact publishing)
 
 Common use cases include:
 - File transformations or substitutions
@@ -160,15 +160,15 @@ stages:
 3. **Terraform Installation**: Installs the specified version of Terraform CLI
 4. **Terraform Init**: Initialises Terraform with backend disabled (`-backend=false`)
 5. **Terraform Validate**: Validates the Terraform configuration files
-6. **Workspace Clean-up**: Performs a clean checkout to ensure artefact purity
+6. **Workspace Clean-up**: Performs a clean checkout to ensure artifact purity
 7. **Injection Steps (Second Run)**: Re-executes injection steps on clean code
-8. **Artefact Publishing**: Publishes the Terraform files as a pipeline artefact named "TerraformArtifact"
+8. **artifact Publishing**: Publishes the Terraform files as a pipeline artifact named "TerraformArtifact"
 
 ## Notes
 
-- The pipeline produces a single artefact named "TerraformArtifact" containing all Terraform files from the specified path
-- Injection steps are executed twice to ensure both validation accuracy and artefact completeness
+- The pipeline produces a single artifact named "TerraformArtifact" containing all Terraform files from the specified path
+- Injection steps are executed twice to ensure both validation accuracy and artifact completeness
 - The pipeline does not perform Terraform deployment - it focuses solely on validation and packaging
-- Consider using this pipeline in conjunction with deployment pipelines that consume the published artefact
+- Consider using this pipeline in conjunction with deployment pipelines that consume the published artifact
 - Terraform state management should be handled in downstream deployment processes
 - The pipeline supports any Terraform version through the `TerraformVersion` parameter
