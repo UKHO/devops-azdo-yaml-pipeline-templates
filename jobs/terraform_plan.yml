@@ -1,0 +1,128 @@
+﻿parameters:
+  - name: JobName
+    type: string
+    default: TerraformPlan
+    displayName: ''
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: ''
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: ''
+
+# core parameters
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment.'
+
+  - name: AzDOEnvironment
+    type: string
+    displayName: ''
+
+# terraform core parameters
+  - name: AzDOEnvironmentServiceConnection
+    type: string
+    displayName: 'Azure service connection for the azdo environment'
+    default: ''
+
+# terraform installer task parameters
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files.'
+
+# terraform init task parameters
+  - name: BackendAzureStorageAccountName
+    type: string
+    displayName: 'Azure storage account name for backend'
+    default: ''
+
+  - name: BackendAzureContainerName
+    type: string
+    displayName: 'Azure storage container name for backend'
+    default: ''
+
+  - name: BackendAzureBlobName
+    type: string
+    displayName: 'Azure storage blob name for state file'
+    default: ''
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    displayName: 'Azure resource group name for backend'
+    default: ''
+
+  # Key Vault Parameters
+  - name: KeyVaultServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure Subscription'
+
+  - name: KeyVaultName
+    type: string
+    default: ''
+    displayName: 'Key Vault'
+
+  - name: KeyVaultSecretsFilter
+    type: string
+    default: '*'
+    displayName: 'Secrets Filter'
+
+jobs:
+  - deployment: ${{ parameters.JobName }}
+    displayName: 'Terraform Plan'
+    environment: ${{ parameters.AzDOEnvironment }}
+    condition: ${{ parameters.DependsOn }}
+    dependsOn: ${{ parameters.DependsOn }}
+    workspace:
+      clean: all
+    variables:
+      - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}
+      - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
+          - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
+              - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
+          - ${{ else }}:
+              - name: ${{ JobVariableMapping.Key }}
+                value: ${{ JobVariableMapping.Value }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: ../tasks/download_pipeline_artifact.yml
+              parameters:
+                ArtifactName: ${{ parameters.ArtifactName }}
+
+            - template: ../tasks/terraform_installer.yml
+              parameters:
+                TerraformVersion: ${{ parameters.TerraformVersion }}
+
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: init
+                BackendAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+                BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+                BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+                BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+                WorkingDirectory: $(TerraformWorkingDirectory)
+
+          # Terraform Workspace
+
+          # Terraform Validate
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: validate
+                WorkingDirectory: $(TerraformWorkingDirectory)
+
+          # Terraform Plan
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: plan
+                EnvironmentAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                WorkingDirectory: $(TerraformWorkingDirectory)
