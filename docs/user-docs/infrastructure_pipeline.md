@@ -4,7 +4,7 @@ A complete infrastructure deployment pipeline template using Terraform for build
 
 # Important Notices
 
-⚠️ **Terraform Backend Configuration**: This pipeline initialises Terraform with `-backend=false` to avoid backend configuration during the build phase. Ensure your deployment process handles backend configuration appropriately.
+⚠️ **Terraform Backend Configuration**: This pipeline initialises Terraform with `-backend=false` to avoid backend configuration during the build phase.
 
 ⚠️ **Clean Workspace Policy**: The pipeline performs a complete workspace clean-up after validation to ensure artifact purity. Any injection steps will be re-executed on clean code.
 
@@ -86,6 +86,10 @@ TerraformBuildInjectionSteps:
 
 ## Advanced Usage
 
+Listed below are possible advanced usages.
+
+_If you have any advance usages, please consider contributing them to the documentation._
+
 ### Custom Agent Pool
 
 ```yaml
@@ -97,60 +101,26 @@ extends:
     TerraformVersion: '1.6.0'
 ```
 
-### Complex Injection Steps with File Operations
+### Injection Step to add required_version
 
 ```yaml
 extends:
-  template: pipelines/infrastructure_pipeline.yml@templates
+  template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: 'terraform/environments/prod'
+    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
+    PipelinePool: "Mare Nubium"
+    TerraformVersion: 1.1.9
     TerraformBuildInjectionSteps:
-      - task: PowerShell@2
-        displayName: 'Setup environment variables'
-        inputs:
-          targetType: 'inline'
-          script: |
-            $env:TF_VAR_environment = "production"
-            $env:TF_VAR_region = "$(Azure.Region)"
-
-      - task: FileTransform@1
-        displayName: 'Transform terraform.tfvars'
-        inputs:
-          folderPath: '$(Build.SourcesDirectory)/terraform/environments/prod'
-          fileType: 'json'
-          targetFiles: 'terraform.tfvars.json'
-
-      - task: AzureCLI@2
-        displayName: 'Generate backend configuration'
-        inputs:
-          azureSubscription: 'prod-service-connection'
-          scriptType: 'bash'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            # Create backend.tf with storage account details
-            cat > backend.tf << EOF
-            terraform {
-              backend "azurerm" {
-                storage_account_name = "$(StorageAccountName)"
-                container_name       = "terraform-state"
-                key                 = "prod.terraform.tfstate"
-              }
-            }
-            EOF
-```
-
-### Multi-Environment Setup
-
-```yaml
-# For multiple environments, you might use this pattern:
-stages:
-  - template: pipelines/infrastructure_pipeline.yml@templates
-    parameters:
-      RelativePathToTerraformFiles: 'terraform/environments/dev'
-      TerraformVersion: '1.5.0'
-      TerraformBuildInjectionSteps:
-        - script: echo "Setting up dev environment"
-          displayName: 'Dev setup'
+      - pwsh: |
+          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/tests/pipelines/infrastructure_pipeline/terraform/main.tf"
+          $content = Get-Content $path
+          $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
+          if ($terraformStart -ge 0) {
+            $insertIndex = $terraformStart + 1
+            $content = $content[0..($insertIndex-1)] + '  required_version = "1.1.9"' + $content[$insertIndex..($content.Count-1)]
+            Set-Content $path $content
+          }
+        displayName: "Injecting into terraform block 'required_version'"
 ```
 
 ### Pipeline Flow
