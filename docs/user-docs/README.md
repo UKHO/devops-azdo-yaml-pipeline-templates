@@ -1,39 +1,23 @@
 ﻿# Azure DevOps YAML Pipeline Templates - User Documentation
 
-This directory contains comprehensive documentation for all Azure DevOps YAML pipeline templates in this repository.
+This directory contains comprehensive documentation for Azure DevOps YAML pipeline templates in this repository.
 
-## Template Categories
-
-### 📋 Pipelines
+## 📋 Pipeline Templates
 
 Complete end-to-end pipeline templates for specific use cases.
 
-- **[Infrastructure Pipeline](./pipelines/infrastructure_pipeline.md)** - Complete infrastructure deployment pipeline using Terraform
-
-### 🏗️ Stages
-
-Reusable stage templates for common deployment patterns.
-
-- **[Terraform Build Stage](./stages/terraform_build.md)** - Build and validate Terraform configuration
-
-### 💼 Jobs
-
-Individual job templates for specific tasks.
-
-- **[Terraform Build Job](./jobs/terraform_build.md)** - Build Terraform configuration within a stage
-
-### ⚙️ Tasks
-
-Task templates for individual operations.
-
-- **[Terraform Task](./tasks/terraform.md)** - Core Terraform operations (plan, apply, destroy)
-- **[Terraform Installer Task](./tasks/terraform_installer.md)** - Install and configure Terraform
-- **[Publish Pipeline Artifact Task](./tasks/publish_pipeline_artifact.md)** - Publish build artifacts to pipeline
+- **[Infrastructure Pipeline](./infrastructure_pipeline.md)** - Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files
 
 ## Getting Help
 
-### Template Issues
+- Check the **Important Notices** section in each pipeline template's documentation for critical implementation details
+- Review the **Basic Usage** section for quick implementation examples
+- Consult the **Full Parameter Table** for complete configuration options
+- Examine **Advanced Usage** examples for complex scenarios
 
-- Check the **Dependencies** section in each template's documentation
-- Verify all required parameters are provided
-- Review the **Usage Examples** for proper syntax
+## Template Self-Documentation
+
+Tasks, jobs, and stages templates in this repository are self-documenting through:
+- Descriptive names and `displayName` properties
+- Comprehensive parameter metadata (types, defaults, descriptions)
+- Inline comment blocks explaining purpose and usage
