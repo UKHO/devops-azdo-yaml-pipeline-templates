@@ -1,0 +1,135 @@
+﻿# Terraform Deploy Stage Template
+#
+# Purpose: Deploys Terraform infrastructure using downloaded artifacts with Azure backend configuration
+# Features: Full deployment workflow with init and apply commands, Azure-specific backend configuration
+#
+parameters:
+  - name: AzDOEnvironmentServiceConnection
+    type: string
+    displayName: 'Azure service connection for terraform backend and environment deployment'
+
+  - name: AzDOEnvironmentName
+    type: string
+    displayName: ''
+
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name of the artifact containing Terraform files'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: ''
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: ''
+
+  - name: TerraformJobVariableMappings
+    type: object
+    default: { }
+    displayName: ''
+
+  # terraform init task parameters
+  - name: BackendAzureStorageAccountName
+    type: string
+    default: ''
+    displayName: 'Azure storage account name for backend'
+
+  - name: BackendAzureContainerName
+    type: string
+    default: ''
+    displayName: 'Azure storage container name for backend'
+
+  - name: BackendAzureBlobName
+    type: string
+    default: ''
+    displayName: 'Azure storage blob name for state file'
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend'
+
+  # Key Vault Parameters
+  - name: KeyVaultServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure Subscription'
+
+  - name: KeyVaultName
+    type: string
+    default: ''
+    displayName: 'Key Vault'
+
+  - name: KeyVaultSecretsFilter
+    type: string
+    default: '*'
+    displayName: 'Secrets Filter'
+
+  - name: RunMode
+    type: string
+    default: RunMode
+    displayName: ''
+    values:
+      - VerifyOnDestroy
+      - VerifyOnAny
+      - VerifyDisabled
+      - PlanOnly
+
+  - name: TerraformVariableMappings
+    type: object
+    default: { }
+    displayName: ''
+
+stages:
+  - stage: Deploy
+    displayName: 'Terraform Deploy'
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
+    variables:
+      TerraformPlanJobName: TerraformPlan
+      ManualVerificationJobName: ManualVerification
+      TerraformApplyJobName: TerraformApply
+
+    jobs:
+      - template: ../jobs/terraform_plan.yml
+        parameters:
+          JobName: ${{ variables.TerraformPlanJobName }}
+          AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+          JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
+          AzDOEnvironmentServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+          BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+          BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+          BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+          BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+          KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+          KeyVaultName: ${{ parameters.KeyVaultName }}
+          KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+
+      - ${{ if ne(parameters.RunMode, 'PlanOnly') }}:
+          - template: ../jobs/manual_verification.yml
+            parameters:
+              JobName: ${{ variables.ManualVerificationJobName }}
+              DependsOn: ${{ variables.TerraformPlanJobName }}
+              Condition: and(succeeded(), eq(dependencies.${{ variables.ManualVerificationJobName }}.outputs['${{ variables.ManualVerificationJobName }}.plan.needsManualVerification'], 'true'))
+
+          - template: ../jobs/terraform_apply.yml
+            parameters:
+              JobName: ${{ variables.TerraformApplyJobName }}
+              DependsOn:
+                - ${{ variables.ManualVerificationJobName }}
+                - ${{ variables.TerraformPlanJobName }}
+              Condition: or(succeeded(${{ variables.ManualVerificationJobName }}), and(succeeded(${{ variables.TerraformPlanJobName }}), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.needsManualVerification'], 'false')))
+              AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+              JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
+              AzDOEnvironmentServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+              BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+              BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+              BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+              BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+              KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+              KeyVaultName: ${{ parameters.KeyVaultName }}
+              KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
