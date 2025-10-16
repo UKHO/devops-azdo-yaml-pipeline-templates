@@ -7,21 +7,21 @@
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
-    displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
+    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.'
 
   - name: TerraformVersion
     type: string
     default: 'latest'
-    displayName: "Version of Terraform CLI tool to use with the terraform files."
+    displayName: 'Version of Terraform CLI tool to use with the terraform files.'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: [ ]
-    displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
+    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged.'
 
 jobs:
   - job: TerraformBuild
-    displayName: "Terraform Build"
+    displayName: 'Terraform Build'
     variables:
       RepositoryCheckoutPath: $(Build.Repository.Name)
       TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
@@ -29,7 +29,7 @@ jobs:
       clean: all
     steps:
       - checkout: self
-        displayName: "Checkout self repository"
+        displayName: 'Checkout self repository'
         path: $(RepositoryCheckoutPath)
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
@@ -54,7 +54,7 @@ jobs:
           WorkingDirectory: $(TerraformWorkingDirectory)
 
       - checkout: self
-        displayName: "Clean the directory post validation"
+        displayName: 'Clean the directory post validation'
         clean: true
         path: $(RepositoryCheckoutPath)
 
