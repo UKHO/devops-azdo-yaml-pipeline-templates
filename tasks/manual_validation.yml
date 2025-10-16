@@ -1,0 +1,91 @@
+﻿# Template: Deploy - Manual Validation
+# Purpose: Standardized wrapper for ManualValidation@1 task with comprehensive parameter support
+# Azure DevOps Task: ManualValidation@1
+# Documentation: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/manual-validation-v1
+#
+# Usage Examples:
+# - Basic validation: NotifyUsers: 'admin@company.com', Instructions: 'Review deployment'
+# - Group notification: NotifyUsers: '[CompanyName]\DeploymentTeam'
+# - Specific approvers: NotifyUsers: 'team@company.com', Approvers: 'manager@company.com,lead@company.com'
+# - Auto-resume: NotifyUsers: 'team@company.com', OnTimeout: 'resume', TimeoutInMinutes: 1440
+# - No self-approval: AllowApproversToApproveTheirOwnRuns: false
+# - No notification (testing): NotifyUsers: '', Instructions: 'Test validation step'
+#
+# Requirements:
+# - YAML pipeline only (not supported in Classic pipelines)
+# - Must run in agentless/server job (pool: server)
+# - Default: Users with "Queue builds" permission can approve/reject
+# - Optional: Specific approvers can be designated for tighter control
+
+parameters:
+  # Notification Configuration
+  - name: NotifyUsers
+    type: string
+    displayName: 'Users or groups to notify via email (required, use empty string for no notifications)'
+
+  - name: Approvers
+    type: string
+    default: ''
+    displayName: 'Specific users/groups/teams who can approve (comma-separated, optional)'
+
+  - name: AllowApproversToApproveTheirOwnRuns
+    type: boolean
+    default: true
+    displayName: 'Allow approvers to approve their own pipeline runs'
+
+  - name: Instructions
+    type: string
+    default: ''
+    displayName: 'Instructions shown to users for manual validation decision'
+
+  # Timeout Behavior
+  - name: OnTimeout
+    type: string
+    values: [ reject, resume ]
+    default: 'reject'
+    displayName: 'Action to take when validation times out (reject or resume)'
+
+  - name: TimeoutInMinutes
+    type: number
+    default: 60  # 1 hour default
+    displayName: 'Timeout in minutes (max 30 days, job timeout must be higher)'
+
+  # Environment Context (for logging/tracking)
+  - name: Environment
+    type: string
+    default: ''
+    displayName: 'Environment context (e.g., Production, Staging) for logging purposes'
+
+  - name: ValidationContext
+    type: string
+    default: ''
+    displayName: 'Additional context about what is being validated'
+
+steps:
+  # Main Manual Validation Task
+  - task: ManualValidation@1
+    displayName: 'Manual Validation Required'
+    inputs:
+      notifyUsers: '${{ parameters.NotifyUsers }}'
+      ${{ if ne(parameters.Approvers, '') }}:
+        approvers: '${{ parameters.Approvers }}'
+      allowApproversToApproveTheirOwnRuns: ${{ parameters.AllowApproversToApproveTheirOwnRuns }}
+      ${{ if ne(parameters.Instructions, '') }}:
+        instructions: |
+          ${{ parameters.Instructions }}
+
+          === Pipeline Information ===
+          Pipeline: $(Build.DefinitionName) #$(Build.BuildNumber)
+          Branch: $(Build.SourceBranchName)
+          Requested by: $(Build.RequestedFor)
+          Build ID: $(Build.BuildId)
+          ${{ if ne(parameters.Environment, '') }}:
+          Environment: ${{ parameters.Environment }}
+          ${{ endif }}
+          ${{ if ne(parameters.ValidationContext, '') }}:
+          Context: ${{ parameters.ValidationContext }}
+          ${{ endif }}
+          ===========================
+
+          Please review the above information and choose to Resume or Reject this pipeline run.
+      onTimeout: '${{ parameters.OnTimeout }}'
