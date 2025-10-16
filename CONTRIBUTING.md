@@ -10,3 +10,5 @@
 
 - [How to Version](docs/how-to-version.md)
 - [Repository Structure](docs/repository-structure.md)
+- [Anti-pattern: Double-wrapping](docs/anti-pattern-double-wrapping.md)
+- [Quark: Double checkouts pathing problems](docs/quark-double-checkouts-pathing-problems.md)

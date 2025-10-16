@@ -6,15 +6,60 @@
 
   - name: RelativePathToTerraformFiles
     type: string
+    default: ''
     displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
 
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: "Version of Terraform CLI tool to use with the terraform files."
+
+  - name: TerraformBuildInjectionSteps
+    type: stepList
+    default: []
+    displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
+
 jobs:
-  - job: PublishTerraformArtifact
+  - job: TerraformBuild
+    variables:
+      RepositoryCheckoutPath: $(Build.Repository.Name)
+      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
-    displayName: "Publish Terraform Artifact"
+    displayName: "Terraform Build"
     steps:
+      - checkout: self
+        displayName: "Checkout self repository"
+        path: $(RepositoryCheckoutPath)
+
+      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
+          - ${{ step }}
+
+      - template: ../tasks/terraform_installer.yml
+        parameters:
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+
+      - template: ../tasks/terraform.yml
+        parameters:
+          Command: init
+          DisableBackend: true
+          WorkingDirectory: $(TerraformWorkingDirectory)
+
+      - template: ../tasks/terraform.yml
+        parameters:
+          Command: validate
+          WorkingDirectory: $(TerraformWorkingDirectory)
+
+      - checkout: self
+        displayName: "Clean the directory post validation"
+        clean: true
+        path: $(RepositoryCheckoutPath)
+
+      # Repeat TerraformBuildInjectionSteps on clean code
+      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
+          - ${{ step }}
+
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: $(Build.SourcesDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+          TargetPath: $(TerraformWorkingDirectory)
           ArtifactName: ${{ parameters.ArtifactName }}

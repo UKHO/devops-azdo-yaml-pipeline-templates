@@ -1,13 +1,24 @@
-﻿parameters:
+﻿# Template: Utility - Publish Pipeline Artifact
+# Purpose: Standardized wrapper for PublishPipelineArtifact@1 task
+# Underlying Task: PublishPipelineArtifact@1
+# Usage: Publish build artifacts to Azure DevOps pipeline
+# Notes: filepath publish location is not implemented
+
+parameters:
   - name: ArtifactName
     type: string
     default: 'Drop'
-    displayName: 'Artifact Name for Target Path to be saved as.'
+    displayName: 'Name of the artifact to publish'
 
   - name: TargetPath
     type: string
     default: '$(Pipeline.Workspace)'
-    displayName: 'Target Path to publish as artifact.'
+    displayName: 'Path to files or folder to publish'
+
+  - name: Properties
+    type: string
+    default: ''
+    displayName: 'Custom properties for the artifact'
 
 steps:
   - task: PublishPipelineArtifact@1
@@ -15,3 +26,8 @@ steps:
     inputs:
       artifact: ${{ parameters.ArtifactName }}
       targetPath: ${{ parameters.TargetPath }}
+      publishLocation: 'pipeline'
+
+      # Optional parameters with conditional inclusion
+      ${{ if ne(parameters.Properties, '') }}:
+        properties: ${{ parameters.Properties }}
