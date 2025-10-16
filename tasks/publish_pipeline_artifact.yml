@@ -22,7 +22,7 @@ parameters:
 
 steps:
   - task: PublishPipelineArtifact@1
-    displayName: "Publish Pipeline Artifact '${{ parameters.ArtifactName }}'"
+    displayName: 'Publish Pipeline Artifact: ${{ parameters.ArtifactName }}'
     inputs:
       artifact: ${{ parameters.ArtifactName }}
       targetPath: ${{ parameters.TargetPath }}
