@@ -2,7 +2,7 @@
 # Purpose: Standardized wrapper for PublishPipelineArtifact@1 task
 # Underlying Task: PublishPipelineArtifact@1
 # Usage: Publish build artifacts to Azure DevOps pipeline
-# Notes: filepath publish location is not implement
+# Notes: filepath publish location is not implemented
 
 parameters:
   - name: ArtifactName
