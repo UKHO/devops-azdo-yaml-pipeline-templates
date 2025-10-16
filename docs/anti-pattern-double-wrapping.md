@@ -85,7 +85,7 @@ parameters:
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Disable the backend configuration when init'
+    displayName: 'Disable the backend configuration during init'
     default: false
 
 steps:
