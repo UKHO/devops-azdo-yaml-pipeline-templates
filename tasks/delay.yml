@@ -1,0 +1,16 @@
+﻿# Delay Task Wrapper
+# Wraps Microsoft Azure DevOps Delay task for standardized CI/CD usage
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/delay
+
+parameters:
+  # Delay time in seconds
+  - name: delayForMinutes
+    displayName: 'Delay Time (minutes)'
+    type: number
+    default: 0
+
+steps:
+  - task: Delay@1
+    displayName: 'Delay for ${{ parameters.delayForMinutes }} minutes'
+    inputs:
+      delayForMinutes: ${{ parameters.delayForMinutes }}
