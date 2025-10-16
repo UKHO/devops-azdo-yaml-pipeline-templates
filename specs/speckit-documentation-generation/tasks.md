@@ -7,9 +7,9 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/speckit-documentation-generation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Approach**: AI agent reads existing YAML templates and generates comprehensive documentation directly without requiring PowerShell automation infrastructure or test files.
+**Approach**: Focus on pipeline template documentation with standardized layout structure. Make supporting templates (tasks, jobs, stages) self-documenting through improved YAML metadata and comment blocks.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story. Consider template hierarchy compliance (Pipeline/Stage/Job/Task tiers) when organizing tasks.
+**Organization**: Tasks are organized to first create pipeline documentation, then enhance template self-documentation to reduce overhead.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -19,35 +19,30 @@ description: "Task list template for feature implementation"
 
 ## Path Conventions
 
-Based on simplified approach - AI agent directly generates documentation:
+- **Pipeline Documentation**: `docs/user-docs/` for pipeline template documentation files
+- **Pipeline Templates**: `pipelines/` directory contains templates to document
+- **Supporting Templates**: `tasks/`, `jobs/`, `stages/` directories contain templates to make self-documenting
 
-- **Output**: `docs/user-docs/` for generated documentation files
-- **Templates**: Existing YAML templates in repository root (pipelines/, stages/, jobs/, tasks/)
-- **Analysis**: AI agent reads and analyzes templates directly
+## Phase 1: Pipeline Template Documentation
 
-## Phase 1: AI Agent Template Analysis
+**Purpose**: Create comprehensive documentation for pipeline templates following standardized layout
 
-**Purpose**: AI agent reads and analyzes existing YAML templates to understand structure and content
-
-- [x] T001 AI agent analyzes repository structure to identify all YAML templates (pipelines/, stages/, jobs/, tasks/)
-- [x] T002 [P] AI agent reads infrastructure_pipeline.yml to understand pipeline-level template structure and parameters
-- [x] T003 [P] AI agent reads terraform_build.yml stage templates to understand stage-level functionality
-- [x] T004 [P] AI agent reads terraform_build.yml job template to understand job-level operations
-- [x] T005 [P] AI agent reads terraform.yml, terraform_installer.yml, and publish_pipeline_artifact.yml task templates
+- [ ] T001 Analyze infrastructure_pipeline.yml to understand parameters, structure, and usage patterns
+- [ ] T002 Create infrastructure_pipeline.md with standardized layout structure (Name, Overview, Important Notices, Basic Usage, Full Usage, Notes)
+- [ ] T003 Update user-docs README.md to reference pipeline template documentation
 
 ---
 
-## Phase 2: Documentation Generation Foundation
+## Phase 2: Template Self-Documentation Enhancement
 
-**Purpose**: AI agent generates comprehensive documentation structure and content
+**Purpose**: Make supporting templates self-documenting to reduce documentation overhead
 
-**⚠️ CRITICAL**: Template analysis must be complete before documentation generation
-
-- [x] T006 Create docs/user-docs/ directory structure matching repository template organization
-- [x] T007 Generate infrastructure_pipeline.md documentation with complete parameter analysis and usage examples
-- [x] T008 Generate terraform_build.md (stage) documentation with dependency mapping to job template
-- [x] T009 [P] Generate terraform_build.md (job) documentation with detailed parameter breakdown
-- [x] T010 [P] Generate terraform.md task documentation with comprehensive parameter reference
+- [ ] T004 [P] Review and enhance terraform.yml task template with descriptive metadata and comment block
+- [ ] T005 [P] Review and enhance terraform_installer.yml task template with descriptive metadata and comment block  
+- [ ] T006 [P] Review and enhance publish_pipeline_artifact.yml task template with descriptive metadata and comment block
+- [ ] T007 [P] Review and enhance terraform_build.yml job template with descriptive metadata
+- [ ] T008 [P] Review and enhance terraform_build.yml stage template with descriptive metadata
+- [ ] T009 [P] Review and enhance terraform_deploy.yml stage template with descriptive metadata
 - [x] T011 [P] Generate terraform_installer.md task documentation with installation parameter details
 - [x] T012 [P] Generate publish_pipeline_artifact.md task documentation with artifact parameter guidance
 - [x] T013 [P] Create concise main README.md index file with categorized template links organized by type

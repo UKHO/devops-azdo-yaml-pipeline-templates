@@ -7,19 +7,19 @@
 
 ## Summary
 
-Create comprehensive documentation for all existing Azure DevOps YAML pipeline templates through AI agent analysis and direct documentation generation. The AI agent reads and analyzes each template to generate individual markdown files for each template (6 total across pipelines/stages/jobs/tasks) in the docs/user-docs/ directory structure, with a concise main README.md providing categorized template navigation with icons. Documentation includes parameter tables with detailed examples for complex parameters, template dependencies via relative file path links, and usage examples following a standardized format.
+Create comprehensive documentation for pipeline templates in the pipelines/ directory through direct documentation generation. Generate individual markdown files for each pipeline template in the docs/user-docs/ directory following a standardized layout structure (Name, Overview, Important Notices, Basic Usage, Full Usage, Notes). Update the user-docs README.md to reference these pipeline documentation files. Make tasks, jobs, and stages templates self-documenting through improved YAML metadata and comment blocks to reduce documentation overhead.
 
 ## Technical Context
 
-**Language/Version**: AI agent analysis, Markdown for documentation output
-**Primary Dependencies**: AI agent with YAML parsing and analysis capabilities
+**Language/Version**: Markdown for pipeline documentation, YAML enhancements for self-documenting templates
+**Primary Dependencies**: None - direct file creation and editing
 **Storage**: File system - existing docs/user-docs/ directory structure, no database required
-**Testing**: Manual validation of generated documentation quality and completeness
+**Testing**: Manual validation of generated documentation quality and template self-documentation completeness
 **Target Platform**: Cross-platform - documentation files work universally
-**Project Type**: AI-generated documentation with direct file creation
-**Performance Goals**: AI agent generates comprehensive documentation for all 6 templates efficiently
-**Constraints**: Must preserve existing docs/user-docs/ structure, maintain template source links
-**Scale/Scope**: 6 existing templates (1 pipeline, 2 stages, 1 job, 3 tasks), repeatable pattern for future templates
+**Project Type**: Direct documentation creation with YAML template enhancement
+**Performance Goals**: Efficient documentation generation focusing only on pipeline templates
+**Constraints**: Must preserve existing docs/user-docs/ structure, follow specified documentation layout
+**Scale/Scope**: 1 existing pipeline template, all supporting templates made self-documenting, repeatable pattern for future pipeline templates
 
 ## Constitution Check
 
