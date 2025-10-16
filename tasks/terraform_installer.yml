@@ -9,7 +9,7 @@
 #     parameters:
 #       TerraformVersion: 'latest'
 #
-#   - template: ../tasks/terraform_installer.yml  
+#   - template: ../tasks/terraform_installer.yml
 #     parameters:
 #       TerraformVersion: '1.5.0'
 #
