@@ -31,17 +31,11 @@ parameters:
     displayName: 'Destination directory path'
 
 steps:
-  # Main Download Pipeline Artifact Task
   - task: DownloadPipelineArtifact@2
     displayName: "Download Pipeline Artifact '${{ parameters.ArtifactName }}'"
     inputs:
-      # Source Configuration
       buildType: 'current'
-
-      # Artifact Selection
       ${{ if ne(parameters.ArtifactName, '') }}:
         artifactName: '${{ parameters.ArtifactName }}'
-
-      # File Filtering and Target
       itemPattern: '${{ parameters.ItemPattern }}'
       targetPath: '${{ parameters.TargetPath }}'
