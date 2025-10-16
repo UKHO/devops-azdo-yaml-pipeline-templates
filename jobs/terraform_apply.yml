@@ -1,0 +1,129 @@
+﻿parameters:
+  - name: JobName
+    type: string
+    default: TerraformPlan
+    displayName: ''
+
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment.'
+
+  - name: AzDOEnvironment
+    type: string
+    displayName: ''
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: ''
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: ''
+
+  - name: JobVariableMappings
+    type: object
+    default: { }
+
+  # terraform core parameters
+  - name: AzDOEnvironmentServiceConnection
+    type: string
+    displayName: 'Azure service connection for the azdo environment'
+    default: ''
+
+  # terraform installer task parameters
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files.'
+
+  # terraform init task parameters
+  - name: BackendAzureStorageAccountName
+    type: string
+    displayName: 'Azure storage account name for backend'
+    default: ''
+
+  - name: BackendAzureContainerName
+    type: string
+    displayName: 'Azure storage container name for backend'
+    default: ''
+
+  - name: BackendAzureBlobName
+    type: string
+    displayName: 'Azure storage blob name for state file'
+    default: ''
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    displayName: 'Azure resource group name for backend'
+    default: ''
+
+  # Key Vault Parameters
+  - name: KeyVaultServiceConnection
+    displayName: 'Azure Subscription'
+    type: string
+    default: ''
+
+  - name: KeyVaultName
+    displayName: 'Key Vault'
+    type: string
+    default: ''
+
+  - name: KeyVaultSecretsFilter
+    displayName: 'Secrets Filter'
+    type: string
+    default: '*'
+
+jobs:
+  - deployment: ${{ parameters.JobName }}
+    displayName: 'Terraform Apply'
+    environment: ${{ parameters.AzDOEnvironment }}
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
+    workspace:
+      clean: all
+    variables:
+      - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}
+      - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
+         - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
+             - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
+         - ${{ else }}:
+             - name: ${{ JobVariableMapping.Key }}
+               value: ${{ JobVariableMapping.Value }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - template: ../tasks/download_pipeline_artifact.yml
+              parameters:
+                ArtifactName: ${{ parameters.ArtifactName }}
+
+            - template: ../tasks/terraform_installer.yml
+              parameters:
+                TerraformVersion: ${{ parameters.TerraformVersion }}
+
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: init
+                BackendAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+                BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+                BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+                BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+                WorkingDirectory: $(TerraformWorkingDirectory)
+
+            - ${{ if and(parameters.KeyVaultServiceConnection, parameters.KeyVaultName, parameters.KeyVaultSecretsFilter) }}:
+                - template: ../tasks/azure_key_vault.yml
+                  parameters:
+                    KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+                    KeyVaultName: ${{ parameters.KeyVaultName }}
+                    SecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: apply
+                EnvironmentAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                WorkingDirectory: $(TerraformWorkingDirectory)
