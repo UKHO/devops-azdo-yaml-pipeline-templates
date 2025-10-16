@@ -12,4 +12,4 @@ extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
-    PipelinePool: "Mare Nubium"
+    PipelinePool: 'Mare Nubium'

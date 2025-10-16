@@ -32,7 +32,7 @@ parameters:
 
 steps:
   - task: DownloadPipelineArtifact@2
-    displayName: "Download Pipeline Artifact '${{ parameters.ArtifactName }}'"
+    displayName: 'Download Pipeline Artifact: ${{ parameters.ArtifactName }}'
     inputs:
       buildType: 'current'
       ${{ if ne(parameters.ArtifactName, '') }}:
