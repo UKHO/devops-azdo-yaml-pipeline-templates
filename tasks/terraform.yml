@@ -1,4 +1,4 @@
-﻿# Terraform Task Template
+# Terraform Task Template
 # 
 # Wraps: TerraformTask@5 (Azure DevOps Terraform extension)
 # Purpose: Standardized wrapper for Terraform operations with Azure focus
@@ -129,7 +129,7 @@ steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
       - script: 'terraform init -backend=false'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_Init
+        name: TerraformTask_init
         workingDirectory: ${{ parameters.WorkingDirectory }}
 
   - ${{ else }}:

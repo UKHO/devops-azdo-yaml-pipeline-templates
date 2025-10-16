@@ -1,4 +1,4 @@
-﻿# Terraform Installer Task Template
+# Terraform Installer Task Template
 #
 # Wraps: TerraformInstaller@1 (Microsoft DevLabs Custom Terraform Tasks)
 # Extension: ms-devlabs.custom-terraform-tasks
