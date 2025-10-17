@@ -37,6 +37,7 @@ stages:
       Condition: succeeded('Build')
       AzureSubscriptionServiceConnection: Pipeline-CloudDisco # todo
       AzDOEnvironmentName: Discovery # todo
+      TerraformVersion: ${{ parameters.TerraformVersion }}
       # TerraformArtifactName: # todo
       # TerraformJobVariableMappings: # todo
       BackendAzureServiceConnection: Pipeline-CloudDisco # todo
