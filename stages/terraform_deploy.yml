@@ -162,7 +162,7 @@ stages:
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
-              Condition: or(succeeded(${{ variables.ManualVerificationJobName }}), and(succeeded(${{ variables.TerraformPlanJobName }}), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.needsManualVerification'], 'false')))
+              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.needsManualVerification'], 'false')))
               JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
               TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
