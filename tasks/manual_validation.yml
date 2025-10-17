@@ -80,11 +80,11 @@ steps:
           Requested by: $(Build.RequestedFor)
           Build ID: $(Build.BuildId)
           ${{ if ne(parameters.Environment, '') }}:
-          Environment: ${{ parameters.Environment }}
-          ${{ endif }}
+            Environment: ${{ parameters.Environment }}
+
           ${{ if ne(parameters.ValidationContext, '') }}:
-          Context: ${{ parameters.ValidationContext }}
-          ${{ endif }}
+            Context: ${{ parameters.ValidationContext }}
+
           ===========================
 
           Please review the above information and choose to Resume or Reject this pipeline run.
