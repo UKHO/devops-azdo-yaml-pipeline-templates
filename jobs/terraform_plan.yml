@@ -1,84 +1,87 @@
 ﻿parameters:
+  # generic parameters
+
   - name: JobName
     type: string
     default: TerraformPlan
-    displayName: ''
+    displayName: 'The job name for this job for ease of identity'
 
-  - name: DependsOn
+  - name: JobVariableMappings
     type: object
-    default: [ ]
-    displayName: ''
+    default: { }
+    displayName: "A object structure of variables to be added to the job's variables block"
 
-  - name: Condition
-    type: string
-    default: succeeded()
-    displayName: ''
-
-  # core parameters
   - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
-    displayName: 'Name for the artifact containing the terraform files for deployment.'
+    displayName: 'Name for the artifact containing the terraform files for deployment'
 
-  - name: AzDOEnvironment
+  - name: AzDOEnvironmentName
     type: string
-    displayName: ''
+    displayName: 'The azure devops environment that this deployment job will be associated with'
 
-  # terraform core parameters
-  - name: AzureSubscriptionServiceConnection
-    type: string
-    displayName: 'Azure service connection for the azdo environment'
-    default: ''
+  # key vault task parameters
 
-  # terraform installer task parameters
-  - name: TerraformVersion
-    type: string
-    default: 'latest'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files.'
-
-  # terraform init task parameters
-  - name: BackendAzureStorageAccountName
-    type: string
-    displayName: 'Azure storage account name for backend'
-    default: ''
-
-  - name: BackendAzureContainerName
-    type: string
-    displayName: 'Azure storage container name for backend'
-    default: ''
-
-  - name: BackendAzureBlobName
-    type: string
-    displayName: 'Azure storage blob name for state file'
-    default: ''
-
-  - name: BackendAzureStorageAccountResourceGroupName
-    type: string
-    displayName: 'Azure resource group name for backend'
-    default: ''
-
-  # Key Vault Parameters
   - name: KeyVaultServiceConnection
     type: string
     default: ''
-    displayName: 'Azure Subscription'
+    displayName: 'Service connection for key vault access secrets'
 
   - name: KeyVaultName
     type: string
     default: ''
-    displayName: 'Key Vault'
+    displayName: 'Name of key vault for accessing secrets'
 
   - name: KeyVaultSecretsFilter
     type: string
     default: '*'
-    displayName: 'Secrets Filter'
+    displayName: 'Filter for secrets to access from key vault'
+
+  # terraform installer task parameters
+
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  # terraform init task parameters
+
+  - name: BackendAzureServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure service connection for backend where the state is stored'
+
+  - name: BackendAzureStorageAccountName
+    type: string
+    default: ''
+    displayName: 'Azure storage account name for backend where the state is stored'
+
+  - name: BackendAzureContainerName
+    type: string
+    default: ''
+    displayName: 'Azure storage container name for backend where the state is stored'
+
+  - name: BackendAzureBlobName
+    type: string
+    default: ''
+    displayName: 'Azure storage blob name for backend where the state is stored'
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
+
+  # terraform plan parameters
+
+  - name: AzureSubscriptionServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure service connection for the azdo environment'
 
 jobs:
   - deployment: ${{ parameters.JobName }}
     displayName: 'Terraform Plan'
-    environment: ${{ parameters.AzDOEnvironment }}
-    condition: ${{ parameters.DependsOn }}
-    dependsOn: ${{ parameters.DependsOn }}
+    environment: ${{ parameters.AzDOEnvironmentName }}
     workspace:
       clean: all
     variables:
@@ -106,14 +109,12 @@ jobs:
             - template: ../tasks/terraform.yml
               parameters:
                 Command: init
-                BackendAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
                 BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
                 BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
                 BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
-
-            # Terraform Workspace
 
             # Terraform Validate
             - template: ../tasks/terraform.yml
