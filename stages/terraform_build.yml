@@ -2,7 +2,7 @@
   - name: ArtifactName
     type: string
     default: 'TerraformArtifact'
-    displayName: 'Artifact Name for Target Path to be saved as.'
+    displayName: 'Artifact Name for Target Path to be saved as'
 
   - name: RelativePathToTerraformFiles
     type: string
@@ -12,12 +12,12 @@
   - name: TerraformVersion
     type: string
     default: 'latest'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files.'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: []
-    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged.'
+    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 stages:
   - stage: Build
