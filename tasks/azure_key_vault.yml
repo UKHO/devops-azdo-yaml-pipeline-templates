@@ -25,7 +25,7 @@ parameters:
 
 steps:
   - task: AzureKeyVault@2
-    displayName: 'Azure Key Vault: ${{ parameters.KeyVaultName }}'
+    displayName: 'Access secrets in key vault: ${{ parameters.KeyVaultName }}'
     inputs:
       azureSubscription: ${{ parameters.KeyVaultServiceConnection }}
       KeyVaultName: ${{ parameters.KeyVaultName }}
