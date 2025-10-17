@@ -2,7 +2,7 @@
 
 A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardized approach for Terraform-based infrastructure deployments with built-in validation and artifact publishing capabilities.
 
-# Important Notices
+## Important Notices
 
 ⚠️ **Terraform Backend Configuration**: This pipeline initialises Terraform with `-backend=false` to avoid backend configuration during the build phase.
 
@@ -10,9 +10,9 @@ A complete infrastructure deployment pipeline template using Terraform for build
 
 ⚠️ **Pool Requirements**: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
 
-# Basic Usage
+## Basic Usage
 
-## Example of Basic Usage
+### Example of Basic Usage
 
 ```yaml
 # azure-pipelines.yml
@@ -35,15 +35,15 @@ extends:
     TerraformVersion: '1.5.0'
 ```
 
-## Required Parameters
+### Required Parameters
 
 | Parameter                      | Description                                                                       |
 |--------------------------------|-----------------------------------------------------------------------------------|
 | `RelativePathToTerraformFiles` | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact |
 
-# Full Usage
+## Full Usage
 
-## Full Parameter Table
+### Full Parameter Table
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -52,7 +52,7 @@ extends:
 | `TerraformVersion` | string | `'latest'` | Version of Terraform CLI tool to use with the terraform files |
 | `TerraformBuildInjectionSteps` | stepList | `[]` | Steps to be carried out before the terraform is init, validated, and packaged |
 
-### TerraformBuildInjectionSteps
+#### TerraformBuildInjectionSteps
 
 This parameter allows you to inject custom steps that will be executed twice during the pipeline:
 1. Before Terraform initialisation and validation
@@ -84,13 +84,13 @@ TerraformBuildInjectionSteps:
         az keyvault secret show --vault-name myvault --name terraform-vars
 ```
 
-## Advanced Usage
+### Advanced Usage
 
 Listed below are possible advanced usages.
 
 _If you have any advanced usages, please consider contributing them to the documentation._
 
-### Custom Agent Pool
+#### Custom Agent Pool
 
 ```yaml
 extends:
@@ -101,7 +101,7 @@ extends:
     TerraformVersion: '1.6.0'
 ```
 
-### Injection Step to add required_version
+#### Injection Step to add required_version
 
 ```yaml
 extends:
@@ -123,7 +123,7 @@ extends:
         displayName: "Injecting into terraform block 'required_version'"
 ```
 
-### Pipeline Flow
+#### Pipeline Flow
 
 1. **Repository Checkout**: Checks out the source repository to the build agent
 2. **Injection Steps (First Run)**: Executes any custom steps provided via `TerraformBuildInjectionSteps`
@@ -134,7 +134,7 @@ extends:
 7. **Injection Steps (Second Run)**: Re-executes injection steps on clean code
 8. **Artifact Publishing**: Publishes the Terraform files as a pipeline artifact named "TerraformArtifact"
 
-## Notes
+### Notes
 
 - The pipeline produces a single artifact named "TerraformArtifact" containing all Terraform files from the specified path
 - Injection steps are executed twice to ensure both validation accuracy and artifact completeness
