@@ -45,9 +45,9 @@ stages:
       BackendAzureStorageAccountName: ukhodoctfstatesa # todo
       BackendAzureContainerName: tfstate# todo
       BackendAzureBlobName: compiletest.tfstate # todo
-      # KeyVaultServiceConnection: # todo
-      # KeyVaultName: # todo
-      # KeyVaultSecretsFilter: # todo
+      KeyVaultServiceConnection: PipelineCloudDisco # todo
+      KeyVaultName: testkeyvault # todo
+      KeyVaultSecretsFilter: '*' # todo
       RunPlanOnly: true # todo
       # TerraformVariableMappings: # todo
       # TerraformOutputVariables: # todo
