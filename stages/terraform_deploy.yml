@@ -4,28 +4,28 @@
 # Features: Full deployment workflow with init and apply commands, Azure-specific backend configuration
 #
 parameters:
-  - name: AzDOEnvironmentServiceConnection
+  - name: AzureSubscriptionServiceConnection
     type: string
-    displayName: 'Azure service connection for terraform backend and environment deployment'
+    displayName: 'The service connection for the azure subscription where resources will be deployed too.'
 
   - name: AzDOEnvironmentName
     type: string
-    displayName: ''
+    displayName: 'The azure devops environment that the deployment jobs will be associated with.'
 
-  - name: ArtifactName
+  - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
-    displayName: 'Name of the artifact containing Terraform files'
+    displayName: 'Name of the artifact containing Terraform files.'
 
   - name: DependsOn
     type: object
     default: [ ]
-    displayName: ''
+    displayName: 'What this deploy stage will depend on.'
 
   - name: Condition
     type: string
     default: succeeded()
-    displayName: ''
+    displayName: 'The condition that will control whether this stage runs or not.'
 
   - name: TerraformJobVariableMappings
     type: object
@@ -36,50 +36,64 @@ parameters:
   - name: BackendAzureStorageAccountName
     type: string
     default: ''
-    displayName: 'Azure storage account name for backend'
+    displayName: 'Azure storage account name for backend where the state is stored'
 
   - name: BackendAzureContainerName
     type: string
     default: ''
-    displayName: 'Azure storage container name for backend'
+    displayName: 'Azure storage container name for backend where the state is stored'
 
   - name: BackendAzureBlobName
     type: string
     default: ''
-    displayName: 'Azure storage blob name for state file'
+    displayName: 'Azure storage blob name for backend where the state is stored'
 
   - name: BackendAzureStorageAccountResourceGroupName
     type: string
     default: ''
-    displayName: 'Azure resource group name for backend'
+    displayName: 'Azure resource group name for backend where the state is stored'
 
   # Key Vault Parameters
   - name: KeyVaultServiceConnection
     type: string
     default: ''
-    displayName: 'Azure Subscription'
+    displayName: 'Service connection for key vault access secrets.'
 
   - name: KeyVaultName
     type: string
     default: ''
-    displayName: 'Key Vault'
+    displayName: 'Name of key vault for accessing secrets.'
 
   - name: KeyVaultSecretsFilter
     type: string
     default: '*'
-    displayName: 'Secrets Filter'
+    displayName: 'Filter for secrets to access from key vault'
 
-  - name: RunMode
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether only the terraform plan should be ran and no deployment made.'
+
+  - name: VerificationMode
     type: string
-    default: RunMode
-    displayName: ''
+    default: VerifyOnDestroy
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all.'
     values:
       - VerifyOnDestroy
       - VerifyOnAny
       - VerifyDisabled
-      - PlanOnly
 
   - name: TerraformVariableMappings
+    type: object
+    default: { }
+    displayName: ''
+
+  - name: TerraformOutputVariables
+    type: object
+    default: { }
+    displayName: ''
+
+  - name: TerraformVariableFiles
     type: object
     default: { }
     displayName: ''
@@ -100,7 +114,7 @@ stages:
           JobName: ${{ variables.TerraformPlanJobName }}
           AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
           JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
-          AzDOEnvironmentServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+          AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
           BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
           BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
           BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
@@ -108,8 +122,11 @@ stages:
           KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
           KeyVaultName: ${{ parameters.KeyVaultName }}
           KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+          TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
+          VerificationMode: ${{ parameters.VerificationMode }}
 
-      - ${{ if ne(parameters.RunMode, 'PlanOnly') }}:
+      - ${{ if ne(parameters.RunPlanOnly, 'PlanOnly') }}:
           - template: ../jobs/manual_verification.yml
             parameters:
               JobName: ${{ variables.ManualVerificationJobName }}
@@ -125,7 +142,7 @@ stages:
               Condition: or(succeeded(${{ variables.ManualVerificationJobName }}), and(succeeded(${{ variables.TerraformPlanJobName }}), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.needsManualVerification'], 'false')))
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
               JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
-              AzDOEnvironmentServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+              AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
               BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
               BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
               BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
@@ -133,3 +150,7 @@ stages:
               KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
               KeyVaultName: ${{ parameters.KeyVaultName }}
               KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+              TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+              TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
+              TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
+
