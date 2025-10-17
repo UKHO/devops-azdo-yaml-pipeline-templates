@@ -21,6 +21,7 @@ parameters:
   # Notification Configuration
   - name: NotifyUsers
     type: string
+    default: ''
     displayName: 'Users or groups to notify via email (required, use empty string for no notifications)'
 
   - name: Approvers
