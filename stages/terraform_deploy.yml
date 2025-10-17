@@ -114,7 +114,7 @@ stages:
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
       TerraformVariableFilesCommandArgumentFragment: >-
-        ${{ join(variables.TFVarFiles, "' -var-file='") }}
+        ${{ join(variables.TerraformVariableFiles, "' -var-file='") }}
       TerraformVariableFilesCommandArgument: "-var-file='${{ variables.TerraformVariableFilesCommandArgumentFragment }}'"
 
     jobs:
