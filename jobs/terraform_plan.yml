@@ -14,7 +14,7 @@
     default: succeeded()
     displayName: ''
 
-# core parameters
+  # core parameters
   - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
@@ -24,19 +24,19 @@
     type: string
     displayName: ''
 
-# terraform core parameters
+  # terraform core parameters
   - name: AzureSubscriptionServiceConnection
     type: string
     displayName: 'Azure service connection for the azdo environment'
     default: ''
 
-# terraform installer task parameters
+  # terraform installer task parameters
   - name: TerraformVersion
     type: string
     default: 'latest'
     displayName: 'Version of Terraform CLI tool to use with the terraform files.'
 
-# terraform init task parameters
+  # terraform init task parameters
   - name: BackendAzureStorageAccountName
     type: string
     displayName: 'Azure storage account name for backend'
@@ -112,15 +112,15 @@ jobs:
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
-          # Terraform Workspace
+            # Terraform Workspace
 
-          # Terraform Validate
+            # Terraform Validate
             - template: ../tasks/terraform.yml
               parameters:
                 Command: validate
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
-          # Terraform Plan
+            # Terraform Plan
             - template: ../tasks/terraform.yml
               parameters:
                 Command: plan
