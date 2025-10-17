@@ -93,11 +93,11 @@ jobs:
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
-         - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
-             - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
-         - ${{ else }}:
-             - name: ${{ JobVariableMapping.Key }}
-               value: ${{ JobVariableMapping.Value }}
+          - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
+              - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
+          - ${{ else }}:
+              - name: ${{ JobVariableMapping.Key }}
+                value: ${{ JobVariableMapping.Value }}
     strategy:
       runOnce:
         deploy:
@@ -119,13 +119,6 @@ jobs:
                 BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
-
-            - ${{ if and(parameters.KeyVaultServiceConnection, parameters.KeyVaultName, parameters.KeyVaultSecretsFilter) }}:
-                - template: ../tasks/azure_key_vault.yml
-                  parameters:
-                    KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
-                    KeyVaultName: ${{ parameters.KeyVaultName }}
-                    SecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
 
             - template: ../tasks/terraform.yml
               parameters:
