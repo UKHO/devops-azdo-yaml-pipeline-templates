@@ -118,9 +118,10 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
-      #TerraformVariableFilesCommandArgumentFragment: >-
-      #  ${{ join(variables.TerraformVariableFiles, "' -var-file='") }}
-      #TerraformVariableFilesCommandArgument: "-var-file='${{ variables.TerraformVariableFilesCommandArgumentFragment }}'"
+      ${{ if parameters.TerraformVariableFiles }}:
+        TerraformVariableFilesCommandArgumentFragment: >-
+          ${{ join(variables.TerraformVariableFiles, "' -var-file='") }}
+        TerraformVariableFilesCommandArgument: "-var-file='${{ variables.TerraformVariableFilesCommandArgumentFragment }}'"
 
     jobs:
       - template: ../jobs/terraform_plan.yml
