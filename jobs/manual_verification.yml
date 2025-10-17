@@ -19,6 +19,11 @@
     default: 60
     displayName: 'Timeout for manual verification (minutes)'
 
+  - name: Instructions
+    type: string
+    default: ''
+    displayName: 'Instructions shown to users for manual validation decision'
+
 jobs:
   - job: ${{ parameters.JobName }}
     dependsOn: ${{ parameters.DependsOn }}
@@ -31,3 +36,4 @@ jobs:
       - template: ../tasks/manual_validation.yml
         parameters:
           TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+          Instructions: ${{ parameters.Instructions }}

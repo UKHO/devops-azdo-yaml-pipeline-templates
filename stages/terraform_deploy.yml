@@ -154,6 +154,7 @@ stages:
               JobName: ${{ variables.ManualVerificationJobName }}
               DependsOn: ${{ variables.TerraformPlanJobName }}
               Condition: and(succeeded(), eq(dependencies.${{ variables.ManualVerificationJobName }}.outputs['${{ variables.ManualVerificationJobName }}.plan.needsManualVerification'], 'true'))
+              Instructions: 'Please validate the terraform plan is acceptable to apply'
 
           - template: ../jobs/terraform_apply.yml
             parameters:
