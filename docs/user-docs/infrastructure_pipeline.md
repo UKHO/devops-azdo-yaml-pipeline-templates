@@ -88,7 +88,7 @@ TerraformBuildInjectionSteps:
 
 Listed below are possible advanced usages.
 
-_If you have any advance usages, please consider contributing them to the documentation._
+_If you have any advanced usages, please consider contributing them to the documentation._
 
 ### Custom Agent Pool
 
@@ -132,7 +132,7 @@ extends:
 5. **Terraform Validate**: Validates the Terraform configuration files
 6. **Workspace Clean-up**: Performs a clean checkout to ensure artifact purity
 7. **Injection Steps (Second Run)**: Re-executes injection steps on clean code
-8. **artifact Publishing**: Publishes the Terraform files as a pipeline artifact named "TerraformArtifact"
+8. **Artifact Publishing**: Publishes the Terraform files as a pipeline artifact named "TerraformArtifact"
 
 ## Notes
 
