@@ -18,6 +18,7 @@ Complete end-to-end pipeline templates for specific use cases.
 ## Template Self-Documentation
 
 Tasks, jobs, and stages templates in this repository are self-documenting through:
+
 - Descriptive names and `displayName` properties
 - Comprehensive parameter metadata (types, defaults, descriptions)
 - Inline comment blocks explaining purpose and usage

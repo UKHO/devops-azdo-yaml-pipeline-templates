@@ -55,10 +55,12 @@ extends:
 #### TerraformBuildInjectionSteps
 
 This parameter allows you to inject custom steps that will be executed twice during the pipeline:
+
 1. Before Terraform initialisation and validation
 2. After workspace clean-up on clean code (before artifact publishing)
 
 Common use cases include:
+
 - File transformations or substitutions
 - Environment-specific configuration setup
 - Secret retrieval and file generation
