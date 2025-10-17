@@ -35,20 +35,20 @@ stages:
       DependsOn:
         - Build
       Condition: succeeded('Build')
-      AzureSubscriptionServiceConnection: # todo
-      AzDOEnvironmentName: # todo
-      TerraformArtifactName: # todo
-      TerraformJobVariableMappings: # todo
-      BackendAzureServiceConnection: # todo
-      BackendAzureStorageAccountName: # todo
-      BackendAzureContainerName: # todo
-      BackendAzureBlobName: # todo
-      BackendAzureStorageAccountResourceGroupName: # todo
-      KeyVaultServiceConnection: # todo
-      KeyVaultName: # todo
-      KeyVaultSecretsFilter: # todo
+      AzureSubscriptionServiceConnection: Pipeline-CloudDisco # todo
+      AzDOEnvironmentName: Discovery # todo
+      # TerraformArtifactName: # todo
+      # TerraformJobVariableMappings: # todo
+      BackendAzureServiceConnection: Pipeline-CloudDisco # todo
+      BackendAzureStorageAccountResourceGroupName: m-devopschapter-rg # todo
+      BackendAzureStorageAccountName: ukhodoctfstatesa # todo
+      BackendAzureContainerName: tfstate# todo
+      BackendAzureBlobName: compiletest.tfstate # todo
+      # KeyVaultServiceConnection: # todo
+      # KeyVaultName: # todo
+      # KeyVaultSecretsFilter: # todo
       RunPlanOnly: false # todo
       VerificationMode: VerifyOnDestroy
-      TerraformVariableMappings: # todo
-      TerraformOutputVariables: # todo
-      TerraformVariableFiles: # todo
+      # TerraformVariableMappings: # todo
+      # TerraformOutputVariables: # todo
+      # TerraformVariableFiles: # todo
