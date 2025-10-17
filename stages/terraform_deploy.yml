@@ -113,6 +113,9 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
+      TerraformVariableFilesCommandArgumentFragment: >-
+        ${{ join(variables.TFVarFiles, "' -var-file='") }}
+      TerraformVariableFilesCommandArgument: "-var-file='${{ variables.TerraformVariableFilesCommandArgumentFragment }}'"
 
     jobs:
       - template: ../jobs/terraform_plan.yml
@@ -136,9 +139,9 @@ stages:
           BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
           # terraform plan task parameters
           AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-          TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
-          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
-          VerificationMode: ${{ parameters.VerificationMode }} # missing
+          #TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
+          #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
+          #VerificationMode: ${{ parameters.VerificationMode }} # missing
 
       - ${{ if ne(parameters.RunPlanOnly, 'PlanOnly') }}:
           - template: ../jobs/manual_verification.yml
@@ -170,7 +173,7 @@ stages:
               BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
               # terraform plan task parameters
               AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-              TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
-              TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
-              TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
+              #TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
+              #TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
+              #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
 
