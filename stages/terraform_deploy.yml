@@ -120,8 +120,8 @@ stages:
       TerraformApplyJobName: TerraformApply
       ${{ if parameters.TerraformVariableFiles }}:
         TerraformVariableFilesCommandArgumentFragment: >-
-          ${{ join(variables.TerraformVariableFiles, "' -var-file='") }}
-        TerraformVariableFilesCommandArgument: "-var-file='${{ variables.TerraformVariableFilesCommandArgumentFragment }}'"
+          ${{ join(variables.TerraformVariableFiles, '" -var-file="') }}
+        TerraformVariableFilesCommandArgument: '-var-file="${{ variables.TerraformVariableFilesCommandArgumentFragment }}"'
 
     jobs:
       - template: ../jobs/terraform_plan.yml
