@@ -88,7 +88,17 @@
     default: ''
     displayName: 'Azure service connection for the azdo environment'
 
-  - name: TerraformOutputVariables
+  - name: TerraformEnvironmentVariableMappings # not used yet
+    type: object
+    default: { }
+    displayName: 'Mappings for terraform variables'
+
+  - name: TerraformVariableFiles # not used yet
+    type: object
+    default: { }
+    displayName: ''
+
+  - name: TerraformOutputVariables # not used yet
     type: object
     default: { }
     displayName: ''

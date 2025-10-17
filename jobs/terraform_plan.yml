@@ -78,6 +78,25 @@
     default: ''
     displayName: 'Azure service connection for the azdo environment'
 
+  - name: TerraformEnvironmentVariableMappings # not used yet
+    type: object
+    default: { }
+    displayName: 'Mappings for terraform variables'
+
+  - name: TerraformVariableFiles # not used yet
+    type: object
+    default: { }
+    displayName: ''
+
+  - name: VerificationMode # not used yet
+    type: string
+    default: VerifyOnDestroy
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    values:
+      - VerifyOnDestroy
+      - VerifyOnAny
+      - VerifyDisabled
+
 jobs:
   - deployment: ${{ parameters.JobName }}
     displayName: 'Terraform Plan'
