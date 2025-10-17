@@ -15,7 +15,7 @@
     displayName: ''
 
 # core parameters
-  - name: ArtifactName
+  - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
     displayName: 'Name for the artifact containing the terraform files for deployment.'
@@ -25,7 +25,7 @@
     displayName: ''
 
 # terraform core parameters
-  - name: AzDOEnvironmentServiceConnection
+  - name: AzureSubscriptionServiceConnection
     type: string
     displayName: 'Azure service connection for the azdo environment'
     default: ''
@@ -83,7 +83,7 @@ jobs:
       clean: all
     variables:
       - name: TerraformWorkingDirectory
-        value: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
@@ -96,7 +96,7 @@ jobs:
           steps:
             - template: ../tasks/download_pipeline_artifact.yml
               parameters:
-                ArtifactName: ${{ parameters.ArtifactName }}
+                TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
 
             - template: ../tasks/terraform_installer.yml
               parameters:
@@ -105,7 +105,7 @@ jobs:
             - template: ../tasks/terraform.yml
               parameters:
                 Command: init
-                BackendAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                BackendAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
                 BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
                 BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
@@ -124,5 +124,5 @@ jobs:
             - template: ../tasks/terraform.yml
               parameters:
                 Command: plan
-                EnvironmentAzureServiceConnection: ${{ parameters.AzDOEnvironmentServiceConnection }}
+                EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
