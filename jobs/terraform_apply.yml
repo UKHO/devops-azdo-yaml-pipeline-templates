@@ -133,6 +133,13 @@ jobs:
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
+            - ${{ if and(parameters.KeyVaultServiceConnection, parameters.KeyVaultName, parameters.KeyVaultSecretsFilter) }}:
+                - template: ../tasks/azure_key_vault.yml
+                  parameters:
+                    KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+                    KeyVaultName: ${{ parameters.KeyVaultName }}
+                    SecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+
             - template: ../tasks/terraform.yml
               parameters:
                 Command: init
