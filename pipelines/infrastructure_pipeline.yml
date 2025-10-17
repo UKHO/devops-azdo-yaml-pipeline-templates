@@ -47,7 +47,7 @@ stages:
       KeyVaultServiceConnection: # todo
       KeyVaultName: # todo
       KeyVaultSecretsFilter: # todo
-      RunPlanOnly: # todo
+      RunPlanOnly: VerifyOnDestroy # todo
       VerificationMode: VerifyOnDestroy
       TerraformVariableMappings: # todo
       TerraformOutputVariables: # todo
