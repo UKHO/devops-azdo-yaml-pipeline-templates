@@ -118,7 +118,7 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
-      ${{ if ne(parameters.TerraformVariableFiles, { }) }}:
+      ${{ if parameters.TerraformVariableFiles }}:
         TerraformVariableFilesCommandArgumentFragment: >-
           ${{ join(variables.TerraformVariableFiles, '" -var-file="') }}
         TerraformVariableFilesCommandArgument: '-var-file="${{ variables.TerraformVariableFilesCommandArgumentFragment }}"'
