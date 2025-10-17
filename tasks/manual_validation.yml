@@ -55,6 +55,7 @@ steps:
   # Main Manual Validation Task
   - task: ManualValidation@1
     displayName: 'Manual Validation Required'
+    timeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
     inputs:
       notifyUsers: '${{ parameters.NotifyUsers }}'
       ${{ if ne(parameters.Approvers, '') }}:
