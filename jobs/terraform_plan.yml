@@ -97,6 +97,7 @@ jobs:
             - template: ../tasks/download_pipeline_artifact.yml
               parameters:
                 TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+                TargetPath: $(Pipeline.Workspace)
 
             - template: ../tasks/terraform_installer.yml
               parameters:
