@@ -28,6 +28,11 @@ parameters:
     default: 'TerraformArtifact'
     displayName: 'Name for the artifact containing the terraform files for deployment'
 
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
   - name: TerraformJobVariableMappings
     type: object
     default: { }
@@ -165,6 +170,8 @@ stages:
               KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
               KeyVaultName: ${{ parameters.KeyVaultName }}
               KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+              # terraform installer task parameters
+              TerraformVersion: ${{ parameters.TerraformVersion }}
               # terraform init task parameters
               BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
               BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
