@@ -50,17 +50,6 @@ parameters:
     default: 60  # 1 hour default
     displayName: 'Timeout in minutes (max 30 days, job timeout must be higher)'
 
-  # Environment Context (for logging/tracking)
-  - name: Environment
-    type: string
-    default: ''
-    displayName: 'Environment context (e.g., Production, Staging) for logging purposes'
-
-  - name: ValidationContext
-    type: string
-    default: ''
-    displayName: 'Additional context about what is being validated'
-
 steps:
   # Main Manual Validation Task
   - task: ManualValidation@1
@@ -75,15 +64,12 @@ steps:
           ${{ parameters.Instructions }}
 
           === Pipeline Information ===
-          Pipeline: $(Build.DefinitionName) #$(Build.BuildNumber)
+
+          Pipeline: $(Build.DefinitionName)
+          BuildNumber: $(Build.BuildNumber)
           Branch: $(Build.SourceBranchName)
           Requested by: $(Build.RequestedFor)
           Build ID: $(Build.BuildId)
-          ${{ if ne(parameters.Environment, '') }}:
-            Environment: ${{ parameters.Environment }}
-
-          ${{ if ne(parameters.ValidationContext, '') }}:
-            Context: ${{ parameters.ValidationContext }}
 
           ===========================
 
