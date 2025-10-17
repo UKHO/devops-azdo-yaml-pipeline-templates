@@ -110,8 +110,8 @@ parameters:
     displayName: ''
 
 stages:
-  - stage: Deploy
-    displayName: 'Terraform Deploy'
+  - stage: Deploy_${{ parameters.AzDOEnvironmentName }}
+    displayName: 'Deploy Terraform into the ${{ parameters.AzDOEnvironmentName }} environment'
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
