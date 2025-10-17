@@ -85,32 +85,32 @@ parameters:
   # Azure Backend Configuration (for init command)
   - name: BackendAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for backend'
+    displayName: 'Azure service connection for backend where the state is stored'
     default: ''
 
   - name: BackendAzureStorageAccountName
     type: string
-    displayName: 'Azure storage account name for backend'
     default: ''
+    displayName: 'Azure storage account name for backend where the state is stored'
 
   - name: BackendAzureContainerName
     type: string
-    displayName: 'Azure storage container name for backend'
     default: ''
+    displayName: 'Azure storage container name for backend where the state is stored'
 
   - name: BackendAzureBlobName
     type: string
-    displayName: 'Azure storage blob name for state file'
     default: ''
+    displayName: 'Azure storage blob name for backend where the state is stored'
 
   - name: BackendAzureStorageAccountResourceGroupName
     type: string
-    displayName: 'Azure resource group name for backend'
     default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Disable the backend configuration when executing init command'
+    displayName: 'Disable the backend configuration when executing the init command'
     default: false
 
   # Provider Environment Configuration (for plan/apply/destroy commands)
