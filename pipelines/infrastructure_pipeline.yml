@@ -19,6 +19,43 @@
     default: []
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
+  - name: AzDOEnvironmentName
+    type: string
+    default: ''
+    displayName: 'AzDO Environment name to associate the deployment jobs too'
+
+  - name: AzureSubscriptionServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure service connection for the azdo environment'
+
+  # terraform init task parameters
+
+  - name: BackendAzureServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure service connection for backend where the state is stored'
+
+  - name: BackendAzureStorageAccountName
+    type: string
+    default: ''
+    displayName: 'Azure storage account name for backend where the state is stored'
+
+  - name: BackendAzureContainerName
+    type: string
+    default: ''
+    displayName: 'Azure storage container name for backend where the state is stored'
+
+  - name: BackendAzureBlobName
+    type: string
+    default: ''
+    displayName: 'Azure storage blob name for backend where the state is stored'
+
+  - name: BackendAzureStorageAccountResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
+
 variables:
   - name: PipelinePool
     value: ${{ parameters.PipelinePool }}
@@ -35,16 +72,16 @@ stages:
       DependsOn:
         - Build
       Condition: succeeded('Build')
-      AzureSubscriptionServiceConnection: Pipeline-CloudDisco # todo
-      AzDOEnvironmentName: Discovery # todo
+      AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+      AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
       # TerraformArtifactName: # todo
       # TerraformJobVariableMappings: # todo
-      BackendAzureServiceConnection: Pipeline-CloudDisco # todo
-      BackendAzureStorageAccountResourceGroupName: m-devopschapter-rg # todo
-      BackendAzureStorageAccountName: ukhodoctfstatesa # todo
-      BackendAzureContainerName: tfstate# todo
-      BackendAzureBlobName: compiletest.tfstate # todo
+      BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
+      BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+      BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+      BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+      BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
       KeyVaultServiceConnection: Pipeline-CloudDisco # todo
       KeyVaultName: testkeyvault # todo
       KeyVaultSecretsFilter: '*' # todo
