@@ -1,6 +1,6 @@
 # Infrastructure Pipeline
 
-A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardized approach for Terraform-based infrastructure deployments with built-in validation and artifact publishing capabilities.
+A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardised approach for Terraform-based infrastructure deployments with built-in validation and artifact publishing capabilities.
 
 ## Important Notices
 
