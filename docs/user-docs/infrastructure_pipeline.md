@@ -37,20 +37,20 @@ extends:
 
 ### Required Parameters
 
-| Parameter                      | Description                                                                       |
-|--------------------------------|-----------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact |
+| Parameter                      | Description                                                                          |
+|--------------------------------|--------------------------------------------------------------------------------------|
+| `RelativePathToTerraformFiles` | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
 
 ## Full Usage
 
 ### Full Parameter Table
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `PipelinePool` | string | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level |
-| `RelativePathToTerraformFiles` | string | *Required* | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact |
-| `TerraformVersion` | string | `'latest'` | Version of Terraform CLI tool to use with the terraform files |
-| `TerraformBuildInjectionSteps` | stepList | `[]` | Steps to be carried out before the terraform is init, validated, and packaged |
+| Parameter                      | Type     | Required | Default           | Description                                                                          |
+|--------------------------------|----------|----------|-------------------|--------------------------------------------------------------------------------------|
+| `PipelinePool`                 | string   |          | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level                           |
+| `RelativePathToTerraformFiles` | string   | True     |                   | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
+| `TerraformVersion`             | string   |          | `'latest'`        | Version of Terraform CLI tool to use with the terraform files                        |
+| `TerraformBuildInjectionSteps` | stepList |          | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged        |
 
 #### TerraformBuildInjectionSteps
 
