@@ -47,17 +47,14 @@ extends:
 
 | Parameter                      | Type     | Required | Default           | Description                                                                          |
 |--------------------------------|----------|----------|-------------------|--------------------------------------------------------------------------------------|
+| `RelativePathToTerraformFiles` | string   | True     | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
 | `PipelinePool`                 | string   |          | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level                           |
-| `RelativePathToTerraformFiles` | string   | True     |                   | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
 | `TerraformVersion`             | string   |          | `'latest'`        | Version of Terraform CLI tool to use with the terraform files                        |
 | `TerraformBuildInjectionSteps` | stepList |          | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged        |
 
 #### TerraformBuildInjectionSteps
 
-This parameter allows you to inject custom steps that will be executed twice during the pipeline:
-
-1. Before Terraform initialisation and validation
-2. After workspace clean-up on clean code (before artifact publishing)
+This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged.
 
 Common use cases include:
 
@@ -124,23 +121,3 @@ extends:
           }
         displayName: "Injecting into terraform block 'required_version'"
 ```
-
-#### Pipeline Flow
-
-1. **Repository Checkout**: Checks out the source repository to the build agent
-2. **Injection Steps (First Run)**: Executes any custom steps provided via `TerraformBuildInjectionSteps`
-3. **Terraform Installation**: Installs the specified version of Terraform CLI
-4. **Terraform Init**: Initialises Terraform with backend disabled (`-backend=false`)
-5. **Terraform Validate**: Validates the Terraform configuration files
-6. **Workspace Clean-up**: Performs a clean checkout to ensure artifact purity
-7. **Injection Steps (Second Run)**: Re-executes injection steps on clean code
-8. **Artifact Publishing**: Publishes the Terraform files as a pipeline artifact named "TerraformArtifact"
-
-### Notes
-
-- The pipeline produces a single artifact named "TerraformArtifact" containing all Terraform files from the specified path
-- Injection steps are executed twice to ensure both validation accuracy and artifact completeness
-- The pipeline does not perform Terraform deployment - it focuses solely on validation and packaging
-- Consider using this pipeline in conjunction with deployment pipelines that consume the published artifact
-- Terraform state management should be handled in downstream deployment processes
-- The pipeline supports any Terraform version through the `TerraformVersion` parameter
