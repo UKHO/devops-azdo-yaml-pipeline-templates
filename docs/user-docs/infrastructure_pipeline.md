@@ -37,20 +37,18 @@ extends:
 
 ### Required Parameters
 
-| Parameter                      | Description                                                                          |
-|--------------------------------|--------------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
+There are no required parameters, as each parameter has its own default value.
 
 ## Full Usage
 
 ### Full Parameter Table
 
-| Parameter                      | Type     | Required | Default           | Description                                                                          |
-|--------------------------------|----------|----------|-------------------|--------------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | string   | True     | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact |
-| `PipelinePool`                 | string   |          | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level                           |
-| `TerraformVersion`             | string   |          | `'latest'`        | Version of Terraform CLI tool to use with the terraform files                        |
-| `TerraformBuildInjectionSteps` | stepList |          | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged        |
+| Parameter                      | Type     | Required | Default           | Description                                                                           |
+|--------------------------------|----------|----------|-------------------|---------------------------------------------------------------------------------------|
+| `RelativePathToTerraformFiles` | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact. |
+| `PipelinePool`                 | string   | false    | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level.                           |
+| `TerraformVersion`             | string   | false    | `'latest'`        | Version of Terraform CLI tool to use with the terraform files.                        |
+| `TerraformBuildInjectionSteps` | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.        |
 
 #### TerraformBuildInjectionSteps
 
