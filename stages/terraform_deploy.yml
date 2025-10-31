@@ -36,7 +36,7 @@ parameters:
   - name: TerraformJobVariableMappings
     type: object
     default: { }
-    displayName: ''
+    displayName: 'Variable mappings to be associated with the deployment jobs.'
 
   # terraform init task parameters
   - name: BackendAzureServiceConnection
