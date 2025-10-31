@@ -1,0 +1,41 @@
+﻿# Template: Utility - Download Pipeline Artifact
+# Purpose: Standardized wrapper for DownloadPipelineArtifact@2 task with PascalCase parameters
+# Azure DevOps Task: DownloadPipelineArtifact@2
+# Documentation: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/download-pipeline-artifact-v2
+#
+# Usage Examples:
+# - Current pipeline: BuildType: 'current', ArtifactName: 'WebApp'
+#
+# Notes:
+# - buildType: 'specific' and all related parameters not implemented
+#
+# Requirements:
+# - Azure DevOps Services only (not supported on Azure DevOps Server/TFS)
+# - Agent version 2.164.1 or greater
+
+parameters:
+  # Artifact Configuration
+  - name: ArtifactName
+    type: string
+    default: ''
+    displayName: 'Artifact name (leave empty to download all artifacts)'
+
+  - name: ItemPattern
+    type: string
+    default: '**'
+    displayName: 'File matching patterns (newline-delimited)'
+
+  - name: TargetPath
+    type: string
+    default: '$(Pipeline.Workspace)'
+    displayName: 'Destination directory path'
+
+steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Pipeline Artifact: ${{ parameters.ArtifactName }}'
+    inputs:
+      buildType: 'current'
+      ${{ if ne(parameters.ArtifactName, '') }}:
+        artifactName: '${{ parameters.ArtifactName }}'
+      itemPattern: '${{ parameters.ItemPattern }}'
+      targetPath: '${{ parameters.TargetPath }}'
