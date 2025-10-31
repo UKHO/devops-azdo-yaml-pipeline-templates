@@ -4,13 +4,13 @@ variables:
 
 stages:
   - stage:
-      variables:
-        - name: thing
-          value: asd
-      jobs:
-        - job:
-          variables:
-            - name: thing
-              value: asd
-          steps:
-            - script: echo "hello world"
+    variables:
+      - name: thing
+        value: asd
+    jobs:
+      - job:
+        variables:
+          - name: thing
+            value: asd
+        steps:
+          - script: echo "hello world"
