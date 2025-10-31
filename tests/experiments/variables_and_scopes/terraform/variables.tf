@@ -1,6 +1,6 @@
 variable "AzDO_Project_Name" {
   type        = string
-  description = "Name of the azdo project in azdo where the library variable groups and pipeline will be deployed"
+  description = "Name of the Azure DevOps project in Azure DevOps where the library variable groups and pipeline will be deployed"
   validation {
     condition = (
       length(var.AzDO_Project_Name) > 0 &&
