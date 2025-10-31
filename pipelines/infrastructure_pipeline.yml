@@ -29,6 +29,11 @@
     default: ''
     displayName: 'Azure service connection for the azdo environment'
 
+  - name: DeploymentJobsVariableMappings
+    type: object
+    default: { }
+    displayName: 'Variable mappings to be associated with the deployment jobs.'
+
   # terraform init task parameters
 
   - name: BackendAzureServiceConnection
@@ -56,6 +61,28 @@
     default: ''
     displayName: 'Azure resource group name for backend where the state is stored'
 
+# Key Vault Parameters
+
+  - name: KeyVaultServiceConnection
+    type: string
+    default: ''
+    displayName: 'Service connection for key vault access secrets'
+
+  - name: KeyVaultName
+    type: string
+    default: ''
+    displayName: 'Name of key vault for accessing secrets'
+
+  - name: KeyVaultSecretsFilter
+    type: string
+    default: '*'
+    displayName: 'Filter for secrets to access from key vault'
+
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether only the terraform plan should be ran and no deployment made'
+
 variables:
   - name: PipelinePool
     value: ${{ parameters.PipelinePool }}
@@ -75,17 +102,16 @@ stages:
       AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
       AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
-      # TerraformArtifactName: # todo
-      # TerraformJobVariableMappings: # todo
+      TerraformJobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
       BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
       BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
       BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
       BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
       BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
-      KeyVaultServiceConnection: Pipeline-CloudDisco # todo
-      KeyVaultName: testkeyvault # todo
-      KeyVaultSecretsFilter: '*' # todo
-      RunPlanOnly: true # todo
+      KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+      KeyVaultName: ${{ parameters.KeyVaultName }}
+      KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+      RunPlanOnly: ${{ parameters.RunPlanOnly }}
       # TerraformVariableMappings: # todo
       # TerraformOutputVariables: # todo
       # TerraformVariableFiles: # todo
