@@ -45,7 +45,7 @@ resource "azuredevops_build_definition" "this" {
     repo_type             = "GitHub"
     repo_id               = "UKHO/devops-azdo-yaml-pipeline-templates"
     branch_name           = "refs/heads/main"
-    yml_path              = "tests/experiments/how-do-variables-act-at-different-scopes.yml"
+    yml_path              = "tests/experiments/variables_and_scopes/how-do-variables-act-at-different-scopes.yml"
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
   }
 }
