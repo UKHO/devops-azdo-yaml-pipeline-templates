@@ -10,13 +10,13 @@ data "azuredevops_serviceendpoint_github" "this" {
 locals {
   variableGroups = {
     forPipeline = "ForPipeline",
-    forStage = "ForStage",
-    forJob = "ForJob"
+    forStage    = "ForStage",
+    forJob      = "ForJob"
   }
 }
 
 resource "azuredevops_variable_group" "this" {
-  project_id   = data.azuredevops_project.this.project_id
+  project_id = data.azuredevops_project.this.project_id
 
   for_each = local.variableGroups
 
@@ -25,13 +25,13 @@ resource "azuredevops_variable_group" "this" {
   allow_access = true
 
   variable {
-    name  = "nonSecretVariable"
-    value = "water is good for you"
+    name  = "nonSecretVariable-${each.value}"
+    value = "nonSecretVariableValue-${each.value}"
   }
 
   variable {
-    name         = "secretVariable"
-    secret_value = "people don't sleep as much as they should"
+    name         = "secretVariable-${each.value}"
+    secret_value = "secretVariableValue-${each.value}"
     is_secret    = true
   }
 }
