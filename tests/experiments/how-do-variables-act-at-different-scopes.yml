@@ -1,0 +1,16 @@
+variables:
+  - name: thing
+    value: thing
+
+stages:
+  - stage:
+      variables:
+        - name: thing
+          value: asd
+      jobs:
+        - job:
+          variables:
+            - name: thing
+              value: asd
+          steps:
+            - script: echo "hello world"
