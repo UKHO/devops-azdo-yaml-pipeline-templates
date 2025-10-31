@@ -1,16 +1,34 @@
 variables:
-  - name: thing
-    value: thing
+  - group: Experimental-VariablesAndScopes-ForPipeline
+  - template: PipelineVariableTemplate.yml
+  - name: PipelineVariable
+    value: PipelineVariableValue
 
 stages:
   - stage:
     variables:
-      - name: thing
-        value: asd
+      - group: Experimental-VariablesAndScopes-ForStage
+      - template: StageVariableTemplate.yml
+      - name: StageVariable
+        value: StageVariableValue
     jobs:
       - job:
         variables:
-          - name: thing
-            value: asd
+          - group: Experimental-VariablesAndScopes-ForJob
+          - template: JobVariableTemplate.yml
+          - name: JobVariable
+            value: JobVariableValue
         steps:
-          - script: echo "hello world"
+          - script: |
+              echo "All of the Template Variables"
+              echo "TemplateVariableForPipeline: '$(TemplateVariableForPipeline)'"
+              echo "TemplateVariableForStage: '$(TemplateVariableForStage)'"
+              echo "TemplateVariableForJob: '$(TemplateVariableForJob)'"
+              echo "All of the Library Variable Group Variables"
+              echo "NonSecretVariable for Pipeline '$(nonSecretVariable-ForPipeline)'"
+              echo "NonSecretVariable for Stage '$(nonSecretVariable-ForStage)'"
+              echo "NonSecretVariable for Job '$(nonSecretVariable-ForJob)'"
+              echo "All of the Normal Variables"
+              echo "PipelineVariable '$(PipelineVariable)'"
+              echo "StageVariable '$(StageVariable)'"
+              echo "JobVariable '$(JobVariable)'"
