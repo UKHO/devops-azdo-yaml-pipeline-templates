@@ -1,5 +1,5 @@
 variables:
-  - group: Experimental-VariablesAndScopes-ForPipeline
+  - group: Experimental-VariablesAndScope-ForPipeline
   - template: PipelineVariableTemplate.yml
   - name: PipelineVariable
     value: PipelineVariableValue
@@ -7,14 +7,14 @@ variables:
 stages:
   - stage:
     variables:
-      - group: Experimental-VariablesAndScopes-ForStage
+      - group: Experimental-VariablesAndScope-ForStage
       - template: StageVariableTemplate.yml
       - name: StageVariable
         value: StageVariableValue
     jobs:
       - job:
         variables:
-          - group: Experimental-VariablesAndScopes-ForJob
+          - group: Experimental-VariablesAndScope-ForJob
           - template: JobVariableTemplate.yml
           - name: JobVariable
             value: JobVariableValue
