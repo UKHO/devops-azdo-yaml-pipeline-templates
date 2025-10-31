@@ -1,10 +1,10 @@
 data "azuredevops_project" "this" {
-  name = "DevOps Chapter"
+  name = var.AzDO_Project_Name
 }
 
 data "azuredevops_serviceendpoint_github" "this" {
   project_id          = data.azuredevops_project.this.project_id
-  service_endpoint_id = "d01ddbe4-5df4-4284-8dce-448c0a40eb5e" # Got this via the 'UKHO' service connection's page
+  service_endpoint_id = var.GitHub_ServiceConnection_Guid
 }
 
 locals {
@@ -44,7 +44,7 @@ resource "azuredevops_build_definition" "this" {
   repository {
     repo_type             = "GitHub"
     repo_id               = "UKHO/devops-azdo-yaml-pipeline-templates"
-    branch_name           = "refs/heads/experiment/how-do-variables-act-at-different-scopes"
+    branch_name           = "refs/heads/main"
     yml_path              = "tests/experiments/how-do-variables-act-at-different-scopes.yml"
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
   }
