@@ -30,7 +30,6 @@ parameters:
 
   - name: DacpacFileName
     type: string
-    default: Dacpac
     displayName: The DACPAC file name within the artifact.
 
 jobs:
