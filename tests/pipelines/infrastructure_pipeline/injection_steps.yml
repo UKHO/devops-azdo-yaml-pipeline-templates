@@ -11,12 +11,12 @@ pool: $(PipelinePool) # Variable defined within template, overridable via templa
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
+    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
     PipelinePool: 'Mare Nubium'
     TerraformVersion: 1.1.9
     TerraformBuildInjectionSteps:
       - pwsh: |
-          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/tests/pipelines/infrastructure_pipeline/injection_steps_terraform/main.tf"
+          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/tests/pipelines/infrastructure_pipeline/test_terraform/main.tf"
           $content = Get-Content $path
           $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
           if ($terraformStart -ge 0) {
