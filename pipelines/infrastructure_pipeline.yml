@@ -41,6 +41,11 @@
     default: ''
     displayName: 'Azure service connection for backend where the state is stored'
 
+  - name: BackendAzureResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
+
   - name: BackendAzureStorageAccountName
     type: string
     default: ''
@@ -55,11 +60,6 @@
     type: string
     default: ''
     displayName: 'Azure storage blob name for backend where the state is stored'
-
-  - name: BackendAzureStorageAccountResourceGroupName
-    type: string
-    default: ''
-    displayName: 'Azure resource group name for backend where the state is stored'
 
 # Key Vault Parameters
 
@@ -104,7 +104,7 @@ stages:
       TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformJobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
       BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
-      BackendAzureStorageAccountResourceGroupName: ${{ parameters.BackendAzureStorageAccountResourceGroupName }}
+      BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
       BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
       BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
       BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}

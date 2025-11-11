@@ -88,6 +88,11 @@ parameters:
     displayName: 'Azure service connection for backend where the state is stored'
     default: ''
 
+  - name: BackendAzureResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
+
   - name: BackendAzureStorageAccountName
     type: string
     default: ''
@@ -102,11 +107,6 @@ parameters:
     type: string
     default: ''
     displayName: 'Azure storage blob name for backend where the state is stored'
-
-  - name: BackendAzureStorageAccountResourceGroupName
-    type: string
-    default: ''
-    displayName: 'Azure resource group name for backend where the state is stored'
 
   - name: DisableBackend
     type: boolean
@@ -168,8 +168,8 @@ steps:
             ${{ if ne(parameters.BackendAzureBlobName, '') }}:
               backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
 
-            ${{ if ne(parameters.BackendAzureStorageAccountResourceGroupName, '') }}:
-              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
+            ${{ if ne(parameters.BackendAzureResourceGroupName, '') }}:
+              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureResourceGroupName }}'
 
           # Azure Provider Configuration (plan/apply/destroy commands)
           ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')) }}:
