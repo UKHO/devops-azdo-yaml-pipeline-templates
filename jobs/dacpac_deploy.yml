@@ -40,7 +40,7 @@ jobs:
     environment: ${{ parameters.AzureDevOpsEnvironment }}
     pool: 
       name: NautilusBuild
-      #demands: DAC-PAC
+      demands: DAC-PAC
     strategy:
       runOnce:
         deploy:
