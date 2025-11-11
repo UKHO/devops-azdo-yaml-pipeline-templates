@@ -34,5 +34,5 @@ jobs:
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: '${{ parameters.ProjectDirectory }}\bin\output'
+          TargetPath: '${{ parameters.ProjectDirectory }}\bin\${{ parameters.Configuration }}'
           ArtifactName: ${{ parameters.ArtifactName }}
