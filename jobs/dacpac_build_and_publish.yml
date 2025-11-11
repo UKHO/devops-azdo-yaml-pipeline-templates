@@ -1,7 +1,7 @@
 parameters:
   - name: ProjectDirectory
     type: string
-    displayName: The directory containing ProjectFileName.
+    displayName: The repo directory containing ProjectFileName.
 
   - name: ProjectFileName
     type: string
@@ -21,7 +21,7 @@ jobs:
   - job: DacpacBuildAndPublish
     workspace:
       clean: all
-    displayName: Build and publish dacpac
+    displayName: Build and publish dacpac - ${{ parameters.ProjectFileName }}
     pool: 
       name: NautilusBuild
       demands:
@@ -29,10 +29,10 @@ jobs:
     steps:
       - template: ../tasks/build_dacpac.yml
         parameters:
-          ProjectPath: '${{ parameters.ProjectDirectory }}\${{ parameters.ProjectFileName }}'
+          ProjectPath: '$(Build.SourcesDirectory)\${{ parameters.ProjectDirectory }}\${{ parameters.ProjectFileName }}'
           Configuration: ${{ parameters.Configuration }}
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
-          TargetPath: '${{ parameters.ProjectDirectory }}\bin\${{ parameters.Configuration }}'
+          TargetPath: '$(Build.SourcesDirectory)\${{ parameters.ProjectDirectory }}\bin\${{ parameters.Configuration }}'
           ArtifactName: ${{ parameters.ArtifactName }}
