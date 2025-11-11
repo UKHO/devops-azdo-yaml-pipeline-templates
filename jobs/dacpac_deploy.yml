@@ -39,7 +39,7 @@ jobs:
     displayName: Deploy ${{ parameters.ArtifactName }}
     environment: ${{ parameters.AzureDevOpsEnvironment }}
     pool: 
-      name: Mare Nubium
+      name: NautilusBuild
       #demands: DAC-PAC
     strategy:
       runOnce:
