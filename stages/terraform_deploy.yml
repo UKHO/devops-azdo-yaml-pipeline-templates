@@ -145,7 +145,7 @@ stages:
           #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
           #VerificationMode: ${{ parameters.VerificationMode }} # missing
 
-      - ${{ if ne(parameters.RunPlanOnly, 'PlanOnly') }}:
+      - ${{ if ne(parameters.RunPlanOnly, 'true') }}:
           - template: ../jobs/manual_verification.yml
             parameters:
               JobName: ${{ variables.ManualVerificationJobName }}
