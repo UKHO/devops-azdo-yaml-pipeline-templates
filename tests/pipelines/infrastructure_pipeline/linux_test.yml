@@ -26,7 +26,7 @@ extends:
     # KeyVaultServiceConnection
     # KeyVaultName
     # KeyVaultSecretsFilter
-    # RunPlanOnly
+    RunPlanOnly: true
     # TerraformVariableMappings
     # TerraformOutputVariables
     # TerraformVariableFiles
