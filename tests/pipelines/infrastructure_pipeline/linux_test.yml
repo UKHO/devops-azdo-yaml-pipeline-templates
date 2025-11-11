@@ -11,4 +11,4 @@ pool: $(PipelinePool) # Variable defined within template, overridable via templa
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
+    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
