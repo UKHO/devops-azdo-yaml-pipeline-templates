@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+
+parameters:
+  - name: AzureSubscription
+    type: string
+    displayName: The target Azure Resource Manager subscription for deploying SQL files.
+
+  - name: ServerName
+    type: string
+    displayName: The Azure SQL Server name.
+
+  - name: DatabaseName
+    type: string
+    displayName: The name of the Azure SQL database.
+
+  - name: SqlUsername
+    type: string
+    displayName: The Azure SQL Server administrator login.
+
+  - name: SqlPassword
+    type: string
+    displayName: The password for the Azure SQL Server administrator.
+
+  - name: DacpacFile
+    type: string
+    displayName: The location of the DACPAC file.
+
+steps:
+  - task: SqlAzureDacpacDeployment@1
+    displayName: Update DB with dacpac
+    inputs:
+      azureConnectionType: ConnectedServiceNameARM
+      azureSubscription: ${{ parameters.AzureSubscription }}
+      AuthenticationType: server
+      ServerName: ${{ parameters.ServerName }}
+      DatabaseName: ${{ parameters.DatabaseName }}
+      SqlUsername: ${{ parameters.SqlUsername }}
+      SqlPassword: ${{ parameters.SqlPassword }}
+      deployType: DacpacTask
+      DeploymentAction: Publish
+      DacpacFile: ${{ parameters.DacpacFile }}
+      AdditionalArguments: '/DiagnosticsFile:$(System.DefaultWorkingDirectory)/dacpac_deploy_output.log /p:ScriptDatabaseOptions=False'
+      IpDetectionMethod: AutoDetect
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish dacpac diagnostics
+    condition: always()
+    inputs:
+      targetPath: '$(System.DefaultWorkingDirectory)/dacpac_deploy_output.log'
+      artifact: 'Dacpac Diagnostics File $(system.JobId)'
+      publishLocation: pipeline
