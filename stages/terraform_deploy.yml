@@ -156,7 +156,7 @@ stages:
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
-              Condition: |
+              Condition: >
                 or(
                   succeeded('${{ variables.ManualVerificationJobName }}'),
                   and(
