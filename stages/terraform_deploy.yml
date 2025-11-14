@@ -156,7 +156,16 @@ stages:
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
-              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(${{ variables.RunApply }}, 'true'), eq(${{ variables.NeedsManualVerification }}, 'false'))) # todo refactor this down further
+              Condition: |
+                or(
+                  succeeded('${{ variables.ManualVerificationJobName }}'),
+                  and(
+                    succeeded('${{ variables.TerraformPlanJobName }}'),
+                    eq(${{ variables.RunApply }}, 'true'),
+                    eq(${{ variables.NeedsManualVerification }}, 'false')
+                  )
+                )
+                # todo this section is confusing...
               JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
               TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
