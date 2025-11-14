@@ -1,24 +1,40 @@
-﻿# Template: Utility - Download Pipeline Artifact
-# Purpose: Standardized wrapper for DownloadPipelineArtifact@2 task with PascalCase parameters
-# Azure DevOps Task: DownloadPipelineArtifact@2
-# Documentation: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/download-pipeline-artifact-v2
+﻿# Azure DevOps Task: DownloadPipelineArtifact@2
 #
-# Usage Examples:
-# - Current pipeline: BuildType: 'current', ArtifactName: 'WebApp'
+# Purpose:
+#   Provides a reusable, standardized wrapper for downloading pipeline artifacts in Azure DevOps pipelines.
+#   Supports downloading a specific artifact or all artifacts from the current pipeline run, with configurable target path and file patterns.
+#
+# Parameters:
+#   - ArtifactName (string, optional): Name of the artifact to download. Leave empty to download all artifacts.
+#   - DownloadAllArtifacts (boolean, optional): If true, downloads all artifacts from the pipeline run. Default: false
+#   - ItemPattern (string, optional): File matching pattern (newline-delimited). Default: '**'
+#   - TargetPath (string, optional): Destination directory for downloaded artifacts. Default: $(Pipeline.Workspace)
+#
+# Example Usage:
+#   - template: tasks/download_pipeline_artifact.yml
+#     parameters:
+#       ArtifactName: 'WebApp'
+#       TargetPath: '$(Build.ArtifactStagingDirectory)/WebApp'
+#
+#   - template: tasks/download_pipeline_artifact.yml
+#     parameters:
+#       DownloadAllArtifacts: true
+#       TargetPath: '$(Build.ArtifactStagingDirectory)/All'
 #
 # Notes:
-# - buildType: 'specific' and all related parameters not implemented
-#
-# Requirements:
-# - Azure DevOps Services only (not supported on Azure DevOps Server/TFS)
-# - Agent version 2.164.1 or greater
+#   - Only supports downloading from the current pipeline run (buildType: 'current').
+#   - Does not implement downloading from specific builds or external pipelines.
 
 parameters:
-  # Artifact Configuration
   - name: ArtifactName
     type: string
     default: ''
     displayName: 'Artifact name (leave empty to download all artifacts)'
+
+  - name: DownloadAllArtifacts
+    type: boolean
+    default: false
+    displayName: 'Whether this task downloads all artifacts associated with the pipeline run'
 
   - name: ItemPattern
     type: string
@@ -32,10 +48,13 @@ parameters:
 
 steps:
   - task: DownloadPipelineArtifact@2
-    displayName: 'Download Pipeline Artifact: ${{ parameters.ArtifactName }}'
+    ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
+      displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
+    ${{ else }}:
+      displatName: 'Download all artifacts'
     inputs:
       buildType: 'current'
-      ${{ if ne(parameters.ArtifactName, '') }}:
+      ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
         artifactName: '${{ parameters.ArtifactName }}'
       itemPattern: '${{ parameters.ItemPattern }}'
       targetPath: '${{ parameters.TargetPath }}'
