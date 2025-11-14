@@ -1,10 +1,25 @@
-﻿# Azure DevOps Task: TerraformInstaller@1 (Microsoft DevLabs Custom Terraform Tasks)
+﻿# Template: Terraform Installer Task
+# Purpose: This template installs a specific version of the Terraform CLI in an Azure DevOps pipeline.
 #
-# 'TerraformVersion' Examples:
-# - Install latest stable version: 'latest'
-# - Specific version: '1.11.3', '1.10.5'
-# - Semantic version: '1.11.x' (latest patch in 1.11)
-# - Version range: '>=1.10.0' (1.10.0 or higher)
+# Parameters:
+# - `TerraformVersion` (string, optional): Specifies the version of Terraform CLI to install.
+#   - Default: `latest`
+#   - Examples:
+#     - Install the latest stable version: `latest`
+#     - Install a specific version: `1.11.3`, `1.10.5`
+#     - Install the latest patch in a semantic version: `1.11.x`
+#     - Install a version range: `>=1.10.0`
+#
+# Usage Example:
+# ```yaml
+# - template: tasks/terraform_installer.yml
+#   parameters:
+#     TerraformVersion: '1.3.5'
+# ```
+#
+# Notes:
+# - This template uses the `TerraformInstaller@1` task provided by Microsoft DevLabs.
+# - Ensure the specified version is compatible with your pipeline requirements.
 
 parameters:
   - name: TerraformVersion
