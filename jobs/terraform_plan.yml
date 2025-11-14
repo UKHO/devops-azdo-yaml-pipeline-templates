@@ -154,17 +154,20 @@ jobs:
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
-            # Terraform Validate
             - template: ../tasks/terraform.yml
               parameters:
                 Command: validate
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
-            # Terraform Plan
             - template: ../tasks/terraform.yml
               parameters:
                 Command: plan
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: output
+                WorkingDirectory: $(TerraformWorkingDirectory)
