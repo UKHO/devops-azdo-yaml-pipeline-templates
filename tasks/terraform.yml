@@ -1,61 +1,45 @@
 # Azure DevOps Task: TerraformTask@5
 #
 # Purpose:
-# This template is designed to execute Terraform commands in an Azure DevOps pipeline. It supports a variety of commands,
-# including `init`, `plan`, `apply`, `destroy`, and custom commands, with specific configurations for Azure backend and provider settings.
-#
-# Features:
-# - Supports Azure as the cloud provider.
-# - Provides conditional parameter validation and command-specific parameter handling.
-# - Includes comprehensive backend configuration for Azure.
-# - Implements fail-fast error handling for robust pipeline execution.
+#   Executes Terraform commands in an Azure DevOps pipeline, supporting Azure as the backend and provider.
+#   Handles commands such as `init`, `plan`, `apply`, `destroy`, and custom commands, with flexible backend and provider configuration.
 #
 # Parameters:
-# - `Command` (string, required): Specifies the Terraform command to execute. Supported values:
-#   - `init`, `validate`, `show`, `plan`, `apply`, `output`, `destroy`, `custom`.
-# - `WorkingDirectory` (string, optional): Specifies the working directory for Terraform files. Default: `$(Pipeline.Workspace)`.
-# - `CommandOptions` (string, optional): Additional arguments for the Terraform command. Default: `''`.
-# - `CustomCommand` (string, optional): Custom Terraform command to execute when `Command` is set to `custom`. Default: `''`.
-# - `OutputTo` (string, optional): Specifies the output destination for `show` or `output` commands. Default: `console`. Supported values:
-#   - `console`, `file`.
-# - `OutputFileName` (string, optional): Specifies the output file name when `OutputTo` is set to `file`. Default: `''`.
-# - `OutputFormat` (string, optional): Specifies the output format for the `show` command. Default: `default`. Supported values:
-#   - `default`, `json`.
-# - `BackendAzureServiceConnection` (string, optional): Azure service connection for backend state storage. Default: `''`.
-# - `BackendAzureResourceGroupName` (string, optional): Azure resource group name for backend state storage. Default: `''`.
-# - `BackendAzureStorageAccountName` (string, optional): Azure storage account name for backend state storage. Default: `''`.
-# - `BackendAzureContainerName` (string, optional): Azure storage container name for backend state storage. Default: `''`.
-# - `BackendAzureBlobName` (string, optional): Azure storage blob name for backend state storage. Default: `''`.
-# - `DisableBackend` (boolean, optional): Disables backend configuration during the `init` command. Default: `false`.
-# - `EnvironmentAzureServiceConnection` (string, optional): Azure service connection for provider configuration. Default: `''`.
+#   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
+#   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
+#   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
+#   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
+#   - OutputTo (string, optional): Where to send output for show/output commands. Values: console, file. Default: console
+#   - OutputFileName (string, optional): File name for output (when OutputTo is file). Default: ''
+#   - OutputFormat (string, optional): Format for show command output. Values: default, json. Default: default
+#   - BackendAzureServiceConnection (string, optional): Azure service connection for backend state storage. Default: ''
+#   - BackendAzureResourceGroupName (string, optional): Azure resource group for backend state storage. Default: ''
+#   - BackendAzureStorageAccountName (string, optional): Azure storage account for backend state storage. Default: ''
+#   - BackendAzureContainerName (string, optional): Azure storage container for backend state storage. Default: ''
+#   - BackendAzureBlobName (string, optional): Azure blob name (key) for backend state storage. Default: ''
+#   - DisableBackend (boolean, optional): Skip backend configuration during init. Default: false
+#   - EnvironmentAzureServiceConnection (string, optional): Azure service connection for provider authentication. Default: ''
 #
-# Usage Examples:
-# - Initialize Terraform:
-#   ```yaml
+# Example Usage:
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'init'
 #       BackendAzureServiceConnection: 'my-azure-connection'
-#   ```
-# - Plan Terraform changes:
-#   ```yaml
+#
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'plan'
 #       CommandOptions: '-out=tfplan'
-#   ```
-# - Apply Terraform changes:
-#   ```yaml
+#
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'apply'
 #       CommandOptions: 'tfplan'
-#   ```
 #
 # Notes:
-# - This template is tailored for Azure and does not support other cloud providers.
-# - Certain Azure-specific parameters are excluded for simplicity.
-# - The `DisableBackend` parameter allows backend configuration to be skipped during the `init` command.
+#   - This template is designed for Azure and does not support other cloud providers.
+#   - Uses the TerraformTask@5 task from Microsoft DevLabs.
+#   - The DisableBackend parameter allows backend configuration to be skipped during init.
 
 parameters:
   - name: Command
