@@ -106,7 +106,7 @@
 
 stages:
   - stage: Deploy_${{ parameters.AzDOEnvironmentName }}_Infrastructure
-    displayName: 'Deploy Terraform into the ${{ parameters.AzDOEnvironmentName }} environment'
+    displayName: 'Deploy ${{ parameters.AzDOEnvironmentName }}'
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
