@@ -1,9 +1,4 @@
-﻿# Terraform Deploy Stage Template
-#
-# Purpose: Deploys Terraform infrastructure using downloaded artifacts with Azure backend configuration
-# Features: Full deployment workflow with init and apply commands, Azure-specific backend configuration
-#
-parameters:
+﻿parameters:
   # Generic parameters
   - name: DependsOn
     type: object
@@ -118,8 +113,8 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
-      NeedsManualVerification: eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'], 'true')
-
+      NeedsManualVerification: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'] # todo possible better name needed...
+      RunApply: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.runApply'] # todo possible better name needed...
     jobs:
       - template: ../jobs/terraform_plan.yml
         parameters:
@@ -151,7 +146,7 @@ stages:
             parameters:
               JobName: ${{ variables.ManualVerificationJobName }}
               DependsOn: ${{ variables.TerraformPlanJobName }}
-              Condition: and(succeeded(), ${{ variables.NeedsManualVerification }}) # todo 2. Implement the needsManualVerification variable on the TerraformTask_plan task 3. Refactor the task to have a name passed in?
+              Condition: and(succeeded(), eq(${{ variables.NeedsManualVerification }}, 'true')) # todo 2. Implement the needsManualVerification variable on the TerraformTask_plan task 3. Refactor the task to have a name passed in?
               Instructions: 'Please validate the terraform plan is acceptable to apply'
 
           - template: ../jobs/terraform_apply.yml
@@ -161,7 +156,7 @@ stages:
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
-              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'], 'false'))) # todo doublecheck, refactor this down
+              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(${{ variables.RunApply }}, 'true'), eq(${{ variables.NeedsManualVerification }}, 'false'))) # todo refactor this down further
               JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
               TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
