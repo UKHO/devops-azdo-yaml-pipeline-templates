@@ -166,6 +166,7 @@ jobs:
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                PublishPlanResultsFileName: 'TerraformPlan'
 
             - template: ../tasks/terraform.yml
               parameters:
