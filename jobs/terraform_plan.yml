@@ -164,8 +164,6 @@ jobs:
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
-# Terraform Workspace
-
             - template: ../tasks/terraform.yml
               parameters:
                 Command: validate
