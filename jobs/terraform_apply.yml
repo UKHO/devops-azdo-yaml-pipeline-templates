@@ -112,8 +112,6 @@ jobs:
     environment: ${{ parameters.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
-    workspace:
-      clean: all
     variables:
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
