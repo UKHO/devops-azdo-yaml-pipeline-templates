@@ -35,9 +35,6 @@ jobs:
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
 
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
-
       - template: ../tasks/terraform_installer.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
@@ -52,15 +49,6 @@ jobs:
         parameters:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
-
-      - checkout: self
-        displayName: 'Clean the directory post validation'
-        clean: true
-        path: $(RepositoryCheckoutPath)
-
-      # Repeat TerraformBuildInjectionSteps on clean code
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
 
       - checkout: self
         displayName: "Clean the directory post validation"
