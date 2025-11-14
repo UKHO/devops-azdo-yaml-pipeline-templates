@@ -1,31 +1,55 @@
-﻿# Azure Key Vault Task Wrapper
-# Wraps Microsoft Azure DevOps Azure Key Vault task for standardised CI/CD usage
-# https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/azure-key-vault
+﻿# Azure DevOps Task: AzureKeyVault@2
+#
+# Purpose:
+#   Provides a reusable wrapper for the Azure Key Vault task in Azure DevOps pipelines.
+#   Enables secure retrieval of secrets from an Azure Key Vault for use in CI/CD workflows.
+#
+# Parameters:
+#   - KeyVaultServiceConnection (string, required): Name of the Azure Resource Manager service connection with access to the Key Vault.
+#   - KeyVaultName (string, required): Name of the Azure Key Vault to retrieve secrets from.
+#   - SecretsFilter (string, optional): Filter for which secrets to fetch (supports wildcards, comma-separated). Default: '*'
+#   - RunAsPreJob (boolean, optional): If true, runs the task as a pre-job to make secrets available to all jobs. Default: false
+#
+# Example Usage:
+#   - template: tasks/azure_key_vault.yml
+#     parameters:
+#       KeyVaultServiceConnection: 'MyAzureServiceConnection'
+#       KeyVaultName: 'my-keyvault'
+#       SecretsFilter: 'appsecret1,appsecret2'
+#
+#   - template: tasks/azure_key_vault.yml
+#     parameters:
+#       KeyVaultServiceConnection: 'MyAzureServiceConnection'
+#       KeyVaultName: 'my-keyvault'
+#       RunAsPreJob: true
+#
+# Notes:
+#   - Secrets are mapped to pipeline variables with the same name as in the Key Vault.
+#   - Use secret variables in subsequent steps as $(secretName).
+#   - Requires the service connection to have at least "Get" permissions on secrets.
 
 parameters:
   - name: KeyVaultServiceConnection
     type: string
-    default: ''
-    displayName: 'Azure Subscription'
+    displayName: 'Azure Resource Manager service connection (required)'
 
   - name: KeyVaultName
     type: string
-    default: ''
-    displayName: 'Key Vault'
+    displayName: 'Azure Key Vault name (required)'
 
   - name: SecretsFilter
     type: string
     default: '*'
-    displayName: 'Secrets Filter'
+    displayName: 'Secrets filter (wildcards or comma-separated, optional)'
 
   - name: RunAsPreJob
     type: boolean
     default: false
-    displayName: 'Run As Pre-Job'
+    displayName: 'Run as pre-job (make secrets available to all jobs)'
 
 steps:
   - task: AzureKeyVault@2
-    displayName: 'Access secrets in key vault: ${{ parameters.KeyVaultName }}'
+    displayName: 'Download secrets from Azure Key Vault: ${{ parameters.KeyVaultName }}'
     inputs:
       azureSubscription: ${{ parameters.KeyVaultServiceConnection }}
       KeyVaultName: ${{ parameters.KeyVaultName }}
