@@ -48,13 +48,13 @@ parameters:
 
 steps:
   - task: DownloadPipelineArtifact@2
-    ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
+    ${{ if and(eq(parameters.DownloadAllArtifacts, false), ne(parameters.ArtifactName, '')) }}:
       displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
     ${{ else }}:
       displayName: 'Download all artifacts'
     inputs:
       buildType: 'current'
-      ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
+      ${{ if and(eq(parameters.DownloadAllArtifacts, false), ne(parameters.ArtifactName, '')) }}:
         artifactName: '${{ parameters.ArtifactName }}'
       itemPattern: '${{ parameters.ItemPattern }}'
       targetPath: '${{ parameters.TargetPath }}'
