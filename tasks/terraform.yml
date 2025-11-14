@@ -1,34 +1,66 @@
-# Build Category: Terraform Infrastructure as Code Wrapper
-# Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
 # Azure DevOps Task: TerraformTask@5
 #
+# Purpose:
+# This template is designed to execute Terraform commands in an Azure DevOps pipeline. It supports a variety of commands,
+# including `init`, `plan`, `apply`, `destroy`, and custom commands, with specific configurations for Azure backend and provider settings.
+#
 # Features:
-# - Single-cloud provider supported (Azure)
-# - Conditional parameter validation
-# - Comprehensive backend configuration support
-# - Command-specific parameter handling
-# - Fail-fast error handling
+# - Supports Azure as the cloud provider.
+# - Provides conditional parameter validation and command-specific parameter handling.
+# - Includes comprehensive backend configuration for Azure.
+# - Implements fail-fast error handling for robust pipeline execution.
+#
+# Parameters:
+# - `Command` (string, required): Specifies the Terraform command to execute. Supported values:
+#   - `init`, `validate`, `show`, `plan`, `apply`, `output`, `destroy`, `custom`.
+# - `WorkingDirectory` (string, optional): Specifies the working directory for Terraform files. Default: `$(Pipeline.Workspace)`.
+# - `CommandOptions` (string, optional): Additional arguments for the Terraform command. Default: `''`.
+# - `CustomCommand` (string, optional): Custom Terraform command to execute when `Command` is set to `custom`. Default: `''`.
+# - `OutputTo` (string, optional): Specifies the output destination for `show` or `output` commands. Default: `console`. Supported values:
+#   - `console`, `file`.
+# - `OutputFileName` (string, optional): Specifies the output file name when `OutputTo` is set to `file`. Default: `''`.
+# - `OutputFormat` (string, optional): Specifies the output format for the `show` command. Default: `default`. Supported values:
+#   - `default`, `json`.
+# - `BackendAzureServiceConnection` (string, optional): Azure service connection for backend state storage. Default: `''`.
+# - `BackendAzureResourceGroupName` (string, optional): Azure resource group name for backend state storage. Default: `''`.
+# - `BackendAzureStorageAccountName` (string, optional): Azure storage account name for backend state storage. Default: `''`.
+# - `BackendAzureContainerName` (string, optional): Azure storage container name for backend state storage. Default: `''`.
+# - `BackendAzureBlobName` (string, optional): Azure storage blob name for backend state storage. Default: `''`.
+# - `DisableBackend` (boolean, optional): Disables backend configuration during the `init` command. Default: `false`.
+# - `EnvironmentAzureServiceConnection` (string, optional): Azure service connection for provider configuration. Default: `''`.
 #
 # Usage Examples:
-# - Init: command: 'init'
-# - Plan: command: 'plan', command_options: '-out tfplan'
-# - Apply: command: 'apply', command_options: 'tfplan'
-# - Custom: command: 'custom', custom_command: 'workspace list'
+# - Initialize Terraform:
+#   ```yaml
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'init'
+#       BackendAzureServiceConnection: 'my-azure-connection'
+#   ```
+# - Plan Terraform changes:
+#   ```yaml
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'plan'
+#       CommandOptions: '-out=tfplan'
+#   ```
+# - Apply Terraform changes:
+#   ```yaml
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'apply'
+#       CommandOptions: 'tfplan'
+#   ```
 #
-# Notes
-# - Other cloud providers have been excluded.
-# - Following azurerm parameters not included:
-#   - backendAzureRmOverrideSubscriptionID
-#   - backendAzureRmUseIdTokenGeneration
-#   - backendAzureRmUseCliFlagsForAuthentication
-#   - environmentAzureRmOverrideSubscriptionID
-#   - environmentAzureRmUseIdTokenGeneration
-# - TerraformTask does not support '-backend=false' without requiring the need of 'backendServiceArm' parameter, see 'DisableBackend' parameter usage
+# Notes:
+# - This template is tailored for Azure and does not support other cloud providers.
+# - Certain Azure-specific parameters are excluded for simplicity.
+# - The `DisableBackend` parameter allows backend configuration to be skipped during the `init` command.
 
 parameters:
   - name: Command
     type: string
-    displayName: 'Terraform command to execute'
+    displayName: 'Terraform command (init, plan, apply, etc.)'
     values:
       - init
       - validate
@@ -41,29 +73,23 @@ parameters:
 
   - name: WorkingDirectory
     type: string
-    displayName: 'Working directory for Terraform files'
+    displayName: 'Directory containing Terraform configuration files'
     default: '$(Pipeline.Workspace)'
 
-  # Command Options
   - name: CommandOptions
     type: string
-    displayName: 'Additional command arguments'
+    displayName: 'Extra arguments for the Terraform command'
     default: ''
-    # Examples:
-    # - Plan: '-out tfplan'
-    # - Apply: 'tfplan' or '-auto-approve'
-    # - Destroy: '-auto-approve'
 
   - name: CustomCommand
     type: string
-    displayName: 'Custom Terraform command (when command = custom)'
+    displayName: 'Custom Terraform CLI command (when Command is custom)'
     default: ''
-    # Examples: 'workspace list', 'state list', 'providers'
 
   # Output Configuration (for show/output commands)
   - name: OutputTo
     type: string
-    displayName: 'Output destination for show/output commands'
+    displayName: 'Where to send output for show/output commands'
     default: 'console'
     values:
       - console
@@ -71,12 +97,12 @@ parameters:
 
   - name: OutputFileName
     type: string
-    displayName: 'Output file name (when OutputTo = file)'
+    displayName: 'File name for output (when OutputTo is file)'
     default: ''
 
   - name: OutputFormat
     type: string
-    displayName: 'Output format for show command'
+    displayName: 'Format for show command output'
     default: 'default'
     values:
       - default
@@ -85,38 +111,38 @@ parameters:
   # Azure Backend Configuration (for init command)
   - name: BackendAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for backend where the state is stored'
+    displayName: 'Azure service connection for backend state storage'
     default: ''
 
   - name: BackendAzureResourceGroupName
     type: string
     default: ''
-    displayName: 'Azure resource group name for backend where the state is stored'
+    displayName: 'Azure resource group for backend state storage'
 
   - name: BackendAzureStorageAccountName
     type: string
     default: ''
-    displayName: 'Azure storage account name for backend where the state is stored'
+    displayName: 'Azure storage account for backend state storage'
 
   - name: BackendAzureContainerName
     type: string
     default: ''
-    displayName: 'Azure storage container name for backend where the state is stored'
+    displayName: 'Azure storage container for backend state storage'
 
   - name: BackendAzureBlobName
     type: string
     default: ''
-    displayName: 'Azure storage blob name for backend where the state is stored'
+    displayName: 'Azure blob name (key) for backend state storage'
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Disable the backend configuration when executing the init command'
+    displayName: 'Skip backend configuration during init'
     default: false
 
-  # Provider Environment Configuration (for plan/apply/destroy commands)
+  # Azure Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for providers'
+    displayName: 'Azure service connection for provider authentication'
     default: ''
 
 steps:
@@ -159,6 +185,9 @@ steps:
             ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
               backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
 
+            ${{ if ne(parameters.BackendAzureResourceGroupName, '') }}:
+              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureResourceGroupName }}'
+
             ${{ if ne(parameters.BackendAzureStorageAccountName, '') }}:
               backendAzureRmStorageAccountName: '${{ parameters.BackendAzureStorageAccountName }}'
 
@@ -167,9 +196,6 @@ steps:
 
             ${{ if ne(parameters.BackendAzureBlobName, '') }}:
               backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
-
-            ${{ if ne(parameters.BackendAzureResourceGroupName, '') }}:
-              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureResourceGroupName }}'
 
           # Azure Provider Configuration (plan/apply/destroy commands)
           ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')) }}:
