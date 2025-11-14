@@ -27,8 +27,8 @@
 jobs:
   - job: ${{ parameters.JobName }}
     dependsOn: ${{ parameters.DependsOn }}
-    pool: server
     condition: ${{ parameters.Condition }}
+    pool: server
     displayName: 'Service Manual Verification'
     steps:
       - template: ../tasks/delay.yml
