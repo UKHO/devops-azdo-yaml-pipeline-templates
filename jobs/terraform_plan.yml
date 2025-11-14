@@ -9,6 +9,16 @@ parameters:
     default: TerraformPlan
     displayName: 'The job name for this job for ease of identity'
 
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'What this job will depend on'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
   - name: JobVariableMappings
     type: object
     default: { }
@@ -104,8 +114,8 @@ jobs:
   - deployment: ${{ parameters.JobName }}
     displayName: 'Terraform Plan'
     environment: ${{ parameters.AzDOEnvironmentName }}
-    workspace:
-      clean: all
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
     variables:
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
