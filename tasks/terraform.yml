@@ -5,6 +5,7 @@
 #   Handles commands such as `init`, `plan`, `apply`, `destroy`, and custom commands, with flexible backend and provider configuration.
 #
 # Parameters:
+#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
 #   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
@@ -42,6 +43,11 @@
 #   - The DisableBackend parameter allows backend configuration to be skipped during init.
 
 parameters:
+  - name: TaskEnvironmentVariables
+    type: object
+    displayName: 'Environment variables to be passed to the task'
+    default: { }
+
   - name: Command
     type: string
     displayName: 'Terraform command (init, plan, apply, etc.)'
@@ -135,11 +141,13 @@ steps:
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_init
         workingDirectory: ${{ parameters.WorkingDirectory }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
 
   - ${{ else }}:
       - task: TerraformTask@5
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_${{ parameters.Command }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
         inputs:
           # Core Configuration
           provider: 'azurerm'
