@@ -165,7 +165,6 @@ stages:
                     eq(${{ variables.NeedsManualVerification }}, 'false')
                   )
                 )
-                # todo this section is confusing...
               JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
               TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
