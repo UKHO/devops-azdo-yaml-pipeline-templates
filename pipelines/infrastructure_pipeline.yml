@@ -83,6 +83,11 @@
     default: false
     displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
+  - name: TerraformEnvironmentVariableMappings
+    type: object
+    default: { }
+    displayName: 'Environment variables to be passed to the task'
+
 variables:
   - name: PipelinePool
     value: ${{ parameters.PipelinePool }}
@@ -112,6 +117,6 @@ stages:
       KeyVaultName: ${{ parameters.KeyVaultName }}
       KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
       RunPlanOnly: ${{ parameters.RunPlanOnly }}
-      # TerraformVariableMappings: # todo
-      # TerraformOutputVariables: # todo
-      # TerraformVariableFiles: # todo
+      TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+      # TerraformOutputVariables: # todo add the parameter for this and pass it through
+      # TerraformVariableFiles: # todo add the parameter for this and pass it through

@@ -89,10 +89,10 @@
       - VerifyOnAny
       - VerifyDisabled
 
-  - name: TerraformVariableMappings
+  - name: TerraformEnvironmentVariableMappings
     type: object
     default: { }
-    displayName: ''
+    displayName: 'Environment variables to be passed to the task'
 
   - name: TerraformOutputVariables
     type: object
@@ -137,9 +137,9 @@ stages:
           BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
           # terraform plan task parameters
           AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-          #TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
-          #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
-          #VerificationMode: ${{ parameters.VerificationMode }} # missing
+          TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+          #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
+          #VerificationMode: ${{ parameters.VerificationMode }} # todo add the parameter for this and pass it through
 
       - ${{ if eq(parameters.RunPlanOnly, false) }}:
           - template: ../jobs/manual_verification.yml
@@ -182,7 +182,7 @@ stages:
               BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
               # terraform plan task parameters
               AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-              #TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
-              #TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }} # missing
-              #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
+              TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+              #TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }} # todo add the parameter for this and pass it through
+              #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
 

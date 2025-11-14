@@ -91,10 +91,10 @@ parameters:
     default: ''
     displayName: 'Azure service connection for the azdo environment'
 
-  - name: TerraformEnvironmentVariableMappings # not used yet
+  - name: TerraformEnvironmentVariableMappings
     type: object
     default: { }
-    displayName: 'Mappings for terraform variables'
+    displayName: 'Environment variables to be passed to the task'
 
   - name: TerraformVariableFiles # not used yet
     type: object
@@ -149,9 +149,11 @@ jobs:
                 BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
+                TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
             - template: ../tasks/terraform.yml
               parameters:
                 Command: apply
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
+                TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
