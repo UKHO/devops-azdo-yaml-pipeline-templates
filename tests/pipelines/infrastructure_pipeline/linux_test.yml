@@ -11,24 +11,24 @@ pool: $(PipelinePool) # Variable defined within template, overridable via templa
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
-    # PipelinePool
+    # PipelinePool # do not need to test
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
     TerraformVersion: 1.13.5
-    # TerraformBuildInjectionSteps
+    # TerraformBuildInjectionSteps # do not need to test
     AzDOEnvironmentName: Discovery
     AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-    # DeploymentJobsVariableMappings
+    # DeploymentJobsVariableMappings # todo configure this for testing
     BackendAzureServiceConnection: Pipeline-CloudDisco # ?
     BackendAzureResourceGroupName: m-devopschapter-rg
     BackendAzureStorageAccountName: ukhodoctfstatesa
     BackendAzureContainerName: tfstate
     BackendAzureBlobName: linux_test.tfstate
-    # KeyVaultServiceConnection
-    # KeyVaultName
-    # KeyVaultSecretsFilter
+    # KeyVaultServiceConnection # todo configure this
+    # KeyVaultName # todo configure this
+    # KeyVaultSecretsFilter # todo configure this
     RunPlanOnly: true
-    # TerraformVariableMappings
-    # TerraformOutputVariables
-    # TerraformVariableFiles
+    # TerraformVariableMappings # todo configure this
+    # TerraformOutputVariables # todo configure this
+    # TerraformVariableFiles # todo configure this
 
 
