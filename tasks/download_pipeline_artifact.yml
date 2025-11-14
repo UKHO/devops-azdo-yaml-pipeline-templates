@@ -51,7 +51,7 @@ steps:
     ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
       displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
     ${{ else }}:
-      displatName: 'Download all artifacts'
+      displayName: 'Download all artifacts'
     inputs:
       buildType: 'current'
       ${{ if and(eq(parameters.DownloadAllArtifacts, 'false'), ne(parameters.ArtifactName, '')) }}:
