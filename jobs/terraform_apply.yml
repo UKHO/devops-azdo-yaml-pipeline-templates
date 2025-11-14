@@ -1,4 +1,7 @@
-﻿parameters:
+﻿# Job Template: Terraform Apply
+# Purpose: Runs Terraform apply to deploy infrastructure, supporting variable injection and Azure Key Vault integration.
+
+parameters:
   # generic parameters
 
   - name: JobName
