@@ -1,21 +1,36 @@
-﻿# Template: Deploy - Manual Validation
-# Purpose: Standardized wrapper for ManualValidation@1 task with comprehensive parameter support
-# Azure DevOps Task: ManualValidation@1
-# Documentation: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/manual-validation-v1
+﻿# Azure DevOps Task: ManualValidation@1
 #
-# Usage Examples:
-# - Basic validation: NotifyUsers: 'admin@company.com', Instructions: 'Review deployment'
-# - Group notification: NotifyUsers: '[CompanyName]\DeploymentTeam'
-# - Specific approvers: NotifyUsers: 'team@company.com', Approvers: 'manager@company.com,lead@company.com'
-# - Auto-resume: NotifyUsers: 'team@company.com', OnTimeout: 'resume', TimeoutInMinutes: 1440
-# - No self-approval: AllowApproversToApproveTheirOwnRuns: false
-# - No notification (testing): NotifyUsers: '', Instructions: 'Test validation step'
+# Purpose:
+#   Provides a standardized, reusable wrapper for the ManualValidation@1 task in Azure DevOps pipelines.
+#   Enables manual approval steps with flexible notification, approver, and timeout configuration.
 #
-# Requirements:
-# - YAML pipeline only (not supported in Classic pipelines)
-# - Must run in agentless/server job (pool: server)
-# - Default: Users with "Queue builds" permission can approve/reject
-# - Optional: Specific approvers can be designated for tighter control
+# Parameters:
+#   - NotifyUsers (string, required): Users or groups to notify via email. Use empty string for no notifications.
+#   - Approvers (string, optional): Comma-separated list of users/groups/teams allowed to approve. Default: ''
+#   - AllowApproversToApproveTheirOwnRuns (boolean, optional): Allow approvers to approve their own runs. Default: true
+#   - Instructions (string, optional): Instructions shown to users for manual validation. Default: ''
+#   - OnTimeout (string, optional): Action on timeout. Values: reject, resume. Default: reject
+#   - TimeoutInMinutes (number, optional): Timeout in minutes (max 30 days). Default: 60
+#
+# Example Usage:
+#   - template: tasks/manual_validation.yml
+#     parameters:
+#       NotifyUsers: 'admin@company.com'
+#       Instructions: 'Please review and approve this deployment.'
+#
+#   - template: tasks/manual_validation.yml
+#     parameters:
+#       NotifyUsers: '[CompanyName]\DeploymentTeam'
+#       Approvers: 'manager@company.com,lead@company.com'
+#       OnTimeout: 'resume'
+#       TimeoutInMinutes: 1440
+#
+# Notes:
+#   - Only supported in YAML pipelines (not Classic).
+#   - Must run in an agentless/server job (`pool: server`).
+#   - By default, users with "Queue builds" permission can approve/reject.
+#   - Approvers parameter allows restricting approval to specific users/groups.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/manual-validation-v1
 
 parameters:
   # Notification Configuration
