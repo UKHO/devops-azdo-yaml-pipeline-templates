@@ -33,7 +33,7 @@ parameters:
     default: 'latest'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
-  - name: TerraformJobVariableMappings
+  - name: DeploymentJobsVariableMappings
     type: object
     default: { }
     displayName: 'Variable mappings to be associated with the deployment jobs.'
@@ -110,7 +110,7 @@ parameters:
     displayName: ''
 
 stages:
-  - stage: Deploy_${{ parameters.AzDOEnvironmentName }}
+  - stage: Deploy_${{ parameters.AzDOEnvironmentName }}_Infrastructure
     displayName: 'Deploy Terraform into the ${{ parameters.AzDOEnvironmentName }} environment'
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
@@ -118,13 +118,14 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
+      NeedsManualVerification: eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'], 'true')
 
     jobs:
       - template: ../jobs/terraform_plan.yml
         parameters:
           # generic parameters
           JobName: ${{ variables.TerraformPlanJobName }}
-          JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
+          JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
           # key vault task parameters
@@ -145,12 +146,12 @@ stages:
           #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # missing
           #VerificationMode: ${{ parameters.VerificationMode }} # missing
 
-      - ${{ if ne(parameters.RunPlanOnly, 'true') }}:
+      - ${{ if eq(parameters.RunPlanOnly, 'false') }}:
           - template: ../jobs/manual_verification.yml
             parameters:
               JobName: ${{ variables.ManualVerificationJobName }}
               DependsOn: ${{ variables.TerraformPlanJobName }}
-              Condition: and(succeeded(), eq(dependencies.${{ variables.ManualVerificationJobName }}.outputs['${{ variables.ManualVerificationJobName }}.plan.needsManualVerification'], 'true'))
+              Condition: and(succeeded(), ${{ variables.NeedsManualVerification }}) # todo 2. Implement the needsManualVerification variable on the TerraformTask_plan task 3. Refactor the task to have a name passed in?
               Instructions: 'Please validate the terraform plan is acceptable to apply'
 
           - template: ../jobs/terraform_apply.yml
@@ -160,8 +161,8 @@ stages:
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
-              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.plan.needsManualVerification'], 'false')))
-              JobVariableMappings: ${{ parameters.TerraformJobVariableMappings }}
+              Condition: or(succeeded('${{ variables.ManualVerificationJobName }}'), and(succeeded('${{ variables.TerraformPlanJobName }}'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.runApply'], 'true'), eq(dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'], 'false'))) # todo doublecheck, refactor this down
+              JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
               TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
               AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
               # key vault task parameters
