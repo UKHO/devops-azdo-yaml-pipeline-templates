@@ -1,3 +1,9 @@
+parameters:
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether to run the plan only'
+
 resources:
   repositories:
     - repository: PipelineTemplates
@@ -26,7 +32,7 @@ extends:
     # KeyVaultServiceConnection: Pipeline-CloudDisco
     # KeyVaultName: aKV
     # KeyVaultSecretsFilter: "aSecretFilter"
-    RunPlanOnly: true
+    RunPlanOnly: ${{ parameters.RunPlanOnly }}
     TerraformEnvironmentVariableMappings:
       TF_VAR_MinRandom: 1000
       TF_VAR_MaxRandom: 100000
