@@ -96,12 +96,12 @@ parameters:
     default: { }
     displayName: 'Environment variables to be passed to the task'
 
-  - name: TerraformVariableFiles # not used yet
+  - name: TerraformVariableFiles # todo implement this
     type: object
     default: { }
     displayName: ''
 
-  - name: TerraformOutputVariables # not used yet
+  - name: TerraformOutputVariables # todo implement this
     type: object
     default: { }
     displayName: ''
