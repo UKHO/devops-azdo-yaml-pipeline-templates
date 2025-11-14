@@ -23,9 +23,9 @@ extends:
     BackendAzureStorageAccountName: ukhodoctfstatesa
     BackendAzureContainerName: tfstate
     BackendAzureBlobName: linux_test.tfstate
-    # KeyVaultServiceConnection # todo configure this
-    # KeyVaultName # todo configure this
-    # KeyVaultSecretsFilter # todo configure this
+    KeyVaultServiceConnection: Pipeline-CloudDisco
+    KeyVaultName: aKV
+    KeyVaultSecretsFilter: "aSecretFilter"
     # RunPlanOnly: true
     # TerraformVariableMappings # todo configure this
     # TerraformOutputVariables # todo configure this
