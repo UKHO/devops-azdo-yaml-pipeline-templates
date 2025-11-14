@@ -190,6 +190,6 @@ steps:
               backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
 
           # Azure Provider Configuration (plan/apply/destroy commands)
-          ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')) }}:
+          ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy'), eq(parameters.Command, 'output')) }}:
             ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
               environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'
