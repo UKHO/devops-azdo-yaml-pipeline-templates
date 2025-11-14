@@ -171,3 +171,4 @@ jobs:
               parameters:
                 Command: output
                 WorkingDirectory: $(TerraformWorkingDirectory)
+                EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
