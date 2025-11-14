@@ -102,7 +102,7 @@ stages:
       AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
       AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
-      TerraformJobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
+      DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
       BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
       BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
       BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
