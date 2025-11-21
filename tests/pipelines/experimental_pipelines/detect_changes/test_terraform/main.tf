@@ -36,7 +36,7 @@ resource "random_string" "random" {
 }
 
 locals {
-  web_app_name = "adoptest" + random_string.random.result
+  web_app_name = "adoptest${random_string.random.result}"
 }
 
 # Define variables
