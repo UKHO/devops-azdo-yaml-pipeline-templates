@@ -1,3 +1,6 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+# yaml-language-server: $schema=https://json.schemastore.org/yamllint.json
+
 trigger:
   branches:
     include:
