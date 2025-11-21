@@ -1,5 +1,6 @@
 jobs:
   - deployment:
+    pool: 'Mare Nectaris'
     variables:
       RepositoryCheckoutPath: $(Build.Repository.Name)
       TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/tests/pipelines/experimental_pipelines/detect_changes/test_terraform
