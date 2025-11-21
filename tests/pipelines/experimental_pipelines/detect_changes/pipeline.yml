@@ -57,7 +57,7 @@ jobs:
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test New Description"
 
-      - template: ../tasks/manual_validation.yml
+      - template: ../../../../tasks/manual_validation.yml
         parameters:
           TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
           Instructions: ${{ parameters.Instructions }}
