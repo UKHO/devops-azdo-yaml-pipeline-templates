@@ -16,7 +16,7 @@ jobs:
               parameters:
                 TerraformVersion: 1.13.5
 
-            - template: ../tasks/terraform.yml
+            - template: ../../../../tasks/terraform.yml
               parameters:
                 Command: init
                 BackendAzureServiceConnection: Pipeline-CloudDisco # ?
