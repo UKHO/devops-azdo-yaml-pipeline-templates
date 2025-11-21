@@ -19,6 +19,7 @@
 #   - BackendAzureContainerName (string, optional): Azure storage container for backend state storage. Default: ''
 #   - BackendAzureBlobName (string, optional): Azure blob name (key) for backend state storage. Default: ''
 #   - DisableBackend (boolean, optional): Skip backend configuration during init. Default: false
+#   - UseLocalBackend (boolean, optional): Only init for using the local backend. Default: false
 #   - EnvironmentAzureServiceConnection (string, optional): Azure service connection for provider authentication. Default: ''
 #
 # Example Usage:
@@ -129,6 +130,11 @@ parameters:
     displayName: 'Skip backend configuration during init'
     default: false
 
+  - name: UseLocalBackend
+    type: boolean
+    displayName: 'Only init for using the local backend'
+    default: false
+
   # Azure Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
     type: string
@@ -138,6 +144,13 @@ parameters:
 steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
       - script: 'terraform init -backend=false'
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_init
+        workingDirectory: ${{ parameters.WorkingDirectory }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
+
+  - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
+      - script: 'terraform init'
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_init
         workingDirectory: ${{ parameters.WorkingDirectory }}
