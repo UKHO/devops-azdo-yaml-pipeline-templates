@@ -36,18 +36,6 @@ jobs:
                 Command: plan
                 EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
                 WorkingDirectory: $(TerraformWorkingDirectory)
-                # TaskEnvironmentVariables:
-                CommandOptions: '-out=$(System.DefaultWorkingDirectory)/terraform.tfplan -detailed-exitcode'
-
-            - script: |
-                echo '$(variables[TERRAFORM_PLAN_HAS_CHANGES])'
-                echo '$(variables.TERRAFORM_PLAN_HAS_CHANGES)'
-                echo '$($[variables[TERRAFORM_PLAN_HAS_CHANGES]])'
-                echo '$[variables[TERRAFORM_PLAN_HAS_CHANGES]]'
-                echo '$(TERRAFORM_PLAN_HAS_CHANGES)'
-                echo '$(variables[TestVariable])'
-                echo '$(variables.TestVariable)'
-                echo '$($[variables[TestVariable]])'
-                echo '$[variables[TestVariable]]'
-                echo '$(TestVariable)'
-
+                TaskEnvironmentVariables:
+                  TF_VAR_AzDO_Project_Name: "DevOps Chapter"
+                  TF_VAR_Environment_Description: "Test"
