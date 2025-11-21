@@ -147,28 +147,25 @@ parameters:
     displayName: 'Azure service connection for provider authentication'
     default: ''
 
-variables:
-  TaskNameSuffix: ${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
-
 steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
       - script: 'terraform init -backend=false'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init${{ variables.TaskNameSuffix }}
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
 
   - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
       - script: 'terraform init'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init${{ variables.TaskNameSuffix }}
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
 
   - ${{ else }}:
       - task: TerraformTask@5
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_${{ parameters.Command }}${{ variables.TaskNameSuffix }}
+        name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         env: ${{ parameters.TaskEnvironmentVariables }}
         inputs:
           # Core Configuration
