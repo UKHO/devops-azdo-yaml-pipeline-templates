@@ -28,6 +28,7 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: init
+          UseLocalBackend: true
           WorkingDirectory: $(TerraformWorkingDirectory)
 
       - template: ../../../../tasks/terraform.yml
