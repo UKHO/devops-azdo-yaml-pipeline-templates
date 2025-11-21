@@ -1,3 +1,6 @@
+trigger:
+  - experiment/terraform-detect-destruction
+
 jobs:
   - deployment:
     pool: 'Mare Nectaris'
@@ -36,12 +39,13 @@ jobs:
                 # TaskEnvironmentVariables:
                 CommandOptions: '-out=$(System.DefaultWorkingDirectory)/terraform.tfplan -detailed-exitcode'
 
-            - script: "echo '$(variables[TERRAFORM_PLAN_HAS_CHANGES])'"
-            - script: "echo '$($[variables[TERRAFORM_PLAN_HAS_CHANGES]])'"
-            - script: "echo '$[variables[TERRAFORM_PLAN_HAS_CHANGES]]'"
-            - script: "echo '$(TERRAFORM_PLAN_HAS_CHANGES)'"
-            - script: "echo '$(variables[TestVariable])'"
-            - script: "echo '$($[variables[TestVariable]])'"
-            - script: "echo '$[variables[TestVariable]]'"
-            - script: "echo '$(TestVariable)'"
+            - script: |
+                echo '$(variables[TERRAFORM_PLAN_HAS_CHANGES])'
+                echo '$($[variables[TERRAFORM_PLAN_HAS_CHANGES]])'
+                echo '$[variables[TERRAFORM_PLAN_HAS_CHANGES]]'
+                echo '$(TERRAFORM_PLAN_HAS_CHANGES)'
+                echo '$(variables[TestVariable])'
+                echo '$($[variables[TestVariable]])'
+                echo '$[variables[TestVariable]]'
+                echo '$(TestVariable)'
 
