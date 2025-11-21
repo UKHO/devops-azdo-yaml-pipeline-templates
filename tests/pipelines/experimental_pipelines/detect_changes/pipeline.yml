@@ -12,7 +12,7 @@ jobs:
               displayName: 'Checkout self repository'
               path: $(RepositoryCheckoutPath)
 
-            - template: ../tasks/terraform_installer.yml
+            - template: ../../../../tasks/terraform_installer.yml
               parameters:
                 TerraformVersion: 1.13.5
 
@@ -26,7 +26,7 @@ jobs:
                 BackendAzureBlobName: linux_test.tfstate
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
-            - template: ../tasks/terraform.yml
+            - template: ../../../../tasks/terraform.yml
               parameters:
                 Command: plan
                 EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
