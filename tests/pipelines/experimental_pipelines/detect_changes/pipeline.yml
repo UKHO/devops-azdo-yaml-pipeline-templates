@@ -28,11 +28,6 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: init
-          BackendAzureServiceConnection: Pipeline-CloudDisco # ?
-          BackendAzureResourceGroupName: m-devopschapter-rg
-          BackendAzureStorageAccountName: ukhodoctfstatesa
-          BackendAzureContainerName: tfstate
-          BackendAzureBlobName: linux_test.tfstate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
       - template: ../../../../tasks/terraform.yml
