@@ -50,11 +50,18 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: plan
+          CommandOptions: '-out=$(TerraformWorkingDirectory)/terraform.tfplan -detailed-exitcode'
           TaskNameUniqueSlug: NewDescription
           EnvironmentAzureServiceConnection: Pipeline-CloudDisco
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test New Description"
+
+      - template: ../tasks/manual_validation.yml
+        parameters:
+          TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+          Instructions: ${{ parameters.Instructions }}
+          Condition: and(succeeded(), eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true'))
 
       - template: ../../../../tasks/terraform.yml
         parameters:
