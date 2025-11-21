@@ -13,7 +13,7 @@ jobs:
       TestVariable: BrickByBrick
       RepositoryCheckoutPath: $(Build.Repository.Name)
       TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/tests/pipelines/experimental_pipelines/detect_changes/test_terraform
-      steps:
+    steps:
       - checkout: self
         displayName: 'Checkout self repository'
         path: $(RepositoryCheckoutPath)
