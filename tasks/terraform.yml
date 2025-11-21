@@ -151,21 +151,21 @@ steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
       - script: 'terraform init -backend=false'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init${{ iif(parameter.TaskNameUniqueSlug, format('_{0}', parameter.TaskNameUniqueSlug), '') }}
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
 
   - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
       - script: 'terraform init'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init${{ iif(parameter.TaskNameUniqueSlug, format('_{0}', parameter.TaskNameUniqueSlug), '') }}
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
 
   - ${{ else }}:
       - task: TerraformTask@5
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_${{ parameters.Command }}${{ iif(parameter.TaskNameUniqueSlug, format('_{0}', parameter.TaskNameUniqueSlug), '') }}
+        name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         env: ${{ parameters.TaskEnvironmentVariables }}
         inputs:
           # Core Configuration
