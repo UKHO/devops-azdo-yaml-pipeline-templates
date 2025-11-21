@@ -59,8 +59,8 @@ jobs:
 
       - template: ../../../../tasks/manual_validation.yml
         parameters:
-          TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
-          Instructions: ${{ parameters.Instructions }}
+          TimeoutInMinutes: 60
+          Instructions: 'Confirm the changes that are detected'
           Condition: and(succeeded(), eq(variables['TERRAFORM_PLAN_HAS_CHANGES'], 'true'))
 
       - template: ../../../../tasks/terraform.yml
