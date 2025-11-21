@@ -51,14 +51,12 @@ data "azurerm_resource_group" "this" {
 }
 
 # Create an App Service Plan
-resource "azurerm_app_service_plan" "this" {
+resource "azurerm_service_plan" "this" {
   name                = "${local.web_app_name}-plan"
   location            = data.azurerm_resource_group.this.location
   resource_group_name = data.azurerm_resource_group.this.name
-  sku {
-    tier = "Free"
-    size = "F1"
-  }
+  os_type             = "Linux"
+  sku_name            = "P1v2"
 }
 
 # Create the Web App
@@ -66,9 +64,11 @@ resource "azurerm_windows_web_app" "this" {
   name                = local.web_app_name
   location            = data.azurerm_resource_group.this.location
   resource_group_name = data.azurerm_resource_group.this.name
-  service_plan_id     = azurerm_app_service_plan.this.id
+  service_plan_id     = azurerm_service_plan.this.id
 
   tags = {
     Description = var.Web_App_Description
   }
+
+  site_config {}
 }
