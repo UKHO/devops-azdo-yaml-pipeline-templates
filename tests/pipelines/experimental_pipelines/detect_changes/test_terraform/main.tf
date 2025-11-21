@@ -1,25 +1,16 @@
-data "azuredevops_project" "this" {
-  name = var.AzDO_Project_Name
-}
-
-resource "azuredevops_environment" "this" {
-  name        = "experimental-environment"
-  project_id  = data.azuredevops_project.this.project_id
-  description = var.Environment_Description
-}
-
-# https://registry.terraform.io/providers/microsoft/azuredevops/latest/docs#argument-reference
-provider "azuredevops" {
-  org_service_url = "https://dev.azure.com/ukhydro" # Required for finding the azure devops server, combined with entra id login
-}
-
+# Define the provider
 terraform {
   required_version = ">= 1.7.0"
 
   required_providers {
-    azuredevops = {
-      source  = "microsoft/azuredevops"
-      version = ">= 1.11.0"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.7.0, < 5.0.0"
+    }
+
+    random = {
+      source = "hashicorp/random"
+      version = "3.7.2"
     }
   }
 
@@ -28,23 +19,56 @@ terraform {
   }
 }
 
-variable "AzDO_Project_Name" {
+
+provider "azurerm" {
+  features {}
+  subscription_id = "0eaeb992-8461-4308-ab7c-81d9f9b29356"
+}
+
+provider "random" {
+
+}
+
+
+resource "random_string" "random" {
+  length  = 5
+  special = false
+}
+
+locals {
+  web_app_name = "adoptest" + random_string.random.result
+}
+
+# Define variables
+variable "Web_App_Description" {
   type        = string
-  description = "Name of the Azure DevOps project in Azure DevOps where the library variable groups and pipeline will be deployed"
-  validation {
-    condition = (
-      length(var.AzDO_Project_Name) > 0 &&
-      length(var.AzDO_Project_Name) <= 64 &&
-      can(regex("^[A-Za-z0-9 _.-]+$", var.AzDO_Project_Name)) &&
-      !startswith(var.AzDO_Project_Name, ".") &&
-      !endswith(var.AzDO_Project_Name, ".")
-    )
-    error_message = "Project name must be 1-64 characters, use only letters, numbers, spaces, hyphens (-), underscores (_), periods (.), and cannot start or end with a period."
+  description = "The description of the web app."
+  default     = "Default web app description"
+}
+
+data "azurerm_resource_group" "this" {
+  name = "m-devopschapter-rg"
+}
+
+# Create an App Service Plan
+resource "azurerm_app_service_plan" "this" {
+  name                = "${local.web_app_name}-plan"
+  location            = data.azurerm_resource_group.this.location
+  resource_group_name = data.azurerm_resource_group.this.name
+  sku {
+    tier = "Free"
+    size = "F1"
   }
 }
 
-variable "Environment_Description" {
-  type    = string
-  default = "Default description"
-}
+# Create the Web App
+resource "azurerm_windows_web_app" "this" {
+  name                = local.web_app_name
+  location            = data.azurerm_resource_group.this.location
+  resource_group_name = data.azurerm_resource_group.this.name
+  service_plan_id     = azurerm_app_service_plan.this.id
 
+  tags = {
+    Description = var.Web_App_Description
+  }
+}
