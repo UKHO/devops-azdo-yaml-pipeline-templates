@@ -1,5 +1,10 @@
 trigger:
-  - experiment/terraform-detect-destruction
+  branches:
+    include:
+      - experiment/*
+  paths:
+    include:
+      - tests/pipelines/experimental_pipelines/*
 
 jobs:
   - job:
