@@ -45,6 +45,7 @@
 #   - The DisableBackend parameter allows backend configuration to be skipped during init.
 
 parameters:
+  # Standard Azure DevOps Task Parameters
   - name: TaskEnvironmentVariables
     type: object
     displayName: 'Environment variables to be passed to the task'
@@ -53,6 +54,11 @@ parameters:
   - name: TaskNameUniqueSlug
     type: string
     displayName: 'Unique string to add to the task name to make it unique if the same command is repeated.'
+    default: ''
+
+  - name: Condition
+    type: string
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
     default: ''
 
   - name: Command
@@ -154,6 +160,7 @@ steps:
         name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
 
   - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
       - script: 'terraform init'
@@ -161,12 +168,14 @@ steps:
         name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
         env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
 
   - ${{ else }}:
       - task: TerraformTask@5
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
         inputs:
           # Core Configuration
           provider: 'azurerm'
