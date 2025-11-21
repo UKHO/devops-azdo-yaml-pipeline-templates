@@ -34,7 +34,7 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: plan
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
+          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test Description"
@@ -42,7 +42,7 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: apply
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
+          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test Description"
@@ -51,7 +51,16 @@ jobs:
         parameters:
           Command: plan
           TaskNameUniqueSlug: NewDescription
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
+          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
+          WorkingDirectory: $(TerraformWorkingDirectory)
+          TaskEnvironmentVariables:
+            TF_VAR_Web_App_Description: "Test New Description"
+
+      - template: ../../../../tasks/terraform.yml
+        parameters:
+          Command: apply
+          TaskNameUniqueSlug: NewDescription
+          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test New Description"
@@ -59,7 +68,7 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: destroy
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
+          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
             TF_VAR_Web_App_Description: "Test Description"
