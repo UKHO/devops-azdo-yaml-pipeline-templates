@@ -50,10 +50,11 @@ jobs:
       - template: ../../../../tasks/terraform.yml
         parameters:
           Command: plan
+          TaskNameUniqueSlug: NewDescription
           EnvironmentAzureServiceConnection: Pipeline-CloudDisco # ?
           WorkingDirectory: $(TerraformWorkingDirectory)
           TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test Description"
+            TF_VAR_Web_App_Description: "Test New Description"
 
       - template: ../../../../tasks/terraform.yml
         parameters:
