@@ -7,8 +7,9 @@
 # Parameters:
 #   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
 #   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated.
-#   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
+#   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
+#   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
 #   - OutputTo (string, optional): Where to send output for show/output commands. Values: console, file. Default: console
@@ -59,7 +60,14 @@ parameters:
   - name: Condition
     type: string
     displayName: 'Evaluate this condition expression to determine whether to run this task'
-    default: ''
+    default: succeeded()
+
+  - name: WorkingDirectory
+    type: string
+    displayName: 'Directory containing Terraform configuration files'
+    default: '$(Pipeline.Workspace)'
+
+  # Specific TerraformCLI Task Parameters
 
   - name: Command
     type: string
@@ -73,11 +81,6 @@ parameters:
       - output
       - destroy
       - custom
-
-  - name: WorkingDirectory
-    type: string
-    displayName: 'Directory containing Terraform configuration files'
-    default: '$(Pipeline.Workspace)'
 
   - name: CommandOptions
     type: string

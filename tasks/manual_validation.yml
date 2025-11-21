@@ -1,10 +1,11 @@
 ﻿# Azure DevOps Task: ManualValidation@1
 #
 # Purpose:
-#   Provides a standardized, reusable wrapper for the ManualValidation@1 task in Azure DevOps pipelines.
+#   Provides a standardised, reusable wrapper for the ManualValidation@1 task in Azure DevOps pipelines.
 #   Enables manual approval steps with flexible notification, approver, and timeout configuration.
 #
 # Parameters:
+#   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
 #   - NotifyUsers (string, required): Users or groups to notify via email. Use empty string for no notifications.
 #   - Approvers (string, optional): Comma-separated list of users/groups/teams allowed to approve. Default: ''
 #   - AllowApproversToApproveTheirOwnRuns (boolean, optional): Allow approvers to approve their own runs. Default: true
@@ -33,7 +34,13 @@
 #   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/manual-validation-v1
 
 parameters:
-  # Notification Configuration
+  # Standard Azure DevOps Task Parameters
+  - name: Condition
+    type: string
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
+    default: succeeded()
+
+  # Specific ManualValidation Task Parameters
   - name: NotifyUsers
     type: string
     default: ''
