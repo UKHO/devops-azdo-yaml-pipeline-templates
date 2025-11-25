@@ -12,15 +12,12 @@ trigger:
 jobs:
   - job:
     pool: 'Mare Nectaris'
+    container: ukhydrographicoffice/terraform-azure-powershell:latest
     variables:
       TestVariable: BrickByBrick
       RepositoryCheckoutPath: $(Build.Repository.Name)
       TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/tests/pipelines/experimental_pipelines/detect_changes/test_terraform
     steps:
-      - checkout: self
-        displayName: 'Checkout self repository'
-        path: $(RepositoryCheckoutPath)
-
       - template: ../../../../tasks/azure_powershell.yml
         parameters:
           AzureSubscription: Pipeline-CloudDisco
