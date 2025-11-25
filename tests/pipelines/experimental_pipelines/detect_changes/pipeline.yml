@@ -18,8 +18,9 @@ jobs:
       RepositoryCheckoutPath: $(Build.Repository.Name)
       TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/tests/pipelines/experimental_pipelines/detect_changes/test_terraform
     steps:
-      - template: ../../../../tasks/azure_powershell.yml
-        parameters:
-          AzureSubscription: Pipeline-CloudDisco
-          ScriptType: InlineScript
-          Inline: Get-ChildItems
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: Pipeline-CloudDisco
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'Get-ChildItems'
