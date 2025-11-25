@@ -21,60 +21,8 @@ jobs:
         displayName: 'Checkout self repository'
         path: $(RepositoryCheckoutPath)
 
-      - template: ../../../../tasks/terraform_installer.yml
+      - template: ../../../../tasks/azure_powershell.yml
         parameters:
-          TerraformVersion: 1.13.5
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: init
-          UseLocalBackend: true
-          WorkingDirectory: $(TerraformWorkingDirectory)
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: plan
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
-          WorkingDirectory: $(TerraformWorkingDirectory)
-          TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test Description"
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: apply
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
-          WorkingDirectory: $(TerraformWorkingDirectory)
-          TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test Description"
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: plan
-          CommandOptions: '-out=$(TerraformWorkingDirectory)/terraform.tfplan -detailed-exitcode'
-          TaskNameUniqueSlug: NewDescription
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
-          WorkingDirectory: $(TerraformWorkingDirectory)
-          TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test New Description"
-
-      - script: |
-          echo '$(TERRAFORM_PLAN_HAS_CHANGES)'
-          echo 'variables['TERRAFORM_PLAN_HAS_CHANGES']'
-          sleep 30
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: apply
-          TaskNameUniqueSlug: NewDescription
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
-          WorkingDirectory: $(TerraformWorkingDirectory)
-          TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test New Description"
-
-      - template: ../../../../tasks/terraform.yml
-        parameters:
-          Command: destroy
-          EnvironmentAzureServiceConnection: Pipeline-CloudDisco
-          WorkingDirectory: $(TerraformWorkingDirectory)
-          TaskEnvironmentVariables:
-            TF_VAR_Web_App_Description: "Test New Description"
+          AzureSubscription: Pipeline-CloudDisco
+          ScriptType: InlineScript
+          Inline: Get-ChildItems
