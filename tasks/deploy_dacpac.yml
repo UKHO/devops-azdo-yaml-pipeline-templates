@@ -39,7 +39,7 @@ steps:
       deployType: DacpacTask
       DeploymentAction: Publish
       DacpacFile: ${{ parameters.DacpacFile }}
-      AdditionalArguments: '/DiagnosticsFile:$(System.DefaultWorkingDirectory)/dacpac_deploy_output.log /p:ScriptDatabaseOptions=False'
+      AdditionalArguments: '/DiagnosticsFile:$(System.DefaultWorkingDirectory)/dacpac_deploy_output.log /p:ScriptDatabaseOptions=False /p:PerformIndexOperationsOnline=True'
       IpDetectionMethod: AutoDetect
 
   - task: PublishPipelineArtifact@1
