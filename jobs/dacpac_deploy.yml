@@ -1,0 +1,59 @@
+parameters:
+  - name: AzureDevOpsEnvironment
+    type: string
+    displayName: The Azure DevOps environment to deploy to.
+
+  - name: AzureSubscription
+    type: string
+    displayName: The target Azure Resource Manager subscription for deploying SQL files.
+
+  - name: ServerName
+    type: string
+    displayName: The Azure SQL Server name.
+
+  - name: DatabaseName
+    type: string
+    displayName: The name of the Azure SQL database.
+
+  - name: SqlUsername
+    type: string
+    displayName: The Azure SQL Server administrator login.
+
+  - name: SqlPassword
+    type: string
+    displayName: The password for the Azure SQL Server administrator.
+
+  - name: ArtifactName
+    type: string
+    default: Dacpac
+    displayName: Artifact name for the DACPAC.
+
+  - name: DacpacFileName
+    type: string
+    displayName: The DACPAC file name within the artifact.
+
+jobs:
+  - deployment: DacpacDeploy
+    workspace:
+      clean: all
+    displayName: Deploy ${{ parameters.ArtifactName }}
+    environment: ${{ parameters.AzureDevOpsEnvironment }}
+    pool: 
+      name: NautilusBuild
+      demands: DAC-PAC
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              displayName: Download ${{ parameters.ArtifactName }}
+              artifact: ${{ parameters.ArtifactName }}
+
+            - template: ../tasks/deploy_dacpac.yml
+              parameters:
+                AzureSubscription: ${{ parameters.AzureSubscription }}
+                ServerName: ${{ parameters.ServerName }}
+                DatabaseName: ${{ parameters.DatabaseName }}
+                SqlUsername: ${{ parameters.SqlUsername }}
+                SqlPassword: ${{ parameters.SqlPassword }}
+                DacpacFile: '$(Pipeline.Workspace)\${{ parameters.ArtifactName }}\${{ parameters.DacpacFileName }}'
