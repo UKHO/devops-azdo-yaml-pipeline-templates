@@ -180,7 +180,7 @@ jobs:
                 TargetType: 'filePath'
                 ScriptFilePath: devops-azdo-yaml-pipeline-templates/scripts/terraform/terraform_check_plan.ps1@PipelineTemplates
                 ScriptArguments: >
-                  -RunMode ${{ parameters.RunMode }}
+                  -RunMode ${{ parameters.VerificationMode }}
                   -TerraformOutputFileName "tfplan"
 
             - script: >
