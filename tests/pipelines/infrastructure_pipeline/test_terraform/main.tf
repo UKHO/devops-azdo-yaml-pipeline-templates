@@ -7,6 +7,14 @@
   }
 }
 
+variable "Project" {
+  type = string
+}
+
+variable "Environment" {
+  type = string
+}
+
 variable "MaxRandom" {
   type = number
   default = 100
