@@ -185,7 +185,7 @@ jobs:
                 TargetType: 'filePath'
                 ScriptFilePath: $(ScriptDirectory)/terraform/terraform_check_plan.ps1
                 ScriptFileArguments: >
-                  -RunMode ${{ parameters.VerificationMode }}
+                  -VerificationMode ${{ parameters.VerificationMode }}
                   -TerraformOutputFileName "$(TerraformPlanFilePath)"
 
             - script: >
