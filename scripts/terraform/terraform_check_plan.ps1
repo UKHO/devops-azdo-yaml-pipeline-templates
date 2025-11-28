@@ -8,6 +8,8 @@ param (
   [string] $TerraformOutputFileName
 )
 
+Write-Host "Hello World"
+
 if ($( Test-Path -Path $TerraformOutputFileName ) -eq $false)
 {
   Write-Host -ForegroundColor Red "Terraform Output File '$TerraformOutputFileName' was not created. See directory content:"
