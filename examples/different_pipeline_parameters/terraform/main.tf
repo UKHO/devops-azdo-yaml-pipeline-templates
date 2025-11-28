@@ -9,14 +9,14 @@ data "azuredevops_serviceendpoint_github" "this" {
 
 resource "azuredevops_build_definition" "this" {
   project_id = data.azuredevops_project.this.project_id
-  name       = "ExamplePipeline-DifferentVariableParameters"
+  name       = "ExamplePipeline-DifferentPipelineParameters"
   path       = "\\ExamplePipelines"
 
   repository {
     repo_type             = "GitHub"
     repo_id               = "UKHO/devops-azdo-yaml-pipeline-templates"
     branch_name           = "refs/heads/experiment/different-parameters"
-    yml_path              = "examples/different_variables_parameters/different_variables_parameters.yml"
+    yml_path              = "examples/different_pipeline_parameters/different_pipeline_parameters.yml"
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
   }
 }
