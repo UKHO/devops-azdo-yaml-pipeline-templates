@@ -83,6 +83,15 @@
     default: false
     displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
+  - name: VerificationMode
+    type: string
+    default: VerifyOnDestroy
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    values:
+      - VerifyOnDestroy
+      - VerifyOnAny
+      - VerifyDisabled
+
   - name: TerraformEnvironmentVariableMappings
     type: object
     default: { }
@@ -116,6 +125,7 @@ stages:
       KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
       KeyVaultName: ${{ parameters.KeyVaultName }}
       KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+      VerificationMode: ${{ parameters.VerificationMode }}
       RunPlanOnly: ${{ parameters.RunPlanOnly }}
       TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
       # TerraformOutputVariables: # todo add the parameter for this and pass it through
