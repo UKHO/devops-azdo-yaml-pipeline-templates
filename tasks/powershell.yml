@@ -7,7 +7,7 @@
 #
 # Parameters:
 #   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
-#   - TaskNamed (string, optional): Task name for the powershell task.
+#   - TaskName (string, optional): Task name for the powershell task.
 #   - TargetType (string, required): 'filePath' or 'inline'. Determines script execution mode.
 #   - FilePath (string, optional): Path to the PowerShell script (when TargetType is filePath).
 #   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline).
@@ -18,7 +18,7 @@
 #   - VerbosePreference (string, optional): Verbose preference. Default: 'default'.
 #   - DebugPreference (string, optional): Debug preference. Default: 'default'.
 #   - ProgressPreference (string, optional): Progress preference. Default: 'silentlyContinue'.
-#   - FailOnStderr (boolean, optional): Fail on standard error. Default: false.
+#   - FailOnStandardError (boolean, optional): Fail on standard error. Default: false.
 #   - ShowWarnings (boolean, optional): Show warnings as Azure DevOps warnings. Default: false.
 #   - IgnoreLASTEXITCODE (boolean, optional): Ignore $LASTEXITCODE. Default: false.
 #   - Pwsh (boolean, optional): Use PowerShell Core. Default: false.
@@ -31,7 +31,7 @@
 #       TargetType: 'filePath'
 #       FilePath: 'scripts/deploy.ps1'
 #       Arguments: '-Verbose'
-#       FailOnStderr: true
+#       FailOnStandardError: true
 #
 #   - template: tasks/powershell.yml
 #     parameters:
@@ -139,7 +139,7 @@ parameters:
       - continue
       - silentlyContinue
 
-  - name: FailOnStderr
+  - name: FailOnStandardError
     type: boolean
     displayName: 'Fail on standard error'
     default: false
@@ -193,10 +193,10 @@ steps:
       progressPreference: '${{ parameters.ProgressPreference }}'
 
       # Advanced
-      failOnStderr: ${{ parameters.FailOnStderr }}
+      failOnStderr: ${{ parameters.FailOnStandardError }}
       showWarnings: ${{ parameters.ShowWarningsInPipelineLogs }}
       ignoreLASTEXITCODE: ${{ parameters.IgnoreLASTEXITCODE }}
       pwsh: ${{ parameters.UsePowerShellCoreOnWindows }}
+      runScriptInSeparateScope: ${{ parameters.RunScriptInSeparateScope }}
       ${{ if ne(parameters.WorkingDirectory, '') }}:
         workingDirectory: '${{ parameters.WorkingDirectory }}'
-      runScriptInSeparateScope: ${{ parameters.RunScriptInSeparateScope }}
