@@ -188,6 +188,5 @@ jobs:
                   -VerificationMode ${{ parameters.VerificationMode }}
                   -TerraformOutputFileName "$(TerraformPlanFilePath)"
 
-            - script: >
-                echo 'needsManualVerification: $(needsManualVerification)'
-                echo 'runApply: $(runApply)'
+            - script: "echo 'needsManualVerification: $(needsManualVerification), runApply: $(runApply)'"
+
