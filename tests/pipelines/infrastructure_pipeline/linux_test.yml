@@ -33,11 +33,13 @@ extends:
     # KeyVaultName: aKV
     # KeyVaultSecretsFilter: "aSecretFilter"
     RunPlanOnly: ${{ parameters.RunPlanOnly }}
-    VerificationMode: VerifyOnAny
+    VerificationMode: VerifyOnDestroy
     TerraformEnvironmentVariableMappings:
       TF_VAR_MinRandom: 1000
       TF_VAR_MaxRandom: 100000
     # TerraformOutputVariables # todo configure this
-    # TerraformVariableFiles # todo configure this
+    TerraformVariableFiles:
+      tests/pipelines/infrastructure_pipeline/test_terraform/config/common.tfvars
+      tests/pipelines/infrastructure_pipeline/test_terraform/config/discovery.tfvars
 
 
