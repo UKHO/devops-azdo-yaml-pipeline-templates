@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+# yaml-language-server: $schema=https://json.schemastore.org/yamllint.json
+
+trigger:
+  branches:
+    include:
+      - experiment/*
+  paths:
+    include:
+      - tests/pipelines/experimental_pipelines/*
+
+jobs:
+  - job:
+    pool: 'Mare Nectaris'
+    container: ukhydrographicoffice/terraform-azure-powershell:latest
+    variables:
+      TestVariable: BrickByBrick
+      RepositoryCheckoutPath: $(Build.Repository.Name)
+      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/tests/pipelines/experimental_pipelines/detect_changes/test_terraform
+    steps:
+      - task: AzureCLI@2
+        inputs:
+          azureSubscription: Pipeline-CloudDisco
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: 'Get-ChildItem'
