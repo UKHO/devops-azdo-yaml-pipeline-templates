@@ -120,7 +120,7 @@ jobs:
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: TerraformPlanFilePath
-        value: $(Pipeline.Workspace)/tfplan
+        value: $(TerraformWorkingDirectory)/tfplan
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
