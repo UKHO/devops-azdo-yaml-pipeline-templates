@@ -121,6 +121,10 @@ jobs:
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: TerraformPlanFilePath
         value: $(TerraformWorkingDirectory)/tfplan
+      - name: CheckoutPath
+        value: devops-azdo-yaml-pipeline-templates
+      - name: ScriptDirectory
+        value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
@@ -133,7 +137,7 @@ jobs:
           steps:
             - checkout: PipelineTemplates
               persistCredentials: true
-              path: devops-azdo-yaml-pipeline-templates
+              path: $(CheckoutPath)
 
             - template: ../tasks/download_pipeline_artifact.yml
               parameters:
@@ -179,7 +183,7 @@ jobs:
             - template: ../tasks/powershell.yml
               parameters:
                 TargetType: 'filePath'
-                ScriptFilePath: scripts/terraform/terraform_check_plan.ps1
+                ScriptFilePath: $(ScriptDirectory)/terraform/terraform_check_plan.ps1
                 ScriptFileArguments: >
                   -RunMode ${{ parameters.VerificationMode }}
                   -TerraformOutputFileName "$(TerraformPlanFilePath)"
