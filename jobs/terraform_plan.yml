@@ -180,12 +180,11 @@ jobs:
 
             - template: ../tasks/powershell.yml
               parameters:
-                TaskName: TerraformCheckPlan
+                TaskName: TerraformChangesCheck
                 TargetType: 'filePath'
-                ScriptFilePath: $(ScriptDirectory)/terraform/terraform_check_plan.ps1
+                ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
+                FailOnStandardError: true
                 ScriptFileArguments: >
                   -VerificationMode ${{ parameters.VerificationMode }}
                   -TerraformOutputFileName "$(TerraformPlanFilePath)"
-
-            - script: "echo 'needsManualVerification: $(TerraformCheckPlan.needsManualVerification), runApply: $(TerraformCheckPlan.runApply)'"
 

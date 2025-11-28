@@ -113,8 +113,8 @@ stages:
       TerraformPlanJobName: TerraformPlan
       ManualVerificationJobName: ManualVerification
       TerraformApplyJobName: TerraformApply
-      NeedsManualVerificationValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.needsManualVerification'] # todo possible better name needed...
-      RunApplyValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformTask_plan.runApply'] # todo possible better name needed...
+      NeedsManualVerificationValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedManualVerification'] # todo possible better name needed...
+      RunApplyValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedApplying'] # todo possible better name needed...
     jobs:
       - template: ../jobs/terraform_plan.yml
         parameters:
@@ -146,7 +146,7 @@ stages:
             parameters:
               JobName: ${{ variables.ManualVerificationJobName }}
               DependsOn: ${{ variables.TerraformPlanJobName }}
-              Condition: and(succeeded(), eq(${{ variables.NeedsManualVerificationValue }}, 'true')) # todo 2. Implement the needsManualVerification variable on the TerraformTask_plan task 3. Refactor the task to have a name passed in?
+              Condition: and(succeeded(), eq(${{ variables.NeedsManualVerificationValue }}, 'true')) # todo 3. Refactor the task to have a name passed in?
               Instructions: 'Please validate the terraform plan is acceptable to apply'
 
           - template: ../jobs/terraform_apply.yml
