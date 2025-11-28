@@ -129,6 +129,10 @@ jobs:
       runOnce:
         deploy:
           steps:
+            - checkout: PipelineTemplates
+              persistCredentials: true
+              path: devops-azdo-yaml-pipeline-templates
+
             - template: ../tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
@@ -154,6 +158,8 @@ jobs:
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
 
+# Terraform Workspace
+
             - template: ../tasks/terraform.yml
               parameters:
                 Command: validate
@@ -166,6 +172,17 @@ jobs:
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                CommandOptions: '-out=$(System.DefaultWorkingDirectory)/terraform.tfplan -detailed-exitcode'
+                CommandOptions: '-out=$(System.DefaultWorkingDirectory)/tfplan'
 
-            - script: "echo '$(TERRAFORM_PLAN_HAS_CHANGES)'"
+            - template: ../tasks/powershell.yml
+            #../scripts/terraform/terraform_check_plan.ps1
+              parameters:
+                TargetType: 'filePath'
+                ScriptFilePath: devops-azdo-yaml-pipeline-templates/scripts/terraform/terraform_check_plan.ps1@PipelineTemplates
+                ScriptArguments: >
+                  -RunMode ${{ parameters.RunMode }}
+                  -TerraformOutputFileName "tfplan"
+
+            - script: >
+                echo 'needsManualVerification: $(needsManualVerification)'
+                echo 'runApply: $(runApply)'
