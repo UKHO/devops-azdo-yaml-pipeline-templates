@@ -7,6 +7,7 @@
 #
 # Parameters:
 #   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
+#   - TaskNamed (string, optional): Task name for the powershell task.
 #   - TargetType (string, required): 'filePath' or 'inline'. Determines script execution mode.
 #   - FilePath (string, optional): Path to the PowerShell script (when TargetType is filePath).
 #   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline).
@@ -48,6 +49,11 @@ parameters:
     type: object
     displayName: 'Environment variables to be passed to the task'
     default: { }
+
+  - name: TaskName
+    type: string
+    displayName: 'Task name for the powershell task'
+    default: ''
 
   # PowerShell Task Inputs
 
@@ -165,7 +171,9 @@ parameters:
 
 steps:
   - task: PowerShell@2
-    displayName: 'PowerShell ${{ parameters.TargetType }}'
+    ${{ if ne(parameters.TaskName, '') }}:
+      name: ${{ parameters.TaskName }}
+      displayName: 'PowerShell ${{ parameters.TaskName }}'
     env: ${{ parameters.TaskEnvironmentVariables }}
     inputs:
       targetType: '${{ parameters.TargetType }}'
