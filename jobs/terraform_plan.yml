@@ -101,7 +101,7 @@ parameters:
     default: { }
     displayName: ''
 
-  - name: VerificationMode # todo implement this
+  - name: VerificationMode
     type: string
     default: VerifyOnDestroy
     displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
