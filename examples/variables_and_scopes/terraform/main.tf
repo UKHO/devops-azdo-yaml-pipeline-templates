@@ -38,8 +38,8 @@ resource "azuredevops_variable_group" "this" {
 
 resource "azuredevops_build_definition" "this" {
   project_id = data.azuredevops_project.this.project_id
-  name       = "Experiment-VariablesAndScope"
-  path       = "\\Experiments"
+  name       = "ExamplePipeline-VariablesAndScope"
+  path       = "\\ExamplePipelines"
 
   repository {
     repo_type             = "GitHub"
