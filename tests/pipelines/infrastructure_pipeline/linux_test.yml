@@ -33,6 +33,7 @@ extends:
     # KeyVaultName: aKV
     # KeyVaultSecretsFilter: "aSecretFilter"
     RunPlanOnly: ${{ parameters.RunPlanOnly }}
+    VerificationMode: VerifyOnAny
     TerraformEnvironmentVariableMappings:
       TF_VAR_MinRandom: 1000
       TF_VAR_MaxRandom: 100000
