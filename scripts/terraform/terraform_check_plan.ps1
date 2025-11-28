@@ -8,59 +8,67 @@ param (
   [string] $TerraformOutputFileName
 )
 
+$needsManualVerification = $true
+$runApply = $false
+
 Write-Host "Starting terraform_check_plan.ps1 script"
 Write-Host "Checking if Terraform output file exists: $TerraformOutputFileName"
 
-if ($( Test-Path -Path $TerraformOutputFileName ) -eq $false)
+if (-not (Test-Path -Path $TerraformOutputFileName))
 {
-  Write-Host "##[error]Terraform Output File '$TerraformOutputFileName' was not created."
+  Write-Host "##[error]erraform Output File '$TerraformOutputFileName' was not created."
   Write-Host "Script completed: output file missing."
+  return
 }
-else
+
+Write-Host "Terraform output file found. Reading contents."
+$terraformOutputFile = Get-Content -Path $TerraformOutputFileName
+
+if ($terraformOutputFile -match "no changes")
 {
-  Write-Host "Terraform output file found. Reading contents."
-  $terraformOutputFile = Get-Content -Path $TerraformOutputFileName
+  Write-Host "Terraform plan indicates no changes."
+  $needsManualVerification = $false
+  $runApply = $false
+  Write-Host "Script completed: no changes detected."
+  return
+}
 
-  if ($terraformOutputFile -match "no changes")
-  {
-    Write-Host "Terraform plan indicates no changes."
-    Write-Host "##vso[task.setvariable variable=needsManualVerification;isoutput=true]false"
-    Write-Host "##vso[task.setvariable variable=runApply;isoutput=true]false"
-    Write-Host "Script completed: no changes detected."
+Write-Host "##[group]Terraform plan indicates changes."
+switch ($VerificationMode)
+{
+  "VerifyOnDestroy" {
+    Write-Host "VerificationMode: VerifyOnDestroy"
+    $destroyCount = ($terraformOutputFile | Select-String -Pattern "destroy" -CaseSensitive).Count
+    Write-Host "Number of destroy lines: $destroyCount"
+
+    if ($destroyCount -ge 2)
+    {
+      Write-Host "##[warning]Resources will be destroyed. Manual verification required."
+      $needsManualVerification = $true
+      $runApply = $true
+    } else
+    {
+      Write-Host "No resources will be destroyed. Proceeding without manual verification."
+      $needsManualVerification = $false
+      $runApply = $true
+    }
   }
-  else
-  {
-    Write-Host "Terraform plan indicates changes."
-    if ($VerificationMode -eq "VerifyOnDestroy")
-    {
-      Write-Host "VerificationMode: VerifyOnDestroy"
-      $numberOfOccurancesToIndicateDeletionOfResources = 2
-      $totalDestroyLines = ($terraformOutputFile |
-        Select-String -Pattern "destroy" -CaseSensitive |
-        Where-Object { $_ -ne "" }).length
-
-      Write-Host "Number of destroy lines: $totalDestroyLines"
-      if ($totalDestroyLines -ge $numberOfOccurancesToIndicateDeletionOfResources)
-      {
-        Write-Host "#[warning]Resources will be destroyed. Manual verification required."
-        Write-Host "##vso[task.setvariable variable=needsManualVerification;isoutput=true]true"
-        Write-Host "##vso[task.setvariable variable=runApply;isoutput=true]true"
-      }
-    }
-    elseif ($VerificationMode -eq "VerifyOnAny")
-    {
-      Write-Host "VerificationMode: VerifyOnAny"
-      Write-Host "#[warning]Resources will be added, removed, or changed. Manual verification required."
-      Write-Host "##vso[task.setvariable variable=needsManualVerification;isoutput=true]true"
-      Write-Host "##vso[task.setvariable variable=runApply;isoutput=true]true"
-    }
-    else
-    {
-      Write-Host "VerificationMode: VerifyDisabled"
-      Write-Host "Manual verification will be skipped."
-      Write-Host "##vso[task.setvariable variable=needsManualVerification;isoutput=true]false"
-      Write-Host "##vso[task.setvariable variable=runApply;isoutput=true]true"
-    }
-    Write-Host "Script completed: changes detected."
+  "VerifyOnAny" {
+    Write-Host "VerificationMode: VerifyOnAny"
+    Write-Host "##[warning]Resources will be added, removed, or changed. Manual verification required."
+    $needsManualVerification = $true
+    $runApply = $true
+  }
+  default {
+    Write-Host "VerificationMode: VerifyDisabled"
+    Write-Host "Manual verification will be skipped."
+    $needsManualVerification = $false
+    $runApply = $true
   }
 }
+Write-Host "##[endgroup]"
+
+Write-Host "##vso[task.setvariable variable=needsManualVerification;isoutput=true]$needsManualVerification"
+Write-Host "##vso[task.setvariable variable=runApply;isoutput=true]$runApply"
+
+Write-Host "Script completed: changes detected."
