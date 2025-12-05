@@ -8,6 +8,6 @@ jobs:
   - job:
     variables:
       TF_VAR_ARGS: >
-        ${{ join(['-var-file="', join(parameters.tfVarFiles, '" -var-file="'), '"']) }}
+        ${{ join(parameters.tfVarFiles, '" -var-file="')) }}
     steps:
       - script: echo $(varFiles)
