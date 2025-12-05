@@ -14,8 +14,7 @@ parameters:
 jobs:
   - job:
     variables:
-      TF_VAR_ARGS: >
-        ${{ join(parameters.TerraformVariableFiles, '" -var-file="') }}
+      TF_VAR_ARGS: ${{ join('" -var-file="', parameters.TerraformVariableFiles) }}
       A: ${{ join(';',parameters.myArray) }}
     steps:
       - script: echo $(TF_VAR_ARGS)
