@@ -7,11 +7,29 @@
   }
 }
 
+variable "Project" {
+  type = string
+}
+
+variable "Environment" {
+  type = string
+}
+
+variable "MaxRandom" {
+  type = number
+  default = 100
+}
+
+variable "MinRandom" {
+  type = number
+  default = 1
+}
+
 provider "random" {}
 
 resource "random_integer" "example" {
-  min = 1
-  max = 100
+  min = var.MinRandom
+  max = var.MaxRandom
 }
 
 output "random_number" {

@@ -1,0 +1,188 @@
+﻿parameters:
+  # Generic parameters
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'What this stage will depend on'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this stage runs or not'
+
+  - name: AzureSubscriptionServiceConnection
+    type: string
+    displayName: 'The service connection for the azure subscription where resources will be deployed too'
+
+  - name: AzDOEnvironmentName
+    type: string
+    displayName: 'The azure devops environment that the deployment jobs will be associated with'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment'
+
+  - name: TerraformVersion
+    type: string
+    default: 'latest'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: DeploymentJobsVariableMappings
+    type: object
+    default: { }
+    displayName: 'Variable mappings to be associated with the deployment jobs.'
+
+  # terraform init task parameters
+  - name: BackendAzureServiceConnection
+    type: string
+    default: ''
+    displayName: 'Azure service connection for backend where the state is stored'
+
+  - name: BackendAzureResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group name for backend where the state is stored'
+
+  - name: BackendAzureStorageAccountName
+    type: string
+    default: ''
+    displayName: 'Azure storage account name for backend where the state is stored'
+
+  - name: BackendAzureContainerName
+    type: string
+    default: ''
+    displayName: 'Azure storage container name for backend where the state is stored'
+
+  - name: BackendAzureBlobName
+    type: string
+    default: ''
+    displayName: 'Azure storage blob name for backend where the state is stored'
+
+  # Key Vault Parameters
+  - name: KeyVaultServiceConnection
+    type: string
+    default: ''
+    displayName: 'Service connection for key vault access secrets'
+
+  - name: KeyVaultName
+    type: string
+    default: ''
+    displayName: 'Name of key vault for accessing secrets'
+
+  - name: KeyVaultSecretsFilter
+    type: string
+    default: '*'
+    displayName: 'Filter for secrets to access from key vault'
+
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether only the terraform plan should be ran and no deployment made'
+
+  - name: VerificationMode
+    type: string
+    default: VerifyOnDestroy
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    values:
+      - VerifyOnDestroy
+      - VerifyOnAny
+      - VerifyDisabled
+
+  - name: TerraformEnvironmentVariableMappings
+    type: object
+    default: { }
+    displayName: 'Environment variables to be passed to the task'
+
+  - name: TerraformVariableFiles
+    type: object
+    default: { }
+    displayName: ''
+
+  - name: TerraformOutputVariables
+    type: object
+    default: { }
+    displayName: ''
+
+stages:
+  - stage: Deploy_${{ parameters.AzDOEnvironmentName }}_Infrastructure
+    displayName: 'Deploy ${{ parameters.AzDOEnvironmentName }}'
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
+    variables:
+      TerraformPlanJobName: TerraformPlan
+      ManualVerificationJobName: ManualVerification
+      TerraformApplyJobName: TerraformApply
+      NeedsManualVerificationValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedManualVerification'] # todo possible better name needed...
+      RunApplyValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedApplying'] # todo possible better name needed...
+    jobs:
+      - template: ../jobs/terraform_plan.yml
+        parameters:
+          # generic parameters
+          JobName: ${{ variables.TerraformPlanJobName }}
+          JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+          # key vault task parameters
+          KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+          KeyVaultName: ${{ parameters.KeyVaultName }}
+          KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+          # terraform installer task parameters
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          # terraform init task parameters
+          BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
+          BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
+          BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+          BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+          BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+          # terraform plan task parameters
+          AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+          TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
+          VerificationMode: ${{ parameters.VerificationMode }}
+
+      - ${{ if eq(parameters.RunPlanOnly, false) }}:
+          - template: ../jobs/manual_verification.yml
+            parameters:
+              JobName: ${{ variables.ManualVerificationJobName }}
+              DependsOn: ${{ variables.TerraformPlanJobName }}
+              Condition: and(succeeded(), eq(${{ variables.NeedsManualVerificationValue }}, 'true')) # todo 3. Refactor the task to have a name passed in?
+              Instructions: 'Please validate the terraform plan is acceptable to apply'
+
+          - template: ../jobs/terraform_apply.yml
+            parameters:
+              # generic Parameters
+              JobName: ${{ variables.TerraformApplyJobName }}
+              DependsOn:
+                - ${{ variables.ManualVerificationJobName }}
+                - ${{ variables.TerraformPlanJobName }}
+              Condition: >
+                or(
+                  succeeded('${{ variables.ManualVerificationJobName }}'),
+                  and(
+                    succeeded('${{ variables.TerraformPlanJobName }}'),
+                    eq(${{ variables.RunApplyValue }}, 'true'),
+                    eq(${{ variables.NeedsManualVerificationValue }}, 'false')
+                  )
+                )
+              JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
+              TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+              AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+              # key vault task parameters
+              KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+              KeyVaultName: ${{ parameters.KeyVaultName }}
+              KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+              # terraform installer task parameters
+              TerraformVersion: ${{ parameters.TerraformVersion }}
+              # terraform init task parameters
+              BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
+              BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
+              BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+              BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+              BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+              # terraform plan task parameters
+              AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+              TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+              TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
+              TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
+
