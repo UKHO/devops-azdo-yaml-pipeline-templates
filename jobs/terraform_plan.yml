@@ -182,7 +182,7 @@ jobs:
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                CommandOptions: '-out=$(TerraformPlanFilePath) $(TerraformVariableFilesCommandOption)'
+                CommandOptions: '-out=$(TerraformPlanFilePath) $(TerraformVariableFilesCommandOption) -input=false'
 
             - template: ../tasks/powershell.yml
               parameters:
