@@ -102,6 +102,11 @@
     default: { }
     displayName: ''
 
+  - name: TerraformOutputVariables
+    type: object
+    default: { }
+    displayName: ''
+
 variables:
   - name: PipelinePool
     value: ${{ parameters.PipelinePool }}
@@ -133,5 +138,5 @@ stages:
       VerificationMode: ${{ parameters.VerificationMode }}
       RunPlanOnly: ${{ parameters.RunPlanOnly }}
       TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
-      # TerraformOutputVariables: # todo add the parameter for this and pass it through
+      TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
       TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}

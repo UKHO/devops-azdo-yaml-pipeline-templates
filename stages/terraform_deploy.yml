@@ -184,5 +184,5 @@ stages:
               AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
               TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
               TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
-              #TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }} # todo add the parameter for this and pass it through
+              TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
 

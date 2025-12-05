@@ -37,7 +37,8 @@ extends:
     TerraformEnvironmentVariableMappings:
       TF_VAR_MinRandom: 1000
       TF_VAR_MaxRandom: 100000
-    # TerraformOutputVariables # todo configure this
+    TerraformOutputVariables:
+      - random_number
     TerraformVariableFiles:
       - config/common.tfvars
       - config/discovery.tfvars
