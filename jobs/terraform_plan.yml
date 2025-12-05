@@ -128,7 +128,7 @@ jobs:
       - template: ../utils/concat_list.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
-          Prefix: ' -var-file="'
+          Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
