@@ -165,4 +165,8 @@ jobs:
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
                 CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
 
-
+            - template: ../tasks/terraform.yml
+              parameters:
+                Command: output
+                WorkingDirectory: $(TerraformWorkingDirectory)
+                EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
