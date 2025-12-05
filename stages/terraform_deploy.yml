@@ -94,12 +94,12 @@
     default: { }
     displayName: 'Environment variables to be passed to the task'
 
-  - name: TerraformOutputVariables
+  - name: TerraformVariableFiles
     type: object
     default: { }
     displayName: ''
 
-  - name: TerraformVariableFiles
+  - name: TerraformOutputVariables
     type: object
     default: { }
     displayName: ''
@@ -138,7 +138,7 @@ stages:
           # terraform plan task parameters
           AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
           TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
-          #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
+          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
           VerificationMode: ${{ parameters.VerificationMode }}
 
       - ${{ if eq(parameters.RunPlanOnly, false) }}:
@@ -183,6 +183,6 @@ stages:
               # terraform plan task parameters
               AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
               TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+              TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
               #TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }} # todo add the parameter for this and pass it through
-              #TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
 

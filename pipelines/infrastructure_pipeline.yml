@@ -97,6 +97,11 @@
     default: { }
     displayName: 'Environment variables to be passed to the task'
 
+  - name: TerraformVariableFiles
+    type: object
+    default: { }
+    displayName: ''
+
 variables:
   - name: PipelinePool
     value: ${{ parameters.PipelinePool }}
@@ -129,4 +134,4 @@ stages:
       RunPlanOnly: ${{ parameters.RunPlanOnly }}
       TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
       # TerraformOutputVariables: # todo add the parameter for this and pass it through
-      # TerraformVariableFiles: # todo add the parameter for this and pass it through
+      TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
