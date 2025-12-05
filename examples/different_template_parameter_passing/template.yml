@@ -14,8 +14,19 @@ parameters:
 jobs:
   - job:
     variables:
-      TF_VAR_ARGS: ${{ join('" -var-file="', parameters.TerraformVariableFiles) }}
-      A: ${{ join(';',parameters.myArray) }}
+      - template: Concat.yml
+        parameters:
+          List: ${{ parameters.TerraformVariableFiles }}
+          PrefixString: ' -var-file="'
+          SuffixString: '"'
+          VariableName: TF_VAR_VIA_TEMPLATE
+      - name: TF_VAR_ARGS_SHARD
+        value: ${{ join('" -var-file="', parameters.TerraformVariableFiles) }}
+      - name: TF_VAR_ARGS
+        value: ' -var-file="${{ variables.TF_VAR_ARGS_SHARD }}"'
+      - name: A
+        value: ${{ join(';',parameters.myArray) }}
     steps:
       - script: echo $(TF_VAR_ARGS)
       - script: echo $(A)
+      - script: echo $(TF_VAR_VIA_TEMPLATE)

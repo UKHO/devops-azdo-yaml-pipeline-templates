@@ -1,0 +1,24 @@
+parameters:
+  - name: List
+    type: object
+    default: []
+
+  - name: PrefixString
+    type: string
+    default: ''
+
+  - name: SuffixString
+    type: string
+    default: ''
+
+  - name: VariableName
+    type: string
+    default: ConcatVariable
+
+variables:
+  - name: CONCAT_JOIN_SHARD
+    value: ${{ parameters.SuffixString }}${{ parameters.PrefixString }}
+  - name: CONCAT_JOIN
+    value: ${{ join(variables.CONCAT_JOIN_SHARD, parameters.List) }}
+  - name: ${{ parameters.VariableName }}
+    value: ${{ parameters.SuffixString }}${{ variables.CONCAT_JOIN }}${{ parameters.PostfixString }}
