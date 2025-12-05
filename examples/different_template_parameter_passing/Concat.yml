@@ -21,4 +21,4 @@ variables:
   - name: CONCAT_JOIN
     value: ${{ join(variables.CONCAT_JOIN_SHARD, parameters.List) }}
   - name: ${{ parameters.VariableName }}
-    value: ${{ parameters.SuffixString }}${{ variables.CONCAT_JOIN }}${{ parameters.PostfixString }}
+    value: ${{ parameters.PrefixString }}${{ variables.CONCAT_JOIN }}${{ parameters.SuffixString }}
