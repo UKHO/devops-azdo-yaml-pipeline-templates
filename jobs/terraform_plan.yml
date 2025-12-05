@@ -96,7 +96,7 @@ parameters:
     default: { }
     displayName: 'Environment variables to be passed to the task'
 
-  - name: TerraformVariableFiles # todo implement this
+  - name: TerraformVariableFiles
     type: object
     default: { }
     displayName: ''
@@ -177,6 +177,10 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
                 CommandOptions: '-out=$(TerraformPlanFilePath)'
+
+            - template: ../tasks/powershell.yml
+              parameters:
+
 
             - template: ../tasks/powershell.yml
               parameters:
