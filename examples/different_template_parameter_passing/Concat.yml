@@ -1,24 +1,19 @@
 parameters:
-  - name: List
+  - name: Items
     type: object
-    default: []
-
-  - name: PrefixString
+    default: [ ]
+  - name: Prefix
     type: string
     default: ''
-
-  - name: SuffixString
+  - name: Suffix
     type: string
     default: ''
-
-  - name: VariableName
+  - name: OutputVariableName
     type: string
     default: ConcatVariable
 
 variables:
-  - name: CONCAT_JOIN_SHARD
-    value: ${{ parameters.SuffixString }}${{ parameters.PrefixString }}
-  - name: CONCAT_JOIN
-    value: ${{ join(variables.CONCAT_JOIN_SHARD, parameters.List) }}
-  - name: ${{ parameters.VariableName }}
-    value: ${{ parameters.PrefixString }}${{ variables.CONCAT_JOIN }}${{ parameters.SuffixString }}
+  # Logic: Prefix + Item1 + (Suffix+Prefix) + Item2 ... + Suffix
+  # We construct the internal delimiter by combining Suffix and Prefix.
+  - name: ${{ parameters.OutputVariableName }}
+    value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}

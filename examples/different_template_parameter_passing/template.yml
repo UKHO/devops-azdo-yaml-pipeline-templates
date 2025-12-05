@@ -16,10 +16,10 @@ jobs:
     variables:
       - template: Concat.yml
         parameters:
-          List: ${{ parameters.TerraformVariableFiles }}
-          PrefixString: ' -var-file="'
-          SuffixString: '"'
-          VariableName: TF_VAR_VIA_TEMPLATE
+          Items: ${{ parameters.TerraformVariableFiles }}
+          Prefix: ' -var-file="'
+          Suffix: '"'
+          OutputVariableName: TF_VAR_VIA_TEMPLATE
       - name: TF_VAR_ARGS_SHARD
         value: ${{ join('" -var-file="', parameters.TerraformVariableFiles) }}
       - name: TF_VAR_ARGS
