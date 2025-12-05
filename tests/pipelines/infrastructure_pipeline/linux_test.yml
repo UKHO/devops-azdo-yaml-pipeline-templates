@@ -39,7 +39,7 @@ extends:
       TF_VAR_MaxRandom: 100000
     # TerraformOutputVariables # todo configure this
     TerraformVariableFiles:
-      - $(Pipeline.Workspace)/devops-azdo-yaml-pipeline-templates/tests/pipelines/infrastructure_pipeline/test_terraform/config/common.tfvars
-      - $(Pipeline.Worksapce)/devops-azdo-yaml-pipeline-templates/tests/pipelines/infrastructure_pipeline/test_terraform/config/discovery.tfvars
+      - config/common.tfvars
+      - config/discovery.tfvars
 
 
