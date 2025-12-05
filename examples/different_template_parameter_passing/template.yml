@@ -4,10 +4,19 @@ parameters:
     default: { }
     displayName: ''
 
+  - name: myArray
+    type: object
+    default:
+      - FOO
+      - BAR
+      - ZOO
+
 jobs:
   - job:
     variables:
       TF_VAR_ARGS: >
         ${{ join(parameters.TerraformVariableFiles, '" -var-file="') }}
+      A: ${{ join(';',parameters.myArray) }}
     steps:
       - script: echo $(TF_VAR_ARGS)
+      - script: echo $(A)
