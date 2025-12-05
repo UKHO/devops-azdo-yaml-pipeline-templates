@@ -1,67 +1,13 @@
 parameters:
-  - name: myString  # Define a parameter named 'myString'
-    type: string  # The parameter type is string
-    default: a string  # Default value is 'a string'
-
-  - name: myMultiString  # Define a parameter named 'myMultiString'
-    type: string  # The parameter type is string
-    default: default  # Default value is 'default', only one default
-    values:  # Allowed values for 'myMultiString'
-      - default
-      - ubuntu
-
-  - name: myStringlist # Define a parameter named 'myStringlist'
-    type: stringList # The parameter type is stringList
-    displayName: Regions
-    values: # Allowed values for 'myStringlist'
-      - WUS
-      - CUS
-      - EUS
-    default: # Default values
-      - WUS
-      - CUS
-
-  - name: myNumber  # Define a parameter named 'myNumber'
-    type: number  # The parameter type is number
-    default: 2  # Default value is 2
-    values:  # Allowed values for 'myNumber'
-      - 1
-      - 2
-      - 4
-      - 8
-      - 16
-
-  - name: myBoolean  # Define a parameter named 'myBoolean'
-    type: boolean  # The parameter type is boolean
-    default: true  # Default value is true
-
-  - name: myObject  # Define a parameter named 'myObject'
-    type: object  # The parameter type is object
-    default:  # Default value is an object with nested properties
-      foo: FOO  # Property 'foo' with value 'FOO'
-      bar: BAR  # Property 'bar' with value 'BAR'
-      things:  # Property 'things' is a list
-        - one
-        - two
-        - three
-      nested:  # Property 'nested' is an object
-        one: apple  # Property 'one' with value 'apple'
-        two: pear  # Property 'two' with value 'pear'
-        count: 3  # Property 'count' with value 3
-
-  - name: myStep  # Define a parameter named 'myStep'
-    type: step  # The parameter type is step
-    default:  # Default value is a step
-      script: echo my step
-
-  - name: mySteplist  # Define a parameter named 'mySteplist'
-    type: stepList  # The parameter type is stepList
-    default:  # Default value is a list of steps
-      - script: echo step one
-      - script: echo step two
+  - name: TerraformVariableFiles
+    type: object
+    default: { }
+    displayName: ''
 
 jobs:
-  - job: ${{ parameters.myString }}
+  - job:
+    variables:
+      - name: varFiles
+        value: '${{ each file in parameters.TerraformVariableFiles }} -var-file="${{ file }}"${{ end }}'
     steps:
-      - script: echo ${{ parameters.myString }}
-      - script: echo ${{ parameters.myMultiString }}
+      - script: echo $(varFiles)
