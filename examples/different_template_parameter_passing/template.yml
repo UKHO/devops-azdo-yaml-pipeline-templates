@@ -7,7 +7,7 @@ parameters:
 jobs:
   - job:
     variables:
-      - name: varFiles
-        value: '${{ each file in parameters.TerraformVariableFiles }} -var-file="${{ file }}"${{ end }}'
+      TF_VAR_ARGS: >
+        ${{ '-var-file="' + join(parameters.tfVarFiles, '" -var-file="') + '"' }}
     steps:
       - script: echo $(varFiles)
