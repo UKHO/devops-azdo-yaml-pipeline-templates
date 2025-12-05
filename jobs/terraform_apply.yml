@@ -113,6 +113,12 @@ jobs:
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
+      - template: ../utils/concat_list.yml
+        parameters:
+          Items: ${{ parameters.TerraformVariableFiles }}
+          Prefix: ' -var-file="'
+          Suffix: '"'
+          OutputVariable: TerraformVariableFilesCommandOption
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
@@ -157,5 +163,6 @@ jobs:
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                CommandOptions: '$(TerraformVariableFilesCommandOption)'
 
 
