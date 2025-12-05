@@ -130,7 +130,7 @@ jobs:
           Items: ${{ parameters.TerraformVariableFiles }}
           Prefix: ' -var-file="'
           Suffix: '"'
-          OutputVariable: TerraformVariableFilesCommandOption
+          OutputVariableName: TerraformVariableFilesCommandOption
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
