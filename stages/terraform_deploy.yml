@@ -138,7 +138,7 @@ stages:
           # terraform plan task parameters
           AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
           TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
-          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }} # todo add the parameter for this and pass it through
+          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
           VerificationMode: ${{ parameters.VerificationMode }}
 
       - ${{ if eq(parameters.RunPlanOnly, false) }}:
