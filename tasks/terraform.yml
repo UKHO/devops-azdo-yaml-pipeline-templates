@@ -45,12 +45,12 @@
 #     parameters:
 #       Command: 'output'
 #       OutputTo: 'file'
-#       OutputFileName: 'terraform-output.json'
 #
 # Notes:
 #   - This template is designed for Azure and does not support other cloud providers.
 #   - Uses the TerraformTask@5 task from Microsoft DevLabs.
 #   - The DisableBackend parameter allows backend configuration to be skipped during init.
+#   - This TerraformTask is from this [extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
 
 parameters:
   # Standard Azure DevOps Task Parameters
@@ -61,7 +61,7 @@ parameters:
 
   - name: TaskNameUniqueSlug
     type: string
-    displayName: 'Unique string to add to the task name to make it unique if the same command is repeated.'
+    displayName: 'Unique string to add to the task name to make it unique if the same command is repeated'
     default: ''
 
   - name: Condition

@@ -5,8 +5,8 @@
 #
 # Parameters:
 #   - Items (object, required): The list of items to concatenate. Default: [].
-#   - Prefix (string, optional): The string to prepend to the start of each item. Default: ''.
-#   - Suffix (string, optional): The string to append to the end of each item. Default: ''.
+#   - Prefix (string, optional): The string to prefix to the start of each item. Default: ''.
+#   - Suffix (string, optional): The string to suffix to the end of each item. Default: ''.
 #   - OutputVariableName (string, optional): The name of the variable where the concatenated result will be stored. Default: 'ConcatVariable'.
 #
 # Example Usage:
@@ -25,17 +25,17 @@ parameters:
   - name: Items
     type: object
     default: [ ]
-    displayName: 'The list of items to concatenate.'
+    displayName: 'The list of items to concatenate together with prefix and suffix on each item.'
 
   - name: Prefix
     type: string
     default: ''
-    displayName: 'The string to prepend to the start of each item.'
+    displayName: 'The string to prefix to the start of each item.'
 
   - name: Suffix
     type: string
     default: ''
-    displayName: 'The string to append to the end of each item.'
+    displayName: 'The string to suffix to the end of each item.'
 
   - name: OutputVariableName
     type: string
