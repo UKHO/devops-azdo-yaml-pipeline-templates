@@ -12,18 +12,9 @@
 #   - FilePath (string, optional): Path to the PowerShell script (when TargetType is filePath).
 #   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline).
 #   - ScriptFileArguments (string, optional): Arguments for the script (when TargetType is filePath).
-#   - ErrorActionPreference (string, optional): Error action preference. Default: 'stop'.
-#   - WarningPreference (string, optional): Warning preference. Default: 'default'.
-#   - InformationPreference (string, optional): Information preference. Default: 'default'.
-#   - VerbosePreference (string, optional): Verbose preference. Default: 'default'.
-#   - DebugPreference (string, optional): Debug preference. Default: 'default'.
-#   - ProgressPreference (string, optional): Progress preference. Default: 'silentlyContinue'.
 #   - FailOnStandardError (boolean, optional): Fail on standard error. Default: false.
-#   - ShowWarnings (boolean, optional): Show warnings as Azure DevOps warnings. Default: false.
-#   - IgnoreLASTEXITCODE (boolean, optional): Ignore $LASTEXITCODE. Default: false.
-#   - Pwsh (boolean, optional): Use PowerShell Core. Default: false.
+#   - UsePowerShellCoreOnWindows (boolean, optional): Use PowerShell Core. Default: false.
 #   - WorkingDirectory (string, optional): Working directory for the script.
-#   - RunScriptInSeparateScope (boolean, optional): Run script in a separate scope. Default: false.
 #
 # Example Usage:
 #   - template: tasks/powershell.yml
@@ -89,6 +80,11 @@ parameters:
     displayName: 'Working directory for the script'
     default: ''
 
+  - name: FailOnStandardError
+    type: boolean
+    displayName: 'Fail on standard error'
+    default: false
+
 steps:
   - task: PowerShell@2
     ${{ if ne(parameters.TaskName, '') }}:
@@ -104,6 +100,7 @@ steps:
       ${{ if and(eq(parameters.TargetType, 'inline'), ne(parameters.InlineScript, '')) }}:
         script: '${{ parameters.InlineScript }}'
 
+      failOnStderr: ${{ parameters.FailOnStandardError }}
       pwsh: ${{ parameters.UsePowerShellCoreOnWindows }}
       ${{ if ne(parameters.WorkingDirectory, '') }}:
         workingDirectory: '${{ parameters.WorkingDirectory }}'
