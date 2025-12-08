@@ -176,7 +176,7 @@ jobs:
                 OutputFilePath: $(TerraformOutputFile)
                 OutputFormat: json
 
-            - ${{ if ne(parameters.TerraformOutputVariables, { }) }}:
+            - ${{ if parameters.TerraformOutputVariables }}:
               - template: ../tasks/powershell.yml
                 parameters:
                   TaskName: TerraformExportOutputsVariables
