@@ -6,7 +6,6 @@
 #
 # Parameters:
 #   - ArtifactName (string, optional): Name of the artifact to download. Leave empty to download all artifacts.
-#   - DownloadAllArtifacts (boolean, optional): If true, downloads all artifacts from the pipeline run. Default: false
 #   - ItemPattern (string, optional): File matching pattern (newline-delimited). Default: '**'
 #   - TargetPath (string, optional): Destination directory for downloaded artifacts. Default: $(Pipeline.Workspace)
 #
@@ -15,11 +14,6 @@
 #     parameters:
 #       ArtifactName: 'WebApp'
 #       TargetPath: '$(Build.ArtifactStagingDirectory)/WebApp'
-#
-#   - template: tasks/download_pipeline_artifact.yml
-#     parameters:
-#       DownloadAllArtifacts: true
-#       TargetPath: '$(Build.ArtifactStagingDirectory)/All'
 #
 # Notes:
 #   - Only supports downloading from the current pipeline run (buildType: 'current').
@@ -30,11 +24,6 @@ parameters:
     type: string
     default: ''
     displayName: 'Artifact name (leave empty to download all artifacts)'
-
-  - name: DownloadAllArtifacts
-    type: boolean
-    default: false
-    displayName: 'Whether this task downloads all artifacts associated with the pipeline run'
 
   - name: ItemPattern
     type: string
@@ -48,13 +37,9 @@ parameters:
 
 steps:
   - task: DownloadPipelineArtifact@2
-    ${{ if and(eq(parameters.DownloadAllArtifacts, false), ne(parameters.ArtifactName, '')) }}:
-      displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
-    ${{ else }}:
-      displayName: 'Download all artifacts'
+    displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
     inputs:
       buildType: 'current'
-      ${{ if and(eq(parameters.DownloadAllArtifacts, false), ne(parameters.ArtifactName, '')) }}:
-        artifactName: '${{ parameters.ArtifactName }}'
+      artifactName: '${{ parameters.ArtifactName }}'
       itemPattern: '${{ parameters.ItemPattern }}'
       targetPath: '${{ parameters.TargetPath }}'
