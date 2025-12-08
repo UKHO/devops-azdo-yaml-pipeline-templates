@@ -7,7 +7,7 @@ param (
   [Parameter(Mandatory,
     HelpMessage = "Path to the Terraform plan file to check for changes.")]
   [ValidateScript(
-    { -not (Test-Path -Path $TerraformPlanFilePath) },
+    { -not (Test-Path -Path $_) },
     ErrorMessage = '"{0}" cannot be found.'
   )]
   [string] $TerraformPlanFilePath
