@@ -10,7 +10,7 @@
 #   - OutputVariableName (string, optional): The name of the variable where the concatenated result will be stored. Default: 'ConcatVariable'.
 #
 # Example Usage:
-#   - template: utils/Concat.yml
+#   - template: utils/concat_wrap_list.yml
 #     parameters:
 #       Items: ['A', 'B']
 #       Prefix: '('
