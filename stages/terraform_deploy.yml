@@ -97,12 +97,12 @@
   - name: TerraformVariableFiles
     type: object
     default: { }
-    displayName: ''
+    displayName: 'List of .tfvars files to be supplied to the terraform commands.'
 
   - name: TerraformOutputVariables
     type: object
     default: { }
-    displayName: ''
+    displayName: 'List of variables to be exported from the terraform after apply has been ran.'
 
 stages:
   - stage: Deploy_${{ parameters.AzDOEnvironmentName }}_Infrastructure
