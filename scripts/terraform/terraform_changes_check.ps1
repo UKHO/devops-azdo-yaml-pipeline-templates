@@ -17,7 +17,6 @@ $changesNeedManualVerification = $true
 $changesNeedApplying = $false
 
 Write-Host "Starting terraform_check_plan.ps1 script"
-Write-Host "Terraform output file found. Reading contents."
 $terraformPlan = Get-Content -Path $TerraformPlanFilePath
 
 if ($terraformPlan -match "no changes")
