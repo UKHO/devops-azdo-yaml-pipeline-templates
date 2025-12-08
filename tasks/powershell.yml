@@ -79,81 +79,6 @@ parameters:
     displayName: 'Arguments for the script (when TargetType is filePath)'
     default: ''
 
-  - name: ErrorActionPreference
-    type: string
-    displayName: 'Error action preference'
-    default: 'stop'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: WarningPreference
-    type: string
-    displayName: 'Warning preference'
-    default: 'default'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: InformationPreference
-    type: string
-    displayName: 'Information preference'
-    default: 'default'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: VerbosePreference
-    type: string
-    displayName: 'Verbose preference'
-    default: 'default'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: DebugPreference
-    type: string
-    displayName: 'Debug preference'
-    default: 'default'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: ProgressPreference
-    type: string
-    displayName: 'Progress preference'
-    default: 'silentlyContinue'
-    values:
-      - default
-      - stop
-      - continue
-      - silentlyContinue
-
-  - name: FailOnStandardError
-    type: boolean
-    displayName: 'Fail on standard error'
-    default: false
-
-  - name: ShowWarningsInPipelineLogs
-    type: boolean
-    displayName: 'Show warnings as Azure DevOps warnings'
-    default: false
-
-  - name: IgnoreLASTEXITCODE
-    type: boolean
-    displayName: 'Ignore $LASTEXITCODE (if false, appends `exit $LASTEXITCODE` to propagate external command exit code)'
-    default: false
-
   - name: UsePowerShellCoreOnWindows
     type: boolean
     displayName: 'On Windows, use PowerShell Core (pwsh.exe) instead Windows PowerShell (powershell.exe). No effect on linux.'
@@ -163,11 +88,6 @@ parameters:
     type: string
     displayName: 'Working directory for the script'
     default: ''
-
-  - name: RunScriptInSeparateScope
-    type: boolean
-    displayName: 'Run script in a separate scope'
-    default: false
 
 steps:
   - task: PowerShell@2
@@ -184,19 +104,6 @@ steps:
       ${{ if and(eq(parameters.TargetType, 'inline'), ne(parameters.InlineScript, '')) }}:
         script: '${{ parameters.InlineScript }}'
 
-      # Preference Variables
-      errorActionPreference: '${{ parameters.ErrorActionPreference }}'
-      warningPreference: '${{ parameters.WarningPreference }}'
-      informationPreference: '${{ parameters.InformationPreference }}'
-      verbosePreference: '${{ parameters.VerbosePreference }}'
-      debugPreference: '${{ parameters.DebugPreference }}'
-      progressPreference: '${{ parameters.ProgressPreference }}'
-
-      # Advanced
-      failOnStderr: ${{ parameters.FailOnStandardError }}
-      showWarnings: ${{ parameters.ShowWarningsInPipelineLogs }}
-      ignoreLASTEXITCODE: ${{ parameters.IgnoreLASTEXITCODE }}
       pwsh: ${{ parameters.UsePowerShellCoreOnWindows }}
-      runScriptInSeparateScope: ${{ parameters.RunScriptInSeparateScope }}
       ${{ if ne(parameters.WorkingDirectory, '') }}:
         workingDirectory: '${{ parameters.WorkingDirectory }}'
