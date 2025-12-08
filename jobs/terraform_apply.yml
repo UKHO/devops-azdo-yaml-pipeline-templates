@@ -101,7 +101,7 @@ parameters:
     default: { }
     displayName: ''
 
-  - name: TerraformOutputVariables # todo implement this
+  - name: TerraformOutputVariables
     type: object
     default: { }
     displayName: ''
