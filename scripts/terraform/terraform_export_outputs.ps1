@@ -7,7 +7,7 @@ param (
   [Parameter(Mandatory,
     HelpMessage = "Path to the Terraform output file for extracting the output variables.")]
   [ValidateScript(
-    { -not (Test-Path -Path $OutputFileName) },
+    { Test-Path -Path $_ },
     ErrorMessage = '"{0}" cannot be found.'
   )]
   [string] $OutputFileName
@@ -33,7 +33,7 @@ foreach ($outputVariableToExport in $OutputVariablesToExport)
   {
     Write-Host "##[error]Cannot find variable '$outputVariableToExport' inside of '$OutputFilePath'"
     Write-Host "Script failed: missing variable."
-    return
+    throw
   }
 }
 
