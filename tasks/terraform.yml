@@ -9,6 +9,7 @@
 #   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated.
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
+#   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 3
 #   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
@@ -40,6 +41,12 @@
 #       Command: 'apply'
 #       CommandOptions: 'tfplan'
 #
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'output'
+#       OutputTo: 'file'
+#       OutputFileName: 'terraform-output.json'
+#
 # Notes:
 #   - This template is designed for Azure and does not support other cloud providers.
 #   - Uses the TerraformTask@5 task from Microsoft DevLabs.
@@ -66,6 +73,11 @@ parameters:
     type: string
     displayName: 'Directory containing Terraform configuration files'
     default: '$(Pipeline.Workspace)'
+
+  - name: RetryCountOnTaskFailure
+    type: number
+    displayName: 'Number of times to retry the task on failure'
+    default: 3
 
   # Specific TerraformCLI Task Parameters
 
@@ -179,6 +191,7 @@ steps:
         name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         env: ${{ parameters.TaskEnvironmentVariables }}
         condition: ${{ parameters.Condition }}
+        retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
         inputs:
           # Core Configuration
           provider: 'azurerm'
