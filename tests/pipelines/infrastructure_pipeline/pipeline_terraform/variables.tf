@@ -23,6 +23,6 @@ variable "GitHub_ServiceConnection_Guid" {
 }
 
 variable "TargetBranchName" {
-  type = string
+  type        = string
   description = "The branch that the azdo pipelines will target in its reference to the yaml pipelines"
 }

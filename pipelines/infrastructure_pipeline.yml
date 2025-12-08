@@ -16,7 +16,7 @@
 
   - name: TerraformBuildInjectionSteps
     type: stepList
-    default: []
+    default: [ ]
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
   - name: AzDOEnvironmentName
@@ -61,7 +61,7 @@
     default: ''
     displayName: 'Azure storage blob name for backend where the state is stored'
 
-# Key Vault Parameters
+  # Key Vault Parameters
 
   - name: KeyVaultServiceConnection
     type: string
