@@ -2,7 +2,7 @@ param (
   [Parameter(Mandatory,
     HelpMessage = "Specify the Terraform output variables to export, separated by spaces.")]
   [ValidateNotNullOrEmpty()]
-  [string] $OutputVariablesToExport,
+  [string[]] $OutputVariablesToExport,
 
   [Parameter(Mandatory,
     HelpMessage = "Path to the Terraform output file for extracting the output variables.")]
@@ -18,7 +18,7 @@ Write-Host "Starting terraform_export_outputs.ps1 script"
 $terraformOutputVariables = Get-Content -Path $OutputFilePath | ConvertFrom-Json
 Write-Output "Exporting required variables for deployment"
 
-foreach ($outputVariableToExport in $OutputVariablesToExport -split " ")
+foreach ($outputVariableToExport in $OutputVariablesToExport)
 {
   Write-Host "Exporting '$outputVariableToExport' variable from terraform output."
 
