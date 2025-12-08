@@ -15,8 +15,10 @@ param (
 
 Write-Host "Starting terraform_export_outputs.ps1 script"
 
-$terraformOutputVariables = Get-Content -Path $OutputFileName | ConvertFrom-Json
-Write-Host "##[debug] $terraformOutputVariables"
+$outputFileContent = Get-Content -Path $OutputFileName
+Write-Host "##[debug]OutputFile content: $outputFileContent"
+
+$terraformOutputVariables = $outputFileContent | ConvertFrom-Json
 Write-Host "Exporting required variables for deployment"
 
 foreach ($outputVariableToExport in $OutputVariablesToExport)
