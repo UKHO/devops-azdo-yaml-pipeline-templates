@@ -198,5 +198,5 @@ jobs:
                   ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                   FailOnStandardError: true
                   ScriptFileArguments: >
-                    -TerraformOutputVariables $(TerraformOutputVariablesStringArray)
+                    -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
                     -OutputFileName $(TerraformOutputFile)
