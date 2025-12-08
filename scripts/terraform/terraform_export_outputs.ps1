@@ -34,7 +34,7 @@ foreach ($outputVariableToExport in $OutputVariablesToExport)
   }
   else
   {
-    Write-Host "##[error]Cannot find variable '$outputVariableToExport' inside of '$OutputFilePath'"
+    Write-Host "##[error]Cannot find variable '$outputVariableToExport' inside of '$OutputFileName'"
     Write-Host "Script failed: missing variable."
     throw
   }
