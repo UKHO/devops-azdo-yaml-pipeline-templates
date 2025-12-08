@@ -119,6 +119,8 @@ jobs:
           Prefix: ' -var-file="'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
+      - name: TerraformOutputFile
+        value: $(Pipeline.Workspace)/terraform_outputs.json
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
@@ -170,3 +172,17 @@ jobs:
                 Command: output
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                OutputTo: file
+                OutputFilePath: $(TerraformOutputFile)
+                OutputFormat: json
+
+            - ${{ if ne(parameters.TerraformOutputVariables, { }) }}:
+              - template: ../tasks/powershell.yml
+                parameters:
+                  TaskName: TerraformExportOutputsVariables
+                  TargetType: 'filePath'
+                  ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
+                  FailOnStandardError: true
+                  ScriptFileArguments: >
+                    -TerraformOutputVariables ${{ parameters.TerraformOutputVariables }}
+                    -OutputFilePath $(TerraformOutputFile)
