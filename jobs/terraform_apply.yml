@@ -119,12 +119,8 @@ jobs:
           Prefix: ' -var-file="'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
-      - template: ../utils/concat_list.yml
-        parameters:
-          Items: ${{ parameters.TerraformOutputVariables }}
-          Prefix: ''
-          Suffix: ','
-          OutputVariableName: TerraformOutVariablesStringArray
+      - name: TerraformOutputVariablesStringArray
+        value: ${{ join(',', parameters.TerraformOutputVariables) }}
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/terraform_outputs.json
       - name: TerraformOutputFile
@@ -190,5 +186,5 @@ jobs:
                   ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                   FailOnStandardError: true
                   ScriptFileArguments: >
-                    -TerraformOutputVariables $(TerraformOutVariablesStringArray)
+                    -TerraformOutputVariables $(TerraformOutputVariablesStringArray)
                     -OutputFileName $(TerraformOutputFile)
