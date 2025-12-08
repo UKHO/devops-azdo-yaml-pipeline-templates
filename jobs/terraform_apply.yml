@@ -113,22 +113,24 @@ jobs:
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
+      - name: TerraformOutputVariablesStringArray
+        value: ${{ join(',', parameters.TerraformOutputVariables) }}
+      - name: TerraformOutputFile
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+
       - template: ../utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
-          Prefix: ' -var-file="'
+          Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
-      - name: TerraformOutputVariablesStringArray
-        value: ${{ join(',', parameters.TerraformOutputVariables) }}
+      - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: CheckoutPath
         value: devops-azdo-yaml-pipeline-templates
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
-      - name: TerraformWorkingDirectory
-        value: $(Pipeline.Workspace)/terraform_outputs.json
-      - name: TerraformOutputFile
-        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
@@ -168,7 +170,8 @@ jobs:
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                CommandOptions: '-reconfigure'
+
+# Workspace
 
             - template: ../tasks/terraform.yml
               parameters:
