@@ -113,7 +113,7 @@ jobs:
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      - template: ../utils/concat_list.yml
+      - template: ../utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
           Prefix: ' -var-file="'
