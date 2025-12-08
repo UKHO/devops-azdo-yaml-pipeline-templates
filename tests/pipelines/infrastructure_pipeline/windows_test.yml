@@ -27,6 +27,11 @@ extends:
     KeyVaultName: aKV
     KeyVaultSecretsFilter: "aSecretFilter"
     RunPlanOnly: true
-    # TerraformVariableMappings # todo configure this
-    # TerraformOutputVariables # todo configure this
-    # TerraformVariableFiles # todo configure this
+    TerraformEnvironmentVariableMappings:
+      TF_VAR_MinRandom: 1000
+      TF_VAR_MaxRandom: 100000
+    TerraformOutputVariables:
+      - random_number
+    TerraformVariableFiles:
+      - config/common.tfvars
+      - config/discovery.tfvars
