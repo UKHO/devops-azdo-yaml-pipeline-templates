@@ -119,9 +119,15 @@ jobs:
           Prefix: ' -var-file="'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
-      - name: TerraformOutputFile
-        value: $(Pipeline.Workspace)/terraform_outputs.json
+      - template: ../utils/concat_list.yml
+        parameters:
+          Items: ${{ parameters.TerraformOutputVariables }}
+          Prefix: ''
+          Suffix: ','
+          OutputVariableName: TerraformOutVariablesStringArray
       - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/terraform_outputs.json
+      - name: TerraformOutputFile
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
@@ -184,5 +190,5 @@ jobs:
                   ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                   FailOnStandardError: true
                   ScriptFileArguments: >
-                    -TerraformOutputVariables ${{ parameters.TerraformOutputVariables }}
+                    -TerraformOutputVariables $(TerraformOutVariablesStringArray)
                     -OutputFileName $(TerraformOutputFile)
