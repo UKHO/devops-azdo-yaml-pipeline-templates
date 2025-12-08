@@ -195,4 +195,4 @@ jobs:
                     FailOnStandardError: true
                     ScriptFileArguments: >
                       -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
-                      -OutputFileName $(jsonOutputVariablesPath)
+                      -OutputFileName $(TerraformTask_output.jsonOutputVariablesPath)
