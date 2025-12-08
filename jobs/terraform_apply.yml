@@ -116,7 +116,7 @@ jobs:
       - name: TerraformOutputVariablesStringArray
         value: ${{ join(',', parameters.TerraformOutputVariables) }}
       - name: TerraformOutputFile
-        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}/terraform_outputs.json
 
       - template: ../utils/concat_wrap_list.yml
         parameters:
@@ -171,7 +171,7 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
-# Workspace
+            # Workspace
 
             - template: ../tasks/terraform.yml
               parameters:
@@ -182,21 +182,21 @@ jobs:
                 CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
 
             - ${{ if parameters.TerraformOutputVariables }}:
-              - template: ../tasks/terraform.yml
-                parameters:
-                  Command: output
-                  WorkingDirectory: $(TerraformWorkingDirectory)
-                  EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-                  OutputTo: file
-                  OutputFileName: $(TerraformOutputFile)
-                  OutputFormat: json
+                - template: ../tasks/terraform.yml
+                  parameters:
+                    Command: output
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    OutputTo: file
+                    OutputFileName: $(TerraformOutputFile)
+                    OutputFormat: json
 
-              - template: ../tasks/powershell.yml
-                parameters:
-                  TaskName: TerraformExportOutputsVariables
-                  TargetType: 'filePath'
-                  ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
-                  FailOnStandardError: true
-                  ScriptFileArguments: >
-                    -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
-                    -OutputFileName $(TerraformOutputFile)
+                - template: ../tasks/powershell.yml
+                  parameters:
+                    TaskName: TerraformExportOutputsVariables
+                    TargetType: 'filePath'
+                    ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
+                    FailOnStandardError: true
+                    ScriptFileArguments: >
+                      -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
+                      -OutputFileName $(TerraformOutputFile)
