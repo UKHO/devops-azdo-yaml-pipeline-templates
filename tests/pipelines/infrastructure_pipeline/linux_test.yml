@@ -39,6 +39,7 @@ extends:
       TF_VAR_MaxRandom: 100000
     TerraformOutputVariables:
       - random_number
+      - random_string
     TerraformVariableFiles:
       - config/common.tfvars
       - config/discovery.tfvars
