@@ -7,7 +7,7 @@ param (
   [Parameter(Mandatory,
     HelpMessage = "Path to the Terraform output file for extracting the output variables.")]
   [ValidateScript(
-    { Test-Path -Path $_ },
+    { Test-Path -Path $_ -PathType Leaf },
     ErrorMessage = '"{0}" cannot be found.'
   )]
   [string] $OutputFileName
