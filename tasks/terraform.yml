@@ -207,7 +207,7 @@ steps:
             customCommand: '${{ parameters.CustomCommand }}'
 
           # Output Configuration (show/output commands)
-          ${{ if and(or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')), ne(parameters.OutputTo, 'console')) }}:
+          ${{ if or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')) }}:
             outputTo: '${{ parameters.OutputTo }}'
 
           ${{ if and(eq(parameters.OutputTo, 'file'), ne(parameters.OutputFileName, '')) }}:

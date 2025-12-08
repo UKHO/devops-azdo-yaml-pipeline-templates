@@ -189,7 +189,6 @@ jobs:
                     EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                     OutputTo: file
                     OutputFileName: $(TerraformOutputFile)
-                    OutputFormat: json
 
                 - template: ../tasks/powershell.yml
                   parameters:
