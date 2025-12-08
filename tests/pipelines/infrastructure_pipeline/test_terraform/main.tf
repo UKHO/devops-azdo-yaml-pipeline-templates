@@ -16,12 +16,12 @@ variable "Environment" {
 }
 
 variable "MaxRandom" {
-  type = number
+  type    = number
   default = 100
 }
 
 variable "MinRandom" {
-  type = number
+  type    = number
   default = 1
 }
 

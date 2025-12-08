@@ -131,6 +131,13 @@ jobs:
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: TerraformVariableFilesCommandOption
+      - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+      - name: CheckoutPath
+        value: devops-azdo-yaml-pipeline-templates
+      - name: ScriptDirectory
+        value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
+
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
@@ -168,11 +175,6 @@ jobs:
                 BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
                 BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
                 BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
-                WorkingDirectory: $(TerraformWorkingDirectory)
-
-            - template: ../tasks/terraform.yml
-              parameters:
-                Command: validate
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 

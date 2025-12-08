@@ -1,5 +1,5 @@
 locals {
-  PipelineAzDoFolderName = "infrastructure-pipelines"
+  PipelineAzDoFolderName    = "infrastructure-pipelines"
   PipelinesGitHubFolderPath = "tests/pipelines/infrastructure_pipeline/"
   pipelinesToDeploy = {
     linuxTest = {
@@ -16,7 +16,7 @@ locals {
 resource "azuredevops_build_definition" "this" {
   project_id = data.azuredevops_project.this.project_id
   path       = "\\devops-azdo-yaml-pipeline-templates\\${local.PipelineAzDoFolderName}"
-  for_each = local.pipelinesToDeploy
+  for_each   = local.pipelinesToDeploy
 
   name = "${local.PipelineAzDoFolderName}-${each.value.pipeline_name}"
 

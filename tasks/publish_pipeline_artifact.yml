@@ -1,38 +1,38 @@
 ﻿# Azure DevOps Task: PublishPipelineArtifact@1
-    #
-    # Purpose:
-    # Publishes build artifacts from a specified path to the Azure DevOps pipeline, making them available for download in later stages or by other pipelines.
-    #
-    # Parameters:
-    # - ArtifactName (string, optional): Name of the artifact to publish. Default: 'Drop'.
-    # - TargetPath (string, optional): Path to the files or folder to publish. Default: '$(Pipeline.Workspace)'.
-    #
-    # Example Usage:
-    # - template: tasks/publish_pipeline_artifact.yml
-    #   parameters:
-    #     ArtifactName: 'MyArtifact'
-    #     TargetPath: '$(Build.ArtifactStagingDirectory)'
-    #
-    # Notes:
-    # - Uses the PublishPipelineArtifact@1 task. See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/publish-pipeline-artifact-v1?view=azure-pipelines
-    # - Only the 'pipeline' publish location is supported in this template.
-    # - The artifact will be available for download in subsequent pipeline stages or by other pipelines.
+#
+# Purpose:
+# Publishes build artifacts from a specified path to the Azure DevOps pipeline, making them available for download in later stages or by other pipelines.
+#
+# Parameters:
+# - ArtifactName (string, optional): Name of the artifact to publish. Default: 'Drop'.
+# - TargetPath (string, optional): Path to the files or folder to publish. Default: '$(Pipeline.Workspace)'.
+#
+# Example Usage:
+# - template: tasks/publish_pipeline_artifact.yml
+#   parameters:
+#     ArtifactName: 'MyArtifact'
+#     TargetPath: '$(Build.ArtifactStagingDirectory)'
+#
+# Notes:
+# - Uses the PublishPipelineArtifact@1 task. See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/publish-pipeline-artifact-v1?view=azure-pipelines
+# - Only the 'pipeline' publish location is supported in this template.
+# - The artifact will be available for download in subsequent pipeline stages or by other pipelines.
 
-    parameters:
-      - name: ArtifactName
-        type: string
-        displayName: 'Name of the artifact to publish'
-        default: 'Drop'
+parameters:
+  - name: ArtifactName
+    type: string
+    displayName: 'Name of the artifact to publish'
+    default: 'Drop'
 
-      - name: TargetPath
-        type: string
-        displayName: 'Path to files or folder to publish'
-        default: '$(Pipeline.Workspace)'
+  - name: TargetPath
+    type: string
+    displayName: 'Path to files or folder to publish'
+    default: '$(Pipeline.Workspace)'
 
-    steps:
-      - task: PublishPipelineArtifact@1
-        displayName: 'Publish Pipeline Artifact: ${{ parameters.ArtifactName }}'
-        inputs:
-          artifact: ${{ parameters.ArtifactName }}
-          targetPath: ${{ parameters.TargetPath }}
-          publishLocation: 'pipeline'
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Pipeline Artifact: ${{ parameters.ArtifactName }}'
+    inputs:
+      artifact: ${{ parameters.ArtifactName }}
+      targetPath: ${{ parameters.TargetPath }}
+      publishLocation: 'pipeline'
