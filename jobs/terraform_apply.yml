@@ -115,8 +115,6 @@ jobs:
     variables:
       - name: TerraformOutputVariablesStringArray
         value: ${{ join(',', parameters.TerraformOutputVariables) }}
-      - name: TerraformOutputFile
-        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}/terraform_outputs.json
 
       - template: ../utils/concat_wrap_list.yml
         parameters:
@@ -188,7 +186,6 @@ jobs:
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                     OutputTo: file
-                    OutputFileName: $(TerraformOutputFile)
 
                 - template: ../tasks/powershell.yml
                   parameters:
@@ -198,4 +195,4 @@ jobs:
                     FailOnStandardError: true
                     ScriptFileArguments: >
                       -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
-                      -OutputFileName $(TerraformOutputFile)
+                      -OutputFileName $(jsonOutputVariablesPath)
