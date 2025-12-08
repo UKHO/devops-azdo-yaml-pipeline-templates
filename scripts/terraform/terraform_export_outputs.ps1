@@ -16,13 +16,14 @@ param (
 Write-Host "Starting terraform_export_outputs.ps1 script"
 
 $terraformOutputVariables = Get-Content -Path $OutputFileName | ConvertFrom-Json
-Write-Output "Exporting required variables for deployment"
+Write-Host "##[debug] $terraformOutputVariables"
+Write-Host "Exporting required variables for deployment"
 
 foreach ($outputVariableToExport in $OutputVariablesToExport)
 {
   Write-Host "Exporting '$outputVariableToExport' variable from terraform output."
 
-  if ( $terraformOutputVariables.ContainsKey($outputVariableToExport))
+  if ($terraformOutputVariables | Get-Member -Name $outputVariableToExport -MemberType NoteProperty)
   {
     $output = $terraformOutputVariables.$outputVariableToExport.value
     Write-Host "Found variable '$outputVariableToExport' with value: $output"
