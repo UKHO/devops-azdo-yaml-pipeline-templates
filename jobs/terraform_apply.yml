@@ -121,6 +121,10 @@ jobs:
           OutputVariableName: TerraformVariableFilesCommandOption
       - name: TerraformOutputVariablesStringArray
         value: ${{ join(',', parameters.TerraformOutputVariables) }}
+      - name: CheckoutPath
+        value: devops-azdo-yaml-pipeline-templates
+      - name: ScriptDirectory
+        value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/terraform_outputs.json
       - name: TerraformOutputFile
@@ -135,6 +139,10 @@ jobs:
       runOnce:
         deploy:
           steps:
+            - checkout: PipelineTemplates
+              persistCredentials: true
+              path: $(CheckoutPath)
+
             - template: ../tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
@@ -170,16 +178,16 @@ jobs:
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
                 CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
 
-            - template: ../tasks/terraform.yml
-              parameters:
-                Command: output
-                WorkingDirectory: $(TerraformWorkingDirectory)
-                EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-                OutputTo: file
-                OutputFileName: $(TerraformOutputFile)
-                OutputFormat: json
-
             - ${{ if parameters.TerraformOutputVariables }}:
+              - template: ../tasks/terraform.yml
+                parameters:
+                  Command: output
+                  WorkingDirectory: $(TerraformWorkingDirectory)
+                  EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                  OutputTo: file
+                  OutputFileName: $(TerraformOutputFile)
+                  OutputFormat: json
+
               - template: ../tasks/powershell.yml
                 parameters:
                   TaskName: TerraformExportOutputsVariables
