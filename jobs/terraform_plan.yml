@@ -99,7 +99,7 @@ parameters:
   - name: TerraformVariableFiles
     type: object
     default: { }
-    displayName: ''
+    displayName: 'List of .tfvars files to be supplied to the terraform plan command.'
 
   - name: VerificationMode
     type: string
