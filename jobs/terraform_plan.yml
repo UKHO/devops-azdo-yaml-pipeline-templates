@@ -173,7 +173,7 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
-# Workspace
+            # Workspace
 
             - template: ../tasks/terraform.yml
               parameters:
