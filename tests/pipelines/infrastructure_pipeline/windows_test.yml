@@ -1,3 +1,9 @@
+parameters:
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether to run the plan only'
+
 resources:
   repositories:
     - repository: PipelineTemplates
@@ -13,7 +19,7 @@ extends:
   parameters:
     PipelinePool: 'Mare Nubium'
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
-    TerraformVersion: 1.13.5
+    TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     AzDOEnvironmentName: Discovery
     AzureSubscriptionServiceConnection: Pipeline-CloudDisco
@@ -23,15 +29,17 @@ extends:
     BackendAzureStorageAccountName: ukhodoctfstatesa
     BackendAzureContainerName: tfstate
     BackendAzureBlobName: linux_test.tfstate
-    KeyVaultServiceConnection: Pipeline-CloudDisco
-    KeyVaultName: aKV
-    KeyVaultSecretsFilter: "aSecretFilter"
-    RunPlanOnly: true
+    # KeyVaultServiceConnection: Pipeline-CloudDisco
+    # KeyVaultName: aKV
+    # KeyVaultSecretsFilter: "aSecretFilter"
+    RunPlanOnly: ${{ parameters.RunPlanOnly }}
+    VerificationMode: VerifyOnDestroy
     TerraformEnvironmentVariableMappings:
       TF_VAR_MinRandom: 1000
       TF_VAR_MaxRandom: 100000
     TerraformOutputVariables:
       - random_number
+      - random_string
     TerraformVariableFiles:
       - config/common.tfvars
       - config/discovery.tfvars
