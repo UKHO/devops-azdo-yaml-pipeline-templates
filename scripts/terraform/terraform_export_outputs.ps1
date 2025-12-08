@@ -7,15 +7,15 @@ param (
   [Parameter(Mandatory,
     HelpMessage = "Path to the Terraform output file for extracting the output variables.")]
   [ValidateScript(
-    { -not (Test-Path -Path $OutputFilePath) },
+    { -not (Test-Path -Path $OutputFileName) },
     ErrorMessage = '"{0}" cannot be found.'
   )]
-  [string] $OutputFilePath
+  [string] $OutputFileName
 )
 
 Write-Host "Starting terraform_export_outputs.ps1 script"
 
-$terraformOutputVariables = Get-Content -Path $OutputFilePath | ConvertFrom-Json
+$terraformOutputVariables = Get-Content -Path $OutputFileName | ConvertFrom-Json
 Write-Output "Exporting required variables for deployment"
 
 foreach ($outputVariableToExport in $OutputVariablesToExport)

@@ -173,7 +173,7 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
                 OutputTo: file
-                OutputFilePath: $(TerraformOutputFile)
+                OutputFileName: $(TerraformOutputFile)
                 OutputFormat: json
 
             - ${{ if parameters.TerraformOutputVariables }}:
@@ -185,4 +185,4 @@ jobs:
                   FailOnStandardError: true
                   ScriptFileArguments: >
                     -TerraformOutputVariables ${{ parameters.TerraformOutputVariables }}
-                    -OutputFilePath $(TerraformOutputFile)
+                    -OutputFileName $(TerraformOutputFile)
