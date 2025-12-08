@@ -192,5 +192,5 @@ jobs:
                 FailOnStandardError: true
                 ScriptFileArguments: >
                   -VerificationMode ${{ parameters.VerificationMode }}
-                  -TerraformOutputFileName "$(TerraformPlanFilePath)"
+                  -TerraformPlanFilePath "$(TerraformPlanFilePath)"
 

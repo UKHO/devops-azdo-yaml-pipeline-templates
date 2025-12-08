@@ -1,30 +1,26 @@
 param (
-  [Parameter(Mandatory)]
-  [ValidateNotNullOrEmpty()]
+  [Parameter(Mandatory,
+    HelpMessage = "Specify the verification mode, whether to verify on destroy actions, any changes, or disable verification.")]
+  [ValidateSet("VerifyOnDestroy", "VerifyOnAny", "VerifyDisabled")]
   [string] $VerificationMode,
 
-  [Parameter(Mandatory)]
-  [ValidateNotNullOrEmpty()]
-  [string] $TerraformOutputFileName
+  [Parameter(Mandatory,
+    HelpMessage = "Path to the Terraform plan file to check for changes.")]
+  [ValidateScript(
+    { -not (Test-Path -Path $TerraformPlanFilePath) },
+    ErrorMessage = '"{0}" cannot be found.'
+  )]
+  [string] $TerraformPlanFilePath
 )
 
 $changesNeedManualVerification = $true
 $changesNeedApplying = $false
 
 Write-Host "Starting terraform_check_plan.ps1 script"
-Write-Host "Checking if Terraform output file exists: $TerraformOutputFileName"
-
-if (-not (Test-Path -Path $TerraformOutputFileName))
-{
-  Write-Host "##[error]erraform Output File '$TerraformOutputFileName' was not created."
-  Write-Host "Script completed: output file missing."
-  return
-}
-
 Write-Host "Terraform output file found. Reading contents."
-$terraformOutputFile = Get-Content -Path $TerraformOutputFileName
+$terraformPlan = Get-Content -Path $TerraformPlanFilePath
 
-if ($terraformOutputFile -match "no changes")
+if ($terraformPlan -match "no changes")
 {
   Write-Host "Terraform plan indicates no changes."
   $changesNeedManualVerification = $false
@@ -38,7 +34,7 @@ switch ($VerificationMode)
 {
   "VerifyOnDestroy" {
     Write-Host "VerificationMode: VerifyOnDestroy"
-    $destroyCount = ($terraformOutputFile | Select-String -Pattern "destroy" -CaseSensitive).Count
+    $destroyCount = ($terraformPlan | Select-String -Pattern "destroy" -CaseSensitive).Count
     Write-Host "Number of destroy lines: $destroyCount"
 
     if ($destroyCount -ge 2)
@@ -46,7 +42,8 @@ switch ($VerificationMode)
       Write-Host "##[warning]Resources will be destroyed. Manual verification required."
       $changesNeedManualVerification = $true
       $changesNeedApplying = $true
-    } else
+    }
+    else
     {
       Write-Host "No resources will be destroyed. Proceeding without manual verification."
       $changesNeedManualVerification = $false
