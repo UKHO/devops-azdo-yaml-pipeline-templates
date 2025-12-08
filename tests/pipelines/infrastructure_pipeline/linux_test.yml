@@ -31,7 +31,7 @@ extends:
     BackendAzureBlobName: linux_test.tfstate
     # KeyVaultServiceConnection: Pipeline-CloudDisco
     # KeyVaultName: aKV
-    # KeyVaultSecretsFilter: "aSecretFilter"
+    # KeyVaultSecretsFilter: aSecretFilter
     RunPlanOnly: ${{ parameters.RunPlanOnly }}
     VerificationMode: VerifyOnDestroy
     TerraformEnvironmentVariableMappings:

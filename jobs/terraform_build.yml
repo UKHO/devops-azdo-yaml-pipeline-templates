@@ -51,7 +51,7 @@ jobs:
           WorkingDirectory: $(TerraformWorkingDirectory)
 
       - checkout: self
-        displayName: "Clean the directory post validation"
+        displayName: 'Clean the directory post validation'
         clean: true
         path: $(RepositoryCheckoutPath)
 
