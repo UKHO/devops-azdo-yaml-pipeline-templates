@@ -19,7 +19,7 @@ extends:
   parameters:
     # PipelinePool # do not need to test
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
-    TerraformVersion: 1.13.5
+    TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     AzDOEnvironmentName: Discovery
     AzureSubscriptionServiceConnection: Pipeline-CloudDisco
