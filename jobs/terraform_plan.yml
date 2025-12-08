@@ -125,7 +125,7 @@ jobs:
         value: devops-azdo-yaml-pipeline-templates
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
-      - template: ../utils/concat_list.yml
+      - template: ../utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
