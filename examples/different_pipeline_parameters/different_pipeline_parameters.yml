@@ -2,7 +2,7 @@ parameters:
   - name: myString
     type: string
     default: a string
-  - name: myMultiString
+  - name: myMultiString #not available in templates
     type: string
     default: default
     values:
