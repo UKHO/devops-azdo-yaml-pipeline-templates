@@ -1,6 +1,0 @@
-jobs:
-  - template: template.yml
-    parameters:
-      TerraformVariableFiles:
-      - tests/pipelines/infrastructure_pipeline/test_terraform/config/common.tfvars
-      - tests/pipelines/infrastructure_pipeline/test_terraform/config/discovery.tfvars
