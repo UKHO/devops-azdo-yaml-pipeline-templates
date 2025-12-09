@@ -14,7 +14,7 @@ parameters:
 jobs:
   - job:
     variables:
-      - template: Concat.yml
+      - template: ConcatList.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
           Prefix: ' -var-file="'
