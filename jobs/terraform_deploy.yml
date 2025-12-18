@@ -1,13 +1,21 @@
-# Job Template: Terraform Apply
-# Purpose: Runs Terraform apply to deploy infrastructure, supporting variable injection and Azure Key Vault integration.
+﻿# Job Template: Terraform deploy
+# Purpose: Runs Terraform deploy infrastructure, supporting variable injection and Azure Key Vault integration.
 
 parameters:
   # generic parameters
 
   - name: JobName
     type: string
-    default: TerraformApply
+    default: TerraformDeploy
     displayName: 'The job name for this job for ease of identity'
+
+  - name: TerraformDeployMode
+    type: string
+    default: Plan
+    values:
+      - Apply
+      - Plan
+    displayName: 'The terraform deploy mode: plan or apply'
 
   - name: DependsOn
     type: object
@@ -84,7 +92,7 @@ parameters:
     default: ''
     displayName: 'Azure storage blob name for backend where the state is stored'
 
-  # terraform apply parameters
+  # terraform plan/apply shared parameters
 
   - name: AzureSubscriptionServiceConnection
     type: string
@@ -99,7 +107,20 @@ parameters:
   - name: TerraformVariableFiles
     type: object
     default: { }
-    displayName: 'List of .tfvars files to be supplied to the terraform apply command.'
+    displayName: 'List of .tfvars files to be supplied to the terraform command.'
+
+  # terraform plan parameters
+
+  - name: VerificationMode
+    type: string
+    default: VerifyOnDestroy
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    values:
+      - VerifyOnDestroy
+      - VerifyOnAny
+      - VerifyDisabled
+
+  # terraform apply parameters
 
   - name: TerraformOutputVariables
     type: object
@@ -107,15 +128,23 @@ parameters:
     displayName: 'List of variables to be exported from the terraform after apply has been ran.'
 
 jobs:
-  - deployment: ${{ parameters.JobName }}
-    displayName: 'Terraform Apply'
+  - deployment: ${{ parameters.JobName }}_${{ parameters.TerraformDeployMode }}
+    displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
     environment: ${{ parameters.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      - name: TerraformOutputVariablesStringArray
-        value: ${{ join(',', parameters.TerraformOutputVariables) }}
+      # Terraform Plan Variables
+      - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
+          - name: TerraformPlanFilePath
+            value: $(TerraformWorkingDirectory)/tfplan
 
+      # Terraform Apply Variables
+      - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
+          - name: TerraformOutputVariablesCommandOption
+            value: ${{ join(' ', parameters.TerraformOutputVariables) }}
+
+      # Shared Variables
       - template: ../utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.TerraformVariableFiles }}
@@ -129,6 +158,7 @@ jobs:
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
+      # Consumer Input Variables (can override the above)
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
               - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
@@ -169,30 +199,49 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
-            # Workspace
-
-            - template: ../tasks/terraform.yml
-              parameters:
-                Command: apply
-                EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-                WorkingDirectory: $(TerraformWorkingDirectory)
-                TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
-
-            - ${{ if parameters.TerraformOutputVariables }}:
+            - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
-                    Command: output
-                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    Command: plan
                     EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-                    OutputTo: file
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                    CommandOptions: '-out=$(TerraformPlanFilePath) $(TerraformVariableFilesCommandOption) -input=false'
 
                 - template: ../tasks/powershell.yml
                   parameters:
-                    TaskName: TerraformExportOutputsVariables
+                    TaskName: TerraformChangesCheck
                     TargetType: 'filePath'
-                    ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
+                    ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                     FailOnStandardError: true
                     ScriptFileArguments: >
-                      -OutputVariablesToExport $(TerraformOutputVariablesStringArray)
-                      -OutputFileName $(TerraformTask_output.jsonOutputVariablesPath)
+                      -VerificationMode ${{ parameters.VerificationMode }}
+                      -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+
+
+            - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
+                - template: ../tasks/terraform.yml
+                  parameters:
+                    Command: apply
+                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                    CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
+
+                - ${{ if parameters.TerraformOutputVariables }}:
+                    - template: ../tasks/terraform.yml
+                      parameters:
+                        Command: output
+                        WorkingDirectory: $(TerraformWorkingDirectory)
+                        EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                        OutputTo: file
+
+                    - template: ../tasks/powershell.yml
+                      parameters:
+                        TaskName: TerraformExportOutputsVariables
+                        TargetType: 'filePath'
+                        ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
+                        FailOnStandardError: true
+                        ScriptFileArguments: >
+                          -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
+                          -OutputFileName $(TerraformTask_output.jsonOutputVariablesPath)
