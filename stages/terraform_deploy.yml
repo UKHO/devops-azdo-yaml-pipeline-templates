@@ -116,10 +116,11 @@ stages:
       NeedsManualVerificationValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedManualVerification']
       RunApplyValue: dependencies.${{ variables.TerraformPlanJobName }}.outputs['${{ variables.TerraformPlanJobName }}.TerraformChangesCheck.ChangesNeedApplying']
     jobs:
-      - template: ../jobs/terraform_plan.yml
+      - template: ../jobs/terraform_deploy.yml
         parameters:
           # generic parameters
           JobName: ${{ variables.TerraformPlanJobName }}
+          TerraformDeployMode: Plan
           JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
@@ -149,10 +150,11 @@ stages:
               Condition: and(succeeded(), eq(${{ variables.NeedsManualVerificationValue }}, 'true'))
               Instructions: 'Please validate the terraform plan is acceptable to apply'
 
-          - template: ../jobs/terraform_apply.yml
+          - template: ../jobs/terraform_deploy.yml
             parameters:
               # generic Parameters
               JobName: ${{ variables.TerraformApplyJobName }}
+              TerraformDeployMode: Apply
               DependsOn:
                 - ${{ variables.ManualVerificationJobName }}
                 - ${{ variables.TerraformPlanJobName }}
