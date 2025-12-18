@@ -3,12 +3,6 @@
 
 parameters:
   # generic parameters
-
-  - name: JobName
-    type: string
-    default: TerraformDeploy
-    displayName: 'The job name for this job for ease of identity'
-
   - name: TerraformDeployMode
     type: string
     default: Plan
@@ -128,7 +122,7 @@ parameters:
     displayName: 'List of variables to be exported from the terraform after apply has been ran.'
 
 jobs:
-  - deployment: ${{ parameters.JobName }}_${{ parameters.TerraformDeployMode }}
+  - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
     environment: ${{ parameters.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
