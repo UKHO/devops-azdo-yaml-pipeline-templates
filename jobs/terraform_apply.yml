@@ -22,7 +22,7 @@ parameters:
   - name: JobVariableMappings
     type: object
     default: { }
-    displayName: 'A object structure of variables to be added to the job's variables block'
+    displayName: 'A object structure of variables to be added to the jobs variables block'
 
   - name: TerraformArtifactName
     type: string
