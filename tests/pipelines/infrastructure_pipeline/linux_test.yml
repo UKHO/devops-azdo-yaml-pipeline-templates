@@ -3,10 +3,6 @@ parameters:
     type: boolean
     default: false
     displayName: 'Whether to run the plan only'
-  - name: TargetReference
-    type: string
-    default: refs/heads/main
-    displayName: 'Target branch of the pipeline templates repository to compile'
 
 resources:
   repositories:
@@ -14,7 +10,7 @@ resources:
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: ${{ parameters.TargetReference }}
+      ref: refs/heads/terraform-deploy
 
 pool: $(PipelinePool) # Variable defined within template, overridable via template parameter 'PipelinePool'.
 
