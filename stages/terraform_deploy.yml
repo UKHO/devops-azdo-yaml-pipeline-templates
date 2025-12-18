@@ -110,8 +110,6 @@ stages:
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      NeedsManualVerificationValue: dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification']
-      RunApplyValue: dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedApplying']
     jobs:
       - template: ../jobs/terraform_deploy.yml
         parameters:
@@ -142,7 +140,7 @@ stages:
           - template: ../jobs/manual_verification.yml
             parameters:
               DependsOn: TerraformDeploy_Plan
-              Condition: and(succeeded(), eq(${{ variables.NeedsManualVerificationValue }}, 'true'))
+              Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
               Instructions: 'Please validate the terraform plan is acceptable to apply'
 
           - template: ../jobs/terraform_deploy.yml
@@ -157,8 +155,8 @@ stages:
                   succeeded('ManualVerification'),
                   and(
                     succeeded('TerraformDeploy_Plan'),
-                    eq(${{ variables.RunApplyValue }}, 'true'),
-                    eq(${{ variables.NeedsManualVerificationValue }}, 'false')
+                    eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                    eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
                   )
                 )
               JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
@@ -176,7 +174,7 @@ stages:
               BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
               BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
               BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
-              # terraform plan task parameters
+              # terraform apply task parameters
               AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
               TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
               TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
