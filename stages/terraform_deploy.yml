@@ -109,7 +109,6 @@ stages:
     displayName: 'Deploy ${{ parameters.AzDOEnvironmentName }}'
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
-    variables:
     jobs:
       - template: ../jobs/terraform_deploy.yml
         parameters:
