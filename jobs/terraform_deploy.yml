@@ -193,8 +193,6 @@ jobs:
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
 
-            # Workspace
-
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
@@ -213,7 +211,6 @@ jobs:
                     ScriptFileArguments: >
                       -VerificationMode ${{ parameters.VerificationMode }}
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
-
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: ../tasks/terraform.yml
