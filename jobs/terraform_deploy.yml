@@ -212,7 +212,6 @@ jobs:
                       -VerificationMode ${{ parameters.VerificationMode }}
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
 
-
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
