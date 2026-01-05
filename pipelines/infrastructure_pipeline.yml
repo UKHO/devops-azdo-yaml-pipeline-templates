@@ -22,7 +22,7 @@ parameters:
   - name: AzDOEnvironmentName
     type: string
     default: ''
-    displayName: 'AzDO Environment name to associate the deployment jobs too'
+    displayName: 'AzDO Environment name to associate the deployment jobs to'
 
   - name: AzureSubscriptionServiceConnection
     type: string
