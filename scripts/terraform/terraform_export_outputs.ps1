@@ -13,7 +13,7 @@ param (
   [string] $OutputFileName
 )
 
-Write-Host "Starting terraform_export_outputs.ps1 script"
+Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
 
 $outputFileContent = Get-Content -Path $OutputFileName
 Write-Host "##[debug]OutputFile content: $outputFileContent"

@@ -16,7 +16,7 @@ param (
 $changesNeedManualVerification = $true
 $changesNeedApplying = $false
 
-Write-Host "Starting terraform_check_plan.ps1 script"
+Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
 $terraformPlan = Get-Content -Path $TerraformPlanFilePath
 
 if ($terraformPlan -match "no changes")
