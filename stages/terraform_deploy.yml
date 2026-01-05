@@ -12,7 +12,7 @@ parameters:
 
   - name: AzureSubscriptionServiceConnection
     type: string
-    displayName: 'The service connection for the azure subscription where resources will be deployed too'
+    displayName: 'The service connection for the azure subscription where resources will be deployed to'
 
   - name: AzDOEnvironmentName
     type: string
