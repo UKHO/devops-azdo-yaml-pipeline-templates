@@ -25,6 +25,6 @@ parameters:
 
 steps:
   - task: Delay@1
-    displayName: 'Delay for ${{ parameters.delayForMinutes }} minutes' # todo doublecheck
+    displayName: 'Delay for ${{ parameters.delayForMinutes }} minutes'
     inputs:
       delayForMinutes: ${{ parameters.delayForMinutes }}
