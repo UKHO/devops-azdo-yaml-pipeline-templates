@@ -43,23 +43,50 @@ There are no required parameters, as each parameter has its own default value.
 
 ### Full Parameter Table
 
-| Parameter                      | Type     | Required | Default           | Description                                                                           |
-|--------------------------------|----------|----------|-------------------|---------------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact. |
-| `PipelinePool`                 | string   | false    | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level.                           |
-| `TerraformVersion`             | string   | false    | `1.14.x`        | Version of Terraform CLI tool to use with the terraform files.                        |
-| `TerraformBuildInjectionSteps` | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.        |
+| Parameter                                                                       | Type     | Required | Default           | Description                                                                                    |
+|---------------------------------------------------------------------------------|----------|----------|-------------------|------------------------------------------------------------------------------------------------|
+| [`PipelinePool`](#pipelinepool)                                                 | string   | false    | `Mare Nectaris`   | The pool that the pipeline will run from the highest level.                                    |
+| [`RelativePathToTerraformFiles`](#relativepathtoterraformfiles)                 | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact.             |
+| [`TerraformVersion`](#terraformversion)                                         | string   | false    | `'latest'`        | Version of Terraform CLI tool to use with the terraform files.                                 |
+| [`TerraformBuildInjectionSteps`](#terraformbuildinjectionsteps)                 | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.                 |
+| [`AzDOEnvironmentName`](#azdoenvironmentname)                                   | string   | false    | `''`              | AzDO Environment name to associate the deployment jobs to.                                     |
+| [`AzureSubscriptionServiceConnection`](#azuresubscriptionserviceconnection)     | string   | false    | `''`              | Azure service connection for the azdo environment.                                             |
+| [`DeploymentJobsVariableMappings`](#deploymentjobsvariablemappings)             | object   | false    | `{}`              | Variable mappings to be associated with the deployment jobs.                                   |
+| [`BackendAzureServiceConnection`](#backendazureserviceconnection)               | string   | false    | `''`              | Azure service connection for backend where the state is stored.                                |
+| [`BackendAzureResourceGroupName`](#backendazureresourcegroupname)               | string   | false    | `''`              | Azure resource group name for backend where the state is stored.                               |
+| [`BackendAzureStorageAccountName`](#backendazurestorageaccountname)             | string   | false    | `''`              | Azure storage account name for backend where the state is stored.                              |
+| [`BackendAzureContainerName`](#backendazurecontainername)                       | string   | false    | `''`              | Azure storage container name for backend where the state is stored.                            |
+| [`BackendAzureBlobName`](#backendazureblobname)                                 | string   | false    | `''`              | Azure storage blob name for backend where the state is stored.                                 |
+| [`KeyVaultServiceConnection`](#keyvaultserviceconnection)                       | string   | false    | `''`              | Service connection for key vault access secrets.                                               |
+| [`KeyVaultName`](#keyvaultname)                                                 | string   | false    | `''`              | Name of key vault for accessing secrets.                                                       |
+| [`KeyVaultSecretsFilter`](#keyvaultsecretsfilter)                               | string   | false    | `'*'`             | Filter for secrets to access from key vault.                                                   |
+| [`RunPlanOnly`](#runplanonly)                                                   | boolean  | false    | `false`           | Whether only the terraform plan should be ran and no deployment made.                          |
+| [`VerificationMode`](#verificationmode)                                         | string   | false    | `VerifyOnDestroy` | How verification step should trigger: verify on destruction changes; on any changes; or never. |
+| [`TerraformEnvironmentVariableMappings`](#terraformenvironmentvariablemappings) | object   | false    | `{}`              | Environment variables to be passed to the task.                                                |
+| [`TerraformVariableFiles`](#terraformvariablefiles)                             | object   | false    | `{}`              | List of .tfvars files to be supplied to the terraform commands.                                |
+| [`TerraformOutputVariables`](#terraformoutputvariables)                         | object   | false    | `{}`              | List of variables to be exported from the terraform after apply has been ran.                  |
+
+### Parameter Reference
+
+#### PipelinePool
+
+```yaml
+PipelinePool: 'MyCustomPool'
+```
+
+#### RelativePathToTerraformFiles
+
+```yaml
+RelativePathToTerraformFiles: 'infrastructure/terraform'
+```
+
+#### TerraformVersion
+
+```yaml
+TerraformVersion: '1.6.0'
+```
 
 #### TerraformBuildInjectionSteps
-
-This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged.
-
-Common use cases include:
-
-- File transformations or substitutions
-- Environment-specific configuration setup
-- Secret retrieval and file generation
-- Custom validation or security scanning
 
 ```yaml
 TerraformBuildInjectionSteps:
@@ -68,20 +95,116 @@ TerraformBuildInjectionSteps:
     inputs:
       targetType: 'inline'
       script: |
-        # Generate backend.tf from environment variables
         Write-Host "Generating backend configuration..."
-
-  - task: AzureCLI@2
-    displayName: 'Retrieve secrets'
-    inputs:
-      azureSubscription: 'service-connection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az keyvault secret show --vault-name myvault --name terraform-vars
 ```
 
-### Advanced Usage
+#### AzDOEnvironmentName
+
+```yaml
+AzDOEnvironmentName: 'MyAzDOEnvironment'
+```
+
+#### AzureSubscriptionServiceConnection
+
+```yaml
+AzureSubscriptionServiceConnection: 'my-azure-service-connection'
+```
+
+#### DeploymentJobsVariableMappings
+
+```yaml
+DeploymentJobsVariableMappings:
+  myVar: 'value'
+  anotherVar: 'anotherValue'
+```
+
+#### BackendAzureServiceConnection
+
+```yaml
+BackendAzureServiceConnection: 'my-backend-service-connection'
+```
+
+#### BackendAzureResourceGroupName
+
+```yaml
+BackendAzureResourceGroupName: 'my-resource-group'
+```
+
+#### BackendAzureStorageAccountName
+
+```yaml
+BackendAzureStorageAccountName: 'mystorageaccount'
+```
+
+#### BackendAzureContainerName
+
+```yaml
+BackendAzureContainerName: 'mycontainer'
+```
+
+#### BackendAzureBlobName
+
+```yaml
+BackendAzureBlobName: 'terraform.tfstate'
+```
+
+#### KeyVaultServiceConnection
+
+```yaml
+KeyVaultServiceConnection: 'my-keyvault-service-connection'
+```
+
+#### KeyVaultName
+
+```yaml
+KeyVaultName: 'my-keyvault'
+```
+
+#### KeyVaultSecretsFilter
+
+```yaml
+KeyVaultSecretsFilter: 'mysecret*'
+```
+
+#### RunPlanOnly
+
+```yaml
+RunPlanOnly: true
+```
+
+#### VerificationMode
+
+```yaml
+VerificationMode: 'VerifyOnAny'
+```
+
+#### TerraformEnvironmentVariableMappings
+
+```yaml
+TerraformEnvironmentVariableMappings:
+  ARM_CLIENT_ID: 'xxxx-xxxx-xxxx'
+  ARM_CLIENT_SECRET: 'xxxx-xxxx-xxxx'
+```
+
+#### TerraformVariableFiles
+
+```yaml
+TerraformVariableFiles:
+  - 'common.tfvars'
+  - 'env-specific.tfvars'
+```
+
+#### TerraformOutputVariables
+
+```yaml
+TerraformOutputVariables:
+  output1: 'value1'
+  output2: 'value2'
+```
+
+---
+
+## Advanced Usage
 
 Listed below are possible advanced usages.
 
