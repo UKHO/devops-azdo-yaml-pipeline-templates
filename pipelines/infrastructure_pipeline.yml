@@ -6,7 +6,7 @@ parameters:
 
   - name: RelativePathToTerraformFiles
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
   - name: TerraformVersion
@@ -21,12 +21,12 @@ parameters:
 
   - name: AzDOEnvironmentName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'AzDO Environment name to associate the deployment jobs to'
 
   - name: AzureSubscriptionServiceConnection
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure service connection for the azdo environment'
 
   - name: DeploymentJobsVariableMappings
@@ -38,27 +38,27 @@ parameters:
 
   - name: BackendAzureServiceConnection
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure service connection for backend where the state is stored'
 
   - name: BackendAzureResourceGroupName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure resource group name for backend where the state is stored'
 
   - name: BackendAzureStorageAccountName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage account name for backend where the state is stored'
 
   - name: BackendAzureContainerName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage container name for backend where the state is stored'
 
   - name: BackendAzureBlobName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage blob name for backend where the state is stored'
 
   # Key Vault Parameters
@@ -85,7 +85,7 @@ parameters:
 
   - name: VerificationMode
     type: string
-    default: VerifyOnDestroy
+    # NO default - Consumer must provide this
     displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
     values:
       - VerifyOnDestroy
