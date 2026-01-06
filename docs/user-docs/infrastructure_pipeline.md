@@ -43,28 +43,28 @@ There are no required parameters, as each parameter has its own default value.
 
 ### Full Parameter Table
 
-| Parameter                                                                       | Type     | Required | Default           | Description                                                                                    |
-|---------------------------------------------------------------------------------|----------|----------|-------------------|------------------------------------------------------------------------------------------------|
-| [`PipelinePool`](#pipelinepool)                                                 | string   | false    | `Mare Nectaris`   | The pool that the pipeline will run from the highest level.                                    |
-| [`RelativePathToTerraformFiles`](#relativepathtoterraformfiles)                 | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact.             |
-| [`TerraformVersion`](#terraformversion)                                         | string   | false    | `'latest'`        | Version of Terraform CLI tool to use with the terraform files.                                 |
-| [`TerraformBuildInjectionSteps`](#terraformbuildinjectionsteps)                 | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.                 |
-| [`AzDOEnvironmentName`](#azdoenvironmentname)                                   | string   | false    | `''`              | AzDO Environment name to associate the deployment jobs to.                                     |
-| [`AzureSubscriptionServiceConnection`](#azuresubscriptionserviceconnection)     | string   | false    | `''`              | Azure service connection for the azdo environment.                                             |
-| [`DeploymentJobsVariableMappings`](#deploymentjobsvariablemappings)             | object   | false    | `{}`              | Variable mappings to be associated with the deployment jobs.                                   |
-| [`BackendAzureServiceConnection`](#backendazureserviceconnection)               | string   | false    | `''`              | Azure service connection for backend where the state is stored.                                |
-| [`BackendAzureResourceGroupName`](#backendazureresourcegroupname)               | string   | false    | `''`              | Azure resource group name for backend where the state is stored.                               |
-| [`BackendAzureStorageAccountName`](#backendazurestorageaccountname)             | string   | false    | `''`              | Azure storage account name for backend where the state is stored.                              |
-| [`BackendAzureContainerName`](#backendazurecontainername)                       | string   | false    | `''`              | Azure storage container name for backend where the state is stored.                            |
-| [`BackendAzureBlobName`](#backendazureblobname)                                 | string   | false    | `''`              | Azure storage blob name for backend where the state is stored.                                 |
-| [`KeyVaultServiceConnection`](#keyvaultserviceconnection)                       | string   | false    | `''`              | Service connection for key vault access secrets.                                               |
-| [`KeyVaultName`](#keyvaultname)                                                 | string   | false    | `''`              | Name of key vault for accessing secrets.                                                       |
-| [`KeyVaultSecretsFilter`](#keyvaultsecretsfilter)                               | string   | false    | `'*'`             | Filter for secrets to access from key vault.                                                   |
-| [`RunPlanOnly`](#runplanonly)                                                   | boolean  | false    | `false`           | Whether only the terraform plan should be ran and no deployment made.                          |
-| [`VerificationMode`](#verificationmode)                                         | string   | false    | `VerifyOnDestroy` | How verification step should trigger: verify on destruction changes; on any changes; or never. |
-| [`TerraformEnvironmentVariableMappings`](#terraformenvironmentvariablemappings) | object   | false    | `{}`              | Environment variables to be passed to the task.                                                |
-| [`TerraformVariableFiles`](#terraformvariablefiles)                             | object   | false    | `{}`              | List of .tfvars files to be supplied to the terraform commands.                                |
-| [`TerraformOutputVariables`](#terraformoutputvariables)                         | object   | false    | `{}`              | List of variables to be exported from the terraform after apply has been ran.                  |
+| Parameter                                                                     | Type     | Required | Default           | Description                                                                                    |
+|-------------------------------------------------------------------------------|----------|----------|-------------------|------------------------------------------------------------------------------------------------|
+| [PipelinePool](#pipelinepool)                                                 | string   | false    | `Mare Nectaris`   | The pool that the pipeline will run from the highest level.                                    |
+| [RelativePathToTerraformFiles](#relativepathtoterraformfiles)                 | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact.             |
+| [TerraformVersion](#terraformversion)                                         | string   | false    | `'latest'`        | Version of Terraform CLI tool to use with the terraform files.                                 |
+| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps)                 | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.                 |
+| [AzDOEnvironmentName](#azdoenvironmentname)                                   | string   | false    | `''`              | AzDO Environment name to associate the deployment jobs to.                                     |
+| [AzureSubscriptionServiceConnection](#azuresubscriptionserviceconnection)     | string   | false    | `''`              | Azure service connection for the azdo environment.                                             |
+| [DeploymentJobsVariableMappings](#deploymentjobsvariablemappings)             | object   | false    | `{}`              | Variable mappings to be associated with the deployment jobs.                                   |
+| [BackendAzureServiceConnection](#backendazureserviceconnection)               | string   | false    | `''`              | Azure service connection for backend where the state is stored.                                |
+| [BackendAzureResourceGroupName](#backendazureresourcegroupname)               | string   | false    | `''`              | Azure resource group name for backend where the state is stored.                               |
+| [BackendAzureStorageAccountName](#backendazurestorageaccountname)             | string   | false    | `''`              | Azure storage account name for backend where the state is stored.                              |
+| [BackendAzureContainerName](#backendazurecontainername)                       | string   | false    | `''`              | Azure storage container name for backend where the state is stored.                            |
+| [BackendAzureBlobName](#backendazureblobname)                                 | string   | false    | `''`              | Azure storage blob name for backend where the state is stored.                                 |
+| [KeyVaultServiceConnection](#keyvaultserviceconnection)                       | string   | false    | `''`              | Service connection for key vault access secrets.                                               |
+| [KeyVaultName](#keyvaultname)                                                 | string   | false    | `''`              | Name of key vault for accessing secrets.                                                       |
+| [KeyVaultSecretsFilter](#keyvaultsecretsfilter)                               | string   | false    | `'*'`             | Filter for secrets to access from key vault.                                                   |
+| [RunPlanOnly](#runplanonly)                                                   | boolean  | false    | `false`           | Whether only the terraform plan should be ran and no deployment made.                          |
+| [VerificationMode](#verificationmode)                                         | string   | false    | `VerifyOnDestroy` | How verification step should trigger: verify on destruction changes; on any changes; or never. |
+| [TerraformEnvironmentVariableMappings](#terraformenvironmentvariablemappings) | object   | false    | `{}`              | Environment variables to be passed to the task.                                                |
+| [TerraformVariableFiles](#terraformvariablefiles)                             | object   | false    | `{}`              | List of .tfvars files to be supplied to the terraform commands.                                |
+| [TerraformOutputVariables](#terraformoutputvariables)                         | object   | false    | `{}`              | List of variables to be exported from the terraform after apply has been ran.                  |
 
 ### Parameter Reference
 
