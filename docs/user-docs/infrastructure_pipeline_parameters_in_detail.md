@@ -4,11 +4,11 @@
 
 | Parameter                                                                     | Type     | Required | Default           | Allowed values                                           | Compile Time Sensitive? | Description                                                                                    |
 |-------------------------------------------------------------------------------|----------|----------|-------------------|----------------------------------------------------------|-------------------------|------------------------------------------------------------------------------------------------|
-| [PipelinePool](#pipelinepool)                                                 | string   | false    | `Mare Nectaris`   | Any                                                      | ❔                       | The pool that the pipeline will run from the highest level.                                    |
+| [PipelinePool](#pipelinepool)                                                 | string   | false    | `Mare Nectaris`   | Any                                                      |                         | The pool that the pipeline will run from the highest level.                                    |
 | [RelativePathToTerraformFiles](#relativepathtoterraformfiles)                 | string   | false    | `''`              | Any                                                      |                         | Target path to Terraform files (.tf, .tfvars) that require publishing as artifact.             |
 | [TerraformVersion](#terraformversion)                                         | string   | false    | `'latest'`        | - `latest`<br> - valid version syntax                    |                         | Version of Terraform CLI tool to use with the terraform files.                                 |
 | [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps)                 | stepList | false    | `[]`              | Any valid steps                                          | ✔                       | Steps to be carried out before the terraform is init, validated, and packaged.                 |
-| [AzDOEnvironmentName](#azdoenvironmentname)                                   | string   | false    | `''`              | Any                                                      | ❔                       | AzDO Environment name to associate the deployment jobs to.                                     |
+| [AzDOEnvironmentName](#azdoenvironmentname)                                   | string   | false    | `''`              | Any                                                      | ✔                       | AzDO Environment name to associate the deployment jobs to.                                     |
 | [AzureSubscriptionServiceConnection](#azuresubscriptionserviceconnection)     | string   | false    | `''`              | Any                                                      | ✔                       | Azure service connection for the azdo environment.                                             |
 | [DeploymentJobsVariableMappings](#deploymentjobsvariablemappings)             | object   | false    | `{}`              | See further documentation                                | ✔                       | Variable mappings to be associated with the deployment jobs.                                   |
 | [BackendAzureServiceConnection](#terraformbackendazure)                       | string   | false    | `''`              | Any                                                      | ✔                       | Azure service connection for backend where the state is stored.                                |
@@ -149,16 +149,16 @@ Note: `BackendAzureServiceConnection` can be the same service connection as [`Az
 Define the optional values for the pipeline to access configuration from a key vault during the deployment of the terraform files.
 
 ```yaml
-KeyVaultServiceConnection: 'my-keyvault-service-connection'
-KeyVaultName: 'my-keyvault'
-KeyVaultSecretsFilter: 'mysecret*'
+KeyVaultAzureSubscription: "MyAzureServiceConnection"
+KeyVaultName: "my-key-vault"
+KeyVaultSecretsFilter: "TERRAFORM-TENANT-ID,TERRAFORM-CLIENT-ID,TERRAFORM-CLIENT-SECRET,TERRAFORM-SUBSCRIPTION-ID,TERRAFORM-ACCESS-KEY"
 ```
 
 Do not need to specify if managing configuration in by means.
 
 ### RunPlanOnly
 
-If do not want to deploy any resources, you can run the plan only.
+If you do not want to deploy any resources, you can run the plan only.
 
 ```yaml
 RunPlanOnly: true

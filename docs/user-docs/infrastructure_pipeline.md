@@ -5,13 +5,13 @@ A standardised infrastructure deployment pipeline template that uses terraform a
 - Build/Validate/Package the terraform files
 - Deploy the packaged terraform files to environments with a [manual verification gate](infrastructure_pipeline_manual_verification.md)
 
-## Important Notices
+## Important
 
-⚠️ **Terraform Backend Configuration**: This pipeline initialises Terraform with `-backend=false` to avoid backend configuration during the build phase.
+Pool Requirements: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
 
-⚠️ **Clean Workspace Policy**: The pipeline performs a complete workspace clean-up after validation to ensure artifact purity. Any injection steps will be re-executed on clean code.
+Terrraform Worksapce: This command is not currently available.
 
-⚠️ **Pool Requirements**: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
+Snyk Scanning: This is not currently part of the pipeline.
 
 ## Basic Usage
 
