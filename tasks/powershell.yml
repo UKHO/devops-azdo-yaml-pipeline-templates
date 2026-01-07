@@ -98,7 +98,7 @@ steps:
       ${{ if and(eq(parameters.TargetType, 'filePath'), ne(parameters.ScriptFileArguments, '')) }}:
         arguments: '${{ parameters.ScriptFileArguments }}'
       ${{ if and(eq(parameters.TargetType, 'inline'), ne(parameters.InlineScript, '')) }}:
-        script: '${{ parameters.InlineScript }}'
+        script: ${{ parameters.InlineScript }}
 
       failOnStderr: ${{ parameters.FailOnStandardError }}
       pwsh: ${{ parameters.UsePowerShellCoreOnWindows }}
