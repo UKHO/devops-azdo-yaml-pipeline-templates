@@ -1,4 +1,8 @@
-$path = "C:\Git\devops-azdo-yaml-pipeline-templates"
+param(
+  [string]$Path = $PSScriptRoot
+)
+
+$path = $Path
 $newValue = "1.14.0"
 
 Get-ChildItem $path -Recurse -Filter *.yml | ForEach-Object {
