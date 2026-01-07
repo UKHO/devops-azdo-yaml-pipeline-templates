@@ -3,7 +3,7 @@ parameters:
   - name: DependsOn
     type: object
     default: [ ]
-    displayName: 'List of jobs this job depends on'
+    displayName: 'List of stages this stage depends on'
 
   - name: Condition
     type: string
