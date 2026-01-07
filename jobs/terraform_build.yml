@@ -1,4 +1,4 @@
-﻿parameters:
+parameters:
   - name: ArtifactName
     type: string
     default: 'TerraformArtifact'
@@ -11,7 +11,7 @@
 
   - name: TerraformVersion
     type: string
-    default: 'latest'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformBuildInjectionSteps
