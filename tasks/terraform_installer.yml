@@ -24,8 +24,8 @@
 parameters:
   - name: TerraformVersion
     type: string
-    displayName: 'Terraform CLI version to install'
     default: '1.14.x'
+    displayName: 'Terraform CLI version to install'
 
 steps:
   - task: TerraformInstaller@1
