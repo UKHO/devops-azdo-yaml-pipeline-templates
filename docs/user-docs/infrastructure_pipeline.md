@@ -58,13 +58,20 @@ extends:
 
 ### Required Parameters
 
-There are no required parameters, as each parameter has its own default value.
+The following parameters **must** be provided as they have no default values:
 
-| Parameter | Type | Required | Default | Allowed values | Compile Time Sensitive? | Description |
-|-----------|------|----------|---------|----------------|-------------------------|-------------|
-|           |      |          |         |                |                         |             |
+| Parameter                          | Type   | Description                                                                           |
+|------------------------------------|--------|---------------------------------------------------------------------------------------|
+| AzDOEnvironmentName                | string | AzDO Environment name to associate the deployment jobs to                             |
+| AzureSubscriptionServiceConnection | string | Azure service connection for the azdo environment                                     |
+| BackendAzureServiceConnection      | string | Azure service connection for backend where the state is stored                        |
+| BackendAzureResourceGroupName      | string | Azure resource group name for backend where the state is stored                       |
+| BackendAzureStorageAccountName     | string | Azure storage account name for backend where the state is stored                      |
+| BackendAzureContainerName          | string | Azure storage container name for backend where the state is stored                    |
+| BackendAzureBlobName               | string | Azure storage blob name for backend where the state is stored                         |
+| VerificationMode                   | string | How verification step should trigger: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
-See [template parameters in details](infrastructure_pipeline_parameters_in_detail.md) for more information on the parameters.
+See [template parameters in details](infrastructure_pipeline_parameters_in_detail.md) for more information on all parameters.
 
 ## Advanced Usage
 
