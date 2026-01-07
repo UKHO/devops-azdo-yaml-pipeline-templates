@@ -11,7 +11,7 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: '1.14.0'
+    default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformBuildInjectionSteps
@@ -22,7 +22,7 @@ parameters:
   - name: AzDOEnvironmentName
     type: string
     default: ''
-    displayName: 'AzDO Environment name to associate the deployment jobs too'
+    displayName: 'AzDO Environment name to associate the deployment jobs to'
 
   - name: AzureSubscriptionServiceConnection
     type: string
