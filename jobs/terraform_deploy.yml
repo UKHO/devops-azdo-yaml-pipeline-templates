@@ -14,7 +14,7 @@ parameters:
   - name: DependsOn
     type: object
     default: [ ]
-    displayName: 'What this job will depend on'
+    displayName: 'List of jobs this job depends on'
 
   - name: Condition
     type: string
@@ -23,8 +23,8 @@ parameters:
 
   - name: JobVariableMappings
     type: object
-    default: { }
-    displayName: "A object structure of variables to be added to the job's variables block"
+    default: { } # Define Schema
+    displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
 
   - name: TerraformArtifactName
     type: string
@@ -96,11 +96,11 @@ parameters:
   - name: TerraformEnvironmentVariableMappings
     type: object
     default: { }
-    displayName: 'Environment variables to be passed to the task'
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
 
   - name: TerraformVariableFiles
     type: object
-    default: { }
+    default: [ ]
     displayName: 'List of .tfvars files to be supplied to the terraform command.'
 
   # terraform plan parameters
@@ -118,7 +118,7 @@ parameters:
 
   - name: TerraformOutputVariables
     type: object
-    default: { }
+    default: [ ]
     displayName: 'List of variables to be exported from the terraform after apply has been ran.'
 
 jobs:
