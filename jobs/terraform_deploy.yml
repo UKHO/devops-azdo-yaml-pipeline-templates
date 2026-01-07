@@ -56,7 +56,7 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: 'latest'
+    default: 1.14.x
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   # terraform init task parameters

@@ -25,7 +25,7 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: '1.14.0'
+    default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: DeploymentJobsVariableMappings

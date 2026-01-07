@@ -5,7 +5,7 @@
 #
 # Parameters:
 # - TerraformVersion (string, optional): The version of Terraform CLI to install.
-#   - Default: 'latest'
+#   - Default: 1.14.x
 #   - Examples:
 #     - 'latest' (installs the latest stable version)
 #     - '1.11.3', '1.10.5' (installs a specific version)
@@ -25,7 +25,7 @@ parameters:
   - name: TerraformVersion
     type: string
     displayName: 'Terraform CLI version to install'
-    default: '1.14.0'
+    default: '1.14.x'
 
 steps:
   - task: TerraformInstaller@1
