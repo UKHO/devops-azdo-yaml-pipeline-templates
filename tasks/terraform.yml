@@ -56,7 +56,7 @@ parameters:
   # Standard Azure DevOps Task Parameters
   - name: TaskEnvironmentVariables
     type: object
-    displayName: 'Environment variables to be passed to the task'
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
     default: { }
 
   - name: TaskNameUniqueSlug
