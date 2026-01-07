@@ -86,16 +86,12 @@ steps:
       ${{ if ne(parameters.Instructions, '') }}:
         instructions: |
           ${{ parameters.Instructions }}
-
           === Pipeline Information ===
-
           Pipeline: $(Build.DefinitionName)
           BuildNumber: $(Build.BuildNumber)
           Branch: $(Build.SourceBranchName)
           Requested by: $(Build.RequestedFor)
           Build ID: $(Build.BuildId)
-
           ===========================
-
           Please review the above information and choose to Resume or Reject this pipeline run.
       onTimeout: '${{ parameters.OnTimeout }}'

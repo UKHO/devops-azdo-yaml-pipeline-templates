@@ -56,34 +56,34 @@ parameters:
   # Standard Azure DevOps Task Parameters
   - name: TaskEnvironmentVariables
     type: object
-    displayName: 'Key/value pairs of environment variables to be passed to the task'
     default: { }
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
 
   - name: TaskNameUniqueSlug
     type: string
-    displayName: 'Unique string to add to the task name to make it unique if the same command is repeated'
     default: ''
+    displayName: 'Unique string to add to the task name to make it unique if the same command is repeated'
 
   - name: Condition
     type: string
-    displayName: 'Evaluate this condition expression to determine whether to run this task'
     default: succeeded()
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
 
   - name: WorkingDirectory
     type: string
-    displayName: 'Directory containing Terraform configuration files'
     default: '$(Pipeline.Workspace)'
+    displayName: 'Directory containing Terraform configuration files'
 
   - name: RetryCountOnTaskFailure
     type: number
-    displayName: 'Number of times to retry the task on failure'
     default: 3
+    displayName: 'Number of times to retry the task on failure'
 
   # Specific TerraformCLI Task Parameters
 
   - name: Command
     type: string
-    displayName: 'Terraform command (init, plan, apply, etc.)'
+    # NO default - Consumer must provide this
     values:
       - init
       - validate
@@ -93,44 +93,45 @@ parameters:
       - output
       - destroy
       - custom
+    displayName: 'Terraform command (init, plan, apply, etc.)'
 
   - name: CommandOptions
     type: string
-    displayName: 'Extra arguments for the Terraform command'
     default: ''
+    displayName: 'Extra arguments for the Terraform command'
 
   - name: CustomCommand
     type: string
-    displayName: 'Custom Terraform CLI command (when Command is custom)'
     default: ''
+    displayName: 'Custom Terraform CLI command (when Command is custom)'
 
   # Output Configuration (for show/output commands)
   - name: OutputTo
     type: string
-    displayName: 'Where to send output for show/output commands'
     default: 'console'
     values:
       - console
       - file
+    displayName: 'Where to send output for show/output commands'
 
   - name: OutputFileName
     type: string
-    displayName: 'File name for output (when OutputTo is file)'
     default: ''
+    displayName: 'File name for output (when OutputTo is file)'
 
   - name: OutputFormat
     type: string
-    displayName: 'Format for show command output'
     default: 'default'
     values:
       - default
       - json
+    displayName: 'Format for show command output'
 
   # Azure Backend Configuration (for init command)
   - name: BackendAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for backend state storage'
     default: ''
+    displayName: 'Azure service connection for backend state storage'
 
   - name: BackendAzureResourceGroupName
     type: string
@@ -154,19 +155,19 @@ parameters:
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Skip backend configuration during init'
     default: false
+    displayName: 'Skip backend configuration during init'
 
   - name: UseLocalBackend
     type: boolean
-    displayName: 'Only init for using the local backend'
     default: false
+    displayName: 'Only init for using the local backend'
 
   # Azure Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for provider authentication'
     default: ''
+    displayName: 'Azure service connection for provider authentication'
 
 steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
