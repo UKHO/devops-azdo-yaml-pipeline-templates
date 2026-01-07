@@ -3,7 +3,7 @@ param(
 )
 
 $path = $Path
-$newValue = "1.14.0"
+$newValue = "1.14.x"
 
 Get-ChildItem $path -Recurse -Filter *.yml | ForEach-Object {
   $content = Get-Content $_.FullName
