@@ -1,4 +1,4 @@
-﻿# Job Template: Terraform Apply
+# Job Template: Terraform Apply
 # Purpose: Runs Terraform apply to deploy infrastructure, supporting variable injection and Azure Key Vault integration.
 
 parameters:
@@ -54,7 +54,7 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: 'latest'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   # terraform init task parameters
