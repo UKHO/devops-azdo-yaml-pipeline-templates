@@ -6,7 +6,7 @@ parameters:
 
   - name: RelativePathToTerraformFiles
     type: string
-    # NO default - Consumer must provide this
+    default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
   - name: TerraformVersion
@@ -86,11 +86,11 @@ parameters:
   - name: VerificationMode
     type: string
     # NO default - Consumer must provide this
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
     values:
       - VerifyOnDestroy
       - VerifyOnAny
       - VerifyDisabled
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
 
   - name: TerraformEnvironmentVariableMappings
     type: object

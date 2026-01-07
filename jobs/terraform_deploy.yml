@@ -33,6 +33,7 @@ parameters:
 
   - name: AzDOEnvironmentName
     type: string
+    # NO default - Consumer must provide this
     displayName: 'The azure devops environment that this deployment job will be associated with'
 
   # key vault task parameters
@@ -56,41 +57,41 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: 1.14.x
+    default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   # terraform init task parameters
 
   - name: BackendAzureServiceConnection
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure service connection for backend where the state is stored'
 
   - name: BackendAzureResourceGroupName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure resource group name for backend where the state is stored'
 
   - name: BackendAzureStorageAccountName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage account name for backend where the state is stored'
 
   - name: BackendAzureContainerName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage container name for backend where the state is stored'
 
   - name: BackendAzureBlobName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage blob name for backend where the state is stored'
 
   # terraform plan/apply shared parameters
 
   - name: AzureSubscriptionServiceConnection
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure service connection for the azdo environment'
 
   - name: TerraformEnvironmentVariableMappings
@@ -107,12 +108,12 @@ parameters:
 
   - name: VerificationMode
     type: string
-    default: VerifyOnDestroy
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    # NO default - Consumer must provide this
     values:
       - VerifyOnDestroy
       - VerifyOnAny
       - VerifyDisabled
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
 
   # terraform apply parameters
 

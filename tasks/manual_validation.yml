@@ -37,8 +37,8 @@ parameters:
   # Standard Azure DevOps Task Parameters
   - name: Condition
     type: string
-    displayName: 'Evaluate this condition expression to determine whether to run this task'
     default: succeeded()
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
 
   # Specific ManualValidation Task Parameters
   - name: NotifyUsers
@@ -64,8 +64,8 @@ parameters:
   # Timeout Behavior
   - name: OnTimeout
     type: string
-    values: [ reject, resume ]
     default: 'reject'
+    values: [ reject, resume ]
     displayName: 'Action to take when validation times out (reject or resume)'
 
   - name: TimeoutInMinutes
