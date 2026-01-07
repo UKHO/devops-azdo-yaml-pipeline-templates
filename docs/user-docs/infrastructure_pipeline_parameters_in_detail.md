@@ -41,7 +41,7 @@ PipelinePool: 'Mare Nubium'
 
 ### RelativePathToTerraformFiles
 
-State where the terraform files that need packaging and then deploying.
+State where the terraform files that need packaging and then deploying are located.
 
 ```yaml
 RelativePathToTerraformFiles: 'infrastructure/terraform'
@@ -92,7 +92,7 @@ TerraformBuildInjectionSteps:
 
 ### AzDOEnvironmentName
 
-Specify the environment that to terraform is going to be deployed too.
+Specify the environment that Terraform is going to be deployed to.
 
 ```yaml
 AzDOEnvironmentName: 'MyAzDOEnvironment'
@@ -102,7 +102,7 @@ Single environment limitation is not long-term.
 
 ### AzureSubscriptionServiceConnection
 
-Specify the service connection that has permissions to the azure subcription.
+Specify the service connection that has permissions to the azure subscription.
 
 ```yaml
 AzureSubscriptionServiceConnection: 'my-azure-service-connection'
@@ -132,7 +132,7 @@ Currently, there is a limitation of group and template only being allowed to be 
 
 ### TerraformBackendAzure
 
-Define the required values for the pipeline to access the terraform state to the environment being deployed too.
+Define the required values for the pipeline to access the terraform state to the environment being deployed to.
 
 ```yaml
 BackendAzureServiceConnection: 'my-backend-service-connection'
@@ -154,7 +154,7 @@ KeyVaultName: "my-key-vault"
 KeyVaultSecretsFilter: "TERRAFORM-TENANT-ID,TERRAFORM-CLIENT-ID,TERRAFORM-CLIENT-SECRET,TERRAFORM-SUBSCRIPTION-ID,TERRAFORM-ACCESS-KEY"
 ```
 
-Do not need to specify if managing configuration in by means.
+You do not need to specify this if managing configuration by other means.
 
 ### RunPlanOnly
 
