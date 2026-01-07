@@ -117,7 +117,7 @@ Specify an object of variables for the deployment jobs.
 ```yaml
 DeploymentJobsVariableMappings:
   myVar: 'value'
-  anotherVar: 'anotherValue'
+  anotherVar: 1
   group: aValidGroup
   template: aValidTemplate
 ```
