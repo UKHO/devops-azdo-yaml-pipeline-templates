@@ -31,7 +31,7 @@ parameters:
 
   - name: DeploymentJobsVariableMappings
     type: object
-    default: { } # Define schema
+    default: { }
     displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
 
   # terraform init task parameters

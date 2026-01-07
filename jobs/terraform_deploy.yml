@@ -23,7 +23,7 @@ parameters:
 
   - name: JobVariableMappings
     type: object
-    default: { } # Define Schema
+    default: { }
     displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
 
   - name: TerraformArtifactName
