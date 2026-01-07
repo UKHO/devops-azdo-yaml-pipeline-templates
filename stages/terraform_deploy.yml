@@ -12,10 +12,12 @@ parameters:
 
   - name: AzureSubscriptionServiceConnection
     type: string
+    # NO default - Consumer must provide this
     displayName: 'The service connection for the azure subscription where resources will be deployed to'
 
   - name: AzDOEnvironmentName
     type: string
+    # NO default - Consumer must provide this
     displayName: 'The azure devops environment that the deployment jobs will be associated with'
 
   - name: TerraformArtifactName
@@ -36,27 +38,27 @@ parameters:
   # terraform init task parameters
   - name: BackendAzureServiceConnection
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure service connection for backend where the state is stored'
 
   - name: BackendAzureResourceGroupName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure resource group name for backend where the state is stored'
 
   - name: BackendAzureStorageAccountName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage account name for backend where the state is stored'
 
   - name: BackendAzureContainerName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage container name for backend where the state is stored'
 
   - name: BackendAzureBlobName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Azure storage blob name for backend where the state is stored'
 
   # Key Vault Parameters
@@ -82,12 +84,12 @@ parameters:
 
   - name: VerificationMode
     type: string
-    default: VerifyOnDestroy
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
+    # NO default - Consumer must provide this
     values:
       - VerifyOnDestroy
       - VerifyOnAny
       - VerifyDisabled
+    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
 
   - name: TerraformEnvironmentVariableMappings
     type: object

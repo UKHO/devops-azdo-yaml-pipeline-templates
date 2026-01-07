@@ -22,7 +22,7 @@
 parameters:
   - name: ArtifactName
     type: string
-    default: ''
+    # NO default - Consumer must provide this
     displayName: 'Artifact name (leave empty to download all artifacts)'
 
   - name: ItemPattern
