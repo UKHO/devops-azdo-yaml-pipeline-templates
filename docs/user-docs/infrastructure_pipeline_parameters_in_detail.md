@@ -47,7 +47,7 @@ State where the terraform files that need packaging and then deploying.
 RelativePathToTerraformFiles: 'infrastructure/terraform'
 ```
 
-The path prepended with `$(Pipeline.Worksapce)/$(Build.Repository.Name)/` for creating an absolute path to the terraform files.
+The path prepended with `$(Pipeline.Workspace)/$(Build.Repository.Name)/` for creating an absolute path to the terraform files.
 
 ### TerraformVersion
 

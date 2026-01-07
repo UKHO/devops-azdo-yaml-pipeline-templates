@@ -53,7 +53,7 @@ parameters:
     values:
       - filePath
       - inline
-    # NO default - Consumer must provide thise
+    # NO default - Consumer must provide this
     displayName: 'Script execution mode (filePath or inline)'
 
   - name: ScriptFilePath

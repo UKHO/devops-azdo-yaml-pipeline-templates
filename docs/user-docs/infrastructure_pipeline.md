@@ -9,7 +9,7 @@ A standardised infrastructure deployment pipeline template that uses terraform a
 
 Pool Requirements: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
 
-Terrraform Worksapce: This command is not currently available.
+Terraform Workspace: This command is not currently available.
 
 Snyk Scanning: This is not currently part of the pipeline.
 
