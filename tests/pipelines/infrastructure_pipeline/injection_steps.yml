@@ -4,9 +4,9 @@ resources:
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: ${{ coalesce(variables['Build.SourceBranch'], 'refs/heads/terraform-deploy') }} # Build.SourceBranch doesn't seem available when you run the validate
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
 
-pool: $(PipelinePool) # Variable defined within template, overridable via template parameter 'PipelinePool'.
+pool: $(PipelinePool) # Variable defined within the template, overridable via template parameter 'PipelinePool'.
 
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
