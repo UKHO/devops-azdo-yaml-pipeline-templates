@@ -1,0 +1,38 @@
+parameters:
+  - name: ProjectDirectory
+    type: string
+    displayName: The repo directory containing ProjectFileName.
+
+  - name: ProjectFileName
+    type: string
+    displayName: The name of the sqlproj file to build.
+
+  - name: Configuration
+    type: string
+    default: Release
+    displayName: The build configuration to use.
+
+  - name: ArtifactName
+    type: string
+    default: Dacpac
+    displayName: Artifact name for the DACPAC.
+
+jobs:
+  - job: DacpacBuildAndPublish
+    workspace:
+      clean: all
+    displayName: Build and publish DACPAC - ${{ parameters.ProjectFileName }}
+    pool: 
+      name: NautilusBuild
+      demands:
+        - VisualStudio_17.0
+    steps:
+      - template: ../tasks/build_dacpac.yml
+        parameters:
+          ProjectPath: '$(Build.SourcesDirectory)\${{ parameters.ProjectDirectory }}\${{ parameters.ProjectFileName }}'
+          Configuration: ${{ parameters.Configuration }}
+
+      - template: ../tasks/publish_pipeline_artifact.yml
+        parameters:
+          TargetPath: '$(Build.SourcesDirectory)\${{ parameters.ProjectDirectory }}\bin\${{ parameters.Configuration }}'
+          ArtifactName: ${{ parameters.ArtifactName }}
