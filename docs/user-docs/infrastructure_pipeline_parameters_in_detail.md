@@ -1,5 +1,27 @@
 # Template parameters in detail
 
+This document provides detailed information about all parameters available in the Infrastructure Pipeline template.
+
+## Pipeline Structure
+
+The infrastructure pipeline consists of two stages:
+
+1. **Build Stage**: Validates and packages Terraform files
+   - Installs specified Terraform version
+   - Runs injection steps (if provided)
+   - Initializes Terraform (without backend)
+   - Validates Terraform configuration
+   - Publishes Terraform files as an artifact
+
+2. **Deploy Stage**: Deploys infrastructure with optional manual verification
+   - Downloads Terraform artifact
+   - Initializes Terraform (with backend)
+   - **Plan Job**: Creates execution plan
+   - **Manual Verification Job**: Optional approval gate (conditional)
+   - **Apply Job**: Applies changes and exports outputs (conditional)
+
+The deploy stage behavior is controlled by `RunPlanOnly` and `VerificationMode` parameters. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
+
 ## Full Parameter Table
 
 | Parameter                                                                     | Type     | Required | Default           | Allowed values                                           | Compile Time Sensitive? | Description                                                                                                          |
@@ -62,6 +84,12 @@ The default version is `1.14.x`.
 ### TerraformBuildInjectionSteps
 
 This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged.
+
+**Important**: These steps are run **twice** during the Build stage:
+1. First, before validation (to allow modifications needed for validation to pass)
+2. Second, after a clean checkout (to ensure the packaged artifact has the modifications)
+
+This ensures that any modifications you make are both validated and included in the final artifact.
 
 Common use cases include:
 
@@ -148,8 +176,15 @@ Note: `BackendAzureServiceConnection` can be the same service connection as [`Az
 
 Define the optional values for the pipeline to access configuration from a key vault during the deployment of the terraform files.
 
+**Note**: Key Vault secrets are only accessed during the **Deploy stage**, not during the Build stage. The secrets are retrieved before Terraform init/plan/apply operations.
+
+All three parameters must be provided for Key Vault integration to be enabled:
+- `KeyVaultServiceConnection`: Must not be empty
+- `KeyVaultName`: Must not be empty
+- `KeyVaultSecretsFilter`: Defaults to `'*'` (all secrets) if not specified
+
 ```yaml
-KeyVaultAzureSubscription: "MyAzureServiceConnection"
+KeyVaultServiceConnection: "MyAzureServiceConnection"
 KeyVaultName: "my-key-vault"
 KeyVaultSecretsFilter: "TERRAFORM-TENANT-ID,TERRAFORM-CLIENT-ID,TERRAFORM-CLIENT-SECRET,TERRAFORM-SUBSCRIPTION-ID,TERRAFORM-ACCESS-KEY"
 ```
@@ -207,10 +242,36 @@ The pipeline will access these files from the terraform artifact created during 
 
 Specify the output variables from the terraform files that need to be available post deployment.
 
+**Note**: Output variables are only exported during the **Apply job** (when `RunPlanOnly` is `false` and apply runs successfully).
+
 ```yaml
 TerraformOutputVariables:
   - output1
   - output2
 ```
 
-To access the variables, see microsoft documentation [Set an output variable for use in future jobs](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-variables-scripts?view=azure-devops&tabs=powershell#set-an-output-variable-for-use-in-future-jobs).
+#### Accessing Output Variables
+
+The output variables are exported as Azure DevOps pipeline variables with the following naming convention:
+
+```
+dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+```
+
+**Example**: If you export a Terraform output named `resource_id`, you would access it in a subsequent stage like this:
+
+```yaml
+stages:
+  # ... infrastructure pipeline stages ...
+
+  - stage: UseOutputs
+    dependsOn: Deploy_dev_Infrastructure
+    variables:
+      ResourceId: $[stageDependencies.Deploy_dev_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.resource_id']]
+    jobs:
+      - job: ConsumeOutput
+        steps:
+          - script: echo "Resource ID is $(ResourceId)"
+```
+
+For more information, see Microsoft documentation: [Set an output variable for use in future jobs](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-variables-scripts?view=azure-devops&tabs=powershell#set-an-output-variable-for-use-in-future-jobs).
