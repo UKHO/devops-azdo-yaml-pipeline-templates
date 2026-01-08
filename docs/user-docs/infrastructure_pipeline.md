@@ -176,3 +176,17 @@ extends:
 ### Incorrect Terraform version being used
 
 **Solution**: Explicitly set the `TerraformVersion` parameter. The default is `1.14.x` which installs the latest patch version of 1.14.
+
+## Template Breakdown
+
+For a complete breakdown of all templates, scripts, and execution flows used by this pipeline, see:
+
+**[Infrastructure Pipeline - Template Breakdown](infrastructure_pipeline_template_breakdown.md)**
+
+This includes:
+- Visual pipeline structure
+- All stages, jobs, tasks, utilities, and scripts
+- Template relationships and execution order
+- Customisation points
+- Mermaid diagrams of execution flows
+
