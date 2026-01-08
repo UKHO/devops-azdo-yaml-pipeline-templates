@@ -20,6 +20,11 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'The azure devops environment that the deployment jobs will be associated with'
 
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The target environment'
+
   - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
@@ -106,39 +111,34 @@ parameters:
     default: [ ]
     displayName: 'List of variables to be exported from the terraform after apply has been ran.'
 
-  - name: Environments
-    type: object
-    displayName: 'Mapping of environments'
-
 stages:
-  - ${{ each environment in parameters.Environments }}:
-    - stage: Deploy_${{ environment }}_Infrastructure
-      displayName: 'Deploy ${{ parameters.AzDOEnvironmentName }}'
-      condition: ${{ parameters.Condition }}
-      dependsOn: ${{ parameters.DependsOn }}
-      jobs:
-        - template: ../jobs/terraform_plan_verify_apply_jobList.yml
-          parameters:
-            # generic parameters
-            DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
-            TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
-            AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
-            # key vault task parameters
-            KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
-            KeyVaultName: ${{ parameters.KeyVaultName }}
-            KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
-            # terraform installer task parameters
-            TerraformVersion: ${{ parameters.TerraformVersion }}
-            # terraform init task parameters
-            BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
-            BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
-            BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
-            BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
-            BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
-            # terraform plan/apply task parameters
-            RunPlanOnly: ${{ parameters.RunPlanOnly }}
-            AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-            TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
-            TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
-            VerificationMode: ${{ parameters.VerificationMode }}
-            TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
+  - stage: Deploy_${{ parameters.EnvironmentName }}_Infrastructure
+    displayName: 'Deploy ${{ parameters.EnvironmentName }}'
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
+    jobs:
+      - template: ../jobs/terraform_plan_verify_apply_jobList.yml
+        parameters:
+          # generic parameters
+          DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+          # key vault task parameters
+          KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
+          KeyVaultName: ${{ parameters.KeyVaultName }}
+          KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+          # terraform installer task parameters
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          # terraform init task parameters
+          BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
+          BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
+          BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
+          BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
+          BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+          # terraform plan/apply task parameters
+          RunPlanOnly: ${{ parameters.RunPlanOnly }}
+          AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+          TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
+          TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
+          VerificationMode: ${{ parameters.VerificationMode }}
+          TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
