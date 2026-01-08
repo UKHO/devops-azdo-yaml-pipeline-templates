@@ -43,3 +43,7 @@ extends:
     TerraformVariableFiles:
       - config/common.tfvars
       - config/discovery.tfvars
+    Environments:
+      - dev
+      - qa
+      - live
