@@ -14,6 +14,14 @@ resources:
 
 pool: $(PipelinePool) # Variable defined within the template, overridable via template parameter 'PipelinePool'.
 
+resources:
+  repositories:
+    - repository: PipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables["Build.SourceBranchName"] }}
+
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
