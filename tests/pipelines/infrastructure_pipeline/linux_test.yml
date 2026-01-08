@@ -6,16 +6,16 @@ parameters:
 
 resources:
   repositories:
-    - repository: PipelineTemplates
+    - repository: AzDOPipelineTemplates
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/heads/terraform-deploy-refactor-jobs
+      ref: ${{ variables['Build.SourceBranch'] }}
 
 pool: $(PipelinePool) # Variable defined within template, overridable via template parameter 'PipelinePool'.
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
     # PipelinePool # do not need to test
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
