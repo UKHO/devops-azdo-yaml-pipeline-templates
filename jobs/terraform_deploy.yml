@@ -108,7 +108,7 @@ parameters:
 
   - name: VerificationMode
     type: string
-    # NO default - Consumer must provide this
+    default: VerifyOnAny # Intentionally defaulted as Terraform Apply Mode in this Template will complain without this set
     values:
       - VerifyOnDestroy
       - VerifyOnAny
