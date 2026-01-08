@@ -163,7 +163,7 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: PipelineTemplates
+            - checkout: AzDOPipelineTemplates
               persistCredentials: true
               path: $(CheckoutPath)
 
