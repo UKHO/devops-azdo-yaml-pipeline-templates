@@ -7,6 +7,8 @@ A standardised infrastructure deployment pipeline template that uses terraform a
 
 ## Important
 
+**Repository Resource Requirement**: The pipeline requires access to this template repository during execution. You **must** define the repository resource with the name `AzDOPipelineTemplates` (as shown in the example above) because the pipeline internally checks out this repository to access helper scripts during the deployment stage.
+
 Pool Requirements: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
 
 Terraform Workspace: This command is not currently available.
@@ -33,7 +35,7 @@ trigger:
       - main
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
     RelativePathToTerraformFiles: infra/webapp
     TerraformVersion: 1.09
@@ -83,6 +85,45 @@ _If you have any advanced usages, please consider contributing them to the docum
 
 ```yaml
 extends:
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  parameters:
+    PipelinePool: 'MyCustomPool'
+    RelativePathToTerraformFiles: 'infrastructure/terraform'
+    TerraformVersion: '1.6.0'
+```
+
+### Injection Step to add required_version
+
+```yaml
+extends:
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  parameters:
+    RelativePathToTerraformFiles: infra/webapp
+    PipelinePool: "Mare Nubium"
+    TerraformVersion: 1.1.9
+    TerraformBuildInjectionSteps:
+      - pwsh: |
+          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
+          $content = Get-Content $path
+          $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
+          if ($terraformStart -ge 0) {
+            $insertIndex = $terraformStart + 1
+            $content = $content[0..($insertIndex-1)] + '  required_version = "1.1.9"' + $content[$insertIndex..($content.Count-1)]
+            Set-Content $path $content
+          }
+        displayName: "Injecting into terraform block 'required_version'"
+```
+
+## Advanced Usage
+
+Listed below are possible advanced usages.
+
+_If you have any advanced usages, please consider contributing them to the documentation._
+
+### Custom Agent Pool
+
+```yaml
+extends:
   template: pipelines/infrastructure_pipeline.yml@templates
   parameters:
     PipelinePool: 'MyCustomPool'
@@ -111,3 +152,27 @@ extends:
           }
         displayName: "Injecting into terraform block 'required_version'"
 ```
+
+## Troubleshooting
+
+### Manual verification not triggering
+
+**Issue**: Manual verification gate doesn't appear even when changes are detected.
+
+**Check**:
+- Verify `RunPlanOnly` is set to `false` (or not set, as default is `false`)
+- Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
+- Check the plan output to ensure changes were actually detected
+
+### Output variables not available in subsequent stages/jobs
+
+**Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job.
+
+**Solution**: To use Terraform output variables in subsequent stages or jobs outside the infrastructure pipeline, you'll need to:
+1. Ensure the variables are listed in `TerraformOutputVariables` parameter
+2. Reference them using the correct dependency syntax: `dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']`
+3. Note: Variables are only exported when `RunPlanOnly` is `false` and the apply job runs successfully
+
+### Incorrect Terraform version being used
+
+**Solution**: Explicitly set the `TerraformVersion` parameter. The default is `1.14.x` which installs the latest patch version of 1.14.
