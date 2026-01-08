@@ -38,52 +38,53 @@
 parameters:
   - name: TaskEnvironmentVariables
     type: object
-    displayName: 'Environment variables to be passed to the task'
     default: { }
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
 
   - name: TaskName
     type: string
-    displayName: 'Task name for the powershell task'
     default: ''
+    displayName: 'Task name for the powershell task'
 
   # PowerShell Task Inputs
 
   - name: TargetType
     type: string
-    displayName: 'Script execution mode (filePath or inline)'
     values:
       - filePath
       - inline
+    # NO default - Consumer must provide this
+    displayName: 'Script execution mode (filePath or inline)'
 
   - name: ScriptFilePath
     type: string
-    displayName: 'Path to the PowerShell script (when TargetType is filePath)'
     default: ''
+    displayName: 'Path to the PowerShell script (when TargetType is filePath)'
 
   - name: InlineScript
     type: string
-    displayName: 'Inline PowerShell script (when TargetType is inline)'
     default: ''
+    displayName: 'Inline PowerShell script (when TargetType is inline)'
 
   - name: ScriptFileArguments
     type: string
-    displayName: 'Arguments for the script (when TargetType is filePath)'
     default: ''
+    displayName: 'Arguments for the script (when TargetType is filePath)'
 
   - name: UsePowerShellCoreOnWindows
     type: boolean
-    displayName: 'On Windows, use PowerShell Core (pwsh.exe) instead Windows PowerShell (powershell.exe). No effect on linux.'
     default: false
+    displayName: 'On Windows, use PowerShell Core (pwsh.exe) instead Windows PowerShell (powershell.exe). No effect on linux.'
 
   - name: WorkingDirectory
     type: string
-    displayName: 'Working directory for the script'
     default: ''
+    displayName: 'Working directory for the script'
 
   - name: FailOnStandardError
     type: boolean
-    displayName: 'Fail on standard error'
     default: false
+    displayName: 'Fail on standard error'
 
 steps:
   - task: PowerShell@2

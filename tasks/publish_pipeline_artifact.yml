@@ -21,13 +21,13 @@
 parameters:
   - name: ArtifactName
     type: string
-    displayName: 'Name of the artifact to publish'
     default: 'Drop'
+    displayName: 'Name of the artifact to publish'
 
   - name: TargetPath
     type: string
-    displayName: 'Path to files or folder to publish'
     default: '$(Pipeline.Workspace)'
+    displayName: 'Path to files or folder to publish'
 
 steps:
   - task: PublishPipelineArtifact@1

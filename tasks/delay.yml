@@ -19,9 +19,9 @@
 
 parameters:
   - name: delayForMinutes
-    displayName: 'Delay Time (minutes)'
     type: number
     default: 0
+    displayName: 'Delay Time (minutes)'
 
 steps:
   - task: Delay@1

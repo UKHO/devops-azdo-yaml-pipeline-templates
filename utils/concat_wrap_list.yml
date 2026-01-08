@@ -25,7 +25,7 @@ parameters:
   - name: Items
     type: object
     default: [ ]
-    displayName: 'The list of items to concatenate together with prefix and suffix on each item.'
+    displayName: 'List of items to concatenate together with prefix and suffix on each item.'
 
   - name: Prefix
     type: string

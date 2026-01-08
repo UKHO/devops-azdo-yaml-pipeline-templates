@@ -31,10 +31,12 @@
 parameters:
   - name: KeyVaultServiceConnection
     type: string
+    # NO default - Consumer must provide this
     displayName: 'Azure Resource Manager service connection (required)'
 
   - name: KeyVaultName
     type: string
+    # NO default - Consumer must provide this
     displayName: 'Azure Key Vault name (required)'
 
   - name: SecretsFilter
