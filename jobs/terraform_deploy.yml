@@ -136,7 +136,7 @@ jobs:
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
-            value: ${{ join(' ', parameters.TerraformOutputVariables) }}
+            value: ${{ join(',', parameters.TerraformOutputVariables) }}
 
       # Shared Variables
       - template: ../utils/concat_wrap_list.yml
