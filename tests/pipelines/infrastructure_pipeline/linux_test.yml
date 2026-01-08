@@ -44,6 +44,9 @@ extends:
       - config/common.tfvars
       - config/discovery.tfvars
     Environments:
-      - dev
-      - qa
-      - live
+      dev:
+        AzDOEnvironmentName: Discovery
+      qa:
+        AzDOEnvironmentName: Discovery
+      live:
+        AzDOEnvironmentName: Discovery
