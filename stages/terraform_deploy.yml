@@ -115,7 +115,7 @@ stages:
       - template: ../jobs/terraform_plan_verify_apply_jobList.yml
         parameters:
           # generic parameters
-          JobVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
+          DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
           # key vault task parameters
