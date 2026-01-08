@@ -1,4 +1,4 @@
-# Azure DevOps YAML Pipeline Templates - User Documentation
+﻿# Azure DevOps YAML Pipeline Templates - User Documentation
 
 This directory contains comprehensive documentation for Azure DevOps YAML pipeline templates in this repository.
 

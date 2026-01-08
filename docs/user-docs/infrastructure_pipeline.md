@@ -47,7 +47,7 @@ There are no required parameters, as each parameter has its own default value.
 |--------------------------------|----------|----------|-------------------|---------------------------------------------------------------------------------------|
 | `RelativePathToTerraformFiles` | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact. |
 | `PipelinePool`                 | string   | false    | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level.                           |
-| `TerraformVersion`             | string   | false    | `'latest'`        | Version of Terraform CLI tool to use with the terraform files.                        |
+| `TerraformVersion`             | string   | false    | `1.14.x`        | Version of Terraform CLI tool to use with the terraform files.                        |
 | `TerraformBuildInjectionSteps` | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.        |
 
 #### TerraformBuildInjectionSteps
