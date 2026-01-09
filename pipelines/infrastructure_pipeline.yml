@@ -130,7 +130,7 @@ stages:
           Condition: succeeded('Build')
           EnvironmentName: ${{ environment }}
           AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-          AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
+          AzDOEnvironmentName: ${{ environment.AzDOEnvironmentName }}
           TerraformVersion: ${{ parameters.TerraformVersion }}
           DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
           BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
