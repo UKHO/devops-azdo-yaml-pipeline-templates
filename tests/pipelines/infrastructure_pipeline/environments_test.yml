@@ -21,9 +21,9 @@ parameters:
         TerraformVariableFiles:
           - config/common.tfvars
           - config/discovery.tfvars
-        Condition: succeeded('build')
         DependsOn:
-          - Build
+          - build
+        Condition: succeeded('build')
       - Name: qa
         AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
@@ -90,20 +90,63 @@ stages:
   - ${{ each environment in parameters.Environments }}:
       - template: stages/terraform_deploy.yml@AzDOPipelineTemplates
         parameters:
-          DependsOn: ${{ environment.DependsOn }}
-          Condition: ${{ environment.Condition }}
-          EnvironmentName: ${{ environment.Name }}
-          AzureSubscriptionServiceConnection: ${{ environment.AzureSubscriptionServiceConnection }}
-          AzDOEnvironmentName: ${{ environment.AzDOEnvironmentName }}
           TerraformVersion: latest
-          # DeploymentJobsVariableMappings:
-          BackendAzureServiceConnection: ${{ environment.BackendConfiguration.ServiceConnection }}
-          BackendAzureResourceGroupName: ${{ environment.BackendConfiguration.ResourceGroupName }}
-          BackendAzureStorageAccountName: ${{ environment.BackendConfiguration.StorageAccountName }}
-          BackendAzureContainerName: ${{ environment.BackendConfiguration.ContainerName }}
-          BackendAzureBlobName: ${{ environment.BackendConfiguration.BlobName }}
-          VerificationMode: ${{ environment.VerificationMode }}
           RunPlanOnly: false
-          TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
-          TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
-          TerraformVariableFiles: ${{ environment.TerraformVariableFiles }}
+
+          # Required Parameters Compile Time Protection
+          ${{ if or(not(environment.Name), eq(environment.Name, '')) }}:
+            "an environment Name is not properly defined and is a required field.": "Error"
+          EnvironmentName: ${{ environment.Name }}
+
+          ${{ if or(not(environment.DependsOn), eq(environment.DependsOn, '')) }}:
+            "environment '${{environment.Name}}' DependsOn is not properly defined and is a required field.": "Error"
+          DependsOn: ${{ environment.DependsOn }}
+
+          ${{ if or(not(environment.Condition), eq(environment.Condition, '')) }}:
+            "environment '${{environment.Name}}' Condition is not properly defined and is a required field.": "Error"
+          Condition: ${{ environment.Condition }}
+
+          ${{ if or(not(environment.AzDOEnvironmentName), eq(environment.AzDOEnvironmentName, '')) }}:
+            "environment '${{environment.Name}}' AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+          AzDOEnvironmentName: ${{ environment.AzDOEnvironmentName }}
+
+          ${{ if or(not(environment.AzureSubscriptionServiceConnection), eq(environment.AzureSubscriptionServiceConnection, '')) }}:
+            "environment '${{environment.Name}}' AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
+          AzureSubscriptionServiceConnection: ${{ environment.AzureSubscriptionServiceConnection }}
+
+          ${{ if or(not(environment.BackendConfiguration.ServiceConnection), eq(environment.BackendConfiguration.ServiceConnection, '')) }}:
+            "environment '${{environment.Name}}' BackendConfiguration.ServiceConnection is not properly defined and is a required field.": "Error"
+          BackendAzureServiceConnection: ${{ environment.BackendConfiguration.ServiceConnection }}
+
+          ${{ if or(not(environment.BackendConfiguration.ResourceGroupName), eq(environment.BackendConfiguration.ResourceGroupName, '')) }}:
+            "environment '${{environment.Name}}' BackendConfiguration.ResourceGroupName is not properly defined and is a required field.": "Error"
+          BackendAzureResourceGroupName: ${{ environment.BackendConfiguration.ResourceGroupName }}
+
+          ${{ if or(not(environment.BackendConfiguration.StorageAccountName), eq(environment.BackendConfiguration.StorageAccountName, '')) }}:
+            "environment '${{environment.Name}}' BackendConfiguration.StorageAccountName is not properly defined and is a required field.": "Error"
+          BackendAzureStorageAccountName: ${{ environment.BackendConfiguration.StorageAccountName }}
+
+          ${{ if or(not(environment.BackendConfiguration.ContainerName), eq(environment.BackendConfiguration.ContainerName, '')) }}:
+            "environment '${{environment.Name}}' BackendConfiguration.ContainerName is not properly defined and is a required field.": "Error"
+          BackendAzureContainerName: ${{ environment.BackendConfiguration.ContainerName }}
+
+          ${{ if or(not(environment.BackendConfiguration.BlobName), eq(environment.BackendConfiguration.BlobName, '')) }}:
+            "environment '${{environment.Name}}' BackendConfiguration.BlobName is not properly defined and is a required field.": "Error"
+          BackendAzureBlobName: ${{ environment.BackendConfiguration.BlobName }}
+
+          ${{ if or(not(environment.VerificationMode), eq(environment.VerificationMode, ''), notIn(environment.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
+            "environment '${{environment.Name}}' VerificationMode is not properly defined and is a required field.": "Error"
+          VerificationMode: ${{ environment.VerificationMode }}
+
+          # Optional Parameters
+          ${{ if environment.DeploymentJobsVariableMappings }}: # Add additional validation
+            DeploymentJobsVariableMappings: ${{ environment.DeploymentJobsVariableMappings }}
+
+          ${{ if environment.TerraformEnvironmentVariableMappings }}: # Add additional validation
+            TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
+
+          ${{ if environment.TerraformOutputVariables }}:
+            TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
+
+          ${{ if environment.TerraformVariableFiles }}:
+            TerraformVariableFiles: ${{ environment.TerraformVariableFiles }}
