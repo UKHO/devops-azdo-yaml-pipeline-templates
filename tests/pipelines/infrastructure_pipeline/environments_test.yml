@@ -2,7 +2,7 @@ parameters:
   - name: Environments
     type: object
     default:
-      dev:
+      - Name: dev
         AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
         BackendConfiguration:
@@ -24,7 +24,7 @@ parameters:
         Condition: succeeded('build')
         DependsOn:
           - Build
-      qa:
+      - Name: qa
         AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
         BackendConfiguration:
@@ -46,7 +46,7 @@ parameters:
         Condition: succeeded('Deploy_dev_Infrastructure')
         DependsOn:
           - Deploy_dev_Infrastructure
-      live:
+      - Name: live
         AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
         BackendConfiguration:
@@ -90,20 +90,20 @@ stages:
   - ${{ each environment in parameters.Environments }}:
       - template: stages/terraform_deploy.yml@AzDOPipelineTemplates
         parameters:
-          DependsOn: ${{ environment.Value.DependsOn }}
-          Condition: ${{ environment.Value.Condition }}
-          EnvironmentName: ${{ environment.Key }}
-          AzureSubscriptionServiceConnection: ${{ environment.Value.AzureSubscriptionServiceConnection }}
-          AzDOEnvironmentName: ${{ environment.Value.AzDOEnvironmentName }}
+          DependsOn: ${{ environment.DependsOn }}
+          Condition: ${{ environment.Condition }}
+          EnvironmentName: ${{ environment.Name }}
+          AzureSubscriptionServiceConnection: ${{ environment.AzureSubscriptionServiceConnection }}
+          AzDOEnvironmentName: ${{ environment.AzDOEnvironmentName }}
           TerraformVersion: latest
           # DeploymentJobsVariableMappings:
-          BackendAzureServiceConnection: ${{ environment.Value.BackendConfiguration.ServiceConnection }}
-          BackendAzureResourceGroupName: ${{ environment.Value.BackendConfiguration.ResourceGroupName }}
-          BackendAzureStorageAccountName: ${{ environment.Value.BackendConfiguration.StorageAccountName }}
-          BackendAzureContainerName: ${{ environment.Value.BackendConfiguration.ContainerName }}
-          BackendAzureBlobName: ${{ environment.Value.BackendConfiguration.BlobName }}
-          VerificationMode: ${{ environment.Value.VerificationMode }}
+          BackendAzureServiceConnection: ${{ environment.BackendConfiguration.ServiceConnection }}
+          BackendAzureResourceGroupName: ${{ environment.BackendConfiguration.ResourceGroupName }}
+          BackendAzureStorageAccountName: ${{ environment.BackendConfiguration.StorageAccountName }}
+          BackendAzureContainerName: ${{ environment.BackendConfiguration.ContainerName }}
+          BackendAzureBlobName: ${{ environment.BackendConfiguration.BlobName }}
+          VerificationMode: ${{ environment.VerificationMode }}
           RunPlanOnly: false
-          TerraformEnvironmentVariableMappings: ${{ environment.Value.TerraformEnvironmentVariableMappings }}
-          TerraformOutputVariables: ${{ environment.Value.TerraformOutputVariables }}
-          TerraformVariableFiles: ${{ environment.Value.TerraformVariableFiles }}
+          TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
+          TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
+          TerraformVariableFiles: ${{ environment.TerraformVariableFiles }}
