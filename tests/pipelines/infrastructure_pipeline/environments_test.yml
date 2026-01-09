@@ -3,11 +3,72 @@ parameters:
     type: object
     default:
       dev:
+        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
+        BackendConfiguration:
+          ServiceConnection: Pipeline-CloudDisco
+          ResourceGroupName: cheeserg
+          StorageAccountName: cheesesa
+          ContainerName: cheesecn
+          BlobName: cheesebn
+        VerificationMode: 'VerifyOnAny'
+        TerraformEnvironmentVariableMappings:
+          TF_VAR_MinRandom: 1000
+          TF_VAR_MaxRandom: 100000
+        TerraformOutputVariables:
+          - random_number
+          - random_string
+        TerraformVariableFiles:
+          - config/common.tfvars
+          - config/discovery.tfvars
+        Condition: succeeded('build')
+        DependsOn:
+          - Build
       qa:
+        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
+        BackendConfiguration:
+          ServiceConnection: Pipeline-CloudDisco
+          ResourceGroupName: cheeserg
+          StorageAccountName: cheesesa
+          ContainerName: cheesecn
+          BlobName: cheesebn
+        VerificationMode: 'VerifyOnAny'
+        TerraformEnvironmentVariableMappings:
+          TF_VAR_MinRandom: 1000
+          TF_VAR_MaxRandom: 100000
+        TerraformOutputVariables:
+          - random_number
+          - random_string
+        TerraformVariableFiles:
+          - config/common.tfvars
+          - config/discovery.tfvars
+        Condition: succeeded('Deploy_dev_Infrastructure')
+        DependsOn:
+          - Deploy_dev_Infrastructure
       live:
+        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
         AzDOEnvironmentName: Discovery
+        BackendConfiguration:
+          ServiceConnection: Pipeline-CloudDisco
+          ResourceGroupName: cheeserg
+          StorageAccountName: cheesesa
+          ContainerName: cheesecn
+          BlobName: cheesebn
+        VerificationMode: 'VerifyOnAny'
+        TerraformEnvironmentVariableMappings:
+          TF_VAR_MinRandom: 1000
+          TF_VAR_MaxRandom: 100000
+        TerraformOutputVariables:
+          - random_number
+          - random_string
+        TerraformVariableFiles:
+          - config/common.tfvars
+          - config/discovery.tfvars
+        Condition: succeeded('Deploy_qa_Infrastructure')
+        DependsOn:
+          - Deploy_qa_Infrastructure
+
     displayName: 'Mapping of environments'
 
 resources:
@@ -29,28 +90,20 @@ stages:
   - ${{ each environment in parameters.Environments }}:
       - template: stages/terraform_deploy.yml@AzDOPipelineTemplates
         parameters:
-          DependsOn:
-            - Build
-          Condition: succeeded('Build')
+          DependsOn: ${{ environment.Value.DependsOn }}
+          Condition: ${{ environment.Value.Condition }}
           EnvironmentName: ${{ environment.Key }}
-          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-          AzDOEnvironmentName: Discovery
+          AzureSubscriptionServiceConnection: ${{ environment.Value.AzureSubscriptionServiceConnection }}
+          AzDOEnvironmentName: ${{ environment.Value.AzDOEnvironmentName }}
           TerraformVersion: latest
           # DeploymentJobsVariableMappings:
-          BackendAzureServiceConnection: Pipeline-CloudDisco
-          BackendAzureResourceGroupName: m-devopschapter-rg
-          BackendAzureStorageAccountName: ukhodoctfstate
-          BackendAzureContainerName: tfstate
-          BackendAzureBlobName: linux_test.tfstate
-          VerificationMode: VerifyOnDestroy
+          BackendAzureServiceConnection: ${{ environment.Value.BackendConfiguration.ServiceConnection }}
+          BackendAzureResourceGroupName: ${{ environment.Value.BackendConfiguration.ResourceGroupName }}
+          BackendAzureStorageAccountName: ${{ environment.Value.BackendConfiguration.StorageAccountName }}
+          BackendAzureContainerName: ${{ environment.Value.BackendConfiguration.ContainerName }}
+          BackendAzureBlobName: ${{ environment.Value.BackendConfiguration.BlobName }}
+          VerificationMode: ${{ environment.Value.VerificationMode }}
           RunPlanOnly: false
-          TerraformEnvironmentVariableMappings:
-            TF_VAR_MinRandom: 1000
-            TF_VAR_MaxRandom: 100000
-          TerraformOutputVariables:
-            - random_number
-            - random_string
-          TerraformVariableFiles:
-            - config/common.tfvars
-            - config/discovery.tfvars
-
+          TerraformEnvironmentVariableMappings: ${{ environment.Value.TerraformEnvironmentVariableMappings }}
+          TerraformOutputVariables: ${{ environment.Value.TerraformOutputVariables }}
+          TerraformVariableFiles: ${{ environment.Value.TerraformVariableFiles }}
