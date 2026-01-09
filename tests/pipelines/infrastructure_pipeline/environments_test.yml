@@ -34,7 +34,7 @@ stages:
           Condition: succeeded('Build')
           EnvironmentName: ${{ environment.Key }}
           AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-          AzDOEnvironmentName: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
           TerraformVersion: latest
           # DeploymentJobsVariableMappings:
           BackendAzureServiceConnection: Pipeline-CloudDisco
