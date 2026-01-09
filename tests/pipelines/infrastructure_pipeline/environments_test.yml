@@ -11,7 +11,7 @@ parameters:
           StorageAccountName: cheesesa
           ContainerName: cheesecn
           BlobName: cheesebn
-        VerificationMode: 'VerifyOnAny'
+        VerificationMode: 'VerifyOnDestroy'
         TerraformEnvironmentVariableMappings:
           TF_VAR_MinRandom: 1000
           TF_VAR_MaxRandom: 100000
@@ -33,7 +33,7 @@ parameters:
           StorageAccountName: cheesesa
           ContainerName: cheesecn
           BlobName: cheesebn
-        VerificationMode: 'VerifyOnAny'
+        VerificationMode: 'VerifyOnDestroy'
         TerraformEnvironmentVariableMappings:
           TF_VAR_MinRandom: 1000
           TF_VAR_MaxRandom: 100000
@@ -55,7 +55,7 @@ parameters:
           StorageAccountName: cheesesa
           ContainerName: cheesecn
           BlobName: cheesebn
-        VerificationMode: 'VerifyOnAny'
+        VerificationMode: 'VerifyOnDestroy'
         TerraformEnvironmentVariableMappings:
           TF_VAR_MinRandom: 1000
           TF_VAR_MaxRandom: 100000
