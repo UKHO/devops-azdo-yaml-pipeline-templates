@@ -142,8 +142,15 @@ stages:
           ${{ if environment.DeploymentJobsVariableMappings }}: # Add additional validation
             DeploymentJobsVariableMappings: ${{ environment.DeploymentJobsVariableMappings }}
 
-          ${{ if environment.TerraformEnvironmentVariableMappings }}: # Add additional validation
-            TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
+          ${{ if environment.TerraformEnvironmentVariableMappings }}:
+            ${{ if not(contains(convertToJson(environment.TerraformEnvironmentVariableMappings), '{')) }}:
+              "TerraformEnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+            ${{ else }}:
+              ${{ each mapping in environment.TerraformEnvironmentVariableMappings }}:
+                ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                  "TerraformEnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+            ${{ if environment.TerraformEnvironmentVariableMappings }}:
+              TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
 
           ${{ if environment.TerraformOutputVariables }}:
             TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
