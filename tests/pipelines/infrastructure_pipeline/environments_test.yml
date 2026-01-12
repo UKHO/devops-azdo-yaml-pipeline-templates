@@ -2,6 +2,7 @@ parameters:
   - name: TerraformVersion
     type: string
     default: 1.0.x
+
   - name: Environments
     type: object
     default:
@@ -85,6 +86,7 @@ resources:
 pool: 'Mare Nectaris'
 
 stages:
+
   - template: stages/terraform_build.yml@AzDOPipelineTemplates
     parameters:
       RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
@@ -101,6 +103,7 @@ stages:
           RunPlanOnly: false
 
           # Required Parameters Compile Time Protection
+
           ${{ if or(not(environment.Name), eq(environment.Name, '')) }}:
             "an environment Name is not properly defined and is a required field.": "Error"
           EnvironmentName: ${{ environment.Name }}
@@ -145,7 +148,8 @@ stages:
             "environment '${{environment.Name}}' VerificationMode is not properly defined and is a required field.": "Error"
           VerificationMode: ${{ environment.VerificationMode }}
 
-          # Optional Parameters
+          # Required Parameters Compile Time Protection
+
           ${{ if environment.DeploymentJobsVariableMappings }}: # Add additional validation
             DeploymentJobsVariableMappings: ${{ environment.DeploymentJobsVariableMappings }}
 
@@ -156,14 +160,28 @@ stages:
               ${{ each mapping in environment.TerraformEnvironmentVariableMappings }}:
                 ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
                   "environment '${{environment.Name}}' TerraformEnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+
+            # Render parameter if valid
             TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
 
-          ${{ if environment.TerraformOutputVariables }}:
-            ${{ if not(contains(convertToJson(environment.TerraformOutputVariables), '[')) }}:
+          ${{ if environment.TerraformOutputVariables }}: # Only run validation if the optional parameter is present
+            ${{ if not(contains(convertToJson(environment.TerraformOutputVariables), '[')) }}: # Make sure it is a list
               "environment '${{environment.Name}}' TerraformOutputVariables is not correct. Must be a list of string values. You muppet.": "Error"
+            ${{ else }}:
+              ${{ each variable in environment.TerraformOutputVariables }}: # Make sure each item in the list is just a string
+                ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+                  "environment '${{ environment.Name }}' TerraformOutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
+            # Render parameter if valid
             TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
 
-          ${{ if environment.TerraformVariableFiles }}:
-            ${{ if not(contains(convertToJson(environment.TerraformVariableFiles), '[')) }}:
+          ${{ if environment.TerraformVariableFiles }}: # Only run validation if the optional parameter is present
+            ${{ if not(contains(convertToJson(environment.TerraformVariableFiles), '[')) }}: # Make sure it is a list
               "environment '${{environment.Name}}' TerraformVariableFiles is not correct. Must be a list of string values. You muppet.": "Error"
+            ${{ else }}:
+              ${{ each variable in environment.TerraformVariableFiles }}: # Make sure each item in the list is just a string
+                ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+                  "environment '${{ environment.Name }}' TerraformVariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
+            # Render parameter if valid
             TerraformVariableFiles: ${{ environment.TerraformVariableFiles }}
