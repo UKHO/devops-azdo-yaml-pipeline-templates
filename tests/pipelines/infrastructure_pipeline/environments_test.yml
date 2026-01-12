@@ -152,8 +152,8 @@ stages:
             ${{ if environment.TerraformEnvironmentVariableMappings }}:
               TerraformEnvironmentVariableMappings: ${{ environment.TerraformEnvironmentVariableMappings }}
 
-          ${{ if environment.TerraformOutputVariables }}:
+          ${{ if environment.TerraformOutputVariables }}: # Add additional validation
             TerraformOutputVariables: ${{ environment.TerraformOutputVariables }}
 
-          ${{ if environment.TerraformVariableFiles }}:
+          ${{ if environment.TerraformVariableFiles }}: # Add additional validation
             TerraformVariableFiles: ${{ environment.TerraformVariableFiles }}
