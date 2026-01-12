@@ -156,7 +156,7 @@ jobs:
       # Consumer Input Variables (can override the above)
       - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
           - ${{ if eq(lower(JobVariableMapping.Key), 'template') }}:
-              - ${{ JobVariableMapping.Key }}: ${{ variables['variables['System.DefaultWorkingDirectory'] }}/${{ JobVariableMapping.Value }}@self
+              - ${{ JobVariableMapping.Key }}: ${{ variables['System.DefaultWorkingDirectory'] }}/${{ JobVariableMapping.Value }}@self
           - ${{ else }}:
               - ${{ JobVariableMapping }}
     strategy:
