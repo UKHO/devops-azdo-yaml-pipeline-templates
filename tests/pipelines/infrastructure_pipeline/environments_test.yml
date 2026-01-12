@@ -16,6 +16,12 @@ parameters:
           ContainerName: cheesecn
           BlobName: cheesebn
         VerificationMode: 'VerifyOnDestroy'
+        DeploymentJobsVariableMappings:
+          - group: ExampleVG1
+          - group: ExampleVG2
+          - template: tests/pipelines/infrastructure_pipeline/variables.yml
+          - name: DeploymentJobsVariableMappingVariable
+            value: DeploymentJobsVariableMappingValue
         TerraformEnvironmentVariableMappings:
           TF_VAR_MinRandom: 1000
           TF_VAR_MaxRandom: 100000
@@ -28,51 +34,6 @@ parameters:
         DependsOn:
           - build
         Condition: succeeded('build')
-      - Name: qa
-        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-        AzDOEnvironmentName: Discovery
-        BackendConfiguration:
-          ServiceConnection: Pipeline-CloudDisco
-          ResourceGroupName: cheeserg
-          StorageAccountName: cheesesa
-          ContainerName: cheesecn
-          BlobName: cheesebn
-        VerificationMode: 'VerifyOnDestroy'
-        TerraformEnvironmentVariableMappings:
-          TF_VAR_MinRandom: 1000
-          TF_VAR_MaxRandom: 100000
-        TerraformOutputVariables:
-          - random_number
-          - random_string
-        TerraformVariableFiles:
-          - config/common.tfvars
-          - config/discovery.tfvars
-        Condition: succeeded('Deploy_dev_Infrastructure')
-        DependsOn:
-          - Deploy_dev_Infrastructure
-      - Name: live
-        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-        AzDOEnvironmentName: Discovery
-        BackendConfiguration:
-          ServiceConnection: Pipeline-CloudDisco
-          ResourceGroupName: cheeserg
-          StorageAccountName: cheesesa
-          ContainerName: cheesecn
-          BlobName: cheesebn
-        VerificationMode: 'VerifyOnDestroy'
-        TerraformEnvironmentVariableMappings:
-          TF_VAR_MinRandom: 1000
-          TF_VAR_MaxRandom: 100000
-        TerraformOutputVariables:
-          - random_number
-          - random_string
-        TerraformVariableFiles:
-          - config/common.tfvars
-          - config/discovery.tfvars
-        Condition: succeeded('Deploy_qa_Infrastructure')
-        DependsOn:
-          - Deploy_qa_Infrastructure
-
     displayName: 'Mapping of environments'
 
 resources:
