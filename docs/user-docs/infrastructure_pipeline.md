@@ -85,45 +85,6 @@ _If you have any advanced usages, please consider contributing them to the docum
 
 ```yaml
 extends:
-  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    PipelinePool: 'MyCustomPool'
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
-    TerraformVersion: '1.6.0'
-```
-
-### Injection Step to add required_version
-
-```yaml
-extends:
-  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    RelativePathToTerraformFiles: infra/webapp
-    PipelinePool: "Mare Nubium"
-    TerraformVersion: 1.1.9
-    TerraformBuildInjectionSteps:
-      - pwsh: |
-          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
-          $content = Get-Content $path
-          $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
-          if ($terraformStart -ge 0) {
-            $insertIndex = $terraformStart + 1
-            $content = $content[0..($insertIndex-1)] + '  required_version = "1.1.9"' + $content[$insertIndex..($content.Count-1)]
-            Set-Content $path $content
-          }
-        displayName: "Injecting into terraform block 'required_version'"
-```
-
-## Advanced Usage
-
-Listed below are possible advanced usages.
-
-_If you have any advanced usages, please consider contributing them to the documentation._
-
-### Custom Agent Pool
-
-```yaml
-extends:
   template: pipelines/infrastructure_pipeline.yml@templates
   parameters:
     PipelinePool: 'MyCustomPool'
