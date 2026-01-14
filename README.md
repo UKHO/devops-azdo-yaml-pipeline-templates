@@ -1,23 +1,30 @@
 ﻿# Azure DevOps YAML Pipeline Templates
 
-Centralised repository for reusable Azure DevOps (AzDO) YAML pipeline templates used across projects. These templates enforce consistency, compliance, and best practices for building, testing, and deploying workloads on Azure.
+This repository is for centralised reusable Azure DevOps (AzDO) YAML pipeline templates. The goal of these templates is to provide consistent, compliant, and well-designed pipelines for the building, testing, and deploying of software to Azure.
 
-## 🎯 Purpose
-
-Provide a **single source of truth** for standardised pipeline templates that:
-
-- Promote reusable and composable pipeline design.
-- Enforce security, quality, and compliance checks.
-- Support both .NET and platform-agnostic workloads.
-- Align with Azure Landing Zone (ALZ) and internal DevOps standards.
+This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
 
 ## Using the templates
 
-Documentation on the templates appears in two locations:
+To reference these templates in your repository, you will require a resource block:
 
-- The templates themselves: parameters include accurate display name values and a concise commented header;
-- The [user docs](docs/user-docs/README.md): these provide high-level documentation on the available pipelines.
+```yml
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates                 # 'PipelineTemplates' has commonly been used for https://github.com/UKHO/devops-pipelinetemplates
+      type: github
+      endpoint: UKHO                                    # this endpoint needs defining in your AzDO Project as a service connection to GitHub
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: refs/tags/0.0.0                              # Do consult the https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases for the latest version
+```
+
+Once referenced, you will be able to make use of any templates in this repository. This repository follows a 'set-menu with salad bar' approach to the availability of its templates.
+
+- Set-Menu: These are pipeline templates that can be used out of the box; these are intended to cover the majority of use cases
+- Salad bar: These are all the templates involved that make up the pipeline templates; these are intended for those with special use cases and require a custom pipeline using standard templates
+
+For the former, there is extensive documentation with examples, see [user docs](docs/user-docs/README.md). For the latter, the templates themselves are self-documenting, see the directories: [tasks](tasks), [jobs](jobs), [stages](stages), [scripts](scripts).
 
 ## Contributing to the templates
 
-Outlined in [contributing](./CONTRIBUTING.md).
+Contributions are welcome, these templates are not possible without community support. Please see [contributing](./CONTRIBUTING.md).

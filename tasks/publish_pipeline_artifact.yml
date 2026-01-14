@@ -27,7 +27,6 @@ parameters:
   - name: TargetPath
     type: string
     displayName: 'Path to files or folder to publish'
-    default: '$(Pipeline.Workspace)'
 
 steps:
   - task: PublishPipelineArtifact@1

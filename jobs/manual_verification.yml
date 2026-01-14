@@ -7,7 +7,7 @@
   - name: DependsOn
     type: object
     default: [ ]
-    displayName: 'Jobs this job depends on'
+    displayName: 'List of jobs this job depends on'
 
   - name: Condition
     type: string

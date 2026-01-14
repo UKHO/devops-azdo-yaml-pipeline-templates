@@ -1,14 +1,19 @@
 # Infrastructure Pipeline
 
-A complete infrastructure deployment pipeline template using Terraform for building, validating, and packaging infrastructure-as-code (IaC) files. This pipeline provides a standardised approach for Terraform-based infrastructure deployments with built-in validation and artifact publishing capabilities.
+A standardised infrastructure deployment pipeline template that uses terraform as the IaC tooling and Azure as the cloud provider. This pipeline will:
 
-## Important Notices
+- Build/Validate/Package the terraform files
+- Deploy the packaged terraform files to environments with a [manual verification gate](infrastructure_pipeline_manual_verification.md)
 
-⚠️ **Terraform Backend Configuration**: This pipeline initialises Terraform with `-backend=false` to avoid backend configuration during the build phase.
+## Important
 
-⚠️ **Clean Workspace Policy**: The pipeline performs a complete workspace clean-up after validation to ensure artifact purity. Any injection steps will be re-executed on clean code.
+**Repository Resource Requirement**: The pipeline requires access to this template repository during execution. You **must** define the repository resource with the name `AzDOPipelineTemplates` (as shown in the example above) because the pipeline internally checks out this repository to access helper scripts during the deployment stage.
 
-⚠️ **Pool Requirements**: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
+Pool Requirements: The default pool "Mare Nectaris" must be available in your Azure DevOps organisation or specify an alternative pool.
+
+Terraform Workspace: This command is not currently available.
+
+Snyk Scanning: This is not currently part of the pipeline.
 
 ## Basic Usage
 
@@ -18,10 +23,11 @@ A complete infrastructure deployment pipeline template using Terraform for build
 # azure-pipelines.yml
 resources:
   repositories:
-    - repository: templates
+    - repository: AzDOPipelineTemplates                 # 'PipelineTemplates' has commonly been used for https://github.com/UKHO/devops-pipelinetemplates
       type: github
+      endpoint: UKHO                                    # this endpoint needs defining in your AzDO Project as a service connection to GitHub
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/heads/main
+      ref: refs/tags/0.0.0                              # Do consult the https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases for the latest version
 
 trigger:
   branches:
@@ -29,65 +35,53 @@ trigger:
       - main
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@templates
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: 'terraform'
-    TerraformVersion: '1.5.0'
+    RelativePathToTerraformFiles: infra/webapp
+    TerraformVersion: 1.09
+    AzDOEnvironmentName: dev
+    AzureSubscriptionServiceConnection: Pipeline-dev
+    BackendAzureServiceConnection: Pipeline-dev
+    BackendAzureResourceGroupName: m-project-rg
+    BackendAzureStorageAccountName: projecttfsa
+    BackendAzureContainerName: tfstate
+    BackendAzureBlobName: example.tfstate
+    VerificationMode: VerifyOnDestroy
+    TerraformEnvironmentVariableMappings:
+      TF_VAR_MinRandom: 1000
+      TF_VAR_MaxRandom: 100000
+    TerraformOutputVariables:
+      - random_number
+      - random_string
+    TerraformVariableFiles:
+      - config/common.tfvars
+      - config/dev.tfvars
 ```
 
 ### Required Parameters
 
-There are no required parameters, as each parameter has its own default value.
+The following parameters **must** be provided as they have no default values:
 
-## Full Usage
+| Parameter                          | Type   | Description                                                                           |
+|------------------------------------|--------|---------------------------------------------------------------------------------------|
+| AzDOEnvironmentName                | string | AzDO Environment name to associate the deployment jobs to                             |
+| AzureSubscriptionServiceConnection | string | Azure service connection for the azdo environment                                     |
+| BackendAzureServiceConnection      | string | Azure service connection for backend where the state is stored                        |
+| BackendAzureResourceGroupName      | string | Azure resource group name for backend where the state is stored                       |
+| BackendAzureStorageAccountName     | string | Azure storage account name for backend where the state is stored                      |
+| BackendAzureContainerName          | string | Azure storage container name for backend where the state is stored                    |
+| BackendAzureBlobName               | string | Azure storage blob name for backend where the state is stored                         |
+| VerificationMode                   | string | How verification step should trigger: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
-### Full Parameter Table
+See [template parameters in details](infrastructure_pipeline_parameters_in_detail.md) for more information on all parameters.
 
-| Parameter                      | Type     | Required | Default           | Description                                                                           |
-|--------------------------------|----------|----------|-------------------|---------------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | string   | false    | `''`              | Target path to Terraform files (.tf, .tfvars) that require publishing as an artifact. |
-| `PipelinePool`                 | string   | false    | `"Mare Nectaris"` | The pool that the pipeline will run from the highest level.                           |
-| `TerraformVersion`             | string   | false    | `1.14.x`        | Version of Terraform CLI tool to use with the terraform files.                        |
-| `TerraformBuildInjectionSteps` | stepList | false    | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.        |
-
-#### TerraformBuildInjectionSteps
-
-This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged.
-
-Common use cases include:
-
-- File transformations or substitutions
-- Environment-specific configuration setup
-- Secret retrieval and file generation
-- Custom validation or security scanning
-
-```yaml
-TerraformBuildInjectionSteps:
-  - task: PowerShell@2
-    displayName: 'Generate backend config'
-    inputs:
-      targetType: 'inline'
-      script: |
-        # Generate backend.tf from environment variables
-        Write-Host "Generating backend configuration..."
-
-  - task: AzureCLI@2
-    displayName: 'Retrieve secrets'
-    inputs:
-      azureSubscription: 'service-connection'
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: |
-        az keyvault secret show --vault-name myvault --name terraform-vars
-```
-
-### Advanced Usage
+## Advanced Usage
 
 Listed below are possible advanced usages.
 
 _If you have any advanced usages, please consider contributing them to the documentation._
 
-#### Custom Agent Pool
+### Custom Agent Pool
 
 ```yaml
 extends:
@@ -98,18 +92,18 @@ extends:
     TerraformVersion: '1.6.0'
 ```
 
-#### Injection Step to add required_version
+### Injection Step to add required_version
 
 ```yaml
 extends:
   template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/terraform
+    RelativePathToTerraformFiles: infra/webapp
     PipelinePool: "Mare Nubium"
     TerraformVersion: 1.1.9
     TerraformBuildInjectionSteps:
       - pwsh: |
-          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/tests/pipelines/infrastructure_pipeline/terraform/main.tf"
+          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
           $content = Get-Content $path
           $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
           if ($terraformStart -ge 0) {
@@ -119,3 +113,41 @@ extends:
           }
         displayName: "Injecting into terraform block 'required_version'"
 ```
+
+## Troubleshooting
+
+### Manual verification not triggering
+
+**Issue**: Manual verification gate doesn't appear even when changes are detected.
+
+**Check**:
+- Verify `RunPlanOnly` is set to `false` (or not set, as default is `false`)
+- Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
+- Check the plan output to ensure changes were actually detected
+
+### Output variables not available in subsequent stages/jobs
+
+**Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job.
+
+**Solution**: To use Terraform output variables in subsequent stages or jobs outside the infrastructure pipeline, you'll need to:
+1. Ensure the variables are listed in `TerraformOutputVariables` parameter
+2. Reference them using the correct dependency syntax: `dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']`
+3. Note: Variables are only exported when `RunPlanOnly` is `false` and the apply job runs successfully
+
+### Incorrect Terraform version being used
+
+**Solution**: Explicitly set the `TerraformVersion` parameter. The default is `1.14.x` which installs the latest patch version of 1.14.
+
+## Template Breakdown
+
+For a complete breakdown of all templates, scripts, and execution flows used by this pipeline, see:
+
+**[Infrastructure Pipeline - Template Breakdown](infrastructure_pipeline_template_breakdown.md)**
+
+This includes:
+- Visual pipeline structure
+- All stages, jobs, tasks, utilities, and scripts
+- Template relationships and execution order
+- Customisation points
+- Mermaid diagrams of execution flows
+
