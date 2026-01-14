@@ -36,7 +36,7 @@ extends:
         DeploymentJobsVariableMappings:
           - group: ExampleVG1
           - group: ExampleVG2
-          - template: tests/pipelines/infrastructure_pipeline/variables.yml
+          #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
           - name: DeploymentJobsVariableMappingVariable
             value: DeploymentJobsVariableMappingValue
         TerraformEnvironmentVariableMappings:
