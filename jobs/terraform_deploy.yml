@@ -21,111 +21,145 @@ parameters:
     default: succeeded()
     displayName: 'The condition that will control whether this job runs or not'
 
-  - name: JobVariableMappings
+  - name: EnvironmentName
+    type: string
+    # no default:
+    displayName: ''
+
+  - name: InfrastructureConfig
     type: object
-    default: { }
-    displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
-
-  - name: TerraformArtifactName
-    type: string
-    default: 'TerraformArtifact'
-    displayName: 'Name for the artifact containing the terraform files for deployment'
-
-  - name: AzDOEnvironmentName
-    type: string
     # NO default - Consumer must provide this
-    displayName: 'The azure devops environment that this deployment job will be associated with'
+    displayName: |
+      The configuration for the target environment to deploy terraform to. Definition
 
-  # key vault task parameters
+      REQUIRED PROPERTIES:
 
-  - name: KeyVaultServiceConnection
-    type: string
-    default: ''
-    displayName: 'Service connection for key vault access secrets'
+      AzureSubscriptionServiceConnection: string # The Azure DevOps service connection name used to authenticate with Azure.
+      AzDOEnvironmentName: string # The Azure DevOps environment name for approval gates and deployment tracking.
+      BackendConfig: object # Configuration for Terraform backend state storage in Azure.
+        ServiceConnection: string # Azure service connection for backend access
+        ResourceGroupName: string # Resource group containing the storage account
+        StorageAccountName: string # Storage account name for Terraform state
+        ContainerName: string # Container name within the storage account
+        BlobName: string # Blob name for the Terraform state file
+      VerificationMode: string # Controls when manual verification is required. Must be one of:
+        'VerifyOnDestroy' # Verify only on infrastructure destruction
+        'VerifyOnAny' # Verify on any infrastructure change
+        'VerifyDisabled' # No manual verification required
 
-  - name: KeyVaultName
-    type: string
-    default: ''
-    displayName: 'Name of key vault for accessing secrets'
+      OPTIONAL PROPERTIES:
 
-  - name: KeyVaultSecretsFilter
-    type: string
-    default: '*'
-    displayName: 'Filter for secrets to access from key vault'
+      KeyVaultConfig: object # (all-or-nothing - if any property is set, all must be set) configuration for retrieving secrets from Azure Key Vault.
+        ServiceConnection: string # Azure service connection for Key Vault access
+        Name: string # Key Vault name
+        SecretsFilter: string # Filter for secrets to retrieve (e.g., '*' for all)
+      JobsVariableMappings: object # List of variable mappings (variable groups, templates, or inline variables).
+        Can include:
+          - Variable groups: { group: 'GroupName' }
+          - Templates: { template: 'path/to/template.yml' }
+          - Inline variables: { name: 'VarName', value: 'VarValue' }
+      EnvironmentVariableMappings: object # Key-value pairs of environment variables to set for Terraform execution.
+      VariableFiles: list of strings # List of Terraform variable file paths (e.g., ['config/common.tfvars', 'config/dev.tfvars']).
+      OutputVariables: list of strings # List of Terraform output variable names to export as pipeline variables.
 
-  # terraform installer task parameters
+      EXAMPLE:
 
-  - name: TerraformVersion
-    type: string
-    default: '1.14.x'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files'
-
-  # terraform init task parameters
-
-  - name: BackendAzureServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for backend where the state is stored'
-
-  - name: BackendAzureResourceGroupName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure resource group name for backend where the state is stored'
-
-  - name: BackendAzureStorageAccountName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage account name for backend where the state is stored'
-
-  - name: BackendAzureContainerName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage container name for backend where the state is stored'
-
-  - name: BackendAzureBlobName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage blob name for backend where the state is stored'
-
-  # terraform plan/apply shared parameters
-
-  - name: AzureSubscriptionServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for the azdo environment'
-
-  - name: TerraformEnvironmentVariableMappings
-    type: object
-    default: { }
-    displayName: 'Key/value pairs of environment variables to be passed to the task'
-
-  - name: TerraformVariableFiles
-    type: object
-    default: [ ]
-    displayName: 'List of .tfvars files to be supplied to the terraform command.'
-
-  # terraform plan parameters
-
-  - name: VerificationMode
-    type: string
-    default: VerifyOnAny # Intentionally defaulted as Terraform Apply Mode in this Template will complain without this set
-    values:
-      - VerifyOnDestroy
-      - VerifyOnAny
-      - VerifyDisabled
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
-
-  # terraform apply parameters
-
-  - name: TerraformOutputVariables
-    type: object
-    default: [ ]
-    displayName: 'List of variables to be exported from the terraform after apply has been ran.'
-
+      InfrastructureConfig:
+      - AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+        AzDOEnvironmentName: production-environment
+        BackendConfig:
+          ServiceConnection: AzureServiceConnection-TerraformState
+          ResourceGroupName: rg-terraform-state-prod
+          StorageAccountName: sttfstateprod
+          ContainerName: tfstate
+          BlobName: production.terraform.tfstate
+        VerificationMode: VerifyOnAny
+        KeyVaultConfig:
+          ServiceConnection: AzureServiceConnection-Production
+          Name: kv-production-secrets
+          SecretsFilter: '*'
+        JobsVariableMappings:
+          - group: ProductionVariableGroup
+          - group: CommonVariableGroup
+          - template: config/production-variables.yml
+          - name: ENVIRONMENT_NAME
+            value: production
+          - name: LOG_LEVEL
+            value: info
+        EnvironmentVariableMappings:
+          TF_LOG: INFO
+          ARM_SKIP_PROVIDER_REGISTRATION: 'true'
+        VariableFiles:
+          - config/common.tfvars
+          - config/production.tfvars
+        OutputVariables:
+          - resource_group_name
+          - app_service_url
+          - storage_account_name
 jobs:
   - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
-    environment: ${{ parameters.AzDOEnvironmentName }}
+
+    ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ServiceConnection), eq(parameters.InfrastructureConfig.BackendConfig.ServiceConnection, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' BackendConfig.ServiceConnection is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName), eq(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' BackendConfig.ResourceGroupName is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.StorageAccountName), eq(parameters.InfrastructureConfig.BackendConfig.StorageAccountName, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' BackendConfig.StorageAccountName is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ContainerName), eq(parameters.InfrastructureConfig.BackendConfig.ContainerName, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' BackendConfig.ContainerName is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
+      "environment '${{ parameters.EnvironmentName }}' BackendConfig.BlobName is not properly defined and is a required field.": "Error"
+
+    ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, ''), notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
+      "environment '${{ parameters.EnvironmentName }}' VerificationMode is not properly defined and is a required field.": "Error"
+
+    # OPTIONAL PARAMETERS
+
+    ${{ if or(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
+      # At least one property is set, so all three must be set
+      ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection), eq(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, '')) }}:
+        "environment '${{ parameters.EnvironmentName }}' KeyVaultConfig.ServiceConnection is required when any Key Vault configuration is provided.": "Error"
+      ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.Name), eq(parameters.InfrastructureConfig.KeyVaultConfig.Name, '')) }}:
+        "environment '${{ parameters.EnvironmentName }}' KeyVaultConfig.Name is required when any Key Vault configuration is provided.": "Error"
+      ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter), eq(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter, '')) }}:
+        "environment '${{ parameters.EnvironmentName }}' KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
+
+    ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
+      ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
+        "environment '${{ parameters.EnvironmentName }}' EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+      ${{ else }}:
+        ${{ each mapping in parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
+          ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+            "environment '${{ parameters.EnvironmentName }}' EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+
+    ${{ if parameters.InfrastructureConfig.VariableFiles }}: # Only run validation if the optional parameter is present
+      ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.VariableFiles), '[')) }}: # Make sure it is a list
+        "environment '${{ parameters.EnvironmentName }}' VariableFiles is not correct. Must be a list of string values. You muppet.": "Error"
+      ${{ else }}:
+        ${{ each variable in parameters.InfrastructureConfig.VariableFiles }}: # Make sure each item in the list is just a string
+          ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+            "environment '${{ parameters.EnvironmentName }}' VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
+    ${{ if parameters.InfrastructureConfig.OutputVariables }}: # Only run validation if the optional parameter is present
+      ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.OutputVariables), '[')) }}: # Make sure it is a list
+        "environment '${{ parameters.EnvironmentName }}' OutputVariables is not correct. Must be a list of string values. You muppet.": "Error"
+      ${{ else }}:
+        ${{ each variable in parameters.InfrastructureConfig.OutputVariables }}: # Make sure each item in the list is just a string
+          ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+            "environment '${{ parameters.EnvironmentName }}' OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
+    environment: ${{ parameters.InfrastructureConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
@@ -137,15 +171,15 @@ jobs:
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
-            value: ${{ join(',', parameters.TerraformOutputVariables) }}
+            value: ${{ join(',', parameters.InfrastructureConfig.OutputVariables) }}
 
       # Shared Variables
       - template: ../utils/concat_wrap_list.yml
         parameters:
-          Items: ${{ parameters.TerraformVariableFiles }}
+          Items: ${{ parameters.InfrastructureConfigVariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
-          OutputVariableName: TerraformVariableFilesCommandOption
+          OutputVariableName: VariableFilesCommandOption
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: CheckoutPath
@@ -153,8 +187,8 @@ jobs:
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
-      # Consumer Input Variables (can override the above)
-      - ${{ parameters.JobVariableMappings }}
+      - ${{ if parameters.InfrastructureConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
+        - ${{ parameters.InfrastructureConfig.JobsVariableMappings }} # Consumer Input Variables (can override the above)
     strategy:
       runOnce:
         deploy:
@@ -171,32 +205,32 @@ jobs:
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
-            - ${{ if and(parameters.KeyVaultServiceConnection, parameters.KeyVaultName, parameters.KeyVaultSecretsFilter) }}:
+            - ${{ if and(parameters.InfrastructureConfig.KeyVaultServiceConnection, parameters.InfrastructureConfig.KeyVaultName, parameters.InfrastructureConfig.KeyVaultSecretsFilter) }}:
                 - template: ../tasks/azure_key_vault.yml
                   parameters:
-                    KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
-                    KeyVaultName: ${{ parameters.KeyVaultName }}
-                    SecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+                    KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultServiceConnection }}
+                    KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultName }}
+                    SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultSecretsFilter }}
 
             - template: ../tasks/terraform.yml
               parameters:
                 Command: init
-                BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
-                BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
-                BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
-                BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
-                BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+                BackendAzureServiceConnection: ${{ parameters.InfrastructureConfig.BackendConfig.ServiceConnection }}
+                BackendAzureResourceGroupName: ${{ parameters.InfrastructureConfig.BackendConfig.ResourceGroupName }}
+                BackendAzureStorageAccountName: ${{ parameters.InfrastructureConfig.BackendConfig.StorageAccountName }}
+                BackendAzureContainerName: ${{ parameters.InfrastructureConfig.BackendConfig.ContainerName }}
+                BackendAzureBlobName: ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
-                TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
                     Command: plan
-                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(TerraformVariableFilesCommandOption) -input=false'
+                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
 
                 - template: ../tasks/powershell.yml
                   parameters:
@@ -205,24 +239,24 @@ jobs:
                     ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                     FailOnStandardError: true
                     ScriptFileArguments: >
-                      -VerificationMode ${{ parameters.VerificationMode }}
+                      -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
                     Command: apply
-                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                    CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
+                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                    CommandOptions: '$(VariableFilesCommandOption) -input=false'
 
-                - ${{ if parameters.TerraformOutputVariables }}:
+                - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
                     - template: ../tasks/terraform.yml
                       parameters:
                         Command: output
                         WorkingDirectory: $(TerraformWorkingDirectory)
-                        EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                        EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                         OutputTo: file
 
                     - template: ../tasks/powershell.yml

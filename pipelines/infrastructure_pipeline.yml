@@ -24,7 +24,7 @@ parameters:
     default: false
     displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
-  - name: Environments
+  - name: EnvironmentConfigs
     type: object
     displayName: 'Mapping of environments'
 
@@ -39,12 +39,12 @@ stages:
       TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
-  - ${{ each environment in parameters.Environments }}:
+  - ${{ each environmentConfig in parameters.EnvironmentConfigs }}:
       - template: ../stages/terraform_deploy.yml
         parameters:
-          ${{ if or(not(environment.Name), eq(environment.Name, '')) }}:
+          ${{ if or(not(environmentConfig.Name), eq(environmentConfig.Name, '')) }}:
             "an environment name is not properly defined and is a required field.": "Error"
           TerraformVersion: ${{ parameters.TerraformVersion }}
           RunPlanOnly: ${{ parameters.RunPlanOnly }}
-          Environment: ${{ environment }}
+          EnvironmentConfig: ${{ environmentConfig }}
 

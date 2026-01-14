@@ -22,32 +22,34 @@ extends:
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     RunPlanOnly: ${{ parameters.RunPlanOnly }}
-    Environments:
+    EnvironmentConfigs:
       - Name: dev
-        AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-        AzDOEnvironmentName: Discovery
-        BackendConfiguration:
-          ServiceConnection: Pipeline-CloudDisco
-          ResourceGroupName: cheeserg
-          StorageAccountName: cheesesa
-          ContainerName: cheesecn
-          BlobName: cheesebn
-        VerificationMode: 'VerifyOnDestroy'
-        DeploymentJobsVariableMappings:
-          - group: ExampleVG1
-          - group: ExampleVG2
-          #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
-          - name: DeploymentJobsVariableMappingVariable
-            value: DeploymentJobsVariableMappingValue
-        TerraformEnvironmentVariableMappings:
-          TF_VAR_MinRandom: 1000
-          TF_VAR_MaxRandom: 100000
-        TerraformOutputVariables:
-          - random_number
-          - random_string
-        TerraformVariableFiles:
-          - config/common.tfvars
-          - config/discovery.tfvars
-        DependsOn:
-          - build
-        Condition: succeeded('build')
+        Stage:
+          DependsOn:
+            - build
+          Condition: succeeded('build')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars

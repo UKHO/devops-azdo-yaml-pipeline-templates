@@ -1,82 +1,8 @@
 parameters:
-  - name: Environment
+  - name: EnvironmentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: |
-      The configuration for the target environment to deploy terraform to. Definition
-
-      REQUIRED PROPERTIES:
-
-      Name: string # The name of the environment (e.g., 'dev', 'staging', 'production'). Used to generate stage names and display values.
-      AzureSubscriptionServiceConnection: string # The Azure DevOps service connection name used to authenticate with Azure.
-      AzDOEnvironmentName: string # The Azure DevOps environment name for approval gates and deployment tracking.
-      BackendConfiguration: object # Configuration for Terraform backend state storage in Azure.
-        ServiceConnection: string # Azure service connection for backend access
-        ResourceGroupName: string # Resource group containing the storage account
-        StorageAccountName: string # Storage account name for Terraform state
-        ContainerName: string # Container name within the storage account
-        BlobName: string # Blob name for the Terraform state file
-      VerificationMode: string # Controls when manual verification is required. Must be one of:
-        'VerifyOnDestroy' # Verify only on infrastructure destruction
-        'VerifyOnAny' # Verify on any infrastructure change
-        'VerifyDisabled' # No manual verification required
-      DependsOn: object # List of stage names this deployment depends on (e.g., ['build']).
-      Condition: string # Condition expression for when this stage should run (e.g., succeeded('build')).
-
-      OPTIONAL PROPERTIES:
-
-      KeyVaultConfiguration: object # (all-or-nothing - if any property is set, all must be set) configuration for retrieving secrets from Azure Key Vault.
-        ServiceConnection: string # Azure service connection for Key Vault access
-        Name: string # Key Vault name
-        SecretsFilter: string # Filter for secrets to retrieve (e.g., '*' for all)
-      DeploymentJobsVariableMappings: object # List of variable mappings (variable groups, templates, or inline variables).
-        Can include:
-          - Variable groups: { group: 'GroupName' }
-          - Templates: { template: 'path/to/template.yml' }
-          - Inline variables: { name: 'VarName', value: 'VarValue' }
-      TerraformEnvironmentVariableMappings: object # Key-value pairs of environment variables to set for Terraform execution.
-      TerraformVariableFiles: list of strings # List of Terraform variable file paths (e.g., ['config/common.tfvars', 'config/dev.tfvars']).
-      TerraformOutputVariables: list of strings # List of Terraform output variable names to export as pipeline variables.
-
-      EXAMPLE:
-
-      Environment:
-      - Name: production
-        AzureSubscriptionServiceConnection: AzureServiceConnection-Production
-        AzDOEnvironmentName: production-environment
-        BackendConfiguration:
-          ServiceConnection: AzureServiceConnection-TerraformState
-          ResourceGroupName: rg-terraform-state-prod
-          StorageAccountName: sttfstateprod
-          ContainerName: tfstate
-          BlobName: production.terraform.tfstate
-        VerificationMode: VerifyOnAny
-        DependsOn:
-          - build
-          - security_scan
-        Condition: and(succeeded('build'), succeeded('security_scan'))
-        KeyVaultConfiguration:
-          ServiceConnection: AzureServiceConnection-Production
-          Name: kv-production-secrets
-          SecretsFilter: '*'
-        DeploymentJobsVariableMappings:
-          - group: ProductionVariableGroup
-          - group: CommonVariableGroup
-          - template: config/production-variables.yml
-          - name: ENVIRONMENT_NAME
-            value: production
-          - name: LOG_LEVEL
-            value: info
-        TerraformEnvironmentVariableMappings:
-          TF_LOG: INFO
-          ARM_SKIP_PROVIDER_REGISTRATION: 'true'
-        TerraformVariableFiles:
-          - config/common.tfvars
-          - config/production.tfvars
-        TerraformOutputVariables:
-          - resource_group_name
-          - app_service_url
-          - storage_account_name
+    displayName: ''
 
   - name: TerraformArtifactName
     type: string
@@ -94,100 +20,21 @@ parameters:
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
 stages:
-  - stage: Deploy_${{ parameters.Environment.Name }}_Infrastructure
-    displayName: 'Deploy ${{ parameters.Environment.Name }}'
+  - stage: Deploy_${{ parameters.EnvironmentConfig.Name }}_Infrastructure
+    displayName: 'Deploy ${{ parameters.EnvironmentConfig.Name }}'
 
-    ${{ if or(not(parameters.Environment.DependsOn), eq(parameters.Environment.DependsOn, '')) }}:
-      "environment '${{ parameters.Environment.Name }}' DependsOn is not properly defined and is a required field.": "Error"
-    dependsOn: ${{ parameters.Environment.DependsOn }}
-    ${{ if or(not(parameters.Environment.Condition), eq(parameters.Environment.Condition, '')) }}:
-      "environment '${{ parameters.Environment.Name }}' Condition is not properly defined and is a required field.": "Error"
-    condition: ${{ parameters.Environment.Condition }}
+    ${{ if or(not(parameters.EnvironmentConfig.Stage.DependsOn), eq(parameters.EnvironmentConfig.Stage.DependsOn, '')) }}:
+      "environment '${{ parameters.EnvironmentConfig.Name }}' DependsOn is not properly defined and is a required field.": "Error"
+    dependsOn: ${{ parameters.EnvironmentConfig.Stage.DependsOn }}
+    ${{ if or(not(parameters.EnvironmentConfig.Stage.Condition), eq(parameters.EnvironmentConfig.Stage.Condition, '')) }}:
+      "environment '${{ parameters.EnvironmentConfig.Name }}' Condition is not properly defined and is a required field.": "Error"
+    condition: ${{ parameters.EnvironmentConfig.Stage.Condition }}
 
     jobs:
       - template: ../jobs/terraform_plan_verify_apply_jobList.yml
         parameters:
-          # NON OBJECT PARAMETERS
-
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           RunPlanOnly: ${{ parameters.RunPlanOnly }}
-
-          # REQUIRED PARAMETERS
-
-          ${{ if or(not(parameters.Environment.AzureSubscriptionServiceConnection), eq(parameters.Environment.AzureSubscriptionServiceConnection, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
-          AzureSubscriptionServiceConnection: ${{ parameters.Environment.AzureSubscriptionServiceConnection }}
-
-          ${{ if or(not(parameters.Environment.AzDOEnvironmentName), eq(parameters.Environment.AzDOEnvironmentName, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' AzDOEnvironmentName is not properly defined and is a required field.": "Error"
-          AzDOEnvironmentName: ${{ parameters.Environment.AzDOEnvironmentName }}
-
-          ${{ if or(not(parameters.Environment.BackendConfiguration.ServiceConnection), eq(parameters.Environment.BackendConfiguration.ServiceConnection, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' BackendConfiguration.ServiceConnection is not properly defined and is a required field.": "Error"
-          BackendAzureServiceConnection: ${{ parameters.Environment.BackendConfiguration.ServiceConnection }}
-
-          ${{ if or(not(parameters.Environment.BackendConfiguration.ResourceGroupName), eq(parameters.Environment.BackendConfiguration.ResourceGroupName, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' BackendConfiguration.ResourceGroupName is not properly defined and is a required field.": "Error"
-          BackendAzureResourceGroupName: ${{ parameters.Environment.BackendConfiguration.ResourceGroupName }}
-
-          ${{ if or(not(parameters.Environment.BackendConfiguration.StorageAccountName), eq(parameters.Environment.BackendConfiguration.StorageAccountName, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' BackendConfiguration.StorageAccountName is not properly defined and is a required field.": "Error"
-          BackendAzureStorageAccountName: ${{ parameters.Environment.BackendConfiguration.StorageAccountName }}
-
-          ${{ if or(not(parameters.Environment.BackendConfiguration.ContainerName), eq(parameters.Environment.BackendConfiguration.ContainerName, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' BackendConfiguration.ContainerName is not properly defined and is a required field.": "Error"
-          BackendAzureContainerName: ${{ parameters.Environment.BackendConfiguration.ContainerName }}
-
-          ${{ if or(not(parameters.Environment.BackendConfiguration.BlobName), eq(parameters.Environment.BackendConfiguration.BlobName, '')) }}:
-            "environment '${{ parameters.Environment.Name }}' BackendConfiguration.BlobName is not properly defined and is a required field.": "Error"
-          BackendAzureBlobName: ${{ parameters.Environment.BackendConfiguration.BlobName }}
-
-          ${{ if or(not(parameters.Environment.VerificationMode), eq(parameters.Environment.VerificationMode, ''), notIn(parameters.Environment.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
-            "environment '${{ parameters.Environment.Name }}' VerificationMode is not properly defined and is a required field.": "Error"
-          VerificationMode: ${{ parameters.Environment.VerificationMode }}
-
-          # OPTIONAL PARAMETERS
-
-          ${{ if or(parameters.Environment.KeyVaultConfiguration.ServiceConnection, parameters.Environment.KeyVaultConfiguration.Name, parameters.Environment.KeyVaultConfiguration.SecretsFilter) }}:
-            # At least one property is set, so all three must be set
-            ${{ if or(not(parameters.Environment.KeyVaultConfiguration.ServiceConnection), eq(parameters.Environment.KeyVaultConfiguration.ServiceConnection, '')) }}:
-              "environment '${{ parameters.Environment.Name }}' KeyVaultConfiguration.ServiceConnection is required when any Key Vault configuration is provided.": "Error"
-            ${{ if or(not(parameters.Environment.KeyVaultConfiguration.Name), eq(parameters.Environment.KeyVaultConfiguration.Name, '')) }}:
-              "environment '${{ parameters.Environment.Name }}' KeyVaultConfiguration.Name is required when any Key Vault configuration is provided.": "Error"
-            ${{ if or(not(parameters.Environment.KeyVaultConfiguration.SecretsFilter), eq(parameters.Environment.KeyVaultConfiguration.SecretsFilter, '')) }}:
-              "environment '${{ parameters.Environment.Name }}' KeyVaultConfiguration.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
-            # Render parameters if all validations pass
-            KeyVaultServiceConnection: ${{ parameters.Environment.KeyVaultConfiguration.ServiceConnection }}
-            KeyVaultName: ${{ parameters.Environment.KeyVaultConfiguration.Name }}
-            KeyVaultSecretsFilter: ${{ parameters.Environment.KeyVaultConfiguration.SecretsFilter }}
-
-          ${{ if parameters.Environment.DeploymentJobsVariableMappings }}: # Only run validation if the optional parameter is present
-            DeploymentJobsVariableMappings: ${{ parameters.Environment.DeploymentJobsVariableMappings }}
-
-          ${{ if parameters.Environment.TerraformEnvironmentVariableMappings }}:
-            ${{ if not(contains(convertToJson(parameters.Environment.TerraformEnvironmentVariableMappings), '{')) }}:
-              "environment '${{ parameters.Environment.Name }}' TerraformEnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
-            ${{ else }}:
-              ${{ each mapping in parameters.Environment.TerraformEnvironmentVariableMappings }}:
-                ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-                  "environment '${{ parameters.Environment.Name }}' TerraformEnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
-            TerraformEnvironmentVariableMappings: ${{ parameters.Environment.TerraformEnvironmentVariableMappings }}
-
-          ${{ if parameters.Environment.TerraformVariableFiles }}: # Only run validation if the optional parameter is present
-            ${{ if not(contains(convertToJson(parameters.Environment.TerraformVariableFiles), '[')) }}: # Make sure it is a list
-              "environment '${{ parameters.Environment.Name }}' TerraformVariableFiles is not correct. Must be a list of string values. You muppet.": "Error"
-            ${{ else }}:
-              ${{ each variable in parameters.Environment.TerraformVariableFiles }}: # Make sure each item in the list is just a string
-                ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-                  "environment '${{ parameters.Environment.Name }}' TerraformVariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
-            TerraformVariableFiles: ${{ parameters.Environment.TerraformVariableFiles }}
-
-          ${{ if parameters.Environment.TerraformOutputVariables }}: # Only run validation if the optional parameter is present
-            ${{ if not(contains(convertToJson(parameters.Environment.TerraformOutputVariables), '[')) }}: # Make sure it is a list
-              "environment '${{ parameters.Environment.Name }}' TerraformOutputVariables is not correct. Must be a list of string values. You muppet.": "Error"
-            ${{ else }}:
-              ${{ each variable in parameters.Environment.TerraformOutputVariables }}: # Make sure each item in the list is just a string
-                ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-                  "environment '${{ parameters.Environment.Name }}' TerraformOutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
-            TerraformOutputVariables: ${{ parameters.Environment.TerraformOutputVariables }}
+          EnvironmentName: ${{ parameters.EnvironmentConfig.Name }}
+          InfrastructureConfig: ${{ parameters.EnvironmentConfig.Infrastructure }}
