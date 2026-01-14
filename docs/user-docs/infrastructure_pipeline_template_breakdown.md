@@ -33,44 +33,44 @@ infrastructure_pipeline.yml
 
 ## Stages
 
-| Template | Location | Purpose | Key Features |
-|----------|----------|---------|--------------|
-| **terraform_build.yml** | `stages/` | Validates and packages Terraform files | • Runs on self-hosted agent<br>• Executes injection steps twice<br>• Validates without backend<br>• Publishes artifact |
+| Template                 | Location  | Purpose                                            | Key Features                                                                                                                             |
+|--------------------------|-----------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| **terraform_build.yml**  | `stages/` | Validates and packages Terraform files             | • Runs on self-hosted agent<br>• Executes injection steps twice<br>• Validates without backend<br>• Publishes artifact                   |
 | **terraform_deploy.yml** | `stages/` | Orchestrates deployment with optional verification | • Creates stage per environment<br>• Coordinates Plan/Verify/Apply jobs<br>• Handles conditional execution<br>• Manages job dependencies |
 
 ## Jobs
 
-| Template | Location | Purpose | Key Features |
-|----------|----------|---------|--------------|
-| **terraform_build.yml** | `jobs/` | Executes build operations | • Checks out code twice (before/after validation)<br>• Runs injection steps<br>• Validates Terraform<br>• Creates artifact |
-| **terraform_deploy.yml** | `jobs/` | Executes plan or apply operations | • Deployment job type<br>• Two modes: Plan and Apply<br>• Variable mappings support<br>• Environment association |
-| **manual_verification.yml** | `jobs/` | Provides approval gate | • Server-based job (no agent)<br>• Configurable timeout<br>• Custom instructions<br>• Conditional execution |
+| Template                    | Location | Purpose                           | Key Features                                                                                                               |
+|-----------------------------|----------|-----------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| **terraform_build.yml**     | `jobs/`  | Executes build operations         | • Checks out code twice (before/after validation)<br>• Runs injection steps<br>• Validates Terraform<br>• Creates artifact |
+| **terraform_deploy.yml**    | `jobs/`  | Executes plan or apply operations | • Deployment job type<br>• Two modes: Plan and Apply<br>• Variable mappings support<br>• Environment association           |
+| **manual_verification.yml** | `jobs/`  | Provides approval gate            | • Server-based job (no agent)<br>• Configurable timeout<br>• Custom instructions<br>• Conditional execution                |
 
 ## Tasks
 
-| Template | Location | Azure DevOps Task | Purpose | Parameters |
-|----------|----------|-------------------|---------|------------|
-| **terraform_installer.yml** | `tasks/` | TerraformInstaller@1 | Installs Terraform CLI | • TerraformVersion<br>(default: `1.14.x`) |
-| **terraform.yml** | `tasks/` | TerraformTask@5 | Executes Terraform commands | • Command (init/plan/apply/validate/output/destroy)<br>• CommandOptions<br>• BackendAzure* (5 params)<br>• EnvironmentAzureServiceConnection<br>• TaskEnvironmentVariables |
-| **publish_pipeline_artifact.yml** | `tasks/` | PublishPipelineArtifact@1 | Publishes build artifacts | • ArtifactName<br>• TargetPath |
-| **download_pipeline_artifact.yml** | `tasks/` | DownloadPipelineArtifact@2 | Downloads pipeline artifacts | • ArtifactName<br>• ItemPattern<br>• TargetPath |
-| **azure_key_vault.yml** | `tasks/` | AzureKeyVault@2 | Retrieves secrets from Key Vault | • KeyVaultServiceConnection<br>• KeyVaultName<br>• SecretsFilter |
-| **powershell.yml** | `tasks/` | PowerShell@2 | Runs PowerShell scripts | • TargetType (filePath/inline)<br>• ScriptFilePath<br>• ScriptFileArguments<br>• TaskEnvironmentVariables |
-| **delay.yml** | `tasks/` | Delay@1 | Pauses pipeline execution | • delayForMinutes |
-| **manual_validation.yml** | `tasks/` | ManualValidation@1 | Requests manual approval | • TimeoutInMinutes<br>• Instructions<br>• NotifyUsers<br>• Approvers |
+| Template                           | Location | Azure DevOps Task          | Purpose                          | Parameters                                                                                                                                                                 |
+|------------------------------------|----------|----------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **terraform_installer.yml**        | `tasks/` | TerraformInstaller@1       | Installs Terraform CLI           | • TerraformVersion<br>(default: `1.14.x`)                                                                                                                                  |
+| **terraform.yml**                  | `tasks/` | TerraformTask@5            | Executes Terraform commands      | • Command (init/plan/apply/validate/output/destroy)<br>• CommandOptions<br>• BackendAzure* (5 params)<br>• EnvironmentAzureServiceConnection<br>• TaskEnvironmentVariables |
+| **publish_pipeline_artifact.yml**  | `tasks/` | PublishPipelineArtifact@1  | Publishes build artifacts        | • ArtifactName<br>• TargetPath                                                                                                                                             |
+| **download_pipeline_artifact.yml** | `tasks/` | DownloadPipelineArtifact@2 | Downloads pipeline artifacts     | • ArtifactName<br>• ItemPattern<br>• TargetPath                                                                                                                            |
+| **azure_key_vault.yml**            | `tasks/` | AzureKeyVault@2            | Retrieves secrets from Key Vault | • KeyVaultServiceConnection<br>• KeyVaultName<br>• SecretsFilter                                                                                                           |
+| **powershell.yml**                 | `tasks/` | PowerShell@2               | Runs PowerShell scripts          | • TargetType (filePath/inline)<br>• ScriptFilePath<br>• ScriptFileArguments<br>• TaskEnvironmentVariables                                                                  |
+| **delay.yml**                      | `tasks/` | Delay@1                    | Pauses pipeline execution        | • delayForMinutes                                                                                                                                                          |
+| **manual_validation.yml**          | `tasks/` | ManualValidation@1         | Requests manual approval         | • TimeoutInMinutes<br>• Instructions<br>• NotifyUsers<br>• Approvers                                                                                                       |
 
 ## Utilities
 
-| Template | Location | Purpose | Parameters | Output |
-|----------|----------|---------|------------|--------|
+| Template                 | Location | Purpose                                    | Parameters                                              | Output                                  |
+|--------------------------|----------|--------------------------------------------|---------------------------------------------------------|-----------------------------------------|
 | **concat_wrap_list.yml** | `utils/` | Concatenates list items with prefix/suffix | • Items<br>• Prefix<br>• Suffix<br>• OutputVariableName | Variable containing concatenated string |
 
 ## Scripts
 
-| Script | Location | Purpose | Used By | Parameters |
-|--------|----------|---------|---------|------------|
-| **terraform_changes_check.ps1** | `scripts/terraform/` | Analyzes Terraform plan for changes and determines if manual verification is needed | terraform_deploy.yml (Plan mode) | • VerificationMode<br>• TerraformPlanFilePath |
-| **terraform_export_outputs.ps1** | `scripts/terraform/` | Extracts Terraform outputs and exports as pipeline variables | terraform_deploy.yml (Apply mode) | • OutputVariablesToExport<br>• OutputFileName |
+| Script                           | Location             | Purpose                                                                             | Used By                           | Parameters                                    |
+|----------------------------------|----------------------|-------------------------------------------------------------------------------------|-----------------------------------|-----------------------------------------------|
+| **terraform_changes_check.ps1**  | `scripts/terraform/` | Analyzes Terraform plan for changes and determines if manual verification is needed | terraform_deploy.yml (Plan mode)  | • VerificationMode<br>• TerraformPlanFilePath |
+| **terraform_export_outputs.ps1** | `scripts/terraform/` | Extracts Terraform outputs and exports as pipeline variables                        | terraform_deploy.yml (Apply mode) | • OutputVariablesToExport<br>• OutputFileName |
 
 ## Template Relationships
 
@@ -116,11 +116,11 @@ infrastructure_pipeline.yml
 
 The pipeline provides several extension points where you can inject custom behavior:
 
-| Extension Point | Type | Location | Use Case |
-|-----------------|------|----------|----------|
-| **TerraformBuildInjectionSteps** | stepList | Build stage, before validation | Modify Terraform files, generate configuration, retrieve secrets |
-| **DeploymentJobsVariableMappings** | object | Deploy stage jobs | Add variables, variable groups, or variable templates to deployment jobs |
-| **TerraformEnvironmentVariableMappings** | object | All Terraform tasks | Pass environment variables to Terraform (e.g., ARM credentials, TF_VAR_* variables) |
+| Extension Point                          | Type     | Location                       | Use Case                                                                            |
+|------------------------------------------|----------|--------------------------------|-------------------------------------------------------------------------------------|
+| **TerraformBuildInjectionSteps**         | stepList | Build stage, before validation | Modify Terraform files, generate configuration, retrieve secrets                    |
+| **DeploymentJobsVariableMappings**       | object   | Deploy stage jobs              | Add variables, variable groups, or variable templates to deployment jobs            |
+| **TerraformEnvironmentVariableMappings** | object   | All Terraform tasks            | Pass environment variables to Terraform (e.g., ARM credentials, TF_VAR_* variables) |
 
 ## Template Execution Order
 
