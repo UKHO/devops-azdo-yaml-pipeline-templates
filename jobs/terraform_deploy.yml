@@ -154,11 +154,7 @@ jobs:
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
       # Consumer Input Variables (can override the above)
-      - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
-          - ${{ if eq(lower(JobVariableMapping.Key), 'template') }}:
-              - ${{ JobVariableMapping.Key }}: ${{ variables['System.DefaultWorkingDirectory'] }}/${{ JobVariableMapping.Value }}@self
-          - ${{ else }}:
-              - ${{ JobVariableMapping }}
+      - ${{ parameters.JobVariableMappings }}
     strategy:
       runOnce:
         deploy:
