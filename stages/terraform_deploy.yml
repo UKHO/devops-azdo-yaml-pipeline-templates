@@ -102,10 +102,10 @@ stages:
 
     ${{ if or(not(parameters.Environment.DependsOn), eq(parameters.Environment.DependsOn, '')) }}:
       "environment '${{ parameters.Environment.Name }}' DependsOn is not properly defined and is a required field.": "Error"
-    DependsOn: ${{ parameters.Environment.DependsOn }}
+    dependsOn: ${{ parameters.Environment.DependsOn }}
     ${{ if or(not(parameters.Environment.Condition), eq(parameters.Environment.Condition, '')) }}:
       "environment '${{ parameters.Environment.Name }}' Condition is not properly defined and is a required field.": "Error"
-    Condition: ${{ parameters.Environment.Condition }}
+    condition: ${{ parameters.Environment.Condition }}
 
     jobs:
       - template: ../jobs/terraform_plan_verify_apply_jobList.yml
