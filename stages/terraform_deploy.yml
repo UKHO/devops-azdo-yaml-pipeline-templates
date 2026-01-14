@@ -37,4 +37,4 @@ stages:
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           RunPlanOnly: ${{ parameters.RunPlanOnly }}
           EnvironmentName: ${{ parameters.EnvironmentConfig.Name }}
-          InfrastructureConfig: ${{ parameters.EnvironmentConfig.Infrastructure }}
+          InfrastructureConfig: ${{ parameters.EnvironmentConfig.InfrastructureConfig }}
