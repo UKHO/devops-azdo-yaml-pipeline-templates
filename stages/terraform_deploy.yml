@@ -114,7 +114,7 @@ stages:
 
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
-          RunPlanOnly: ${{ environment.RunPlanOnly }}
+          RunPlanOnly: ${{ parameters.RunPlanOnly }}
 
           # REQUIRED PARAMETERS
 
