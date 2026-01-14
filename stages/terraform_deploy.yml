@@ -94,8 +94,8 @@ parameters:
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
 stages:
-  - ${{ if or(not(parameters.Environment.Name), eq(parameters.Environment.Name, '')) }}:
-    "an environment name is not properly defined and is a required field.": "Error"
+  #- ${{ if or(not(parameters.Environment.Name), eq(parameters.Environment.Name, '')) }}:
+  #  "an environment name is not properly defined and is a required field.": "Error"
 
   - stage: Deploy_${{ parameters.Environment.Name }}_Infrastructure
     displayName: 'Deploy ${{ parameters.Environment.Name }}'
