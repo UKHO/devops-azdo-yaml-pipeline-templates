@@ -186,7 +186,7 @@ jobs:
       # Shared Variables
       - template: ../utils/concat_wrap_list.yml
         parameters:
-          Items: ${{ parameters.InfrastructureConfigVariableFiles }}
+          Items: ${{ parameters.InfrastructureConfig.VariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: VariableFilesCommandOption
