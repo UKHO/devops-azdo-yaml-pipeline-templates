@@ -42,6 +42,8 @@ stages:
   - ${{ each environment in parameters.Environments }}:
       - template: ../stages/terraform_deploy.yml
         parameters:
+          ${{ if or(not(parameters.Environment.Name), eq(parameters.Environment.Name, '')) }}:
+            "an environment name is not properly defined and is a required field.": "Error"
           TerraformVersion: ${{ parameters.TerraformVersion }}
           RunPlanOnly: ${{ parameters.RunPlanOnly }}
           Environment: ${{ environment }}
