@@ -21,6 +21,16 @@ parameters:
     default: succeeded()
     displayName: 'The condition that will control whether this job runs or not'
 
+  - name: TerraformVersion
+    type: string
+    default: '1.14.x'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment'
+
   - name: EnvironmentName
     type: string
     # no default:
