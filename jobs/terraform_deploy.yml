@@ -51,6 +51,7 @@ jobs:
       - template: ../schemas/infrastructure_config.yml
         parameters:
           InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+          EnvironmentName: ${{ parameters.EnvironmentName }}
 
       # Terraform Plan Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
