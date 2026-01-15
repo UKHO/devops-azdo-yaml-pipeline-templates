@@ -18,18 +18,23 @@ EnvironmentConfigs:
 ### Name
 
 **Type:** `string`
+
 **Description:** The unique name of the environment. This is used to generate stage names and identify the environment throughout the pipeline.
+
 **Example:** `'dev'`, `'staging'`, `'production'`
 
 ### Stage
 
 **Type:** `object`
+
 **Description:** Configuration for the Azure DevOps stage that will be created for this environment.
 
 #### Stage.DependsOn
 
 **Type:** `string` or `list`
+
 **Description:** The stage(s) that must complete before this stage runs. Use the generated stage name format or reference previous stages.
+
 **Examples:**
 - `'Terraform_Build'` - Depends on the build stage
 - `['Terraform_Build', 'Deploy_dev_Infrastructure']` - Depends on multiple stages
@@ -37,7 +42,9 @@ EnvironmentConfigs:
 #### Stage.Condition
 
 **Type:** `string`
+
 **Description:** The condition that controls whether this stage runs. Uses Azure DevOps expressions.
+
 **Examples:**
 - `succeeded()` - Run if previous stages succeeded
 - `and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))` - Conditional logic
@@ -46,6 +53,7 @@ EnvironmentConfigs:
 ### InfrastructureConfig
 
 **Type:** `object`
+
 **Description:** The infrastructure deployment configuration containing Azure connections, backend configuration, verification settings, and Terraform parameters. See [infrastructure_config.md](./infrastructure_config.md) for complete details.
 
 ## Complete Example
