@@ -42,16 +42,17 @@ parameters:
     displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
 jobs:
+  - template: ../schemas/infrastructure_config.yml
+    parameters:
+      InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+      EnvironmentName: ${{ parameters.EnvironmentName }}
+
   - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
     environment: ${{ parameters.InfrastructureConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      - template: ../schemas/infrastructure_config.yml
-        parameters:
-          InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
-          EnvironmentName: ${{ parameters.EnvironmentName }}
 
       # Terraform Plan Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
