@@ -33,8 +33,8 @@ parameters:
 
   - name: EnvironmentName
     type: string
-    # no default:
-    displayName: ''
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
 
   - name: InfrastructureConfig
     type: object

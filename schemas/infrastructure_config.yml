@@ -4,6 +4,11 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
 variables:
   - ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
