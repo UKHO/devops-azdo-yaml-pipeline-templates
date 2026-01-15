@@ -48,7 +48,7 @@ jobs:
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
-      - templates: ../schemas/infrastructure_config.yml
+      - template: ../schemas/infrastructure_config.yml
         parameters:
           InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
 
