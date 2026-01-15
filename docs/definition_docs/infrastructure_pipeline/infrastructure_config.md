@@ -25,6 +25,8 @@ InfrastructureConfig:
   OutputVariables: list                         # OPTIONAL
 ```
 
+---
+
 ## Required Properties
 
 ### AzureSubscriptionServiceConnection
@@ -35,6 +37,8 @@ InfrastructureConfig:
 
 **Example:** `'AzureServiceConnection-Production'`
 
+---
+
 ### AzDOEnvironmentName
 
 **Type:** `string`
@@ -43,11 +47,15 @@ InfrastructureConfig:
 
 **Example:** `'production-environment'`
 
+---
+
 ### BackendConfig
 
 **Type:** `object`
 
 **Description:** Configuration for Terraform backend state storage in Azure. All sub-properties are required.
+
+---
 
 #### BackendConfig.ServiceConnection
 
@@ -57,6 +65,8 @@ InfrastructureConfig:
 
 **Example:** `'AzureServiceConnection-TerraformState'`
 
+---
+
 #### BackendConfig.ResourceGroupName
 
 **Type:** `string`
@@ -64,6 +74,8 @@ InfrastructureConfig:
 **Description:** Resource group containing the storage account for Terraform state.
 
 **Example:** `'rg-terraform-state-prod'`
+
+---
 
 #### BackendConfig.StorageAccountName
 
@@ -73,6 +85,8 @@ InfrastructureConfig:
 
 **Example:** `'sttfstateprod'`
 
+---
+
 #### BackendConfig.ContainerName
 
 **Type:** `string`
@@ -81,6 +95,8 @@ InfrastructureConfig:
 
 **Example:** `'tfstate'`
 
+---
+
 #### BackendConfig.BlobName
 
 **Type:** `string`
@@ -88,6 +104,8 @@ InfrastructureConfig:
 **Description:** Blob name for the Terraform state file.
 
 **Example:** `'production.terraform.tfstate'`
+
+---
 
 ### VerificationMode
 
@@ -102,6 +120,8 @@ InfrastructureConfig:
 
 **Example:** `'VerifyOnAny'`
 
+---
+
 ## Optional Properties
 
 ### KeyVaultConfig
@@ -112,6 +132,8 @@ InfrastructureConfig:
 
 **Note:** Key Vault secrets are retrieved during the Deploy stage, before Terraform operations.
 
+---
+
 #### KeyVaultConfig.ServiceConnection
 
 **Type:** `string`
@@ -119,6 +141,8 @@ InfrastructureConfig:
 **Description:** Azure service connection for Key Vault access.
 
 **Example:** `'AzureServiceConnection-Production'`
+
+---
 
 #### KeyVaultConfig.Name
 
@@ -128,6 +152,8 @@ InfrastructureConfig:
 
 **Example:** `'kv-production-secrets'`
 
+---
+
 #### KeyVaultConfig.SecretsFilter
 
 **Type:** `string`
@@ -135,6 +161,8 @@ InfrastructureConfig:
 **Description:** Filter for secrets to retrieve. Use `'*'` for all secrets or comma-separated secret names.
 
 **Example:** `'*'` or `'secret1,secret2,secret3'`
+
+---
 
 ### JobsVariableMappings
 
@@ -154,6 +182,8 @@ JobsVariableMappings:
     value: info
 ```
 
+---
+
 ### EnvironmentVariableMappings
 
 **Type:** `object`
@@ -168,6 +198,8 @@ EnvironmentVariableMappings:
   TF_VAR_custom_variable: 'value'
 ```
 
+---
+
 ### VariableFiles
 
 **Type:** `list` of `string`
@@ -180,6 +212,8 @@ VariableFiles:
   - config/common.tfvars
   - config/production.tfvars
 ```
+
+---
 
 ### OutputVariables
 
@@ -201,6 +235,8 @@ Exported variables can be accessed using:
 ```
 stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
 ```
+
+---
 
 ## Complete Example
 

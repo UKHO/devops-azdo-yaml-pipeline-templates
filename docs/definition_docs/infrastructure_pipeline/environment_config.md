@@ -23,11 +23,15 @@ EnvironmentConfigs:
 
 **Example:** `'dev'`, `'staging'`, `'production'`
 
+---
+
 ### Stage
 
 **Type:** `object`
 
 **Description:** Configuration for the Azure DevOps stage that will be created for this environment.
+
+---
 
 #### Stage.DependsOn
 
@@ -38,6 +42,8 @@ EnvironmentConfigs:
 **Examples:**
 - `'Terraform_Build'` - Depends on the build stage
 - `['Terraform_Build', 'Deploy_dev_Infrastructure']` - Depends on multiple stages
+
+---
 
 #### Stage.Condition
 
@@ -50,11 +56,15 @@ EnvironmentConfigs:
 - `and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))` - Conditional logic
 - `eq(dependencies.Terraform_Build.result, 'Succeeded')` - Explicit dependency check
 
+---
+
 ### InfrastructureConfig
 
 **Type:** `object`
 
 **Description:** The infrastructure deployment configuration containing Azure connections, backend configuration, verification settings, and Terraform parameters. See [infrastructure_config.md](./infrastructure_config.md) for complete details.
+
+---
 
 ## Complete Example
 
