@@ -1,4 +1,4 @@
-﻿﻿# Job Template: Terraform deploy
+﻿# Job Template: Terraform deploy
 # Purpose: Runs Terraform deploy infrastructure, supporting variable injection and Azure Key Vault integration.
 
 parameters:
