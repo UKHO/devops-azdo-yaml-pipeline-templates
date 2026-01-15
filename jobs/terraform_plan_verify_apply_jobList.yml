@@ -1,28 +1,28 @@
 parameters:
-  - name: TerraformArtifactName
-    type: string
-    default: 'TerraformArtifact'
-    displayName: 'Name for the artifact containing the terraform files for deployment'
-
-  - name: EnvironmentName
-    type: string
-    # no default:
-    displayName: ''
-
   - name: TerraformVersion
     type: string
     default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment'
 
   - name: RunPlanOnly
     type: boolean
     default: false
     displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
   - name: InfrastructureConfig
     type: object
-    # No default:
-    displayName: ""
+    # NO default - Consumer must provide this
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
 jobs:
   - template: ../jobs/terraform_deploy.yml

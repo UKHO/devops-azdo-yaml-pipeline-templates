@@ -4,15 +4,15 @@ parameters:
     default: 'Mare Nectaris'
     displayName: 'The pool that the pipeline will run from the highest level'
 
-  - name: RelativePathToTerraformFiles
-    type: string
-    default: ''
-    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
-
   - name: TerraformVersion
     type: string
     default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: RelativePathToTerraformFiles
+    type: string
+    default: ''
+    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
@@ -26,7 +26,8 @@ parameters:
 
   - name: EnvironmentConfigs
     type: object
-    displayName: 'Mapping of environments'
+    # NO default - Consumer must provide this
+    displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
 
 variables:
   - name: PipelinePool

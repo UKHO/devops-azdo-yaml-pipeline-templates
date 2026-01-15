@@ -1,4 +1,4 @@
-﻿# Job Template: Terraform deploy
+﻿﻿# Job Template: Terraform deploy
 # Purpose: Runs Terraform deploy infrastructure, supporting variable injection and Azure Key Vault integration.
 
 parameters:
@@ -39,73 +39,8 @@ parameters:
   - name: InfrastructureConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: |
-      The configuration for the target environment to deploy terraform to. Definition
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
-      REQUIRED PROPERTIES:
-
-      AzureSubscriptionServiceConnection: string # The Azure DevOps service connection name used to authenticate with Azure.
-      AzDOEnvironmentName: string # The Azure DevOps environment name for approval gates and deployment tracking.
-      BackendConfig: object # Configuration for Terraform backend state storage in Azure.
-        ServiceConnection: string # Azure service connection for backend access
-        ResourceGroupName: string # Resource group containing the storage account
-        StorageAccountName: string # Storage account name for Terraform state
-        ContainerName: string # Container name within the storage account
-        BlobName: string # Blob name for the Terraform state file
-      VerificationMode: string # Controls when manual verification is required. Must be one of:
-        'VerifyOnDestroy' # Verify only on infrastructure destruction
-        'VerifyOnAny' # Verify on any infrastructure change
-        'VerifyDisabled' # No manual verification required
-
-      OPTIONAL PROPERTIES:
-
-      KeyVaultConfig: object # (all-or-nothing - if any property is set, all must be set) configuration for retrieving secrets from Azure Key Vault.
-        ServiceConnection: string # Azure service connection for Key Vault access
-        Name: string # Key Vault name
-        SecretsFilter: string # Filter for secrets to retrieve (e.g., '*' for all)
-      JobsVariableMappings: object # List of variable mappings (variable groups, templates, or inline variables).
-        Can include:
-          - Variable groups: { group: 'GroupName' }
-          - Templates: { template: 'path/to/template.yml' }
-          - Inline variables: { name: 'VarName', value: 'VarValue' }
-      EnvironmentVariableMappings: object # Key-value pairs of environment variables to set for Terraform execution.
-      VariableFiles: list of strings # List of Terraform variable file paths (e.g., ['config/common.tfvars', 'config/dev.tfvars']).
-      OutputVariables: list of strings # List of Terraform output variable names to export as pipeline variables.
-
-      EXAMPLE:
-
-      InfrastructureConfig:
-      - AzureSubscriptionServiceConnection: AzureServiceConnection-Production
-        AzDOEnvironmentName: production-environment
-        BackendConfig:
-          ServiceConnection: AzureServiceConnection-TerraformState
-          ResourceGroupName: rg-terraform-state-prod
-          StorageAccountName: sttfstateprod
-          ContainerName: tfstate
-          BlobName: production.terraform.tfstate
-        VerificationMode: VerifyOnAny
-        KeyVaultConfig:
-          ServiceConnection: AzureServiceConnection-Production
-          Name: kv-production-secrets
-          SecretsFilter: '*'
-        JobsVariableMappings:
-          - group: ProductionVariableGroup
-          - group: CommonVariableGroup
-          - template: config/production-variables.yml
-          - name: ENVIRONMENT_NAME
-            value: production
-          - name: LOG_LEVEL
-            value: info
-        EnvironmentVariableMappings:
-          TF_LOG: INFO
-          ARM_SKIP_PROVIDER_REGISTRATION: 'true'
-        VariableFiles:
-          - config/common.tfvars
-          - config/production.tfvars
-        OutputVariables:
-          - resource_group_name
-          - app_service_url
-          - storage_account_name
 jobs:
   - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
@@ -215,12 +150,12 @@ jobs:
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
-            - ${{ if and(parameters.InfrastructureConfig.KeyVaultServiceConnection, parameters.InfrastructureConfig.KeyVaultName, parameters.InfrastructureConfig.KeyVaultSecretsFilter) }}:
+            - ${{ if and(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
                 - template: ../tasks/azure_key_vault.yml
                   parameters:
-                    KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultServiceConnection }}
-                    KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultName }}
-                    SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultSecretsFilter }}
+                    KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection }}
+                    KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultConfig.Name }}
+                    SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter }}
 
             - template: ../tasks/terraform.yml
               parameters:

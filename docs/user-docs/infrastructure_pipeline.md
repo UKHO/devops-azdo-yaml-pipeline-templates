@@ -39,47 +39,124 @@ extends:
   parameters:
     RelativePathToTerraformFiles: infra/webapp
     TerraformVersion: 1.09
-    AzDOEnvironmentName: dev
-    AzureSubscriptionServiceConnection: Pipeline-dev
-    BackendAzureServiceConnection: Pipeline-dev
-    BackendAzureResourceGroupName: m-project-rg
-    BackendAzureStorageAccountName: projecttfsa
-    BackendAzureContainerName: tfstate
-    BackendAzureBlobName: example.tfstate
-    VerificationMode: VerifyOnDestroy
-    TerraformEnvironmentVariableMappings:
-      TF_VAR_MinRandom: 1000
-      TF_VAR_MaxRandom: 100000
-    TerraformOutputVariables:
-      - random_number
-      - random_string
-    TerraformVariableFiles:
-      - config/common.tfvars
-      - config/dev.tfvars
+    EnvironmentConfigs:
+      - Name: dev
+        Stage:
+          DependsOn: Terraform_Build
+          Condition: succeeded()
+        InfrastructureConfig:
+          AzDOEnvironmentName: dev-environment
+          AzureSubscriptionServiceConnection: Pipeline-dev
+          BackendConfig:
+            ServiceConnection: Pipeline-dev
+            ResourceGroupName: m-project-rg
+            StorageAccountName: projecttfsa
+            ContainerName: tfstate
+            BlobName: dev.terraform.tfstate
+          VerificationMode: VerifyOnDestroy
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          VariableFiles:
+            - config/common.tfvars
+            - config/dev.tfvars
+          OutputVariables:
+            - random_number
+            - random_string
 ```
 
 ### Required Parameters
 
-The following parameters **must** be provided as they have no default values:
+The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains a list of environment configurations. Each environment configuration has the following structure:
 
-| Parameter                          | Type   | Description                                                                           |
-|------------------------------------|--------|---------------------------------------------------------------------------------------|
-| AzDOEnvironmentName                | string | AzDO Environment name to associate the deployment jobs to                             |
-| AzureSubscriptionServiceConnection | string | Azure service connection for the azdo environment                                     |
-| BackendAzureServiceConnection      | string | Azure service connection for backend where the state is stored                        |
-| BackendAzureResourceGroupName      | string | Azure resource group name for backend where the state is stored                       |
-| BackendAzureStorageAccountName     | string | Azure storage account name for backend where the state is stored                      |
-| BackendAzureContainerName          | string | Azure storage container name for backend where the state is stored                    |
-| BackendAzureBlobName               | string | Azure storage blob name for backend where the state is stored                         |
-| VerificationMode                   | string | How verification step should trigger: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
+**For complete configuration documentation, see:**
+- [EnvironmentConfig Documentation](../definition_docs/infrastructure_pipeline/environment_config.md) - Complete environment configuration structure
+- [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md) - Infrastructure-specific configuration details
 
-See [template parameters in details](infrastructure_pipeline_parameters_in_detail.md) for more information on all parameters.
+**Quick reference of required fields:**
+
+| Field Path                                              | Type        | Description                                                                           |
+|---------------------------------------------------------|-------------|---------------------------------------------------------------------------------------|
+| Name                                                    | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                        |
+| Stage.DependsOn                                         | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                        |
+| Stage.Condition                                         | string      | Stage execution condition (e.g., 'succeeded()')                                       |
+| InfrastructureConfig.AzDOEnvironmentName                | string      | AzDO Environment name to associate the deployment jobs to                             |
+| InfrastructureConfig.AzureSubscriptionServiceConnection | string      | Azure service connection for the azdo environment                                     |
+| InfrastructureConfig.BackendConfig.ServiceConnection    | string      | Azure service connection for backend where the state is stored                        |
+| InfrastructureConfig.BackendConfig.ResourceGroupName    | string      | Azure resource group name for backend where the state is stored                       |
+| InfrastructureConfig.BackendConfig.StorageAccountName   | string      | Azure storage account name for backend where the state is stored                      |
+| InfrastructureConfig.BackendConfig.ContainerName        | string      | Azure storage container name for backend where the state is stored                    |
+| InfrastructureConfig.BackendConfig.BlobName             | string      | Azure storage blob name for backend where the state is stored                         |
+| InfrastructureConfig.VerificationMode                   | string      | How verification step should trigger: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
+
+See the [developer documentation](../definition_docs/infrastructure_pipeline/environment_config.md) for optional parameters and advanced configuration.
 
 ## Advanced Usage
 
 Listed below are possible advanced usages.
 
 _If you have any advanced usages, please consider contributing them to the documentation._
+
+### Multi-Environment Deployment
+
+Deploy to multiple environments with stage dependencies:
+
+```yaml
+extends:
+  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  parameters:
+    RelativePathToTerraformFiles: 'infrastructure/terraform'
+    TerraformVersion: '1.6.0'
+    EnvironmentConfigs:
+      # Development Environment
+      - Name: dev
+        Stage:
+          DependsOn: Terraform_Build
+          Condition: succeeded()
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+          AzDOEnvironmentName: development-environment
+          BackendConfig:
+            ServiceConnection: AzureServiceConnection-TerraformState
+            ResourceGroupName: rg-terraform-state-dev
+            StorageAccountName: sttfstatedev
+            ContainerName: tfstate
+            BlobName: dev.terraform.tfstate
+          VerificationMode: VerifyOnDestroy
+          VariableFiles:
+            - config/common.tfvars
+            - config/dev.tfvars
+
+      # Production Environment (deploys after dev, only on main branch)
+      - Name: production
+        Stage:
+          DependsOn: Deploy_dev_Infrastructure
+          Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+          AzDOEnvironmentName: production-environment
+          BackendConfig:
+            ServiceConnection: AzureServiceConnection-TerraformState
+            ResourceGroupName: rg-terraform-state-prod
+            StorageAccountName: sttfstateprod
+            ContainerName: tfstate
+            BlobName: production.terraform.tfstate
+          VerificationMode: VerifyOnAny
+          KeyVaultConfig:
+            ServiceConnection: AzureServiceConnection-Production
+            Name: kv-production-secrets
+            SecretsFilter: '*'
+          JobsVariableMappings:
+            - group: ProductionVariableGroup
+          EnvironmentVariableMappings:
+            TF_LOG: INFO
+          VariableFiles:
+            - config/common.tfvars
+            - config/production.tfvars
+          OutputVariables:
+            - resource_group_name
+            - app_service_url
+```
 
 ### Custom Agent Pool
 
@@ -90,6 +167,13 @@ extends:
     PipelinePool: 'MyCustomPool'
     RelativePathToTerraformFiles: 'infrastructure/terraform'
     TerraformVersion: '1.6.0'
+    EnvironmentConfigs:
+      - Name: dev
+        Stage:
+          DependsOn: Terraform_Build
+          Condition: succeeded()
+        InfrastructureConfig:
+          # ... infrastructure config ...
 ```
 
 ### Injection Step to add required_version
@@ -112,45 +196,13 @@ extends:
             Set-Content $path $content
           }
         displayName: "Injecting into terraform block 'required_version'"
-```
-
-## Advanced Usage
-
-Listed below are possible advanced usages.
-
-_If you have any advanced usages, please consider contributing them to the documentation._
-
-### Custom Agent Pool
-
-```yaml
-extends:
-  template: pipelines/infrastructure_pipeline.yml@templates
-  parameters:
-    PipelinePool: 'MyCustomPool'
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
-    TerraformVersion: '1.6.0'
-```
-
-### Injection Step to add required_version
-
-```yaml
-extends:
-  template: pipelines/infrastructure_pipeline.yml@PipelineTemplates
-  parameters:
-    RelativePathToTerraformFiles: infra/webapp
-    PipelinePool: "Mare Nubium"
-    TerraformVersion: 1.1.9
-    TerraformBuildInjectionSteps:
-      - pwsh: |
-          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
-          $content = Get-Content $path
-          $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
-          if ($terraformStart -ge 0) {
-            $insertIndex = $terraformStart + 1
-            $content = $content[0..($insertIndex-1)] + '  required_version = "1.1.9"' + $content[$insertIndex..($content.Count-1)]
-            Set-Content $path $content
-          }
-        displayName: "Injecting into terraform block 'required_version'"
+    EnvironmentConfigs:
+      - Name: dev
+        Stage:
+          DependsOn: Terraform_Build
+          Condition: succeeded()
+        InfrastructureConfig:
+          # ... infrastructure config ...
 ```
 
 ## Troubleshooting

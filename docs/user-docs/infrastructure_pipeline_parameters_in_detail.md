@@ -2,9 +2,15 @@
 
 This document provides detailed information about all parameters available in the Infrastructure Pipeline template.
 
+## Configuration Documentation
+
+**For comprehensive configuration details, see the developer documentation:**
+- **[EnvironmentConfig Documentation](../definition_docs/infrastructure_pipeline/environment_config.md)** - Complete environment configuration structure including Name, Stage dependencies/conditions, and InfrastructureConfig
+- **[InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md)** - Detailed infrastructure-specific configuration (Azure connections, backend, Key Vault, variables, etc.)
+
 ## Pipeline Structure
 
-The infrastructure pipeline consists of two stages:
+The infrastructure pipeline consists of multiple stages:
 
 1. **Build Stage**: Validates and packages Terraform files
    - Installs specified Terraform version
@@ -13,43 +19,65 @@ The infrastructure pipeline consists of two stages:
    - Validates Terraform configuration
    - Publishes Terraform files as an artifact
 
-2. **Deploy Stage**: Deploys infrastructure with optional manual verification
+2. **Deploy Stages** (one per environment in EnvironmentConfigs): Deploys infrastructure with optional manual verification
+   - Stage name format: `Deploy_{EnvironmentName}_Infrastructure`
    - Downloads Terraform artifact
    - Initializes Terraform (with backend)
    - **Plan Job**: Creates execution plan
    - **Manual Verification Job**: Optional approval gate (conditional)
    - **Apply Job**: Applies changes and exports outputs (conditional)
 
-The deploy stage behavior is controlled by `RunPlanOnly` and `VerificationMode` parameters. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
+The deploy stage behavior is controlled by `RunPlanOnly` and `VerificationMode` parameters within each environment's `InfrastructureConfig`. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
 
-## Full Parameter Table
+## Pipeline-Level Parameters
 
-| Parameter                                                                     | Type     | Required | Default           | Allowed values                                           | Compile Time Sensitive? | Description                                                                                                          |
-|-------------------------------------------------------------------------------|----------|----------|-------------------|----------------------------------------------------------|-------------------------|----------------------------------------------------------------------------------------------------------------------|
-| [PipelinePool](#pipelinepool)                                                 | string   |          | `'Mare Nectaris'` | Any                                                      |                         | The pool that the pipeline will run from the highest level.                                                          |
-| [RelativePathToTerraformFiles](#relativepathtoterraformfiles)                 | string   |          | `''`              | Any                                                      |                         | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.                                    |
-| [TerraformVersion](#terraformversion)                                         | string   |          | `'1.14.x'`        | - `latest`<br> - valid version syntax                    |                         | Version of Terraform CLI tool to use with the terraform files.                                                       |
-| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps)                 | stepList |          | `[]`              | Any valid steps                                          | ✔                       | Steps to be carried out before the terraform is init, validated, and packaged.                                       |
-| [AzDOEnvironmentName](#azdoenvironmentname)                                   | string   | ❗        |                   | Any                                                      | ✔                       | AzDO Environment name to associate the deployment jobs to.                                                           |
-| [AzureSubscriptionServiceConnection](#azuresubscriptionserviceconnection)     | string   | ❗        |                   | Any                                                      | ✔                       | Azure service connection for the azdo environment.                                                                   |
-| [DeploymentJobsVariableMappings](#deploymentjobsvariablemappings)             | object   |          | `{}`              | See further documentation                                | ✔                       | Mapping of variables/groups/templates to be added to the job's variables block.                                      |
-| [BackendAzureServiceConnection](#terraformbackendazure)                       | string   | ❗        |                   | Any                                                      | ✔                       | Azure service connection for backend where the state is stored.                                                      |
-| [BackendAzureResourceGroupName](#terraformbackendazure)                       | string   | ❗        |                   | Any                                                      |                         | Azure resource group name for backend where the state is stored.                                                     |
-| [BackendAzureStorageAccountName](#terraformbackendazure)                      | string   | ❗        |                   | Any                                                      |                         | Azure storage account name for backend where the state is stored.                                                    |
-| [BackendAzureContainerName](#terraformbackendazure)                           | string   | ❗        |                   | Any                                                      |                         | Azure storage container name for backend where the state is stored.                                                  |
-| [BackendAzureBlobName](#terraformbackendazure)                                | string   | ❗        |                   | Any                                                      |                         | Azure storage blob name for backend where the state is stored.                                                       |
-| [KeyVaultServiceConnection](#keyvaultconfiguration)                           | string   |          | `''`              | Any                                                      | ✔                       | Service connection for key vault access secrets.                                                                     |
-| [KeyVaultName](#keyvaultconfiguration)                                        | string   |          | `''`              | Any                                                      | ✔                       | Name of key vault for accessing secrets.                                                                             |
-| [KeyVaultSecretsFilter](#keyvaultconfiguration)                               | string   |          | `'*'`             | Any                                                      | ✔                       | Filter for secrets to access from key vault.                                                                         |
-| [RunPlanOnly](#runplanonly)                                                   | boolean  |          | `false`           | true \| false                                            | ✔                       | Whether only the terraform plan should be ran and no deployment made.                                                |
-| [VerificationMode](#verificationmode)                                         | string   | ❗        |                   | - VerifyOnDestroy<br> - VerifyOnAny<br> - VerifyDisabled | ✔                       | How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all. |
-| [TerraformEnvironmentVariableMappings](#terraformenvironmentvariablemappings) | object   |          | `{}`              | See further documentation                                | ✔                       | Key/value pairs of environment variables to be passed to the task.                                                   |
-| [TerraformVariableFiles](#terraformvariablefiles)                             | object   |          | `[]`              | See further documentation                                | ✔                       | List of .tfvars files to be supplied to the terraform commands.                                                      |
-| [TerraformOutputVariables](#terraformoutputvariables)                         | object   |          | `[]`              | See further documentation                                | ✔                       | List of variables to be exported from the terraform after apply has been ran.                                        |
+These parameters apply to the entire pipeline and all environments:
+
+| Parameter                                                     | Type     | Required | Default           | Description                                                                       |
+|---------------------------------------------------------------|----------|----------|-------------------|-----------------------------------------------------------------------------------|
+| [PipelinePool](#pipelinepool)                                 | string   |          | `'Mare Nectaris'` | The pool that the pipeline will run from the highest level.                       |
+| [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`              | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact. |
+| [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.x'`        | Version of Terraform CLI tool to use with the terraform files.                    |
+| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.    |
+| [RunPlanOnly](#runplanonly)                                   | boolean  |          | `false`           | Whether only the terraform plan should be ran and no deployment made.             |
+| [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -                 | List of environment configurations (see dev docs for complete structure).         |
+
+## Environment Configuration
+
+The `EnvironmentConfigs` parameter is a list of environment configuration objects. Each environment configuration includes:
+
+- **Name**: Unique environment identifier
+- **Stage**: Stage orchestration settings (DependsOn, Condition)
+- **InfrastructureConfig**: Complete infrastructure deployment configuration
+
+**See the comprehensive documentation:**
+- [EnvironmentConfig Structure](../definition_docs/infrastructure_pipeline/environment_config.md)
+- [InfrastructureConfig Properties](../definition_docs/infrastructure_pipeline/infrastructure_config.md)
+
+### Quick EnvironmentConfig Example
+
+```yaml
+EnvironmentConfigs:
+  - Name: production
+    Stage:
+      DependsOn: Terraform_Build
+      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    InfrastructureConfig:
+      AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+      AzDOEnvironmentName: production-environment
+      BackendConfig:
+        ServiceConnection: AzureServiceConnection-TerraformState
+        ResourceGroupName: rg-terraform-state-prod
+        StorageAccountName: sttfstateprod
+        ContainerName: tfstate
+        BlobName: production.terraform.tfstate
+      VerificationMode: VerifyOnAny
+      # ... additional optional properties ...
+```
 
 ## Parameter Reference
 
-Below are all the parameters to this template with further details.
+Below are all the pipeline-level parameters to this template with further details.
 
 ### PipelinePool
 
@@ -118,134 +146,215 @@ TerraformBuildInjectionSteps:
         az keyvault secret show --vault-name myvault --name terraform-vars
 ```
 
-### AzDOEnvironmentName
-
-Specify the environment that Terraform is going to be deployed to.
-
-```yaml
-AzDOEnvironmentName: 'MyAzDOEnvironment'
-```
-
-Single environment limitation is not long-term.
-
-### AzureSubscriptionServiceConnection
-
-Specify the service connection that has permissions to the azure subscription.
-
-```yaml
-AzureSubscriptionServiceConnection: 'my-azure-service-connection'
-```
-
-Note: Can be the same as [BackendAzureServiceConnection](#terraformbackendazure).
-
-### DeploymentJobsVariableMappings
-
-Specify an object of variables for the deployment jobs.
-
-```yaml
-DeploymentJobsVariableMappings:
-  myVar: 'value'
-  anotherVar: 1
-  group: aValidGroup
-  template: aValidTemplate
-```
-
-The variables mappings will be unpacked in the following way:
-
-1. Any key that is 'group' will have a `group:` added to the variables where the "group" is the key's value.
-2. Any key that is 'template' will have a `template:` added to the variables where the "template" is the key's value.
-3. All other values will be added in as `name: <key>\n value: <value>`
-
-Currently, there is a limitation of group and template only being allowed to be defined once.
-
-### TerraformBackendAzure
-
-Define the required values for the pipeline to access the terraform state to the environment being deployed to.
-
-```yaml
-BackendAzureServiceConnection: 'my-backend-service-connection'
-BackendAzureResourceGroupName: 'my-resource-group'
-BackendAzureStorageAccountName: 'mystorageaccount'
-BackendAzureContainerName: 'mycontainer'
-BackendAzureBlobName: 'terraform.tfstate'
-```
-
-Note: `BackendAzureServiceConnection` can be the same service connection as [`AzureSubscriptionServiceConnection`](#azuresubscriptionserviceconnection)
-
-### KeyVaultConfiguration
-
-Define the optional values for the pipeline to access configuration from a key vault during the deployment of the terraform files.
-
-**Note**: Key Vault secrets are only accessed during the **Deploy stage**, not during the Build stage. The secrets are retrieved before Terraform init/plan/apply operations.
-
-All three parameters must be provided for Key Vault integration to be enabled:
-- `KeyVaultServiceConnection`: Must not be empty
-- `KeyVaultName`: Must not be empty
-- `KeyVaultSecretsFilter`: Defaults to `'*'` (all secrets) if not specified
-
-```yaml
-KeyVaultServiceConnection: "MyAzureServiceConnection"
-KeyVaultName: "my-key-vault"
-KeyVaultSecretsFilter: "TERRAFORM-TENANT-ID,TERRAFORM-CLIENT-ID,TERRAFORM-CLIENT-SECRET,TERRAFORM-SUBSCRIPTION-ID,TERRAFORM-ACCESS-KEY"
-```
-
-You do not need to specify this if managing configuration by other means.
-
 ### RunPlanOnly
 
-If you do not want to deploy any resources, you can run the plan only.
+If you do not want to deploy any resources, you can run the plan only for all environments.
 
 ```yaml
 RunPlanOnly: true
 ```
 
-### VerificationMode
+This applies to all environments configured in `EnvironmentConfigs`.
 
-The pipeline will analyse the changes found in the plan and prompt manual verification depending on the mode that is set.
+### EnvironmentConfigs
 
+The core configuration parameter that defines all environments to deploy to. This is a list of environment configuration objects.
+
+**For complete documentation, see:**
+- [EnvironmentConfig Structure](../definition_docs/infrastructure_pipeline/environment_config.md)
+- [InfrastructureConfig Properties](../definition_docs/infrastructure_pipeline/infrastructure_config.md)
+
+**Quick structure:**
+
+```yaml
+EnvironmentConfigs:
+  - Name: string                    # Environment identifier
+    Stage:
+      DependsOn: string | list      # Stage dependencies
+      Condition: string             # Stage execution condition
+    InfrastructureConfig:           # Complete infrastructure configuration
+      AzureSubscriptionServiceConnection: string
+      AzDOEnvironmentName: string
+      BackendConfig: { ... }
+      VerificationMode: string
+      # ... optional properties ...
+```
+
+**Multi-environment example:**
+
+```yaml
+EnvironmentConfigs:
+  # Development
+  - Name: dev
+    Stage:
+      DependsOn: Terraform_Build
+      Condition: succeeded()
+    InfrastructureConfig:
+      AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+      AzDOEnvironmentName: development-environment
+      BackendConfig:
+        ServiceConnection: AzureServiceConnection-TerraformState
+        ResourceGroupName: rg-terraform-state-dev
+        StorageAccountName: sttfstatedev
+        ContainerName: tfstate
+        BlobName: dev.terraform.tfstate
+      VerificationMode: VerifyOnDestroy
+      VariableFiles:
+        - config/common.tfvars
+        - config/dev.tfvars
+
+  # Production (depends on dev, only on main branch)
+  - Name: production
+    Stage:
+      DependsOn: Deploy_dev_Infrastructure
+      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    InfrastructureConfig:
+      AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+      AzDOEnvironmentName: production-environment
+      BackendConfig:
+        ServiceConnection: AzureServiceConnection-TerraformState
+        ResourceGroupName: rg-terraform-state-prod
+        StorageAccountName: sttfstateprod
+        ContainerName: tfstate
+        BlobName: production.terraform.tfstate
+      VerificationMode: VerifyOnAny
+      KeyVaultConfig:
+        ServiceConnection: AzureServiceConnection-Production
+        Name: kv-production-secrets
+        SecretsFilter: '*'
+      JobsVariableMappings:
+        - group: ProductionVariableGroup
+      EnvironmentVariableMappings:
+        TF_LOG: INFO
+      VariableFiles:
+        - config/common.tfvars
+        - config/production.tfvars
+      OutputVariables:
+        - resource_group_name
+        - app_service_url
+```
+
+## InfrastructureConfig Properties
+
+The following properties are configured within each environment's `InfrastructureConfig` object. For complete documentation, see [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md).
+
+### Azure Service Connections
+
+Define the Azure service connections for deployment and backend state management.
+
+**Within `InfrastructureConfig`:**
+- `AzureSubscriptionServiceConnection`: Service connection for deploying resources
+- `AzDOEnvironmentName`: Azure DevOps environment name for approvals
+- `BackendConfig.ServiceConnection`: Service connection for Terraform state backend
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#azuresubscriptionserviceconnection) for details.
+
+### Backend Configuration
+
+Define the required values for accessing the Terraform state for each environment.
+
+**Within `InfrastructureConfig.BackendConfig`:**
+- `ServiceConnection`: Azure service connection
+- `ResourceGroupName`: Resource group name
+- `StorageAccountName`: Storage account name
+- `ContainerName`: Container name
+- `BlobName`: Blob name for state file
+
+Example:
+```yaml
+BackendConfig:
+  ServiceConnection: 'my-backend-service-connection'
+  ResourceGroupName: 'my-resource-group'
+  StorageAccountName: 'mystorageaccount'
+  ContainerName: 'mycontainer'
+  BlobName: 'terraform.tfstate'
+```
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#backendconfig) for details.
+
+### Key Vault Configuration
+
+Define optional values for accessing secrets from Azure Key Vault during deployment.
+
+**Within `InfrastructureConfig.KeyVaultConfig`:**
+- `ServiceConnection`: Service connection for Key Vault access
+- `Name`: Key Vault name
+- `SecretsFilter`: Filter for secrets (e.g., `'*'` for all)
+
+**Note**: Key Vault secrets are only accessed during the **Deploy stage**, not during the Build stage. All three parameters must be provided for Key Vault integration to be enabled.
+
+Example:
+```yaml
+KeyVaultConfig:
+  ServiceConnection: "MyAzureServiceConnection"
+  Name: "my-key-vault"
+  SecretsFilter: "*"
+```
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#keyvaultconfig) for details.
+
+### Verification Mode
+
+Controls when manual verification is required for each environment.
+
+**Within `InfrastructureConfig.VerificationMode`:**
+
+Options:
+- `VerifyOnDestroy`: Manual verification only when resources will be destroyed
+- `VerifyOnAny`: Manual verification for any infrastructure changes
+- `VerifyDisabled`: No manual verification (auto-apply if changes detected)
+
+Example:
 ```yaml
 VerificationMode: 'VerifyOnAny'
 ```
 
-Options available are:
+See [How does Infrastructure Manual Verification work?](infrastructure_pipeline_manual_verification.md) and [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#verificationmode).
 
-- VerifyOnDestroy
-- VerifyOnAny
-- VerifyDisabled
+### Environment Variables
 
-See [How does Infrastructure Manual Verification work?](infrastructure_pipeline_manual_verification.md)
+Provide environment variables for Terraform execution.
 
-### TerraformEnvironmentVariableMappings
+**Within `InfrastructureConfig.EnvironmentVariableMappings`:**
 
-Can provide a mapping of keys and values that get added to terraform as environment variables.
-
+Example:
 ```yaml
-TerraformEnvironmentVariableMappings:
+EnvironmentVariableMappings:
   ARM_CLIENT_ID: 'xxxx-xxxx-xxxx'
   ARM_CLIENT_SECRET: 'xxxx-xxxx-xxxx'
+  TF_LOG: 'INFO'
 ```
 
-### TerraformVariableFiles
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#environmentvariablemappings) for details.
 
-Provide the terraform `.tfvars` files that are to be used with the terraform `.tf` files.
+### Variable Files
 
+Provide Terraform `.tfvars` files to use with the Terraform `.tf` files.
+
+**Within `InfrastructureConfig.VariableFiles`:**
+
+Example:
 ```yaml
-TerraformVariableFiles:
-  - 'common.tfvars'
-  - 'env-specific.tfvars'
+VariableFiles:
+  - 'config/common.tfvars'
+  - 'config/env-specific.tfvars'
 ```
 
-The pipeline will access these files from the terraform artifact created during the build stage. That stage packages all files found via
-`RelativePathToTerraformFiles` parameter.
+The pipeline will access these files from the Terraform artifact created during the build stage. That stage packages all files found via `RelativePathToTerraformFiles` parameter.
 
-### TerraformOutputVariables
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#variablefiles) for details.
 
-Specify the output variables from the terraform files that need to be available post deployment.
+### Output Variables
+
+Specify Terraform output variables to export as pipeline variables after deployment.
+
+**Within `InfrastructureConfig.OutputVariables`:**
 
 **Note**: Output variables are only exported during the **Apply job** (when `RunPlanOnly` is `false` and apply runs successfully).
 
+Example:
 ```yaml
-TerraformOutputVariables:
+OutputVariables:
   - output1
   - output2
 ```
@@ -255,10 +364,10 @@ TerraformOutputVariables:
 The output variables are exported as Azure DevOps pipeline variables with the following naming convention:
 
 ```
-dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
 ```
 
-**Example**: If you export a Terraform output named `resource_id`, you would access it in a subsequent stage like this:
+**Example**: If you export a Terraform output named `resource_id` from an environment named `dev`, you would access it in a subsequent stage like this:
 
 ```yaml
 stages:
@@ -275,3 +384,26 @@ stages:
 ```
 
 For more information, see Microsoft documentation: [Set an output variable for use in future jobs](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/set-variables-scripts?view=azure-devops&tabs=powershell#set-an-output-variable-for-use-in-future-jobs).
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#outputvariables) for details.
+
+### Jobs Variable Mappings
+
+Specify variables, variable groups, or templates to add to deployment jobs.
+
+**Within `InfrastructureConfig.JobsVariableMappings`:**
+
+Example:
+```yaml
+JobsVariableMappings:
+  - group: ProductionVariableGroup
+  - group: CommonVariableGroup
+  - template: config/production-variables.yml
+  - name: ENVIRONMENT_NAME
+    value: production
+  - name: LOG_LEVEL
+    value: info
+```
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#jobsvariablemappings) for details.
+
