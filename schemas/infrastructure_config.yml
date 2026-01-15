@@ -1,0 +1,66 @@
+parameters:
+  - name: InfrastructureConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
+
+variables:
+  - ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ServiceConnection), eq(parameters.InfrastructureConfig.BackendConfig.ServiceConnection, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ServiceConnection is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName), eq(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ResourceGroupName is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.StorageAccountName), eq(parameters.InfrastructureConfig.BackendConfig.StorageAccountName, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.StorageAccountName is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ContainerName), eq(parameters.InfrastructureConfig.BackendConfig.ContainerName, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ContainerName is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.BlobName is not properly defined and is a required field.": "Error"
+
+  - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, ''), notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
+
+  # OPTIONAL PARAMETERS
+
+  - ${{ if or(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
+    # At least one property is set, so all three must be set
+    - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection), eq(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, '')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.ServiceConnection is required when any Key Vault configuration is provided.": "Error"
+    - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.Name), eq(parameters.InfrastructureConfig.KeyVaultConfig.Name, '')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.Name is required when any Key Vault configuration is provided.": "Error"
+    - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter), eq(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter, '')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
+
+  - ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
+    - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+    - ${{ else }}:
+      - ${{ each mapping in parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
+        - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+
+  - ${{ if parameters.InfrastructureConfig.VariableFiles }}: # Only run validation if the optional parameter is present
+    - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.VariableFiles), '[')) }}: # Make sure it is a list
+      - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles is not correct. Must be a list of string values. You muppet.": "Error"
+    - ${{ else }}:
+      - ${{ each variable in parameters.InfrastructureConfig.VariableFiles }}: # Make sure each item in the list is just a string
+        - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
+  - ${{ if parameters.InfrastructureConfig.OutputVariables }}: # Only run validation if the optional parameter is present
+    - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.OutputVariables), '[')) }}: # Make sure it is a list
+      - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables is not correct. Must be a list of string values. You muppet.": "Error"
+    - ${{ else }}:
+      - ${{ each variable in parameters.InfrastructureConfig.OutputVariables }}: # Make sure each item in the list is just a string
+        - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
+          - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+
