@@ -11,7 +11,7 @@ locals {
       yamlfile_name = "windows_test.yml"
     },
     environmentsTest = {
-      pipeline_name = "enviroments-test"
+      pipeline_name = "environments-test"
       yamlfile_name = "environments_test.yml"
     },
   }
