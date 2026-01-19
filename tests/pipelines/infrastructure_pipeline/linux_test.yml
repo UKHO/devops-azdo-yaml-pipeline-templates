@@ -41,7 +41,7 @@ extends:
           JobsVariableMappings:
             - group: ExampleVG1
             - group: ExampleVG2
-            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - template: tests/pipelines/infrastructure_pipeline/variables.yml
             - name: DeploymentJobsVariableMappingVariable
               value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:
@@ -71,7 +71,7 @@ extends:
           JobsVariableMappings:
             - group: ExampleVG1
             - group: ExampleVG2
-            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - template: tests/pipelines/infrastructure_pipeline/variables.yml
             - name: DeploymentJobsVariableMappingVariable
               value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:
@@ -101,7 +101,7 @@ extends:
           JobsVariableMappings:
             - group: ExampleVG1
             - group: ExampleVG2
-            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - template: tests/pipelines/infrastructure_pipeline/variables.yml
             - name: DeploymentJobsVariableMappingVariable
               value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:
@@ -131,7 +131,7 @@ extends:
           JobsVariableMappings:
             - group: ExampleVG1
             - group: ExampleVG2
-            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - template: tests/pipelines/infrastructure_pipeline/variables.yml
             - name: DeploymentJobsVariableMappingVariable
               value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:
