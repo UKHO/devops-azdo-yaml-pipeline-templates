@@ -4,108 +4,30 @@ parameters:
     default: 'Mare Nectaris'
     displayName: 'The pool that the pipeline will run from the highest level'
 
-  - name: RelativePathToTerraformFiles
-    type: string
-    default: ''
-    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
-
   - name: TerraformVersion
     type: string
     default: '1.14.x'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: RelativePathToTerraformFiles
+    type: string
+    default: ''
+    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: [ ]
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
-  - name: AzDOEnvironmentName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'AzDO Environment name to associate the deployment jobs to'
-
-  - name: AzureSubscriptionServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for the azdo environment'
-
-  - name: DeploymentJobsVariableMappings
-    type: object
-    default: { }
-    displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
-
-  # terraform init task parameters
-
-  - name: BackendAzureServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for backend where the state is stored'
-
-  - name: BackendAzureResourceGroupName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure resource group name for backend where the state is stored'
-
-  - name: BackendAzureStorageAccountName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage account name for backend where the state is stored'
-
-  - name: BackendAzureContainerName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage container name for backend where the state is stored'
-
-  - name: BackendAzureBlobName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage blob name for backend where the state is stored'
-
-  # Key Vault Parameters
-
-  - name: KeyVaultServiceConnection
-    type: string
-    default: ''
-    displayName: 'Service connection for key vault access secrets'
-
-  - name: KeyVaultName
-    type: string
-    default: ''
-    displayName: 'Name of key vault for accessing secrets'
-
-  - name: KeyVaultSecretsFilter
-    type: string
-    default: '*'
-    displayName: 'Filter for secrets to access from key vault'
-
   - name: RunPlanOnly
     type: boolean
     default: false
     displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
-  - name: VerificationMode
-    type: string
+  - name: EnvironmentConfigs
+    type: object
     # NO default - Consumer must provide this
-    values:
-      - VerifyOnDestroy
-      - VerifyOnAny
-      - VerifyDisabled
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
-
-  - name: TerraformEnvironmentVariableMappings
-    type: object
-    default: { }
-    displayName: 'Key/value pairs of environment variables to be passed to the task'
-
-  - name: TerraformVariableFiles
-    type: object
-    default: [ ]
-    displayName: 'List of .tfvars files to be supplied to the terraform commands.'
-
-  - name: TerraformOutputVariables
-    type: object
-    default: [ ]
-    displayName: 'List of variables to be exported from the terraform after apply has been ran.'
+    displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
 
 variables:
   - name: PipelinePool
@@ -118,25 +40,12 @@ stages:
       TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
-  - template: ../stages/terraform_deploy.yml
-    parameters:
-      DependsOn:
-        - Build
-      Condition: succeeded('Build')
-      AzureSubscriptionServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
-      AzDOEnvironmentName: ${{ parameters.AzDOEnvironmentName }}
-      TerraformVersion: ${{ parameters.TerraformVersion }}
-      DeploymentJobsVariableMappings: ${{ parameters.DeploymentJobsVariableMappings }}
-      BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
-      BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
-      BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
-      BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
-      BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
-      KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
-      KeyVaultName: ${{ parameters.KeyVaultName }}
-      KeyVaultSecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
-      VerificationMode: ${{ parameters.VerificationMode }}
-      RunPlanOnly: ${{ parameters.RunPlanOnly }}
-      TerraformEnvironmentVariableMappings: ${{ parameters.TerraformEnvironmentVariableMappings }}
-      TerraformOutputVariables: ${{ parameters.TerraformOutputVariables }}
-      TerraformVariableFiles: ${{ parameters.TerraformVariableFiles }}
+  - ${{ each environmentConfig in parameters.EnvironmentConfigs }}:
+      - template: ../stages/terraform_deploy.yml
+        parameters:
+          ${{ if or(not(environmentConfig.Name), eq(environmentConfig.Name, '')) }}:
+            "an environment name is not properly defined and is a required field.": "Error"
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          RunPlanOnly: ${{ parameters.RunPlanOnly }}
+          EnvironmentConfig: ${{ environmentConfig }}
+

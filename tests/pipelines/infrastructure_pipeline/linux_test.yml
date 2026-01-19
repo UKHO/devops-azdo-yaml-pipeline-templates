@@ -21,25 +21,125 @@ extends:
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
-    AzDOEnvironmentName: Discovery
-    AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-    # DeploymentJobsVariableMappings # todo configure this for testing
-    BackendAzureServiceConnection: Pipeline-CloudDisco # ?
-    BackendAzureResourceGroupName: m-devopschapter-rg
-    BackendAzureStorageAccountName: ukhodoctfstatesa
-    BackendAzureContainerName: tfstate
-    BackendAzureBlobName: linux_test.tfstate
-    # KeyVaultServiceConnection: Pipeline-CloudDisco
-    # KeyVaultName: aKV
-    # KeyVaultSecretsFilter: aSecretFilter
     RunPlanOnly: ${{ parameters.RunPlanOnly }}
-    VerificationMode: VerifyOnDestroy
-    TerraformEnvironmentVariableMappings:
-      TF_VAR_MinRandom: 1000
-      TF_VAR_MaxRandom: 100000
-    TerraformOutputVariables:
-      - random_number
-      - random_string
-    TerraformVariableFiles:
-      - config/common.tfvars
-      - config/discovery.tfvars
+    EnvironmentConfigs:
+      - Name: dev
+        Stage:
+          DependsOn:
+            - build
+          Condition: succeeded('build')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars
+      - Name: qa
+        Stage:
+          DependsOn:
+            - Deploy_dev_Infrastructure
+          Condition: succeeded('Deploy_dev_Infrastructure')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars
+      - Name: live
+        Stage:
+          DependsOn:
+            - Deploy_qa_Infrastructure
+          Condition: succeeded('Deploy_qa_Infrastructure')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars
+      - Name: dev2
+        Stage:
+          DependsOn:
+            - Deploy_dev_Infrastructure
+          Condition: succeeded('Deploy_dev_Infrastructure')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            #- template: tests/pipelines/infrastructure_pipeline/variables.yml # not working
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars

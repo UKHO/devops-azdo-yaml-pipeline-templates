@@ -21,114 +21,39 @@ parameters:
     default: succeeded()
     displayName: 'The condition that will control whether this job runs or not'
 
-  - name: JobVariableMappings
-    type: object
-    default: { }
-    displayName: "Mapping of variables/groups/templates to be added to the job's variables block"
+  - name: TerraformVersion
+    type: string
+    default: '1.14.x'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
     displayName: 'Name for the artifact containing the terraform files for deployment'
 
-  - name: AzDOEnvironmentName
+  - name: EnvironmentName
     type: string
     # NO default - Consumer must provide this
-    displayName: 'The azure devops environment that this deployment job will be associated with'
+    displayName: 'The environment name that the infrastructure is for'
 
-  # key vault task parameters
-
-  - name: KeyVaultServiceConnection
-    type: string
-    default: ''
-    displayName: 'Service connection for key vault access secrets'
-
-  - name: KeyVaultName
-    type: string
-    default: ''
-    displayName: 'Name of key vault for accessing secrets'
-
-  - name: KeyVaultSecretsFilter
-    type: string
-    default: '*'
-    displayName: 'Filter for secrets to access from key vault'
-
-  # terraform installer task parameters
-
-  - name: TerraformVersion
-    type: string
-    default: '1.14.x'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files'
-
-  # terraform init task parameters
-
-  - name: BackendAzureServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for backend where the state is stored'
-
-  - name: BackendAzureResourceGroupName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure resource group name for backend where the state is stored'
-
-  - name: BackendAzureStorageAccountName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage account name for backend where the state is stored'
-
-  - name: BackendAzureContainerName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage container name for backend where the state is stored'
-
-  - name: BackendAzureBlobName
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure storage blob name for backend where the state is stored'
-
-  # terraform plan/apply shared parameters
-
-  - name: AzureSubscriptionServiceConnection
-    type: string
-    # NO default - Consumer must provide this
-    displayName: 'Azure service connection for the azdo environment'
-
-  - name: TerraformEnvironmentVariableMappings
+  - name: InfrastructureConfig
     type: object
-    default: { }
-    displayName: 'Key/value pairs of environment variables to be passed to the task'
-
-  - name: TerraformVariableFiles
-    type: object
-    default: [ ]
-    displayName: 'List of .tfvars files to be supplied to the terraform command.'
-
-  # terraform plan parameters
-
-  - name: VerificationMode
-    type: string
-    default: VerifyOnAny # Intentionally defaulted as Terraform Apply Mode in this Template will complain without this set
-    values:
-      - VerifyOnDestroy
-      - VerifyOnAny
-      - VerifyDisabled
-    displayName: 'How verification step should trigger: verify on destruction changes; verify on any changes; or do not verify at all'
-
-  # terraform apply parameters
-
-  - name: TerraformOutputVariables
-    type: object
-    default: [ ]
-    displayName: 'List of variables to be exported from the terraform after apply has been ran.'
+    # NO default - Consumer must provide this
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
 jobs:
+  - template: ../schemas/infrastructure_config.yml
+    parameters:
+      InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+      EnvironmentName: ${{ parameters.EnvironmentName }}
+
   - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
-    environment: ${{ parameters.AzDOEnvironmentName }}
+    environment: ${{ parameters.InfrastructureConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     variables:
+
       # Terraform Plan Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
           - name: TerraformPlanFilePath
@@ -137,15 +62,15 @@ jobs:
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
-            value: ${{ join(',', parameters.TerraformOutputVariables) }}
+            value: ${{ join(',', parameters.InfrastructureConfig.OutputVariables) }}
 
       # Shared Variables
       - template: ../utils/concat_wrap_list.yml
         parameters:
-          Items: ${{ parameters.TerraformVariableFiles }}
+          Items: ${{ parameters.InfrastructureConfig.VariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
-          OutputVariableName: TerraformVariableFilesCommandOption
+          OutputVariableName: VariableFilesCommandOption
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: CheckoutPath
@@ -153,13 +78,8 @@ jobs:
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
-      # Consumer Input Variables (can override the above)
-      - ${{ each JobVariableMapping in parameters.JobVariableMappings }}:
-          - ${{ if or(eq(JobVariableMapping.Key, 'group'), eq(JobVariableMapping.Key, 'template')) }}:
-              - ${{ JobVariableMapping.Key }}: ${{ JobVariableMapping.Value }}
-          - ${{ else }}:
-              - name: ${{ JobVariableMapping.Key }}
-                value: ${{ JobVariableMapping.Value }}
+      - ${{ if parameters.InfrastructureConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
+        - ${{ parameters.InfrastructureConfig.JobsVariableMappings }} # Consumer Input Variables (can override the above)
     strategy:
       runOnce:
         deploy:
@@ -176,32 +96,32 @@ jobs:
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
-            - ${{ if and(parameters.KeyVaultServiceConnection, parameters.KeyVaultName, parameters.KeyVaultSecretsFilter) }}:
+            - ${{ if and(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
                 - template: ../tasks/azure_key_vault.yml
                   parameters:
-                    KeyVaultServiceConnection: ${{ parameters.KeyVaultServiceConnection }}
-                    KeyVaultName: ${{ parameters.KeyVaultName }}
-                    SecretsFilter: ${{ parameters.KeyVaultSecretsFilter }}
+                    KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection }}
+                    KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultConfig.Name }}
+                    SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter }}
 
             - template: ../tasks/terraform.yml
               parameters:
                 Command: init
-                BackendAzureServiceConnection: ${{ parameters.BackendAzureServiceConnection }}
-                BackendAzureResourceGroupName: ${{ parameters.BackendAzureResourceGroupName }}
-                BackendAzureStorageAccountName: ${{ parameters.BackendAzureStorageAccountName }}
-                BackendAzureContainerName: ${{ parameters.BackendAzureContainerName }}
-                BackendAzureBlobName: ${{ parameters.BackendAzureBlobName }}
+                BackendAzureServiceConnection: ${{ parameters.InfrastructureConfig.BackendConfig.ServiceConnection }}
+                BackendAzureResourceGroupName: ${{ parameters.InfrastructureConfig.BackendConfig.ResourceGroupName }}
+                BackendAzureStorageAccountName: ${{ parameters.InfrastructureConfig.BackendConfig.StorageAccountName }}
+                BackendAzureContainerName: ${{ parameters.InfrastructureConfig.BackendConfig.ContainerName }}
+                BackendAzureBlobName: ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
-                TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
+                TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
                     Command: plan
-                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(TerraformVariableFilesCommandOption) -input=false'
+                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
 
                 - template: ../tasks/powershell.yml
                   parameters:
@@ -210,24 +130,24 @@ jobs:
                     ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                     FailOnStandardError: true
                     ScriptFileArguments: >
-                      -VerificationMode ${{ parameters.VerificationMode }}
+                      -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: ../tasks/terraform.yml
                   parameters:
                     Command: apply
-                    EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.TerraformEnvironmentVariableMappings }}
-                    CommandOptions: '$(TerraformVariableFilesCommandOption) -input=false'
+                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                    CommandOptions: '$(VariableFilesCommandOption) -input=false'
 
-                - ${{ if parameters.TerraformOutputVariables }}:
+                - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
                     - template: ../tasks/terraform.yml
                       parameters:
                         Command: output
                         WorkingDirectory: $(TerraformWorkingDirectory)
-                        EnvironmentAzureServiceConnection: ${{ parameters.AzureSubscriptionServiceConnection }}
+                        EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                         OutputTo: file
 
                     - template: ../tasks/powershell.yml
