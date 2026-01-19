@@ -79,7 +79,11 @@ jobs:
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
       - ${{ if parameters.InfrastructureConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
-        - ${{ parameters.InfrastructureConfig.JobsVariableMappings }} # Consumer Input Variables (can override the above)
+          - ${{ each mapping in parameters.InfrastructureConfig.JobsVariableMappings }}:
+              - ${{ if mapping.template }}:
+                  - template: ${{ mapping.template }}@self
+              - ${{ if or(mapping.name, mapping.group) }}:
+                  - ${{ mapping }}
     strategy:
       runOnce:
         deploy:
