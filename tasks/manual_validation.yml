@@ -1,0 +1,97 @@
+﻿# Azure DevOps Task: ManualValidation@1
+#
+# Purpose:
+#   Provides a standardised, reusable wrapper for the ManualValidation@1 task in Azure DevOps pipelines.
+#   Enables manual approval steps with flexible notification, approver, and timeout configuration.
+#
+# Parameters:
+#   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
+#   - NotifyUsers (string, required): Users or groups to notify via email. Use empty string for no notifications.
+#   - Approvers (string, optional): Comma-separated list of users/groups/teams allowed to approve. Default: ''
+#   - AllowApproversToApproveTheirOwnRuns (boolean, optional): Allow approvers to approve their own runs. Default: true
+#   - Instructions (string, optional): Instructions shown to users for manual validation. Default: ''
+#   - OnTimeout (string, optional): Action on timeout. Values: reject, resume. Default: reject
+#   - TimeoutInMinutes (number, optional): Timeout in minutes (max 30 days). Default: 60
+#
+# Example Usage:
+#   - template: tasks/manual_validation.yml
+#     parameters:
+#       NotifyUsers: 'admin@company.com'
+#       Instructions: 'Please review and approve this deployment.'
+#
+#   - template: tasks/manual_validation.yml
+#     parameters:
+#       NotifyUsers: '[CompanyName]\DeploymentTeam'
+#       Approvers: 'manager@company.com,lead@company.com'
+#       OnTimeout: 'resume'
+#       TimeoutInMinutes: 1440
+#
+# Notes:
+#   - Only supported in YAML pipelines (not Classic).
+#   - Must run in an agentless/server job (`pool: server`).
+#   - By default, users with "Queue builds" permission can approve/reject.
+#   - Approvers parameter allows restricting approval to specific users/groups.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/manual-validation-v1
+
+parameters:
+  # Standard Azure DevOps Task Parameters
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
+
+  # Specific ManualValidation Task Parameters
+  - name: NotifyUsers
+    type: string
+    default: ''
+    displayName: 'Users or groups to notify via email (required, use empty string for no notifications)'
+
+  - name: Approvers
+    type: string
+    default: ''
+    displayName: 'Specific users/groups/teams who can approve (comma-separated, optional)'
+
+  - name: AllowApproversToApproveTheirOwnRuns
+    type: boolean
+    default: true
+    displayName: 'Allow approvers to approve their own pipeline runs'
+
+  - name: Instructions
+    type: string
+    default: ''
+    displayName: 'Instructions shown to users for manual validation decision'
+
+  # Timeout Behavior
+  - name: OnTimeout
+    type: string
+    default: 'reject'
+    values: [ reject, resume ]
+    displayName: 'Action to take when validation times out (reject or resume)'
+
+  - name: TimeoutInMinutes
+    type: number
+    default: 60  # 1 hour default
+    displayName: 'Timeout in minutes (max 30 days, job timeout must be higher)'
+
+steps:
+  # Main Manual Validation Task
+  - task: ManualValidation@1
+    displayName: 'Manual Validation Required'
+    timeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+    inputs:
+      notifyUsers: '${{ parameters.NotifyUsers }}'
+      ${{ if ne(parameters.Approvers, '') }}:
+        approvers: '${{ parameters.Approvers }}'
+      allowApproversToApproveTheirOwnRuns: ${{ parameters.AllowApproversToApproveTheirOwnRuns }}
+      ${{ if ne(parameters.Instructions, '') }}:
+        instructions: |
+          ${{ parameters.Instructions }}
+          === Pipeline Information ===
+          Pipeline: $(Build.DefinitionName)
+          BuildNumber: $(Build.BuildNumber)
+          Branch: $(Build.SourceBranchName)
+          Requested by: $(Build.RequestedFor)
+          Build ID: $(Build.BuildId)
+          ===========================
+          Please review the above information and choose to Resume or Reject this pipeline run.
+      onTimeout: '${{ parameters.OnTimeout }}'

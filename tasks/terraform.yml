@@ -1,34 +1,89 @@
-﻿# Name: Terraform Base
-# Purpose: Standardized wrapper for TerraformTask@5 with azurerm focus
 # Azure DevOps Task: TerraformTask@5
 #
-# Features:
-# - Single-cloud provider supported (Azure)
-# - Conditional parameter validation
-# - Comprehensive backend configuration support
-# - Command-specific parameter handling
-# - Fail-fast error handling
+# Purpose:
+#   Executes Terraform commands in an Azure DevOps pipeline, supporting Azure as the backend and provider.
+#   Handles commands such as `init`, `plan`, `apply`, `destroy`, and custom commands, with flexible backend and provider configuration.
 #
-# Usage Examples:
-# - Init: command: 'init'
-# - Plan: command: 'plan', command_options: '-out tfplan'
-# - Apply: command: 'apply', command_options: 'tfplan'
-# - Custom: command: 'custom', custom_command: 'workspace list'
+# Parameters:
+#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
+#   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated.
+#   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
+#   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
+#   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 3
+#   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
+#   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
+#   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
+#   - OutputTo (string, optional): Where to send output for show/output commands. Values: console, file. Default: console
+#   - OutputFileName (string, optional): File name for output (when OutputTo is file). Default: ''
+#   - OutputFormat (string, optional): Format for show command output. Values: default, json. Default: default
+#   - BackendAzureServiceConnection (string, optional): Azure service connection for backend state storage. Default: ''
+#   - BackendAzureResourceGroupName (string, optional): Azure resource group for backend state storage. Default: ''
+#   - BackendAzureStorageAccountName (string, optional): Azure storage account for backend state storage. Default: ''
+#   - BackendAzureContainerName (string, optional): Azure storage container for backend state storage. Default: ''
+#   - BackendAzureBlobName (string, optional): Azure blob name (key) for backend state storage. Default: ''
+#   - DisableBackend (boolean, optional): Skip backend configuration during init. Default: false
+#   - UseLocalBackend (boolean, optional): Only init for using the local backend. Default: false
+#   - EnvironmentAzureServiceConnection (string, optional): Azure service connection for provider authentication. Default: ''
 #
-# Notes
-# - Other cloud providers have been excluded.
-# - Following azurerm parameters not included:
-#   - backendAzureRmOverrideSubscriptionID
-#   - backendAzureRmUseIdTokenGeneration
-#   - backendAzureRmUseCliFlagsForAuthentication
-#   - environmentAzureRmOverrideSubscriptionID
-#   - environmentAzureRmUseIdTokenGeneration
-# - TerraformTask does not support '-backend=false' without requiring the need of 'backendServiceArm' parameter, see 'DisableBackend' parameter usage
+# Example Usage:
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'init'
+#       BackendAzureServiceConnection: 'my-azure-connection'
+#
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'plan'
+#       CommandOptions: '-out=tfplan'
+#
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'apply'
+#       CommandOptions: 'tfplan'
+#
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'output'
+#       OutputTo: 'file'
+#
+# Notes:
+#   - This template is designed for Azure and does not support other cloud providers.
+#   - Uses the TerraformTask@5 task from Microsoft DevLabs.
+#   - The DisableBackend parameter allows backend configuration to be skipped during init.
+#   - This TerraformTask is from this [extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
 
 parameters:
+  # Standard Azure DevOps Task Parameters
+  - name: TaskEnvironmentVariables
+    type: object
+    default: { }
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
+
+  - name: TaskNameUniqueSlug
+    type: string
+    default: ''
+    displayName: 'Unique string to add to the task name to make it unique if the same command is repeated'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'Evaluate this condition expression to determine whether to run this task'
+
+  - name: WorkingDirectory
+    type: string
+    default: '$(Pipeline.Workspace)'
+    displayName: 'Directory containing Terraform configuration files'
+
+  - name: RetryCountOnTaskFailure
+    type: number
+    default: 3
+    displayName: 'Number of times to retry the task on failure'
+
+  # Specific TerraformCLI Task Parameters
+
   - name: Command
     type: string
-    displayName: 'Terraform command to execute'
+    # NO default - Consumer must provide this
     values:
       - init
       - validate
@@ -38,98 +93,106 @@ parameters:
       - output
       - destroy
       - custom
+    displayName: 'Terraform command (init, plan, apply, etc.)'
 
-  - name: WorkingDirectory
-    type: string
-    displayName: 'Working directory for Terraform files'
-    default: '$(Pipeline.Workspace)'
-
-  # Command Options
   - name: CommandOptions
     type: string
-    displayName: 'Additional command arguments'
     default: ''
-    # Examples:
-    # - Plan: '-out tfplan'
-    # - Apply: 'tfplan' or '-auto-approve'
-    # - Destroy: '-auto-approve'
+    displayName: 'Extra arguments for the Terraform command'
 
   - name: CustomCommand
     type: string
-    displayName: 'Custom Terraform command (when command = custom)'
     default: ''
-    # Examples: 'workspace list', 'state list', 'providers'
+    displayName: 'Custom Terraform CLI command (when Command is custom)'
 
   # Output Configuration (for show/output commands)
   - name: OutputTo
     type: string
-    displayName: 'Output destination for show/output commands'
     default: 'console'
     values:
       - console
       - file
+    displayName: 'Where to send output for show/output commands'
 
   - name: OutputFileName
     type: string
-    displayName: 'Output file name (when OutputTo = file)'
     default: ''
+    displayName: 'File name for output (when OutputTo is file)'
 
   - name: OutputFormat
     type: string
-    displayName: 'Output format for show command'
     default: 'default'
     values:
       - default
       - json
+    displayName: 'Format for show command output'
 
   # Azure Backend Configuration (for init command)
   - name: BackendAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for backend'
     default: ''
+    displayName: 'Azure service connection for backend state storage'
+
+  - name: BackendAzureResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Azure resource group for backend state storage'
 
   - name: BackendAzureStorageAccountName
     type: string
-    displayName: 'Azure storage account name for backend'
     default: ''
+    displayName: 'Azure storage account for backend state storage'
 
   - name: BackendAzureContainerName
     type: string
-    displayName: 'Azure storage container name for backend'
     default: ''
+    displayName: 'Azure storage container for backend state storage'
 
   - name: BackendAzureBlobName
     type: string
-    displayName: 'Azure storage blob name for state file'
     default: ''
-
-  - name: BackendAzureStorageAccountResourceGroupName
-    type: string
-    displayName: 'Azure resource group name for backend'
-    default: ''
+    displayName: 'Azure blob name (key) for backend state storage'
 
   - name: DisableBackend
     type: boolean
-    displayName: 'Disable the backend configuration when executing init command'
     default: false
+    displayName: 'Skip backend configuration during init'
 
-  # Provider Environment Configuration (for plan/apply/destroy commands)
+  - name: UseLocalBackend
+    type: boolean
+    default: false
+    displayName: 'Only init for using the local backend'
+
+  # Azure Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
     type: string
-    displayName: 'Azure service connection for providers'
     default: ''
+    displayName: 'Azure service connection for provider authentication'
 
 steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
       - script: 'terraform init -backend=false'
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
+
+  - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
+      - script: 'terraform init'
+        displayName: 'Terraform ${{ parameters.Command }}'
+        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        workingDirectory: ${{ parameters.WorkingDirectory }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
 
   - ${{ else }}:
       - task: TerraformTask@5
         displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_${{ parameters.Command }}
+        name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        env: ${{ parameters.TaskEnvironmentVariables }}
+        condition: ${{ parameters.Condition }}
+        retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
         inputs:
           # Core Configuration
           provider: 'azurerm'
@@ -145,7 +208,7 @@ steps:
             customCommand: '${{ parameters.CustomCommand }}'
 
           # Output Configuration (show/output commands)
-          ${{ if and(or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')), ne(parameters.OutputTo, 'console')) }}:
+          ${{ if or(eq(parameters.Command, 'show'), eq(parameters.Command, 'output')) }}:
             outputTo: '${{ parameters.OutputTo }}'
 
           ${{ if and(eq(parameters.OutputTo, 'file'), ne(parameters.OutputFileName, '')) }}:
@@ -159,6 +222,9 @@ steps:
             ${{ if ne(parameters.BackendAzureServiceConnection, '') }}:
               backendServiceArm: '${{ parameters.BackendAzureServiceConnection }}'
 
+            ${{ if ne(parameters.BackendAzureResourceGroupName, '') }}:
+              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureResourceGroupName }}'
+
             ${{ if ne(parameters.BackendAzureStorageAccountName, '') }}:
               backendAzureRmStorageAccountName: '${{ parameters.BackendAzureStorageAccountName }}'
 
@@ -168,10 +234,7 @@ steps:
             ${{ if ne(parameters.BackendAzureBlobName, '') }}:
               backendAzureRmKey: '${{ parameters.BackendAzureBlobName }}'
 
-            ${{ if ne(parameters.BackendAzureStorageAccountResourceGroupName, '') }}:
-              backendAzureRmResourceGroupName: '${{ parameters.BackendAzureStorageAccountResourceGroupName }}'
-
           # Azure Provider Configuration (plan/apply/destroy commands)
-          ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy')) }}:
+          ${{ if or(eq(parameters.Command, 'plan'), eq(parameters.Command, 'apply'), eq(parameters.Command, 'destroy'), eq(parameters.Command, 'output')) }}:
             ${{ if ne(parameters.EnvironmentAzureServiceConnection, '') }}:
               environmentServiceNameAzureRM: '${{ parameters.EnvironmentAzureServiceConnection }}'

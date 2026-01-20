@@ -1,0 +1,64 @@
+parameters:
+  - name: TerraformVersion
+    type: string
+    default: '1.14.x'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for deployment'
+
+  - name: RunPlanOnly
+    type: boolean
+    default: false
+    displayName: 'Whether only the terraform plan should be ran and no deployment made'
+
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
+  - name: InfrastructureConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
+
+jobs:
+  - template: ../jobs/terraform_deploy.yml
+    parameters:
+      # generic parameters
+      TerraformDeployMode: Plan
+      TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+      TerraformVersion: ${{ parameters.TerraformVersion }}
+      InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+      EnvironmentName: ${{ parameters.EnvironmentName }}
+
+  - ${{ if eq(parameters.RunPlanOnly, false) }}:
+      - template: ../jobs/manual_verification.yml
+        parameters:
+          DependsOn: TerraformDeploy_Plan
+          Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
+          Instructions: 'Please validate the terraform plan is acceptable to apply'
+
+      - template: ../jobs/terraform_deploy.yml
+        parameters:
+          # generic Parameters
+          TerraformDeployMode: Apply
+          DependsOn:
+            - ManualVerification
+            - TerraformDeploy_Plan
+          Condition: >
+            or(
+              succeeded('ManualVerification'),
+              and(
+                succeeded('TerraformDeploy_Plan'),
+                eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
+              )
+            )
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+          EnvironmentName: ${{ parameters.EnvironmentName }}
+

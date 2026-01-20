@@ -1,27 +1,27 @@
-﻿parameters:
+parameters:
   - name: ArtifactName
     type: string
     default: 'TerraformArtifact'
-    displayName: 'Artifact Name for Target Path to be saved as.'
+    displayName: 'Artifact Name for Target Path to be saved as'
 
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
-    displayName: "Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact."
+    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.'
 
   - name: TerraformVersion
     type: string
-    default: 'latest'
-    displayName: "Version of Terraform CLI tool to use with the terraform files."
+    default: '1.14.x'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
-    default: []
-    displayName: "Steps to be carried out before the terraform is init, validated, and packaged."
+    default: [ ]
+    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 stages:
   - stage: Build
-    displayName: "Build"
+    displayName: 'Build'
     jobs:
       - template: ../jobs/terraform_build.yml
         parameters:

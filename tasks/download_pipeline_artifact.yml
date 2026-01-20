@@ -1,0 +1,45 @@
+﻿# Azure DevOps Task: DownloadPipelineArtifact@2
+#
+# Purpose:
+#   Provides a reusable, standardized wrapper for downloading pipeline artifacts in Azure DevOps pipelines.
+#   Supports downloading a specific artifact or all artifacts from the current pipeline run, with configurable target path and file patterns.
+#
+# Parameters:
+#   - ArtifactName (string, optional): Name of the artifact to download. Leave empty to download all artifacts.
+#   - ItemPattern (string, optional): File matching pattern (newline-delimited). Default: '**'
+#   - TargetPath (string, optional): Destination directory for downloaded artifacts. Default: $(Pipeline.Workspace)
+#
+# Example Usage:
+#   - template: tasks/download_pipeline_artifact.yml
+#     parameters:
+#       ArtifactName: 'WebApp'
+#       TargetPath: '$(Build.ArtifactStagingDirectory)/WebApp'
+#
+# Notes:
+#   - Only supports downloading from the current pipeline run (buildType: 'current').
+#   - Does not implement downloading from specific builds or external pipelines.
+
+parameters:
+  - name: ArtifactName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Artifact name (leave empty to download all artifacts)'
+
+  - name: ItemPattern
+    type: string
+    default: '**'
+    displayName: 'File matching patterns (newline-delimited)'
+
+  - name: TargetPath
+    type: string
+    default: '$(Pipeline.Workspace)'
+    displayName: 'Destination directory path'
+
+steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download artifact: ${{ parameters.ArtifactName }}'
+    inputs:
+      buildType: 'current'
+      artifactName: '${{ parameters.ArtifactName }}'
+      itemPattern: '${{ parameters.ItemPattern }}'
+      targetPath: '${{ parameters.TargetPath }}'
