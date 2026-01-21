@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+# Template: Utility - build dacpac
+# Purpose: Standard template for creating dacpacs
+# Underlying Task: VSBuild@1
+# Usage:
+#   Build a SQL Server data-tier application project (*.sqlproj)
+#   By default it builds in Release configuration
+# Notes: None
+
+parameters:
+  - name: ProjectPath
+    type: string
+    displayName: The path of the sqlproj to build.
+
+  - name: Configuration
+    type: string
+    default: Release
+    displayName: The build configuration to use.
+
+steps:
+  - task: VSBuild@1
+    displayName: Build dacpac
+    inputs:
+      solution: ${{ parameters.ProjectPath }}
+      configuration: ${{ parameters.Configuration }}
+      platform: AnyCPU
