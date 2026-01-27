@@ -1,6 +1,6 @@
-﻿# Repository Structure
+# Repository Structure
 
-```text
+```
 devops-azdo-yaml-pipeline-templates/
 ├── .github/
 │   ├── copilot-instructions.yml
@@ -29,3 +29,7 @@ devops-azdo-yaml-pipeline-templates/
 ├── README.md
 └── SECURITY.md
 ```
+
+---
+
+*This document was moved from `docs/` to `docs/developers/` for central developer reference. See the developer documentation index for more details.*
