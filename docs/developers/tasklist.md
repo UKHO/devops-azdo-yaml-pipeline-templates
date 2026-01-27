@@ -1,0 +1,58 @@
+- Why the breakdown of folders?
+- Can we add new folders?
+- Where do we place new things
+- Version changes, how does that work?
+- What are the breaking changes?
+- What are changes that look innocent when we first make them but would box us in if we changed them
+- Common yaml structures?
+- What are common ways of passing parameters
+- What are the best ways of validating parameters
+- How does yaml itself work?
+- What is special about azdo yaml?
+- How to add to rider/vscode/vs snippets for code
+- Are there any extensions that can be used?
+- yml vs yaml, what do we stick to?
+- What is the naming convention for files?
+- What is the naming convention for folders?
+- Development environment, how to config
+- What to bare in mind with scripts
+- PowerShell is the perferred
+- No BAT files at all
+- BASH is OK but ideally build machines are powershell enabled
+- Focus on relying on the tasks as much as possible
+- Scripting for complex behaviour that cannot be determined at runtime
+- What is the compile vs runtime thoughts?
+- File system and absolute paths
+- What are the common directories that would appear on a build machine?
+- What should be avoided in the repository
+- What does not need to be a template
+- What attributes need focusing on
+- The pipeline vs jobs approach
+- Saladbar vs set menu
+- Whether force merging should be a thing or not
+- How to pass parameters correctly
+- What are the different ways of laying out object parameters?
+- What is the importance of ordering the variables in the jobs?
+- At what level should variables be used?
+- The usage of AI, what are the guidelines, what do we need to outline, using AI to write the documentation is good
+- Guidance on PRs
+- What updates to the copilot-instructions do I need to write?
+- What does each layer do?
+- What is the concerns of each layer?
+- The object parameters and how to validate them?
+- What are common validation patterms?
+- How should objects be composited and unpacked through the layers?
+- Links to online resources that will help developers
+- The process of updating the user docs
+- Updating other documentation
+- What are the folders for?
+- How to write the templates
+- What is the branching strategy
+- What tooling is available to help?
+- What are pipeline decorators
+- How to test your changes?
+- When is a good time for a PR?
+- How to develop a pipeline and then break it down into templates?
+- PR Process?
+- What is the ADRs that were taken?
+- What was the original design?
