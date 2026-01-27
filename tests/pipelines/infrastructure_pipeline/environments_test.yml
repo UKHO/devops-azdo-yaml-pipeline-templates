@@ -1,0 +1,66 @@
+parameters:
+  - name: TerraformVersion
+    type: string
+    default: 1.0.x
+
+  - name: EnvironmentConfigs
+    type: object
+    default:
+      - Name: dev
+        Stage:
+          DependsOn: build
+          Condition: succeeded('build')
+        InfrastructureConfig:
+          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzDOEnvironmentName: Discovery
+          BackendConfig:
+            ServiceConnection: Pipeline-CloudDisco
+            ResourceGroupName: cheeserg
+            StorageAccountName: cheesesa
+            ContainerName: cheesecn
+            BlobName: cheesebn
+          VerificationMode: 'VerifyOnDestroy'
+          JobsVariableMappings:
+            - group: ExampleVG1
+            - group: ExampleVG2
+            - template: tests/pipelines/infrastructure_pipeline/variables.yml
+            - name: DeploymentJobsVariableMappingVariable
+              value: DeploymentJobsVariableMappingValue
+          EnvironmentVariableMappings:
+            TF_VAR_MinRandom: 1000
+            TF_VAR_MaxRandom: 100000
+          OutputVariables:
+            - random_number
+            - random_string
+          VariableFiles:
+            - config/common.tfvars
+            - config/discovery.tfvars
+    displayName: 'List of environment configurations'
+
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool: 'Mare Nectaris'
+
+stages:
+
+  - template: stages/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
+
+      ${{ if parameters.TerraformVersion }}:
+        ${{ if and(ne(lower(parameters.TerraformVersion), 'latest'), not(contains(parameters.TerraformVersion, '.'))) }}:
+          "TerraformVersion '${{ parameters.TerraformVersion }}' is not properly defined and is a required field.": "Error"
+        TerraformVersion: ${{ parameters.TerraformVersion }}
+
+  - ${{ each environmentConfig in parameters.EnvironmentConfigs }}:
+      - template: stages/terraform_deploy.yml@AzDOPipelineTemplates
+        parameters:
+          TerraformVersion: latest
+          RunPlanOnly: false
+          EnvironmentConfig: ${{ environmentConfig }}

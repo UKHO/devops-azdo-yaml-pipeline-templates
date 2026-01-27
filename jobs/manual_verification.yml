@@ -1,0 +1,39 @@
+﻿parameters:
+  - name: JobName
+    type: string
+    default: ManualVerification
+    displayName: 'Name of the job'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'Condition to run the job'
+
+  - name: TimeoutInMinutes
+    type: number
+    default: 60
+    displayName: 'Timeout for manual verification (minutes)'
+
+  - name: Instructions
+    type: string
+    default: ''
+    displayName: 'Instructions shown to users for manual validation decision'
+
+jobs:
+  - job: ${{ parameters.JobName }}
+    dependsOn: ${{ parameters.DependsOn }}
+    condition: ${{ parameters.Condition }}
+    pool: server
+    displayName: 'Manual Verification'
+    steps:
+      - template: ../tasks/delay.yml
+
+      - template: ../tasks/manual_validation.yml
+        parameters:
+          TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+          Instructions: ${{ parameters.Instructions }}

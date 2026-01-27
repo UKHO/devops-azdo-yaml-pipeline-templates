@@ -1,0 +1,47 @@
+# Azure DevOps Template: ConcatList
+#
+# Purpose:
+#   Concatenates a list of items into a single string variable, applying a prefix and suffix to each item.
+#
+# Parameters:
+#   - Items (object, required): The list of items to concatenate. Default: [].
+#   - Prefix (string, optional): The string to prefix to the start of each item. Default: ''.
+#   - Suffix (string, optional): The string to suffix to the end of each item. Default: ''.
+#   - OutputVariableName (string, optional): The name of the variable where the concatenated result will be stored. Default: 'ConcatVariable'.
+#
+# Example Usage:
+#   - template: utils/concat_wrap_list.yml
+#     parameters:
+#       Items: ['A', 'B']
+#       Prefix: '('
+#       Suffix: ')'
+#       OutputVariableName: 'MyResult'
+#   # Resulting variable $(MyResult) will be "(A)(B)"
+#
+# Notes:
+#   - Uses YAML variables logic to construct the string: Prefix + Item1 + (Suffix+Prefix) + Item2 ... + Suffix
+
+parameters:
+  - name: Items
+    type: object
+    default: [ ]
+    displayName: 'List of items to concatenate together with prefix and suffix on each item.'
+
+  - name: Prefix
+    type: string
+    default: ''
+    displayName: 'The string to prefix to the start of each item.'
+
+  - name: Suffix
+    type: string
+    default: ''
+    displayName: 'The string to suffix to the end of each item.'
+
+  - name: OutputVariableName
+    type: string
+    default: ConcatVariable
+    displayName: 'The name of the variable where the concatenated result will be stored.'
+
+variables:
+  - name: ${{ parameters.OutputVariableName }}
+    value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}

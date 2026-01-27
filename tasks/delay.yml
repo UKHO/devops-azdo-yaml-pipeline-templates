@@ -1,0 +1,30 @@
+﻿# Azure DevOps Task: Delay@1
+#
+# Purpose:
+#   Provides a reusable wrapper for the Delay@1 task in Azure DevOps pipelines.
+#   Allows introducing a configurable delay (pause) in pipeline execution, useful for throttling, waiting for resources, or sequencing steps.
+#
+# Parameters:
+#   - delayForMinutes (number, optional): Number of minutes to delay the pipeline. Default: 0
+#
+# Example Usage:
+#   - template: tasks/delay.yml
+#     parameters:
+#       delayForMinutes: 5
+#
+# Notes:
+#   - Only supports delay in minutes (not seconds).
+#   - Use for simple pipeline pauses; avoid unnecessary delays to keep pipelines efficient.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/delay
+
+parameters:
+  - name: delayForMinutes
+    type: number
+    default: 0
+    displayName: 'Delay Time (minutes)'
+
+steps:
+  - task: Delay@1
+    displayName: 'Delay for ${{ parameters.delayForMinutes }} minutes'
+    inputs:
+      delayForMinutes: ${{ parameters.delayForMinutes }}

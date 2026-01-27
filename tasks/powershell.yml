@@ -1,0 +1,107 @@
+# tasks/powershell.yml
+# Azure DevOps Task: PowerShellTask@2
+#
+# Purpose:
+#   Executes PowerShell scripts in an Azure DevOps pipeline, supporting both inline and file-based scripts.
+#   Allows configuration of script arguments, error and preference variables, and advanced options.
+#
+# Parameters:
+#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
+#   - TaskName (string, optional): Task name for the powershell task.
+#   - TargetType (string, required): 'filePath' or 'inline'. Determines script execution mode.
+#   - FilePath (string, optional): Path to the PowerShell script (when TargetType is filePath).
+#   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline).
+#   - ScriptFileArguments (string, optional): Arguments for the script (when TargetType is filePath).
+#   - FailOnStandardError (boolean, optional): Fail on standard error. Default: false.
+#   - UsePowerShellCoreOnWindows (boolean, optional): Use PowerShell Core. Default: false.
+#   - WorkingDirectory (string, optional): Working directory for the script.
+#
+# Example Usage:
+#   - template: tasks/powershell.yml
+#     parameters:
+#       TargetType: 'filePath'
+#       FilePath: 'scripts/deploy.ps1'
+#       Arguments: '-Verbose'
+#       FailOnStandardError: true
+#
+#   - template: tasks/powershell.yml
+#     parameters:
+#       TargetType: 'inline'
+#       Script: |
+#         Write-Host "Hello from inline PowerShell"
+#       VerbosePreference: 'continue'
+#
+# Notes:
+#   - This template wraps the PowerShell@2 task for reusability and consistency.
+#   - Follows YAML best practices and repository standards.
+
+parameters:
+  - name: TaskEnvironmentVariables
+    type: object
+    default: { }
+    displayName: 'Key/value pairs of environment variables to be passed to the task'
+
+  - name: TaskName
+    type: string
+    default: ''
+    displayName: 'Task name for the powershell task'
+
+  # PowerShell Task Inputs
+
+  - name: TargetType
+    type: string
+    values:
+      - filePath
+      - inline
+    # NO default - Consumer must provide this
+    displayName: 'Script execution mode (filePath or inline)'
+
+  - name: ScriptFilePath
+    type: string
+    default: ''
+    displayName: 'Path to the PowerShell script (when TargetType is filePath)'
+
+  - name: InlineScript
+    type: string
+    default: ''
+    displayName: 'Inline PowerShell script (when TargetType is inline)'
+
+  - name: ScriptFileArguments
+    type: string
+    default: ''
+    displayName: 'Arguments for the script (when TargetType is filePath)'
+
+  - name: UsePowerShellCoreOnWindows
+    type: boolean
+    default: false
+    displayName: 'On Windows, use PowerShell Core (pwsh.exe) instead Windows PowerShell (powershell.exe). No effect on linux.'
+
+  - name: WorkingDirectory
+    type: string
+    default: ''
+    displayName: 'Working directory for the script'
+
+  - name: FailOnStandardError
+    type: boolean
+    default: false
+    displayName: 'Fail on standard error'
+
+steps:
+  - task: PowerShell@2
+    ${{ if ne(parameters.TaskName, '') }}:
+      name: ${{ parameters.TaskName }}
+      displayName: 'PowerShell ${{ parameters.TaskName }}'
+    env: ${{ parameters.TaskEnvironmentVariables }}
+    inputs:
+      targetType: '${{ parameters.TargetType }}'
+      ${{ if and(eq(parameters.TargetType, 'filePath'), ne(parameters.ScriptFilePath, '')) }}:
+        filePath: '${{ parameters.ScriptFilePath }}'
+      ${{ if and(eq(parameters.TargetType, 'filePath'), ne(parameters.ScriptFileArguments, '')) }}:
+        arguments: '${{ parameters.ScriptFileArguments }}'
+      ${{ if and(eq(parameters.TargetType, 'inline'), ne(parameters.InlineScript, '')) }}:
+        script: ${{ parameters.InlineScript }}
+
+      failOnStderr: ${{ parameters.FailOnStandardError }}
+      pwsh: ${{ parameters.UsePowerShellCoreOnWindows }}
+      ${{ if ne(parameters.WorkingDirectory, '') }}:
+        workingDirectory: '${{ parameters.WorkingDirectory }}'
