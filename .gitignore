@@ -79,7 +79,7 @@ fabric.properties
 
 ### PowerShell template
 # Exclude packaged modules
-*.zip
+#*.zip
 
 # Exclude .NET assemblies from source
 *.dll
