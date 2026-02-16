@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+
+parameters:
+  - name: FolderPath
+    type: string
+    displayName: File path to the package or a folder. Wildcards are supported.
+
+  - name: JsonTargetFiles
+    type: string
+    displayName: A newline-separated list of files to substitute the variable values.
+
+steps:
+  - task: FileTransform@2
+    displayName: "File Transform: API Service Application Settings"
+    inputs:
+      folderPath: ${{ parameters.FolderPath }}
+      jsonTargetFiles: ${{ parameters.JsonTargetFiles }}
