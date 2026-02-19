@@ -5,14 +5,6 @@ parameters:
     type: string
     displayName: Specifies the Azure Resource Manager subscription connection for the deployment.
 
-  - name: WebAppType
-    type: string
-    default: webApp
-    values:
-      - webApp
-      - webAppLinux
-    displayName: Use 'webApp' (Web App on Windows) or 'webAppLinux' (Web App on Linux).
-
   - name: WebAppName
     type: string
     displayName: Specifies the name of an Azure App Service.
