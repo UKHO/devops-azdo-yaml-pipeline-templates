@@ -11,7 +11,7 @@ parameters:
 
 steps:
   - task: FileTransform@2
-    displayName: "File Transform: API Service Application Settings"
+    displayName: File Transform
     inputs:
       folderPath: ${{ parameters.FolderPath }}
       jsonTargetFiles: ${{ parameters.JsonTargetFiles }}

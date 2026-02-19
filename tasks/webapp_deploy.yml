@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/azure-pipelines-vscode/master/service-schema.json
+
+parameters:
+  - name: AzureSubscription
+    type: string
+    displayName: Specifies the Azure Resource Manager subscription connection for the deployment.
+
+  - name: WebAppType
+    type: string
+    default: webApp
+    values:
+      - webApp
+      - webAppLinux
+    displayName: Use 'webApp' (Web App on Windows) or 'webAppLinux' (Web App on Linux).
+
+  - name: WebAppName
+    type: string
+    displayName: Specifies the name of an Azure App Service.
+
+  - name: SlotName
+    type: string
+    displayName: Specifies an existing slot, excluding the production slot.
+
+  - name: Package
+    type: string
+    displayName: The file path to the package or folder that contains App Service content.
+
+steps:
+  - task: AzureWebApp@1
+    displayName: Deploy Web App 
+    inputs:
+      azureSubscription: ${{ parameters.AzureSubscription }}
+      appType: webApp
+      appName: ${{ parameters.WebAppName }}
+      deployToSlotOrASE: true
+      slotName: ${{ parameters.SlotName }}
+      package: ${{ parameters.Package }}
