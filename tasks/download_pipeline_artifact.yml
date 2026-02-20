@@ -5,7 +5,7 @@
 #   Supports downloading a specific artifact or all artifacts from the current pipeline run, with configurable target path and file patterns.
 #
 # Parameters:
-#   - ArtifactName (string, optional): Name of the artifact to download. Leave empty to download all artifacts.
+#   - ArtifactName (string, required): Name of the artifact to download.
 #   - ItemPattern (string, optional): File matching pattern (newline-delimited). Default: '**'
 #   - TargetPath (string, optional): Destination directory for downloaded artifacts. Default: $(Pipeline.Workspace)
 #
