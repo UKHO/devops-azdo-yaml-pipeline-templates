@@ -74,11 +74,25 @@ For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipel
 - **Compile-time vs runtime expressions** — Verify `${{ }}` and `$()` are used appropriately.
   Parameters and template logic should use compile-time; runtime variables should use `$()`.
 
-### 5. Cross-cutting checks
+### 5. Formatting (all files)
+
+Check every `.yml` and `.md` file in the repository against `.editorconfig` rules. Fix any
+violations found:
+
+- **BOM** — Files must be UTF-8 **without** BOM. A BOM appears as `﻿` (hex `EF BB BF`) at the
+  start of the file. Remove it.
+- **Line endings** — All lines must use LF (`\n`), not CRLF (`\r\n`). Convert any CRLF files.
+- **Indentation** — YAML files must use 2-space indentation, no tabs. Markdown files must use
+  2-space indentation for nested lists.
+- **Trailing whitespace** — No line may end with trailing spaces or tabs. Trim them.
+- **Final newline** — Every file must end with exactly one newline character. Remove extra
+  trailing blank lines; add a newline if missing.
+- **Tab characters** — No tab characters anywhere in the file. Replace with spaces.
+
+### 6. Cross-cutting checks
 
 - Verify all relative links between documentation files are valid
 - Check that `CHANGELOG.md` exists and has entries
-- Verify `.editorconfig` formatting (no BOM, LF line endings, 2-space indent) on all YAML files
 
 ## Output
 
