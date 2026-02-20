@@ -33,11 +33,12 @@ All task and utility templates **MUST** include a documentation block at the top
 # Azure DevOps Task: [TaskName]@[Version]
 #
 # Purpose:
-#   Clear, concise description of what this template does.
+#   Clear, concise description of what this template does — typically two lines.
 #
 # Parameters:
-#   - ParamName (type, required): Description. Default: value
-#   - ParamName2 (type, optional): Description
+#   - ParamName (type, required): Description.
+#   - ParamName2 (type, optional): Description. Default: value
+#   - ParamName3 (type, optional): Description. Values: a, b. Default: 'a'
 #
 # Example Usage:
 #   - template: tasks/example.yml
@@ -46,7 +47,7 @@ All task and utility templates **MUST** include a documentation block at the top
 #
 # Notes:
 #   - Important considerations
-#   - Limitations or gotchas
+#   - See: [link to Microsoft task reference documentation]
 
 parameters:
   # ...parameters...
@@ -56,10 +57,14 @@ steps:
 ```
 
 **Required Elements:**
-- ✅ Purpose statement
-- ✅ All parameters documented with types and defaults
-- ✅ At least one realistic example
-- ✅ Notes section (if applicable)
+- ✅ Purpose statement (one to two lines)
+- ✅ All parameters documented with types, required/optional status, and defaults
+- ✅ Enum parameters include `Values: a, b, c.` in their description
+- ✅ Required params omit `Default:`; optional params include it
+- ✅ Conditionally required params marked `optional` with a note (e.g., "required when …")
+- ✅ At least one realistic example including all required parameters
+- ✅ When three or more examples, label each additional with a `# Description` comment
+- ✅ Notes section with a `See:` link to Microsoft docs when available
 
 ### Pipelines, Jobs, and Stages (`pipelines/`, `jobs/`, `stages/`) - External Documentation
 
@@ -89,24 +94,51 @@ parameters:
 parameters:
   - name: ParameterName
     type: string  # string, number, boolean, object, stepList, jobList, etc.
-    displayName: 'User-friendly description shown in UI'
     default: 'sensible-default'  # Optional, omit if parameter is required
     values:  # Optional, for enumeration
       - option1
       - option2
+    displayName: 'User-friendly description shown in UI'
 
   - name: RequiredParameter
     type: string
     # NO default - Consumer must provide this
-    displayName: 'Required parameter description'
+    displayName: 'Required parameter description (required)'
+
+  - name: RequiredEnum
+    type: string
+    # NO default - Consumer must provide this
+    values:
+      - optionA
+      - optionB
+    displayName: 'Enum parameter without default (required)'
+
+  - name: ConditionalParam
+    type: string
+    default: ''
+    displayName: 'Only needed when Flag is true (required when Flag is set)'
 ```
 
 **Guidelines:**
 - Use `displayName` on **all** parameters for clarity
 - Choose appropriate `type` for validation
 - Use `values` to restrict to known options
-- Comment `# NO default - Consumer must provide this` for required parameters
+- Comment `# NO default - Consumer must provide this` for required parameters, including
+  required enumerations (those with `values:` but no `default:`)
+- Include `(required)` at the end of `displayName` for required parameters
 - Provide sensible defaults for optional parameters
+- **Conditionally required** parameters (optional by YAML definition but required when another
+  parameter is set) should document the condition in their `displayName`
+
+**Parameter property ordering** (for `tasks/` and `utils/` templates):
+
+Properties within each parameter must appear in this order:
+
+1. `name`
+2. `type`
+3. `default` (or the `# NO default` comment)
+4. `values` (when applicable)
+5. `displayName`
 
 ### Variable Best Practices
 
@@ -420,6 +452,11 @@ stages:
 - Use **PascalCase** for parameter names: `TerraformVersion`, `ServiceConnectionName`
 - Use full words, avoid abbreviations: `TargetEnvironment` not `TgtEnv`
 - Prefix boolean parameters with verbs: `EnableLogging`, `AllowFailure`, `RunTests`
+
+### Filename Naming (`tasks/`, `utils/`)
+
+- Use **snake_case** based on the template's purpose, not the Azure DevOps task name
+- Examples: `azure_key_vault.yml`, `publish_pipeline_artifact.yml`, `file_transform.yml`
 
 ## Template Reusability Checklist
 
