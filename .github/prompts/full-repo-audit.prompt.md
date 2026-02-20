@@ -1,16 +1,19 @@
 ---
-description: 'Run a full repository-wide documentation audit across all template types'
+description: 'Run a full repository-wide audit across all template types for documentation, best practices, and anti-patterns'
 mode: 'edit'
 ---
 
-Perform a complete documentation audit across the entire repository. Check every template against
-its documentation requirements and report all issues found.
+Perform a complete audit across the entire repository. Check every template against its
+documentation requirements, parameter best practices, and anti-pattern rules. Report all issues
+found.
 
 ## Audit scope
 
 ### 1. Task and Utility Templates (`tasks/`, `utils/`)
 
 For each `.yml` file in these directories:
+
+#### Documentation
 
 - Verify the filename is `snake_case` based on the template's purpose (not the Azure DevOps
   task name)
@@ -28,6 +31,13 @@ For each `.yml` file in these directories:
 - Verify three-or-more examples use `# Description` label comments on additional examples
 - Verify the task version in the comment matches the task version in `steps:`
 - Verify Notes include a `See:` link to the Microsoft task reference docs when available
+
+#### Parameters
+
+- Every parameter must have `name`, `type`, and `displayName`
+- Parameters without a default must have `# NO default - Consumer must provide this` and
+  `(required)` at the end of `displayName`
+- Parameter names must use PascalCase and full words (e.g., `TerraformVersion` not `tfVer`)
 
 ### 2. Pipeline Templates (`pipelines/`)
 
@@ -49,7 +59,22 @@ For each `.yml` file in this directory:
   properties that are missing or incorrect in the docs
 - Verify accepted values (e.g., `VerificationMode` options) match between schema and docs
 
-### 4. Cross-cutting checks
+### 4. Anti-patterns (all templates)
+
+For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipelines/`:
+
+- **Double-wrapping** — Flag any template that wraps another template purely for parameter
+  pass-through. Orchestration wrappers (pipeline → stage → job → task) are acceptable.
+- **Hardcoded secrets** — Flag any sensitive values (keys, passwords, connection strings) that
+  are hardcoded. They must use Azure Key Vault or variable groups instead.
+- **Mixed concerns** — Flag any single stage that contains both build and deployment jobs.
+- **Secrets in logs** — Flag any secret values at risk of being printed to pipeline logs.
+- **Overly permissive service connections** — Flag any patterns that suggest broad permissions
+  where scoped connections would be more appropriate.
+- **Compile-time vs runtime expressions** — Verify `${{ }}` and `$()` are used appropriately.
+  Parameters and template logic should use compile-time; runtime variables should use `$()`.
+
+### 5. Cross-cutting checks
 
 - Verify all relative links between documentation files are valid
 - Check that `CHANGELOG.md` exists and has entries
