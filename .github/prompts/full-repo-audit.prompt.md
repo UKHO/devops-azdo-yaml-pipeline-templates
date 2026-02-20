@@ -12,11 +12,22 @@ its documentation requirements and report all issues found.
 
 For each `.yml` file in these directories:
 
+- Verify the filename is `snake_case` based on the template's purpose (not the Azure DevOps
+  task name)
 - Verify a comment block exists at the top with Purpose, Parameters, Example Usage, and Notes
 - Compare every parameter in the `parameters:` block against the comment block — flag mismatches
   in name, type, default value, or required/optional status
+- Verify enum parameter descriptions include `Values: a, b, c.` suffix
+- Verify conditionally required parameters are documented as `optional` with a note on the
+  condition (e.g., "required when deploying to a slot")
+- Verify required enum parameters (those with `values:` and no `default:`) use the
+  `# NO default` comment and `(required)` in `displayName`
+- Verify parameter property ordering follows `name` → `type` → `default` → `values` →
+  `displayName`
 - Verify examples reference correct parameter names
+- Verify three-or-more examples use `# Description` label comments on additional examples
 - Verify the task version in the comment matches the task version in `steps:`
+- Verify Notes include a `See:` link to the Microsoft task reference docs when available
 
 ### 2. Pipeline Templates (`pipelines/`)
 
@@ -50,7 +61,7 @@ Produce a summary table:
 
 | File | Issue | Severity |
 |------|-------|----------|
-| ... | ... | ... |
+| ...  | ...   | ...      |
 
 Then apply fixes for any issues found.
 
