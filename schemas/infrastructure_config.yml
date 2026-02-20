@@ -1,3 +1,7 @@
+# Schema Template: Infrastructure Config
+# Validates infrastructure configuration objects used by deployment jobs.
+# See: docs/definition_docs/infrastructure_pipeline/infrastructure_config.md
+
 parameters:
   - name: InfrastructureConfig
     type: object
