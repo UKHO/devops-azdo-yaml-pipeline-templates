@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: AzureKeyVault@2
+# Azure DevOps Task: AzureKeyVault@2
 #
 # Purpose:
 #   Provides a reusable wrapper for the Azure Key Vault task in Azure DevOps pipelines.
