@@ -1,0 +1,54 @@
+# Azure DevOps Task: FileTransform@2
+#
+# Purpose:
+#   Provides a reusable wrapper for the FileTransform@2 task in Azure DevOps pipelines.
+#   Enables JSON variable substitution, replacing tokens with pipeline variable values at deployment time.
+#
+# Parameters:
+#   - FolderPath (string, required): Path to the package or folder containing files for variable substitution.
+#   - JsonTargetFiles (string, required): Newline-separated list of JSON files for variable substitution (supports glob patterns).
+#   - ErrorOnInvalidSubstitution (boolean, optional): Fail the task when substitution targets are missing or files are empty. Default: false
+#
+# Example Usage:
+#   - template: tasks/file_transform.yml
+#     parameters:
+#       FolderPath: '$(System.DefaultWorkingDirectory)/**/*.zip'
+#       JsonTargetFiles: '**/appsettings.json'
+#
+#   - template: tasks/file_transform.yml
+#     parameters:
+#       FolderPath: '$(Pipeline.Workspace)/drop/**/*.zip'
+#       JsonTargetFiles: |
+#         **/appsettings.json
+#         **/config/*.json
+#       ErrorOnInvalidSubstitution: true
+#
+# Notes:
+#   - This template is scoped to JSON variable substitution only; XML transformation is not exposed.
+#   - Pipeline variables whose names match JSON keys are substituted automatically.
+#   - Supports nested JSON keys using dot notation (e.g., `ConnectionStrings.Default`).
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/file-transform-v2
+
+parameters:
+  - name: FolderPath
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Path to the package or folder containing target files (required)'
+
+  - name: JsonTargetFiles
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Newline-separated list of JSON files for variable substitution (required)'
+
+  - name: ErrorOnInvalidSubstitution
+    type: boolean
+    default: false
+    displayName: 'Fail on empty files or invalid substitution targets'
+
+steps:
+  - task: FileTransform@2
+    displayName: 'Variable substitution on JSON files'
+    inputs:
+      folderPath: '${{ parameters.FolderPath }}'
+      jsonTargetFiles: '${{ parameters.JsonTargetFiles }}'
+      errorOnInvalidSubstitution: ${{ parameters.ErrorOnInvalidSubstitution }}
