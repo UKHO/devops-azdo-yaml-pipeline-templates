@@ -15,6 +15,7 @@
 # Notes:
 #   - Uses the TerraformInstaller@1 task from Microsoft DevLabs.
 #   - Ensure the specified version is compatible with your pipeline and Terraform code.
+#   - See: https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks
 
 parameters:
   - name: TerraformVersion

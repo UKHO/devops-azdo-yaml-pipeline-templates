@@ -93,7 +93,7 @@ parameters:
       - output
       - destroy
       - custom
-    displayName: 'Terraform command (init, plan, apply, etc.)'
+    displayName: 'Terraform command (required)'
 
   - name: CommandOptions
     type: string

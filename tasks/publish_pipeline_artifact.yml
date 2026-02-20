@@ -22,12 +22,13 @@
 parameters:
   - name: ArtifactName
     type: string
-    displayName: 'Name of the artifact to publish'
     default: 'Drop'
+    displayName: 'Name of the artifact to publish'
 
   - name: TargetPath
     type: string
-    displayName: 'Path to files or folder to publish'
+    # NO default - Consumer must provide this
+    displayName: 'Path to files or folder to publish (required)'
 
 steps:
   - task: PublishPipelineArtifact@1

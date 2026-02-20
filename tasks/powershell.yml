@@ -48,11 +48,11 @@ parameters:
 
   - name: TargetType
     type: string
+    # NO default - Consumer must provide this
     values:
       - filePath
       - inline
-    # NO default - Consumer must provide this
-    displayName: 'Script execution mode (filePath or inline)'
+    displayName: 'Script execution mode (required)'
 
   - name: ScriptFilePath
     type: string

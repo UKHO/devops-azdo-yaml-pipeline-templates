@@ -18,6 +18,7 @@
 # Notes:
 #   - Only supports downloading from the current pipeline run (buildType: 'current').
 #   - Does not implement downloading from specific builds or external pipelines.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/download-pipeline-artifact-v2
 
 parameters:
   - name: ArtifactName
