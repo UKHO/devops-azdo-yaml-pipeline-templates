@@ -1,55 +1,13 @@
-parameters:
-  - name: RunPlanOnly
-    type: boolean
-    default: false
-    displayName: 'Whether to run the plan only'
-
-resources:
-  repositories:
-    - repository: AzDOPipelineTemplates
-      type: github
-      endpoint: UKHO
-      name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
-
-pool: $(PipelinePool) # Variable defined within the template, overridable via template parameter 'PipelinePool'.
+trigger: none
+pr: none
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  template: pipelines/dotnet_build.yml
   parameters:
-    PipelinePool: 'Mare Nubium'
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
-    TerraformVersion: latest
-    # TerraformBuildInjectionSteps # do not need to test
-    RunPlanOnly: ${{ parameters.RunPlanOnly }}
-    EnvironmentConfigs:
-      - Name: dev
-        Stage:
-          DependsOn:
-            - build
-          Condition: succeeded('build')
-        InfrastructureConfig:
-          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
-          AzDOEnvironmentName: Discovery
-          BackendConfig:
-            ServiceConnection: Pipeline-CloudDisco
-            ResourceGroupName: cheeserg
-            StorageAccountName: cheesesa
-            ContainerName: cheesecn
-            BlobName: cheesebn
-          VerificationMode: 'VerifyOnDestroy'
-          JobsVariableMappings:
-            - group: ExampleVG1
-            - group: ExampleVG2
-            - template: tests/pipelines/infrastructure_pipeline/variables.yml
-            - name: DeploymentJobsVariableMappingVariable
-              value: DeploymentJobsVariableMappingValue
-          EnvironmentVariableMappings:
-            TF_VAR_MinRandom: 1000
-            TF_VAR_MaxRandom: 100000
-          OutputVariables:
-            - random_number
-            - random_string
-          VariableFiles:
-            - config/common.tfvars
-            - config/discovery.tfvars
+    PipelinePool: 'Mare Nectaris'
+    UseGlobalJson: false
+    DotnetVersion: '8.0.x'
+    Projects: tests/pipelines/dotnet_build_pipeline/test_app/ExampleWebApp.sln
+    PublishProject: tests/pipelines/dotnet_build_pipeline/test_app/ExampleWebApp/ExampleWebApp.csproj
+    RunTests: true
+    ArtifactName: 'ExampleWebApp'

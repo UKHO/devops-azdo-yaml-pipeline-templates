@@ -1,0 +1,48 @@
+﻿parameters:
+  - name: DotnetVersion
+    type: string
+    default: '8.0.x'
+  - name: UseGlobalJson
+    type: boolean
+    default: true
+  - name: BuildConfiguration
+    type: string
+    default: 'Release'
+  - name: Projects
+    type: string
+    default: '**/*.sln'
+  - name: PublishProject
+    type: string
+    default: ''
+  - name: ArtifactName
+    type: string
+    default: 'AppArtifact'
+  - name: RunTests
+    type: boolean
+    default: true
+  - name: FeedsToUse
+    type: string
+    default: 'select'
+  - name: NugetConfigPath
+    type: string
+    default: ''
+  - name: DotnetBuildInjectionSteps
+    type: stepList
+    default: [ ]
+
+stages:
+  - stage: Build
+    displayName: 'Build'
+    jobs:
+      - template: ../jobs/dotnet_build.yml
+        parameters:
+          DotnetVersion: ${{ parameters.DotnetVersion }}
+          UseGlobalJson: ${{ parameters.UseGlobalJson }}
+          BuildConfiguration: ${{ parameters.BuildConfiguration }}
+          Projects: ${{ parameters.Projects }}
+          PublishProject: ${{ parameters.PublishProject }}
+          ArtifactName: ${{ parameters.ArtifactName }}
+          RunTests: ${{ parameters.RunTests }}
+          FeedsToUse: ${{ parameters.FeedsToUse }}
+          NugetConfigPath: ${{ parameters.NugetConfigPath }}
+          DotnetBuildInjectionSteps: ${{ parameters.DotnetBuildInjectionSteps }}
