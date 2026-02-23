@@ -1,0 +1,67 @@
+﻿parameters:
+  - name: PipelinePool
+    type: string
+    default: 'Mare Nectaris'
+    displayName: 'Agent pool to run the pipeline'
+
+  - name: DotnetVersion
+    type: string
+    default: '8.0.x'
+
+  - name: UseGlobalJson
+    type: boolean
+    default: false
+
+  - name: BuildConfiguration
+    type: string
+    default: 'Release'
+
+  - name: Projects
+    type: string
+    default: '**/*.sln'
+
+  - name: PublishProjects
+    type: string
+    default: ''
+
+  - name: ArtifactName
+    type: string
+    default: 'AppArtifact'
+
+  - name: RunTests
+    type: boolean
+    default: true
+
+  - name: FeedsToUse
+    type: string
+    default: 'select'
+    values: [ select, config ]
+
+  - name: NugetConfigPath
+    type: string
+    default: ''
+
+  - name: DotnetBuildInjectionSteps
+    type: stepList
+    default: [ ]
+    displayName: 'Steps to run before restore/build/test/publish'
+
+variables:
+  - name: PipelinePool
+    value: ${{ parameters.PipelinePool }}
+
+pool: $(PipelinePool)
+
+stages:
+  - template: ../stages/dotnet_build.yml
+    parameters:
+      DotnetVersion: ${{ parameters.DotnetVersion }}
+      UseGlobalJson: ${{ parameters.UseGlobalJson }}
+      BuildConfiguration: ${{ parameters.BuildConfiguration }}
+      Projects: ${{ parameters.Projects }}
+      PublishProjects: ${{ parameters.PublishProjects }}
+      ArtifactName: ${{ parameters.ArtifactName }}
+      RunTests: ${{ parameters.RunTests }}
+      FeedsToUse: ${{ parameters.FeedsToUse }}
+      NugetConfigPath: ${{ parameters.NugetConfigPath }}
+      DotnetBuildInjectionSteps: ${{ parameters.DotnetBuildInjectionSteps }}
