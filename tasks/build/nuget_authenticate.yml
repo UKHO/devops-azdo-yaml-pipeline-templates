@@ -1,0 +1,2 @@
+﻿- task: NuGetAuthenticate@1
+  displayName: 'Authenticate to NuGet feeds'

@@ -2,7 +2,7 @@ trigger: none
 pr: none
 
 pool:
-  name: 'Mare Nubium'
+  name: 'Mare Nubium'   # use your Windows pool
 
 variables:
   buildConfiguration: 'Release'
