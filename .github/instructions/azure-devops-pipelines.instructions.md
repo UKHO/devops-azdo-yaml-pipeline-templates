@@ -1,6 +1,6 @@
 ---
 description: 'Azure DevOps Pipeline YAML best practices for devops-azdo-yaml-pipeline-templates repository'
-applyTo: '**.yml'
+applyTo: '**/*.yml'
 ---
 
 # Azure DevOps Pipeline YAML Best Practices

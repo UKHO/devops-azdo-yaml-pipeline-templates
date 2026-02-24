@@ -1,4 +1,4 @@
-﻿# GitHub Copilot Custom Instructions
+# GitHub Copilot Custom Instructions
 
 This repository (`devops-azdo-yaml-pipeline-templates`) is a centralised source for reusable
 Azure DevOps YAML pipeline templates. The goal is to maintain high standards, reliability, and
