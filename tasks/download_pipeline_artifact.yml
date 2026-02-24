@@ -2,7 +2,7 @@
 #
 # Purpose:
 #   Provides a reusable, standardized wrapper for downloading pipeline artifacts in Azure DevOps pipelines.
-#   Supports downloading a specific artifact or all artifacts from the current pipeline run, with configurable target path and file patterns.
+#   Supports downloading a specific artifact with configurable target path and file patterns.
 #
 # Parameters:
 #   - ArtifactName (string, required): Name of the artifact to download.
@@ -18,13 +18,14 @@
 # Notes:
 #   - Only supports downloading from the current pipeline run (buildType: 'current').
 #   - Does not implement downloading from specific builds or external pipelines.
+#   - Only downloads a single artifact.
 #   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/download-pipeline-artifact-v2
 
 parameters:
   - name: ArtifactName
     type: string
     # NO default - Consumer must provide this
-    displayName: 'Artifact name (leave empty to download all artifacts)'
+    displayName: 'Artifact name'
 
   - name: ItemPattern
     type: string
