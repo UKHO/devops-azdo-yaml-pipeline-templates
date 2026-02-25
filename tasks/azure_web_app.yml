@@ -1,0 +1,155 @@
+# Azure DevOps Task: AzureWebApp@1
+#
+# Purpose:
+#   Provides a reusable wrapper for deploying web apps or function apps to Azure App Service.
+#   Supports deployment to specific slots with configurable app type, package path, and runtime settings.
+#
+# Parameters:
+#   - AzureServiceConnection (string, required): Azure Resource Manager service connection for the target subscription.
+#   - AppType (string, required): Type of Azure App Service. Values: webApp, webAppLinux, functionApp, functionAppLinux.
+#   - AppName (string, required): Name of the Azure App Service to deploy to.
+#   - Package (string, required): Path to the package or folder to deploy.
+#   - DeployToSlotOrASE (boolean, optional): Deploy to an existing deployment slot or App Service Environment. Default: false
+#   - ResourceGroupName (string, optional): Resource group name (required when deploying to a slot). Default: ''
+#   - SlotName (string, optional): Name of the deployment slot. Default: 'staging'
+#   - RuntimeStack (string, optional): Runtime stack for Linux apps (e.g., 'DOTNETCORE|8.0'). Default: ''
+#   - StartUpCommand (string, optional): Start-up command for Linux apps. Default: ''
+#   - AppSettings (string, optional): Application settings in key/value pair format (e.g., '-Port 5000 -RequestTimeout 5000'). Default: ''
+#   - ConfigurationStrings (string, optional): Configuration strings in key/value pair format. Default: ''
+#   - DeploymentMethod (string, optional): Deployment method. Values: auto, zipDeploy, runFromPackage. Default: 'auto'
+#
+# Example Usage:
+#   - template: tasks/azure_web_app.yml
+#     parameters:
+#       AzureServiceConnection: 'MyAzureServiceConnection'
+#       AppType: 'webApp'
+#       AppName: 'my-web-app'
+#       Package: '$(Pipeline.Workspace)/drop/**/*.zip'
+#
+#   - template: tasks/azure_web_app.yml
+#     parameters:
+#       AzureServiceConnection: 'MyAzureServiceConnection'
+#       AppType: 'webAppLinux'
+#       AppName: 'my-linux-app'
+#       Package: '$(Pipeline.Workspace)/drop/**/*.zip'
+#       DeployToSlotOrASE: true
+#       ResourceGroupName: 'my-resource-group'
+#       SlotName: 'staging'
+#       RuntimeStack: 'DOTNETCORE|8.0'
+#
+#   # Deploy with app settings and configuration strings
+#   - template: tasks/azure_web_app.yml
+#     parameters:
+#       AzureServiceConnection: 'MyAzureServiceConnection'
+#       AppType: 'webApp'
+#       AppName: 'my-web-app'
+#       Package: '$(Pipeline.Workspace)/drop/**/*.zip'
+#       AppSettings: '-ASPNETCORE_ENVIRONMENT Production -EnableFeatureX true'
+#       ConfigurationStrings: '-DefaultConnection $(DatabaseConnectionString)'
+#
+#   # Deploy using runFromPackage method
+#   - template: tasks/azure_web_app.yml
+#     parameters:
+#       AzureServiceConnection: 'MyAzureServiceConnection'
+#       AppType: 'functionApp'
+#       AppName: 'my-function-app'
+#       Package: '$(Pipeline.Workspace)/drop/**/*.zip'
+#       DeploymentMethod: 'runFromPackage'
+#
+# Notes:
+#   - When DeployToSlotOrASE is true, ResourceGroupName must be provided.
+#   - The SlotName parameter defaults to 'staging' and is only used when DeployToSlotOrASE is true.
+#   - RuntimeStack and StartUpCommand are only applicable to Linux app types (webAppLinux, functionAppLinux).
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-web-app-v1
+
+parameters:
+  - name: AzureServiceConnection
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Azure Resource Manager service connection (required)'
+
+  - name: AppType
+    type: string
+    # NO default - Consumer must provide this
+    values:
+      - webApp
+      - webAppLinux
+      - functionApp
+      - functionAppLinux
+    displayName: 'Azure App Service type (required)'
+
+  - name: AppName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Name of the Azure App Service (required)'
+
+  - name: Package
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Path to the package or folder to deploy (required)'
+
+  - name: DeployToSlotOrASE
+    type: boolean
+    default: false
+    displayName: 'Deploy to an existing deployment slot or App Service Environment'
+
+  - name: ResourceGroupName
+    type: string
+    default: ''
+    displayName: 'Resource group name (required when deploying to a slot)'
+
+  - name: SlotName
+    type: string
+    default: 'staging'
+    displayName: 'Name of the deployment slot'
+
+  - name: RuntimeStack
+    type: string
+    default: ''
+    displayName: 'Runtime stack for Linux apps (e.g., DOTNETCORE|8.0)'
+
+  - name: StartUpCommand
+    type: string
+    default: ''
+    displayName: 'Start-up command for Linux apps'
+
+  - name: AppSettings
+    type: string
+    default: ''
+    displayName: 'Application settings in key/value pair format'
+
+  - name: ConfigurationStrings
+    type: string
+    default: ''
+    displayName: 'Configuration strings in key/value pair format'
+
+  - name: DeploymentMethod
+    type: string
+    default: 'auto'
+    values:
+      - auto
+      - zipDeploy
+      - runFromPackage
+    displayName: 'Deployment method'
+
+steps:
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure App Service: ${{ parameters.AppName }}'
+    inputs:
+      azureSubscription: '${{ parameters.AzureServiceConnection }}'
+      appType: '${{ parameters.AppType }}'
+      appName: '${{ parameters.AppName }}'
+      package: '${{ parameters.Package }}'
+      deployToSlotOrASE: ${{ parameters.DeployToSlotOrASE }}
+      ${{ if eq(parameters.DeployToSlotOrASE, true) }}:
+        resourceGroupName: '${{ parameters.ResourceGroupName }}'
+        slotName: '${{ parameters.SlotName }}'
+      ${{ if ne(parameters.RuntimeStack, '') }}:
+        runtimeStack: '${{ parameters.RuntimeStack }}'
+      ${{ if ne(parameters.StartUpCommand, '') }}:
+        startUpCommand: '${{ parameters.StartUpCommand }}'
+      ${{ if ne(parameters.AppSettings, '') }}:
+        appSettings: '${{ parameters.AppSettings }}'
+      ${{ if ne(parameters.ConfigurationStrings, '') }}:
+        configurationStrings: '${{ parameters.ConfigurationStrings }}'
+      deploymentMethod: '${{ parameters.DeploymentMethod }}'

@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: AzureKeyVault@2
+# Azure DevOps Task: AzureKeyVault@2
 #
 # Purpose:
 #   Provides a reusable wrapper for the Azure Key Vault task in Azure DevOps pipelines.
@@ -27,6 +27,7 @@
 #   - Secrets are mapped to pipeline variables with the same name as in the Key Vault.
 #   - Use secret variables in subsequent steps as $(secretName).
 #   - Requires the service connection to have at least "Get" permissions on secrets.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-key-vault-v2
 
 parameters:
   - name: KeyVaultServiceConnection

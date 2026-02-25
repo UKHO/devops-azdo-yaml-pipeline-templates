@@ -6,7 +6,7 @@
 #
 # Parameters:
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
-#   - NotifyUsers (string, required): Users or groups to notify via email. Use empty string for no notifications.
+#   - NotifyUsers (string, optional): Users or groups to notify via email. Use empty string for no notifications. Default: ''
 #   - Approvers (string, optional): Comma-separated list of users/groups/teams allowed to approve. Default: ''
 #   - AllowApproversToApproveTheirOwnRuns (boolean, optional): Allow approvers to approve their own runs. Default: true
 #   - Instructions (string, optional): Instructions shown to users for manual validation. Default: ''

@@ -6,7 +6,7 @@ Initial release version of this repository.
 
 - Added task template `publish_pipeline_artifact.yml` (@srjames-ukho)
 - Added task template `terraform.yml` (@srjames-ukho)
-- Added task template `terrform_installer.yml` (@srjames-ukho)
+- Added task template `terraform_installer.yml` (@srjames-ukho)
 - Added job template `terraform_build.yml` (@srjames-ukho)
 - Added stage template `terraform_build.yml` (@srjames-ukho)
 - Added pipeline template `infrastructure_pipeline.yml` (@srjames-ukho)

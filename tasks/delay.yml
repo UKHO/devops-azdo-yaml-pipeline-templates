@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: Delay@1
+# Azure DevOps Task: Delay@1
 #
 # Purpose:
 #   Provides a reusable wrapper for the Delay@1 task in Azure DevOps pipelines.
