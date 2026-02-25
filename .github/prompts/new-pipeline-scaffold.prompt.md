@@ -125,7 +125,6 @@ jobs:
 All files must match `.editorconfig`:
 
 - 2-space indentation, no tabs
-- UTF-8 without BOM
 - LF line endings
 - No trailing whitespace
 - File ends with exactly one newline (no trailing blank lines)

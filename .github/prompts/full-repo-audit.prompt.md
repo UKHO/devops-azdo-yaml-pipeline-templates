@@ -79,8 +79,6 @@ For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipel
 Check every `.yml` and `.md` file in the repository against `.editorconfig` rules. Fix any
 violations found:
 
-- **BOM** — Files must be UTF-8 **without** BOM. A BOM appears as `﻿` (hex `EF BB BF`) at the
-  start of the file. Remove it.
 - **Line endings** — All lines must use LF (`\n`), not CRLF (`\r\n`). Convert any CRLF files.
 - **Indentation** — YAML files must use 2-space indentation, no tabs. Markdown files must use
   2-space indentation for nested lists.

@@ -126,7 +126,6 @@ Add the new pipeline to the mapping tables in:
 
 ## Formatting
 
-- Follow `.editorconfig`: UTF-8 without BOM, LF line endings, no trailing whitespace
 - Use 2-space indentation inside all YAML code blocks
 - Keep line length under 400 characters (break at 80 where practical)
 - Use `---` horizontal rules between major sections only where the existing docs use them

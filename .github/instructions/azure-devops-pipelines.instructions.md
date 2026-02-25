@@ -10,14 +10,12 @@ This guide applies to all YAML files in the `devops-azdo-yaml-pipeline-templates
 ## Formatting Standards (MUST FOLLOW)
 
 **Always adhere to `.editorconfig` rules:**
-- **Encoding:** UTF-8 **without BOM** (Byte Order Mark)
 - **Line Endings:** LF (Unix-style, not CRLF)
 - **Indentation:** 2 spaces (never tabs)
 - **Final Newline:** Required at end of file
 - **Trailing Whitespace:** Must be trimmed
 
 **Common Issues to Avoid:**
-- ❌ UTF-8 with BOM (shows as `﻿` at start of file)
 - ❌ CRLF line endings
 - ❌ Tab characters
 - ❌ Trailing whitespace
