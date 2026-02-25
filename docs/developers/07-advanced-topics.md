@@ -1,9 +1,5 @@
 # Advanced Topics & Architecture
 
-## Pipeline Decorators
-
-Pipeline decorators inject steps, jobs, or stages into pipelines automatically without modifying the original YAML. Useful for enforcing organisation-wide standards (compliance checks, telemetry). Not currently used in this repository but important to understand. See [Pipeline Decorators Explained](pipeline-decorators-explained.md).
-
 ## Architectural Decision Records (ADRs)
 
 - Document important decisions in numbered files (e.g., `001-title.md`) in an `adr/` folder.
