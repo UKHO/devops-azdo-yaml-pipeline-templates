@@ -1,6 +1,6 @@
 # Azure DevOps Pipeline Decorators - Complete Guide
 
-Pipeline decorators are Azure DevOps extensions that automatically inject steps into pipelines across your organization or project without requiring changes to individual pipeline YAML files.
+Pipeline decorators are Azure DevOps extensions that automatically inject steps into pipelines across your organisation or project without requiring changes to individual pipeline YAML files.
 
 ## Table of Contents
 1. How Decorators Work
