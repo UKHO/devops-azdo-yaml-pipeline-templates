@@ -38,7 +38,7 @@ extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
     RelativePathToTerraformFiles: infra/webapp
-    TerraformVersion: 1.09
+    TerraformVersion: '1.09'
     EnvironmentConfigs:
       - Name: dev
         Stage:
@@ -184,7 +184,7 @@ extends:
   parameters:
     RelativePathToTerraformFiles: infra/webapp
     PipelinePool: "Mare Nubium"
-    TerraformVersion: 1.1.9
+    TerraformVersion: '1.1.9'
     TerraformBuildInjectionSteps:
       - pwsh: |
           $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
@@ -221,7 +221,7 @@ extends:
 **Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job.
 
 **Solution**: To use Terraform output variables in subsequent stages or jobs outside the infrastructure pipeline, you'll need to:
-1. Ensure the variables are listed in `TerraformOutputVariables` parameter
+1. Ensure the variables are listed in the `OutputVariables` property of your `InfrastructureConfig`
 2. Reference them using the correct dependency syntax: `dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']`
 3. Note: Variables are only exported when `RunPlanOnly` is `false` and the apply job runs successfully
 

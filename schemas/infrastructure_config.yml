@@ -1,3 +1,7 @@
+# Schema Template: Infrastructure Config
+# Validates infrastructure configuration objects used by deployment jobs.
+# See: docs/definition_docs/infrastructure_pipeline/infrastructure_config.md
+
 parameters:
   - name: InfrastructureConfig
     type: object
@@ -68,4 +72,3 @@ jobs:
       - ${{ each variable in parameters.InfrastructureConfig.OutputVariables }}: # Make sure each item in the list is just a string
         - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
           - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
-

@@ -1,35 +1,33 @@
-# tasks/powershell.yml
-# Azure DevOps Task: PowerShellTask@2
+# Azure DevOps Task: PowerShell@2
 #
 # Purpose:
 #   Executes PowerShell scripts in an Azure DevOps pipeline, supporting both inline and file-based scripts.
 #   Allows configuration of script arguments, error and preference variables, and advanced options.
 #
 # Parameters:
-#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
-#   - TaskName (string, optional): Task name for the powershell task.
+#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task. Default: {}
+#   - TaskName (string, optional): Task name for the powershell task. Default: ''
 #   - TargetType (string, required): 'filePath' or 'inline'. Determines script execution mode.
-#   - FilePath (string, optional): Path to the PowerShell script (when TargetType is filePath).
-#   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline).
-#   - ScriptFileArguments (string, optional): Arguments for the script (when TargetType is filePath).
-#   - FailOnStandardError (boolean, optional): Fail on standard error. Default: false.
-#   - UsePowerShellCoreOnWindows (boolean, optional): Use PowerShell Core. Default: false.
-#   - WorkingDirectory (string, optional): Working directory for the script.
+#   - ScriptFilePath (string, optional): Path to the PowerShell script (when TargetType is filePath). Default: ''
+#   - InlineScript (string, optional): Inline PowerShell script (when TargetType is inline). Default: ''
+#   - ScriptFileArguments (string, optional): Arguments for the script (when TargetType is filePath). Default: ''
+#   - UsePowerShellCoreOnWindows (boolean, optional): Use PowerShell Core (pwsh.exe) on Windows. Default: false
+#   - WorkingDirectory (string, optional): Working directory for the script. Default: ''
+#   - FailOnStandardError (boolean, optional): Fail on standard error. Default: false
 #
 # Example Usage:
 #   - template: tasks/powershell.yml
 #     parameters:
 #       TargetType: 'filePath'
-#       FilePath: 'scripts/deploy.ps1'
-#       Arguments: '-Verbose'
+#       ScriptFilePath: 'scripts/deploy.ps1'
+#       ScriptFileArguments: '-Verbose'
 #       FailOnStandardError: true
 #
 #   - template: tasks/powershell.yml
 #     parameters:
 #       TargetType: 'inline'
-#       Script: |
+#       InlineScript: |
 #         Write-Host "Hello from inline PowerShell"
-#       VerbosePreference: 'continue'
 #
 # Notes:
 #   - This template wraps the PowerShell@2 task for reusability and consistency.
@@ -50,11 +48,11 @@ parameters:
 
   - name: TargetType
     type: string
+    # NO default - Consumer must provide this
     values:
       - filePath
       - inline
-    # NO default - Consumer must provide this
-    displayName: 'Script execution mode (filePath or inline)'
+    displayName: 'Script execution mode (required)'
 
   - name: ScriptFilePath
     type: string

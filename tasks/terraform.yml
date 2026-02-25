@@ -5,8 +5,8 @@
 #   Handles commands such as `init`, `plan`, `apply`, `destroy`, and custom commands, with flexible backend and provider configuration.
 #
 # Parameters:
-#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task.
-#   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated.
+#   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task. Default: {}
+#   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated. Default: ''
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
 #   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 3
@@ -93,7 +93,7 @@ parameters:
       - output
       - destroy
       - custom
-    displayName: 'Terraform command (init, plan, apply, etc.)'
+    displayName: 'Terraform command (required)'
 
   - name: CommandOptions
     type: string
