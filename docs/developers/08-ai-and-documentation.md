@@ -10,7 +10,7 @@
 
 - All AI-generated content must be reviewed by a human before merging.
 - Submit AI-generated changes via pull requests for discussion.
-- When repository practices change, update `copilot-instructions.md` to keep it as a single source of truth.
+- When repository practices change, update `.github/copilot-instructions.md` to keep it as a single source of truth.
 
 ---
 

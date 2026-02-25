@@ -12,9 +12,9 @@ Standard YAML features that **do not work** in Azure DevOps:
 ## Formatting & Naming
 
 - **Indentation**: 2 spaces (enforced by `.editorconfig`).
-- **File/folder names**: `lowercase_snakecase`.
+- **Template filenames**: use `lowercase_snakecase` (for example, `terraform_plan_verify_apply_job_list.yml`).
 - **File extension**: `.yml` (not `.yaml`), consistent with Microsoft's default `azure-pipelines.yml`.
-- **No type in filenames**: Use `template.yml`, not `job_template.yml`. For lists, use a suffix like `_job_list.yml`.
+- **No type in template filenames**: use `template.yml`, not `job_template.yml`. For lists, use a suffix like `_job_list.yml`.
 
 ## Key Patterns
 
