@@ -1,6 +1,8 @@
 # Changelog
 
 
+## [0.1.0] - 2026-01-06
+
 Initial release version of this repository.
 
 - Added task template `publish_pipeline_artifact.yml` (@srjames-ukho)
