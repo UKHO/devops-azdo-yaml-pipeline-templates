@@ -1,4 +1,52 @@
-﻿parameters:
+﻿# Azure DevOps Task: UkhoSnykScanTask@0
+#
+# Purpose:
+#   Wraps the UKHO Snyk scan task to perform vulnerability scanning of applications,
+#   container images, source code, and infrastructure-as-code files.
+#
+# Parameters:
+#   - ServiceConnectionEndpoint (string, optional): Snyk service connection endpoint. Default: 'Snyk'
+#   - ScanTestType (string, optional): Type of scan to run. Values: app, container, code, iac. Default: 'app'
+#   - DockerImageName (string, optional): Container image name (required when ScanTestType is 'container'). Default: ''
+#   - DockerFilePath (string, optional): Path to Dockerfile, relative to repo root or working directory. Default: ''
+#   - TargetFile (string, optional): Path to manifest file to test, relative to repo root or working directory. Default: ''
+#   - SeverityThreshold (string, optional): Severity threshold for app/container testing. Values: '', low, medium, high, critical. Default: 'low'
+#   - CodeSeverityThreshold (string, optional): Severity threshold for Snyk Code testing. Values: '', low, medium, high. Default: 'low'
+#   - MonitorWhen (string, optional): When to run Snyk monitor. Values: always, noIssuesFound, never. Default: 'always'
+#   - FailOnIssues (boolean, optional): Fail build if issues are found. Default: true
+#   - FailOnType (string, optional): Fail build based on issue fixability. Values: '', all, patchable, upgradable. Default: ''
+#   - ProjectName (string, optional): Snyk project name. Default: ''
+#   - Organization (string, optional): Organization name or ID in Snyk. Default: ''
+#   - TestDirectory (string, optional): Working directory for the scan. Default: '$(Build.SourcesDirectory)'
+#   - ReportFileName (string, optional): Custom file name for scan reports. Default: ''
+#   - AdditionalArguments (string, optional): Additional command-line args for Snyk CLI. Default: ''
+#
+# Example Usage:
+#   - template: tasks/ukho_snyk_scan_task.yml
+#     parameters:
+#       ServiceConnectionEndpoint: 'Snyk'
+#       ScanTestType: 'app'
+#
+#   # Container image scan
+#   - template: tasks/ukho_snyk_scan_task.yml
+#     parameters:
+#       ScanTestType: 'container'
+#       DockerImageName: 'myregistry.azurecr.io/myapp:latest'
+#       DockerFilePath: 'src/Dockerfile'
+#
+#   # Code scan with high severity threshold
+#   - template: tasks/ukho_snyk_scan_task.yml
+#     parameters:
+#       ScanTestType: 'code'
+#       CodeSeverityThreshold: 'high'
+#
+# Notes:
+#   - ScanTestType controls which inputs are passed to the task. Inputs for other scan types
+#     are excluded at compile time.
+#   - DockerImageName is required when ScanTestType is 'container'.
+#   - See: https://github.com/nickhilton/ukho-snyk-scan-task
+
+parameters:
   - name: ServiceConnectionEndpoint
     type: string
     default: 'Snyk'
@@ -6,14 +54,14 @@
 
   - name: ScanTestType
     type: string
-    values: [app, container, code, iac]
     default: 'app'
+    values: [app, container, code, iac]
     displayName: 'Type of scan test to run'
 
   - name: DockerImageName
     type: string
     default: ''
-    displayName: 'Container image name (if applicable)'
+    displayName: 'Container image name (required when ScanTestType is container)'
 
   - name: DockerFilePath
     type: string
@@ -27,20 +75,20 @@
 
   - name: SeverityThreshold
     type: string
-    values: ['', low, medium, high, critical]
     default: 'low'
+    values: ['', low, medium, high, critical]
     displayName: 'Severity threshold for testing. Leave blank for no threshold.'
 
   - name: CodeSeverityThreshold
     type: string
-    values: ['', low, medium, high]
     default: 'low'
+    values: ['', low, medium, high]
     displayName: 'Severity threshold for Snyk Code testing. Leave blank for no threshold.'
 
   - name: MonitorWhen
     type: string
-    values: [always, noIssuesFound, never]
     default: 'always'
+    values: [always, noIssuesFound, never]
     displayName: 'Snyk monitor run condition'
 
   - name: FailOnIssues
@@ -50,8 +98,8 @@
 
   - name: FailOnType
     type: string
-    values: ['', all, patchable, upgradable] # FailOnType is not a required parameter, there '' is a valid value.
     default: ''
+    values: ['', all, patchable, upgradable]
     displayName: 'Fail build based on issue type'
 
   - name: ProjectName

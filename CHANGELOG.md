@@ -1,5 +1,8 @@
 # Changelog
 
+## [Unreleased]
+
+- Added task template `ukho_snyk_scan_task.yml` (@srjames-ukho)
 
 ## [0.1.0] - 2026-01-06
 
