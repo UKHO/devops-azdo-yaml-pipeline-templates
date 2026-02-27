@@ -22,6 +22,7 @@
 #   - AdditionalArguments (string, optional): Additional command-line args for Snyk CLI. Default: ''
 #
 # Example Usage:
+#   # App (SCA) scan
 #   - template: tasks/ukho_snyk_scan_task.yml
 #     parameters:
 #       ServiceConnectionEndpoint: 'Snyk'
@@ -34,17 +35,26 @@
 #       DockerImageName: 'myregistry.azurecr.io/myapp:latest'
 #       DockerFilePath: 'src/Dockerfile'
 #
-#   # Code scan with high severity threshold
+#   # Code (SAST) scan with high severity threshold
 #   - template: tasks/ukho_snyk_scan_task.yml
 #     parameters:
 #       ScanTestType: 'code'
 #       CodeSeverityThreshold: 'high'
 #
+#   # Infrastructure as Code scan
+#   - template: tasks/ukho_snyk_scan_task.yml
+#     parameters:
+#       ScanTestType: 'iac'
+#
 # Notes:
 #   - ScanTestType controls which inputs are passed to the task. Inputs for other scan types
 #     are excluded at compile time.
 #   - DockerImageName is required when ScanTestType is 'container'.
-#   - See: https://github.com/nickhilton/ukho-snyk-scan-task
+#   - MonitorWhen is automatically set to 'never' by the upstream task for 'code' and 'iac'
+#     test types, regardless of the configured value.
+#   - FailOnType only applies to 'app' and 'container' test types; it is ignored for
+#     'code' and 'iac'.
+#   - See: https://github.com/UKHO/ukho-azure-pipeline-scan-task
 
 parameters:
   - name: ServiceConnectionEndpoint
@@ -145,8 +155,6 @@ steps:
         additionalArguments: ${{ parameters.AdditionalArguments }}
       ${{ if ne(parameters.ReportFileName, '') }}:
         reportFileName: ${{ parameters.ReportFileName }}
-      ${{ if ne(parameters.FailOnType, '') }}:
-        failOnType: ${{ parameters.FailOnType }}
 
       # App-only
       ${{ if eq(parameters.ScanTestType, 'app') }}:
@@ -154,6 +162,8 @@ steps:
         monitorWhen: ${{ parameters.MonitorWhen }}
         ${{ if ne(parameters.TargetFile, '') }}:
           targetFile: ${{ parameters.TargetFile }}
+        ${{ if ne(parameters.FailOnType, '') }}:
+          failOnType: ${{ parameters.FailOnType }}
 
       # Container-only
       ${{ if eq(parameters.ScanTestType, 'container') }}:
@@ -162,6 +172,8 @@ steps:
         dockerImageName: ${{ parameters.DockerImageName }}
         ${{ if ne(parameters.DockerFilePath, '') }}:
           dockerfilePath: ${{ parameters.DockerFilePath }}
+        ${{ if ne(parameters.FailOnType, '') }}:
+          failOnType: ${{ parameters.FailOnType }}
 
       # Code-only
       ${{ if eq(parameters.ScanTestType, 'code') }}:
