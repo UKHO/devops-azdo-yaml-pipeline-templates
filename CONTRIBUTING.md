@@ -74,16 +74,17 @@ Before modifying an existing template, review the [Versioning & Breaking Changes
 
 The full developer guide is split into focused topics:
 
-| # | Topic                                                                                  | Description                                  |
-|---|----------------------------------------------------------------------------------------|----------------------------------------------|
-| 1 | [Repository Structure](docs/developers/01-repository-structure.md)                     | Folder layout and placement rules            |
-| 2 | [YAML Standards](docs/developers/02-yaml-standards.md)                                 | Formatting, naming, and key patterns         |
-| 3 | [Template Development](docs/developers/03-template-development.md)                     | Parameters, scoping, decomposition           |
-| 4 | [Scripts & Tooling](docs/developers/04-scripts-and-tooling.md)                         | Language policy, IDE setup, repo tools       |
-| 5 | [Versioning & Breaking Changes](docs/developers/05-versioning-and-breaking-changes.md) | SemVer rules and the breaking change process |
-| 6 | [Workflow & Testing](docs/developers/06-workflow-and-testing.md)                       | Branching, PR process, testing               |
-| 7 | [Advanced Topics](docs/developers/07-advanced-topics.md)                               | Pipeline decorators, ADRs, design philosophy |
-| 8 | [AI & Documentation](docs/developers/08-ai-and-documentation.md)                       | AI usage policy and copilot-instructions     |
+| # | Topic                                                                                                  | Description                                  |
+|---|--------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| 1 | [Repository Structure](docs/developers/01-repository-structure.md)                                     | Folder layout and placement rules            |
+| 2 | [YAML Standards](docs/developers/02-yaml-standards.md)                                                 | Formatting, naming, and key patterns         |
+| 3 | [Template Development](docs/developers/03-template-development.md)                                     | Parameters, scoping, decomposition           |
+| 4 | [Scripts & Tooling](docs/developers/04-scripts-and-tooling.md)                                         | Language policy, IDE setup, repo tools       |
+| 5 | [Versioning & Breaking Changes](docs/developers/05-versioning-and-breaking-changes.md)                 | SemVer rules and the breaking change process |
+| 6 | [Workflow & Testing](docs/developers/06-workflow-and-testing.md)                                       | Branching, PR process, testing               |
+| 7 | [Advanced Topics](docs/developers/07-advanced-topics.md)                                               | Pipeline decorators, ADRs, design philosophy |
+| 8 | [AI & Documentation](docs/developers/08-ai-and-documentation.md)                                       | AI usage policy and documentation standards  |
+| 9 | [GitHub Copilot Instructions & Prompts](docs/developers/09-github-copilot-instructions-and-prompts.md) | Copilot usage guidance and example prompts   |
 
 Additional references:
 
