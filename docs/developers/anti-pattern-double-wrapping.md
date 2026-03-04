@@ -1,4 +1,4 @@
-﻿# Anti-Pattern: Double Wrapping
+# Anti-Pattern: Double Wrapping
 
 Some pipeline templates may initially seem to benefit from additional wrapper templates to simplify usage or parameter passing. However, introducing multiple layers of wrappers—referred to here as **base wrappers** and **secondary wrappers**—can lead to maintenance challenges and unnecessary complexity.
 
