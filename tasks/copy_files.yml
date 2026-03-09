@@ -1,0 +1,88 @@
+# Azure DevOps Task: CopyFiles@2
+#
+# Purpose:
+#   Copies files from a source folder to a target folder using file matching patterns.
+#   Supports flattening folder structure, overwriting existing files, and preserving timestamps.
+#
+# Parameters:
+#   - SourceFolder (string, optional): Source folder containing files to copy. Default: ''
+#   - Contents (string, required): File matching patterns (newline-delimited) for files to copy.
+#   - TargetFolder (string, required): Destination folder to copy files into.
+#   - CleanTargetFolder (boolean, optional): Delete all existing files in target folder before
+#     copying. Default: false
+#   - OverWrite (boolean, optional): Replace existing files in the target folder. Default: false
+#   - FlattenFolders (boolean, optional): Flatten the folder structure and copy all files into
+#     the target folder directly. Default: false
+#   - PreserveTimestamp (boolean, optional): Preserve the original file timestamps. Default: false
+#
+# Example Usage:
+#   - template: tasks/copy_files.yml
+#     parameters:
+#       Contents: '$(Pipeline.Workspace)/repo/scripts/**'
+#       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+#
+#   # Copy specific file types with overwrite
+#   - template: tasks/copy_files.yml
+#     parameters:
+#       SourceFolder: '$(Build.SourcesDirectory)/config'
+#       Contents: |
+#         **/*.json
+#         **/*.xml
+#       TargetFolder: '$(Build.ArtifactStagingDirectory)/config'
+#       OverWrite: true
+#
+# Notes:
+#   - When SourceFolder is empty, Contents must use absolute paths or paths relative to
+#     $(Build.SourcesDirectory).
+#   - When SourceFolder is provided, Contents patterns are matched relative to that folder.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/copy-files-v2
+
+parameters:
+  - name: SourceFolder
+    type: string
+    default: ''
+    displayName: 'Source folder containing files to copy'
+
+  - name: Contents
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'File matching patterns for files to copy (required)'
+
+  - name: TargetFolder
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Destination folder to copy files into (required)'
+
+  - name: CleanTargetFolder
+    type: boolean
+    default: false
+    displayName: 'Delete all existing files in target folder before copying'
+
+  - name: OverWrite
+    type: boolean
+    default: false
+    displayName: 'Replace existing files in the target folder'
+
+  - name: FlattenFolders
+    type: boolean
+    default: false
+    displayName: 'Flatten folder structure into the target folder'
+
+  - name: PreserveTimestamp
+    type: boolean
+    default: false
+    displayName: 'Preserve original file timestamps'
+
+steps:
+  - task: CopyFiles@2
+    displayName: 'Copy files to: ${{ parameters.TargetFolder }}'
+    inputs:
+      ${{ if ne(parameters.SourceFolder, '') }}:
+        SourceFolder: '${{ parameters.SourceFolder }}'
+      Contents: '${{ parameters.Contents }}'
+      TargetFolder: '${{ parameters.TargetFolder }}'
+      CleanTargetFolder: ${{ parameters.CleanTargetFolder }}
+      OverWrite: ${{ parameters.OverWrite }}
+      flattenFolders: ${{ parameters.FlattenFolders }}
+      preserveTimestamp: ${{ parameters.PreserveTimestamp }}
+
