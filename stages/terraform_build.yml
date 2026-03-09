@@ -9,6 +9,9 @@ parameters:
     default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.'
 
+  - name: AdditionalFilesToPackage
+    type: object
+
   - name: TerraformVersion
     type: string
     default: '1.14.x'
@@ -27,5 +30,6 @@ stages:
         parameters:
           ArtifactName: ${{ parameters.ArtifactName }}
           RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
+          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}

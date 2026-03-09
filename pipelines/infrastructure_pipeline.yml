@@ -14,6 +14,9 @@ parameters:
     default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
+  - name: AdditionalFilesToPackage
+    type: object
+
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: [ ]
@@ -37,6 +40,7 @@ stages:
   - template: ../stages/terraform_build.yml
     parameters:
       RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
+      AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 

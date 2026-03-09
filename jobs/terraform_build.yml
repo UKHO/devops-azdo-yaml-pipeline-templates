@@ -9,6 +9,9 @@ parameters:
     default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
+  - name: AdditionalFilesToPackage
+    type: object
+
   - name: TerraformVersion
     type: string
     default: '1.14.x'
@@ -20,6 +23,7 @@ parameters:
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 jobs:
+  - template: validate
   - job: TerraformBuild
     displayName: 'Terraform Build'
     variables:
@@ -34,6 +38,12 @@ jobs:
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
+
+      - ${{ each file in parameters.AdditionalFilesToPackage }}:
+        - task: CopyFiles@2
+          inputs:
+            Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{file}}
+            TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/terraform_installer.yml
         parameters:
