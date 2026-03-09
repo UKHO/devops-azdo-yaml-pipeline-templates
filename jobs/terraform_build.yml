@@ -68,6 +68,12 @@ jobs:
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
 
+      - ${{ each file in parameters.AdditionalFilesToPackage }}:
+          - template: ../tasks/copy_files.yml
+            parameters:
+              Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ file }}
+              TargetFolder: $(TerraformWorkingDirectory)
+
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: $(TerraformWorkingDirectory)
