@@ -43,6 +43,7 @@ jobs:
             parameters:
               Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ file }}
               TargetFolder: $(TerraformWorkingDirectory)
+              FlattenFolders: true
 
       - template: ../tasks/terraform_installer.yml
         parameters:
@@ -73,6 +74,7 @@ jobs:
             parameters:
               Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ file }}
               TargetFolder: $(TerraformWorkingDirectory)
+              FlattenFolders: true
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
