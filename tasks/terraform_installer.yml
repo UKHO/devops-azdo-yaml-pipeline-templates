@@ -20,10 +20,12 @@
 parameters:
   - name: TerraformVersion
     type: string
-    default: '1.14.x'
+    default: '1.14.0'
     displayName: 'Terraform CLI version to install'
 
 steps:
+  - ${{ if and(ne(parameters.TerraformVersion, 'latest'), ne(length(split(parameters.TerraformVersion, '.')), 3)) }}:
+      - "'terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or semantic version 'x.y.z'.": "Error"
   - task: TerraformInstaller@1
     displayName: 'Install Terraform CLI: ${{ parameters.TerraformVersion }}'
     name: TerraformInstall
