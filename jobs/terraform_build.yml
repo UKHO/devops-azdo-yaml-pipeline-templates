@@ -23,7 +23,6 @@ parameters:
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 jobs:
-  - template: validate
   - job: TerraformBuild
     displayName: 'Terraform Build'
     variables:
