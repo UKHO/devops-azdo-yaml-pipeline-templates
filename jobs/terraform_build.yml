@@ -26,14 +26,15 @@ jobs:
   - job: TerraformBuild
     displayName: 'Terraform Build'
     variables:
-      RepositoryCheckoutPath: $(Build.Repository.Name)
-      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
+      RepositoryCheckoutFolderName: $(Build.Repository.Name)
+      RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)/
+      TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     steps:
       - checkout: self
         displayName: 'Checkout self repository'
-        path: $(RepositoryCheckoutPath)
+        path: $(RepositoryCheckoutFolderName)
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
@@ -41,8 +42,8 @@ jobs:
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
           - template: ../tasks/copy_files.yml
             parameters:
-              SourceFolder: ${{ additionalFileToPackage.SourceFolder }}
-              Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ additionalFileToPackage.Name }}
+              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
+              Contents: $(RepositoryDirectory)/${{ additionalFileToPackage.Name }}
               TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/terraform_installer.yml
@@ -63,7 +64,7 @@ jobs:
       - checkout: self
         displayName: 'Clean the directory post validation'
         clean: true
-        path: $(RepositoryCheckoutPath)
+        path: $(RepositoryCheckoutFolderName)
 
       # Repeat TerraformBuildInjectionSteps on clean code
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
@@ -72,8 +73,8 @@ jobs:
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
           - template: ../tasks/copy_files.yml
             parameters:
-              SourceFolder: ${{ additionalFileToPackage.SourceDirectory }}
-              Contents: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ additionalFileToPackage.File }}
+              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
+              Contents: $(RepositoryDirectory)/${{ additionalFileToPackage.File }}
               TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/publish_pipeline_artifact.yml
