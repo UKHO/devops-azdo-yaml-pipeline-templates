@@ -27,7 +27,7 @@ jobs:
     displayName: 'Terraform Build'
     variables:
       RepositoryCheckoutFolderName: $(Build.Repository.Name)
-      RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)/
+      RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
       TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
