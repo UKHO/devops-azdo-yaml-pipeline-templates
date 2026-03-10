@@ -43,7 +43,7 @@ jobs:
           - template: ../tasks/copy_files.yml
             parameters:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-              Contents: $(RepositoryDirectory)/${{ additionalFileToPackage.Name }}
+              Contents: ${{ additionalFileToPackage.Name }}
               TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/terraform_installer.yml
@@ -74,7 +74,7 @@ jobs:
           - template: ../tasks/copy_files.yml
             parameters:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-              Contents: $(RepositoryDirectory)/${{ additionalFileToPackage.File }}
+              Contents: ${{ additionalFileToPackage.File }}
               TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/publish_pipeline_artifact.yml
