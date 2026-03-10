@@ -74,7 +74,7 @@ jobs:
           - template: ../tasks/copy_files.yml
             parameters:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-              Contents: ${{ additionalFileToPackage.File }}
+              Contents: ${{ additionalFileToPackage.Name }}
               TargetFolder: $(TerraformWorkingDirectory)
 
       - template: ../tasks/publish_pipeline_artifact.yml
