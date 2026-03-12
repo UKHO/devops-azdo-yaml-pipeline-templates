@@ -2,9 +2,9 @@ parameters:
   - name: PipelinePool
     type: object
     default:
-      name: 'Mare Nectaris'
-      demands: [ ]
-      vmImage: ''
+      - name: 'Mare Nectaris'
+        demands: [ ]
+        vmImage: ''
     displayName: 'The pool that the pipeline will run from the highest level'
 
   - name: TerraformVersion
