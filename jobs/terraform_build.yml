@@ -52,6 +52,12 @@ jobs:
 
       - template: ../tasks/terraform.yml
         parameters:
+          Command: custom
+          CustomCommand: fmt
+          CommandOptions: -recursive -check
+
+      - template: ../tasks/terraform.yml
+        parameters:
           Command: init
           DisableBackend: true
           WorkingDirectory: $(TerraformWorkingDirectory)
