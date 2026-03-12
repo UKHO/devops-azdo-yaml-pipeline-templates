@@ -14,7 +14,7 @@ parameters:
     displayName: 'The environment name that the infrastructure is for'
 
 jobs:
-  - template: ../validate/parameters_are_not_null.yml
+  - template: ../validate/parameters_are_not_null_or_empty.yml
     parameters:
       Parameters:
         "InfrastructureConfig.AzureSubscriptionServiceConnection": ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
