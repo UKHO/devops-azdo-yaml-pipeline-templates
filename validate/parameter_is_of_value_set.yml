@@ -1,0 +1,28 @@
+# Validation Template: Parameter Is Not Null
+# Compile-time validation that produces an error if a required parameter value is empty or not set.
+# See: schemas/infrastructure_config.yml for usage context
+
+parameters:
+  - name: Value
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'The parameter value to validate (required)'
+
+  - name: Name
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The parameter name shown in the error message (required)'
+
+  - name: AcceptableValues
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'The parameter acceptable values shown (required)'
+
+  - name: ErrorPrefix
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Prefix for the error message, e.g. environment name context (required)'
+
+jobs:
+  - ${{ if or(not(parameters.Value), eq(parameters.Value, '')), notIn(parameters.Value, parameters.AcceptableValues)) }}:
+      - "${{ parameters.ErrorPrefix }}: ${{ parameters.Name }} is not properly defined and is a required field.": "Error"
