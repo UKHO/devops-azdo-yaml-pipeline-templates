@@ -24,5 +24,5 @@ parameters:
     displayName: 'Prefix for the error message, e.g. environment name context (required)'
 
 jobs:
-  - ${{ if or(not(parameters.Value), eq(parameters.Value, ''), notIn(parameters.Value, parameters.AcceptableValues)) }}:
-      - "${{ parameters.ErrorPrefix }}: ${{ parameters.Name }} is not properly defined and is a required field.": "Error"
+  - ${{ if or(not(parameters.Value), eq(parameters.Value, ''), not(containsValue(parameters.AcceptableValues, parameters.Value))) }}:
+      - "${{ parameters.ErrorPrefix }}: ${{ parameters.Name }} must be one of the following values: ${{ join(', ', parameters.AcceptableValues) }}.": "Error"
