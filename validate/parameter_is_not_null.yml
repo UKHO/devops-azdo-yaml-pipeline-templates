@@ -20,4 +20,4 @@ parameters:
 
 jobs:
   - ${{ if or(not(parameters.Value), eq(parameters.Value, '')) }}:
-      - "'${{ parameters.ErrorPrefix }}: ${{ parameters.Name }} is not properly defined and is a required field.'": "Error"
+      - "${{ parameters.ErrorPrefix }}: ${{ parameters.Name }} is not properly defined and is a required field.'": "Error"

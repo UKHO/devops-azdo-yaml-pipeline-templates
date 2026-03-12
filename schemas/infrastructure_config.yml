@@ -17,8 +17,8 @@ jobs:
   - template: ../validate/parameter_is_not_null.yml
     parameters:
       Value: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
-      Name: "AzureSubscriptionServiceConnection"
-      ErrorPrefix: "${{ parameters.EnvironmentName }}' environment error"
+      Name: "InfrastructureConfig.AzureSubscriptionServiceConnection"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
   - ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
