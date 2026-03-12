@@ -11,6 +11,7 @@ parameters:
 
   - name: AdditionalFilesToPackage
     type: object
+    default: {}
 
   - name: TerraformVersion
     type: string
