@@ -1,0 +1,14 @@
+parameters:
+  - name: Parameters
+    type: object
+
+  - name: ErrorPrefix
+    type: string
+
+jobs:
+  - ${{ each parameter in parameters.Parameters }}:
+      - template: ../validate/parameter_is_not_null.yml
+        parameters:
+          Name: ${{ parameter.Key }}
+          Value: ${{ parameter.Value }}
+          ErrorPrefix: ${{ parameters.ErrorPrefix }}
