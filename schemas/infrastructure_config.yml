@@ -31,9 +31,9 @@ jobs:
       Name: "InfrastructureConfig.VerificationMode"
       Value: ${{ parameters.InfrastructureConfig.VerificationMode }}
       AcceptableValues:
-        - 'VerifyOnDestroy'
-        - 'VerifyOnAny'
-        - 'VerifyDisabled'
+        - VerifyOnDestroy
+        - VerifyOnAny
+        - VerifyDisabled
       ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
   # OPTIONAL PARAMETERS
