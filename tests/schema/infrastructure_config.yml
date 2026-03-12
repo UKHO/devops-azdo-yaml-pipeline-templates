@@ -40,7 +40,7 @@ parameters:
 stages:
   - stage:
     jobs:
-      - template: ../validate/parameters_are_not_null_or_empty.yml
+      - template: ../../validate/parameters_are_not_null_or_empty.yml
         parameters:
           Parameters:
             "InfrastructureConfig.AzureSubscriptionServiceConnection": ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
@@ -52,7 +52,7 @@ stages:
             "InfrastructureConfig.BackendConfig.BlobName": ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
           ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-      - template: ../validate/parameter_is_of_value_set.yml
+      - template: ../../validate/parameter_is_of_value_set.yml
         parameters:
           Name: "InfrastructureConfig.VerificationMode"
           Value: ${{ parameters.InfrastructureConfig.VerificationMode }}
