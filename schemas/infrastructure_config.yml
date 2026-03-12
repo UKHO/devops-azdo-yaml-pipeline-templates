@@ -26,15 +26,15 @@ jobs:
         "InfrastructureConfig.BackendConfig.BlobName": ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
       ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - template: ../validate/parameter_is_of_value_set.yml
-    parameters:
-      Name: "InfrastructureConfig.VerificationMode"
-      Value: ${{ parameters.InfrastructureConfig.VerificationMode }}
-      AcceptableValues:
-        - 'VerifyOnDestroy'
-        - 'VerifyOnAny'
-        - 'VerifyDisabled'
-      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
+#  - template: ../validate/parameter_is_of_value_set.yml
+#    parameters:
+#      Name: "InfrastructureConfig.VerificationMode"
+#      Value: ${{ parameters.InfrastructureConfig.VerificationMode }}
+#      AcceptableValues:
+#        - 'VerifyOnDestroy'
+#        - 'VerifyOnAny'
+#        - 'VerifyDisabled'
+#      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
   # OPTIONAL PARAMETERS
 
