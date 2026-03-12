@@ -20,23 +20,41 @@ jobs:
       Name: "InfrastructureConfig.AzureSubscriptionServiceConnection"
       ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.AzDOEnvironmentName }}
+      Name: "InfrastructureConfig.AzDOEnvironmentName"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ServiceConnection), eq(parameters.InfrastructureConfig.BackendConfig.ServiceConnection, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ServiceConnection is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.BackendConfig.ServiceConnection }}
+      Name: "InfrastructureConfig.BackendConfig.ServiceConnection"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName), eq(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ResourceGroupName is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.BackendConfig.ResourceGroupName }}
+      Name: "InfrastructureConfig.BackendConfig.ResourceGroupName"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.StorageAccountName), eq(parameters.InfrastructureConfig.BackendConfig.StorageAccountName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.StorageAccountName is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.BackendConfig.StorageAccountName }}
+      Name: "InfrastructureConfig.BackendConfig.StorageAccountName"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ContainerName), eq(parameters.InfrastructureConfig.BackendConfig.ContainerName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ContainerName is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.BackendConfig.ContainerName }}
+      Name: "InfrastructureConfig.BackendConfig.ContainerName"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.BlobName is not properly defined and is a required field.": "Error"
+  - template: ../validate/parameter_is_not_null.yml
+    parameters:
+      Value: ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
+      Name: "InfrastructureConfig.BackendConfig.BlobName"
+      ErrorPrefix: "${{ parameters.EnvironmentName }} environment error"
 
   - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, ''), notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
