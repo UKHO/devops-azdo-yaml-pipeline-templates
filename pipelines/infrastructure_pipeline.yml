@@ -1,12 +1,4 @@
 parameters:
-  - name: PipelinePool
-    type: object
-    default:
-      - name: 'Mare Nectaris'
-        demands: [ ]
-        vmImage: ''
-    displayName: 'The pool that the pipeline will run from the highest level'
-
   - name: TerraformVersion
     type: string
     default: '1.14.x'
@@ -35,10 +27,6 @@ parameters:
     type: object
     # NO default - Consumer must provide this
     displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
-
-variables:
-  - name: PipelinePool
-    value: ${{ parameters.PipelinePool }}
 
 stages:
   - template: ../stages/terraform_build.yml
