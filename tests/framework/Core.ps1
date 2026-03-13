@@ -7,13 +7,17 @@ param(
 # CONFIGURATION
 # ============================================================================
 
+# Determine the framework root directory (where Core.ps1 is located)
+# Use $MyInvocation.MyCommand.Path to get the actual path of this script
+$frameworkRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+
 # Load environment-specific configuration
-$configPath = Join-Path $PSScriptRoot "Config.ps1"
+$configPath = Join-Path $frameworkRoot "Config.ps1"
 $environmentConfig = & $configPath
 
 $script:TestFrameworkConfig = @{
   RepositoryRoot = $RepositoryRoot
-  TestFrameworkRoot = $PSScriptRoot
+  TestFrameworkRoot = $frameworkRoot
 
   # Pipeline compilation settings (loaded from Config.ps1)
   CompileBaseParams = $environmentConfig.CompileBaseParams
@@ -22,10 +26,27 @@ $script:TestFrameworkConfig = @{
   ValidationSettings = $environmentConfig.Validation
 
   # Paths to framework components
-  ScriptsPath = Join-Path $PSScriptRoot "scripts"
-  HelpersPath = Join-Path $PSScriptRoot "helpers"
-  AssertionsPath = Join-Path $PSScriptRoot "assertions"
-  TestCaseTemplatePath = Join-Path $PSScriptRoot "templates"
+  ScriptsPath = Join-Path $frameworkRoot "scripts"
+  HelpersPath = Join-Path $frameworkRoot "helpers"
+  AssertionsPath = Join-Path $frameworkRoot "assertions"
+  TestCaseTemplatePath = Join-Path $frameworkRoot "templates"
+}
+
+# ============================================================================
+# IMPORT CORE FRAMEWORK COMPONENTS AT MODULE LEVEL
+# ============================================================================
+# These need to be imported at the script scope level so they're available
+# to all test blocks, not just inside Initialize-TestEnvironment
+# Using dot-sourcing with $PSScriptRoot ensures they're loaded in the correct context
+
+if (Test-Path (Join-Path $script:TestFrameworkConfig.HelpersPath "Test-CompileYaml.ps1"))
+{
+  . (Join-Path $script:TestFrameworkConfig.HelpersPath "Test-CompileYaml.ps1")
+}
+
+if (Test-Path (Join-Path $script:TestFrameworkConfig.AssertionsPath "Pipeline.Assertions.ps1"))
+{
+  . (Join-Path $script:TestFrameworkConfig.AssertionsPath "Pipeline.Assertions.ps1")
 }
 
 # ============================================================================
@@ -289,10 +310,6 @@ function Initialize-TestEnvironment
   $script:RepositoryRoot = $script:TestFrameworkConfig.RepositoryRoot
   $script:InvokePipelineCompilePath = Join-Path $script:TestFrameworkConfig.ScriptsPath "Invoke-PipelineCompile.ps1"
   $script:TestFrameworkRoot = $script:TestFrameworkConfig.TestFrameworkRoot
-
-  # Import core framework components
-  . (Join-Path $script:TestFrameworkConfig.HelpersPath "Test-CompileYaml.ps1")
-  . (Join-Path $script:TestFrameworkConfig.AssertionsPath "Pipeline.Assertions.ps1")
 }
 
 <#
@@ -359,8 +376,16 @@ function Initialize-TaskTestEnvironment
 
   $script:TaskTemplate = Get-Content -Path $taskTemplatePath -Raw
 
-  $script:ValidTestCases = $validTestCases
-  $script:InvalidTestCases = $invalidTestCases
+  # Only assign test cases if they exist as local variables
+  # (they may already be defined at script scope in the test file)
+  if ($null -ne (Get-Variable -Name validTestCases -ErrorAction SilentlyContinue))
+  {
+    $script:ValidTestCases = $validTestCases
+  }
+  if ($null -ne (Get-Variable -Name invalidTestCases -ErrorAction SilentlyContinue))
+  {
+    $script:InvalidTestCases = $invalidTestCases
+  }
 }
 
 <#
