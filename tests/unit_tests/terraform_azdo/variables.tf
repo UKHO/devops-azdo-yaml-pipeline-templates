@@ -1,16 +1,3 @@
-
-variable "github_organisation_name" {
-  type        = string
-  description = "Name of the GitHub organization where the repository is hosted"
-  validation {
-    condition = (
-      length(var.github_organisation_name) > 0 &&
-      length(var.github_organisation_name) <= 39 &&
-      can(regex("^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$", var.github_organisation_name))
-    )
-    error_message = "GitHub organization name must be 1-39 characters, start and end with alphanumeric, and can contain hyphens"
-  }
-}
 variable "azdo_project_name" {
   type        = string
   description = "Name of the Azure DevOps project in Azure DevOps where the azdo components will be deployed"
@@ -24,6 +11,19 @@ variable "azdo_project_name" {
       can(regex("^[^'\"/\\\\\\[\\]:|<>+=;?*]+$", var.azdo_project_name))
     )
     error_message = "Project name must be 1-128 characters, cannot start with underscore (_), cannot start or end with period (.), and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
+  }
+}
+
+variable "github_organisation_name" {
+  type        = string
+  description = "Name of the GitHub organization where the repository is hosted"
+  validation {
+    condition = (
+      length(var.github_organisation_name) > 0 &&
+      length(var.github_organisation_name) <= 39 &&
+      can(regex("^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$", var.github_organisation_name))
+    )
+    error_message = "GitHub organization name must be 1-39 characters, start and end with alphanumeric, and can contain hyphens"
   }
 }
 
