@@ -32,7 +32,7 @@ BeforeAll {
 
 Describe "Template Tests" {
   Context "Valid YAML Compilation" {
-    It "should compile with valid parameters: <Description>" -TestCases $script:ValidTestCases -Skip:($script:ValidTestCases.Count -eq 0) {
+    It "should compile with valid parameters: <Description>" -TestCases $validTestCases -Skip:($validTestCases.Count -eq 0) {
       param($Description, $Parameters)
 
       $result = Test-CompileYaml -YamlContent $script:TaskTemplate -Arguments $Parameters
@@ -41,7 +41,7 @@ Describe "Template Tests" {
   }
 
   Context "Invalid YAML Compilation" {
-    It "should reject invalid parameters: <Description>" -TestCases $script:InvalidTestCases -Skip:($script:InvalidTestCases.Count -eq 0) {
+    It "should reject invalid parameters: <Description>" -TestCases $invalidTestCases -Skip:($invalidTestCases.Count -eq 0) {
       param($Description, $Parameters)
 
       $result = Test-CompileYaml -YamlContent $script:TaskTemplate -Arguments $Parameters
