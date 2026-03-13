@@ -120,7 +120,7 @@ param (
 
   [Parameter()]
   [ValidateNotNullOrEmpty()]
-  [string] $InvokeScriptPath = ".\Invoke-PipelineCompile.ps1"
+  [string] $InvokeScriptPath = "$PSScriptRoot\Invoke-PipelineCompile.ps1"
 )
 
 try {
