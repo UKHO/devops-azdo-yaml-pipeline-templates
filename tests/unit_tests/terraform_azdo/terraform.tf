@@ -13,6 +13,7 @@ terraform {
   }
 
   backend "local" {
+    path = "state/terraform_azdo.tfstate"
   }
 }
 
