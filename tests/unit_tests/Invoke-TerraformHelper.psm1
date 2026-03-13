@@ -82,13 +82,16 @@ function Initialize-Terraform
     [Parameter(Mandatory = $true)]
     [ValidateScript({
       # Allow empty hashtable (no backend config)
-      if ($_.Count -eq 0) {
+      if ($_.Count -eq 0)
+      {
         return $true
       }
 
       # If hashtable has values, validate all values are not null or whitespace
-      foreach ($key in $_.Keys) {
-        if ([string]::IsNullOrWhiteSpace($_.[$key])) {
+      foreach ($key in $_.Keys)
+      {
+        if ([string]::IsNullOrWhiteSpace($_[$key]))
+        {
           throw "BackendConfig['$key'] value cannot be null or empty"
         }
       }
@@ -116,8 +119,12 @@ function Invoke-TerraformValidation
   param(
     [Parameter(Mandatory = $false)]
     [ValidateScript({
-      if ([string]::IsNullOrWhiteSpace($_)) { return $true }  # Allow null/empty for default tflint config
-      if (-not (Test-Path -Path $_ -PathType Leaf)) {
+      if ([string]::IsNullOrWhiteSpace($_))
+      {
+        return $true
+      }  # Allow null/empty for default tflint config
+      if (-not (Test-Path -Path $_ -PathType Leaf))
+      {
         throw "TflintConfigPath '$_' does not exist or is not a file"
       }
       return $true
@@ -149,4 +156,3 @@ Export-ModuleMember -Function @(
   'Initialize-Terraform',
   'Invoke-TerraformValidation'
 )
-
