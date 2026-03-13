@@ -1,0 +1,39 @@
+# ============================================================================
+# Example Task Template: Echo Task Wrapper
+# ============================================================================
+# This is a simple example task template that wraps the built-in Azure DevOps
+# 'script' task to demonstrate how to create reusable task templates.
+#
+# The task accepts parameters for:
+# - A message to echo
+# - The verbosity level of the output
+#
+# Example usage:
+#   steps:
+#     - template: tasks/example_echo_task.yml
+#       parameters:
+#         message: "Hello, World!"
+#         verbosityLevel: "info"
+
+parameters:
+  - name: message
+    type: string
+    displayName: "Message to echo"
+    default: "Hello, World!"
+
+  - name: verbosityLevel
+    type: string
+    displayName: "Verbosity level"
+    default: "info"
+    values:
+      - debug
+      - info
+      - warn
+      - error
+
+steps:
+  - script: |
+      echo "[Verbosity: ${{ parameters.verbosityLevel }}]"
+      echo "${{ parameters.message }}"
+    displayName: "Echo: ${{ parameters.message }}"
+
