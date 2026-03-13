@@ -14,6 +14,7 @@ function Invoke-CommandWithLogging
 {
   param(
     [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
     [string]$Command,
 
     [Parameter(Mandatory = $false)]
@@ -42,7 +43,9 @@ function Connect-ToAzure
 {
   param(
     [Parameter(Mandatory = $false)]
-    [string]$TenantId
+    [AllowNull()]
+    [AllowEmptyString()]
+    [guid]$TenantId
   )
 
   Write-Host "[Authentication] Logging out of any existing Azure sessions..." -ForegroundColor Gray
@@ -55,7 +58,7 @@ function Connect-ToAzure
   if ($TenantId)
   {
     Write-Host "[Authentication] Logging in to tenant: $TenantId" -ForegroundColor Gray
-    az login --tenant $TenantId --use-device-code
+    az login --tenant $TenantId.ToString() --use-device-code
   }
   else
   {
@@ -77,6 +80,21 @@ function Initialize-Terraform
 {
   param(
     [Parameter(Mandatory = $true)]
+    [ValidateScript({
+      # Allow empty hashtable (no backend config)
+      if ($_.Count -eq 0) {
+        return $true
+      }
+
+      # If hashtable has values, validate all values are not null or whitespace
+      foreach ($key in $_.Keys) {
+        if ([string]::IsNullOrWhiteSpace($_.[$key])) {
+          throw "BackendConfig['$key'] value cannot be null or empty"
+        }
+      }
+
+      return $true
+    })]
     [hashtable]$BackendConfig
   )
 
@@ -97,6 +115,13 @@ function Invoke-TerraformValidation
 {
   param(
     [Parameter(Mandatory = $false)]
+    [ValidateScript({
+      if ([string]::IsNullOrWhiteSpace($_)) { return $true }  # Allow null/empty for default tflint config
+      if (-not (Test-Path -Path $_ -PathType Leaf)) {
+        throw "TflintConfigPath '$_' does not exist or is not a file"
+      }
+      return $true
+    })]
     [string]$TflintConfigPath
   )
 
