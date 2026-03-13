@@ -58,7 +58,7 @@ param(
     }
     return $true
   })]
-  [string]$TerraformDirectory = (Get-Location).Path,
+  [string]$TerraformDirectory,
 
   [Parameter(Mandatory = $false)]
   [ValidateScript({
@@ -79,7 +79,21 @@ param(
   [string]$VarFile,
 
   [Parameter(Mandatory = $false)]
-  [switch]$SkipValidation
+  [ValidateScript({
+    if ($_.Count -eq 0) { return $true }  # Allow empty hashtable
+
+    # Validate key values are not empty
+    foreach ($key in $_.Keys)
+    {
+      if ([string]::IsNullOrWhiteSpace($_[$key]))
+      {
+        throw "BackendConfig['$key'] cannot be null or empty"
+      }
+    }
+
+    return $true
+  })]
+  [hashtable]$BackendConfig = @{}
 )
 
 # Set strict error handling
@@ -108,52 +122,25 @@ Write-Host "Current Directory: $( Get-Location )" -ForegroundColor Gray
 Write-Host ""
 
 # Step 1: Azure Authentication
-Write-Host "[1/5] Authenticating to Azure..." -ForegroundColor Green
+Write-Host "[1/3] Authenticating to Azure..." -ForegroundColor Green
 Connect-ToAzure -TenantId $TenantId
 Write-Host ""
 
 # Step 2: Terraform Initialization
-Write-Host "[2/5] Initializing Terraform..." -ForegroundColor Green
+Write-Host "[2/3] Initializing Terraform..." -ForegroundColor Green
 Initialize-Terraform -BackendConfig $BackendConfig
 Write-Host ""
 
-# Step 3: Validation and Formatting
-if (-not $SkipValidation)
-{
-  Write-Host "[3/5] Validating and formatting Terraform code..." -ForegroundColor Green
-  Invoke-TerraformValidation
-  Write-Host ""
-}
-else
-{
-  Write-Host "[3/5] Skipping validation and formatting (--SkipValidation specified)" -ForegroundColor Yellow
-  Write-Host ""
-}
+# Step 3: Terraform Apply
+Write-Host "[3/3] Applying Terraform changes..." -ForegroundColor Green
 
-# Step 4: Terraform Plan
-Write-Host "[4/5] Planning Terraform deployment..." -ForegroundColor Green
-
-$planCommand = "terraform plan -out=tfplan"
+$applyCommand = "terraform apply -auto-approve"
 if ($VarFile -and (Test-Path $VarFile))
 {
-  $planCommand = "terraform plan -var-file=`"$VarFile`" -out=tfplan"
+  $applyCommand += " -var-file=`"$VarFile`""
 }
 
-Invoke-CommandWithLogging -Command $planCommand -ExitOnFailure
-Write-Host "[Plan] ✓ Terraform plan successful" -ForegroundColor Green
-Write-Host ""
-
-# Step 5: Terraform Apply
-Write-Host "[5/5] Applying Terraform changes..." -ForegroundColor Green
-
-if (-not (Test-Path -Path 'tfplan'))
-{
-  Write-Host "ERROR: Terraform plan file 'tfplan' not found." -ForegroundColor Red
-  Write-Host "    Ensure a plan has been created by Step 4 or provide the correct plan file." -ForegroundColor Red
-  exit 1
-}
-
-Invoke-CommandWithLogging -Command "terraform apply `"tfplan`"" -ExitOnFailure
+Invoke-CommandWithLogging -Command $applyCommand -ExitOnFailure
 Write-Host "[Apply] ✓ Terraform apply successful" -ForegroundColor Green
 Write-Host ""
 
