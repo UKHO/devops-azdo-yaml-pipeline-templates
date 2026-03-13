@@ -101,15 +101,24 @@ function Initialize-Terraform
     [hashtable]$BackendConfig
   )
 
-  Write-Host "[Terraform Init] Running terraform init with backend configuration..." -ForegroundColor Gray
+  Write-Host "[Terraform Init] Running terraform init..." -ForegroundColor Gray
 
-  $initCommand = "terraform init -migrate-state"
-  foreach ($key in $BackendConfig.Keys)
+  if ($BackendConfig.Count -eq 0)
   {
-    $initCommand += " -backend-config=`"$key=$($BackendConfig[$key])`""
+    Write-Host "[Terraform Init] No backend config provided, using default initialization" -ForegroundColor Gray
+    Invoke-CommandWithLogging -Command "terraform init" -ExitOnFailure
+  }
+  else
+  {
+    Write-Host "[Terraform Init] Using backend configuration" -ForegroundColor Gray
+    $initCommand = "terraform init -migrate-state"
+    foreach ($key in $BackendConfig.Keys)
+    {
+      $initCommand += " -backend-config=`"$key=$($BackendConfig[$key])`""
+    }
+    Invoke-CommandWithLogging -Command $initCommand -ExitOnFailure
   }
 
-  Invoke-CommandWithLogging -Command $initCommand -ExitOnFailure
   Write-Host "[Terraform Init] ✓ Terraform initialization successful" -ForegroundColor Green
 }
 
