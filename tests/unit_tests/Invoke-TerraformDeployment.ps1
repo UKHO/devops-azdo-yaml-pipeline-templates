@@ -45,15 +45,41 @@
 #>
 
 param(
-  [string]$TenantId = "",
+  [Parameter(Mandatory = $false)]
+  [AllowNull()]
+  [AllowEmptyString()]
+  [guid]$TenantId,
 
+  [Parameter(Mandatory = $false)]
+  [ValidateScript({
+    if (-not (Test-Path -Path $_ -PathType Container))
+    {
+      throw "TerraformDirectory '$_' does not exist or is not a directory"
+    }
+    return $true
+  })]
   [string]$TerraformDirectory = (Get-Location).Path,
 
+  [Parameter(Mandatory = $false)]
+  [ValidateScript({
+    if ( [string]::IsNullOrWhiteSpace($_))
+    {
+      return $true
+    }  # Allow null/empty
+    if (-not (Test-Path -Path $_ -PathType Leaf))
+    {
+      throw "VarFile '$_' does not exist or is not a file"
+    }
+    if (-not ($_ -match '\.tfvars$'))
+    {
+      throw "VarFile must be a .tfvars file, got: $_"
+    }
+    return $true
+  })]
   [string]$VarFile,
 
-  [switch]$SkipValidation,
-
-  [hashtable]$BackendConfig = @{}
+  [Parameter(Mandatory = $false)]
+  [switch]$SkipValidation
 )
 
 # Set strict error handling
@@ -78,7 +104,7 @@ Write-Host ""
 
 # Set working directory
 Set-Location $TerraformDirectory
-Write-Host "Current Directory: $(Get-Location)" -ForegroundColor Gray
+Write-Host "Current Directory: $( Get-Location )" -ForegroundColor Gray
 Write-Host ""
 
 # Step 1: Azure Authentication
@@ -88,16 +114,7 @@ Write-Host ""
 
 # Step 2: Terraform Initialization
 Write-Host "[2/5] Initializing Terraform..." -ForegroundColor Green
-if ($BackendConfig.Count -gt 0)
-{
-  Initialize-Terraform -BackendConfig $BackendConfig
-}
-else
-{
-  Write-Host "[Terraform Init] No backend config provided, running terraform init..." -ForegroundColor Gray
-  Invoke-CommandWithLogging -Command "terraform init" -ExitOnFailure
-  Write-Host "[Terraform Init] ✓ Terraform initialization successful" -ForegroundColor Green
-}
+Initialize-Terraform -BackendConfig $BackendConfig
 Write-Host ""
 
 # Step 3: Validation and Formatting
