@@ -15,7 +15,7 @@ steps:
   - script: echo Hello, world!
 "@
 
-$testResult1 = .\Test-PipelineYaml.ps1 `
+$testResult1 = .\scripts\Test-PipelineYaml.ps1 `
   -YamlContent $yaml1 `
   -Organization $Organisation `
   -Project $ProjectName `
@@ -48,7 +48,7 @@ steps:
   - script: echo Hello, world!
 "@
 
-$testResult2 = .\Test-PipelineYaml.ps1 `
+$testResult2 = .\scripts\Test-PipelineYaml.ps1 `
   -YamlContent $yaml2 `
   -Organization $Organisation `
   -Project $ProjectName `
