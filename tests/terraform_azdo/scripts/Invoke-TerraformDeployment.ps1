@@ -81,11 +81,9 @@ param(
   [hashtable]$BackendConfig = @{}
 )
 
-# Set strict error handling
 $ErrorActionPreference = "Stop"
 $VerbosePreference = "Continue"
 
-# Import helper module
 $helperModulePath = Join-Path $PSScriptRoot "Invoke-TerraformHelper.psm1"
 if (-not (Test-Path $helperModulePath))
 {
@@ -101,22 +99,18 @@ Write-Host "Terraform Directory: $TerraformDirectory" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Set working directory
 Set-Location $TerraformDirectory
 Write-Host "Current Directory: $( Get-Location )" -ForegroundColor Gray
 Write-Host ""
 
-# Step 1: Azure Authentication
 Write-Host "[1/3] Authenticating to Azure..." -ForegroundColor Green
 Connect-ToAzure -TenantId $TenantId
 Write-Host ""
 
-# Step 2: Terraform Initialization
 Write-Host "[2/3] Initializing Terraform..." -ForegroundColor Green
 Initialize-Terraform -BackendConfig $BackendConfig
 Write-Host ""
 
-# Step 3: Terraform Apply
 Write-Host "[3/3] Applying Terraform changes..." -ForegroundColor Green
 
 $applyCommand = "terraform apply -auto-approve"
