@@ -61,21 +61,6 @@ param(
   [string]$TerraformDirectory,
 
   [Parameter(Mandatory = $false)]
-  [ValidateScript({
-    if ( [string]::IsNullOrWhiteSpace($_))
-    {
-      return $true
-    }  # Allow null/empty
-    if (-not (Test-Path -Path $_ -PathType Leaf))
-    {
-      throw "VarFile '$_' does not exist or is not a file"
-    }
-    if (-not ($_ -match '\.tfvars$'))
-    {
-      throw "VarFile must be a .tfvars file, got: $_"
-    }
-    return $true
-  })]
   [string]$VarFile,
 
   [Parameter(Mandatory = $false)]
