@@ -1,5 +1,4 @@
 # Define valid test cases with different parameter combinations
-# These tests demonstrate what the task should accept
 $validTestCases = @(
   @{
     Description = "with default parameters"
@@ -14,21 +13,11 @@ $validTestCases = @(
       message = "Starting deployment process"
       verbosityLevel = "debug"
     }
-  }
-)
-
-# Define invalid test cases with parameters that should fail
-# These tests demonstrate what the task should reject
-$invalidTestCases = @(
-  @{
-    Description = "with empty message parameter"
-    Parameters = @{
-      message = ""
-      verbosityLevel = "info"
-    }
   },
   @{
-    Description = "with invalid verbosityLevel value"
+    # Note: Azure DevOps does not enforce 'values:' constraints at compile time.
+    # An out-of-range value is only rejected at queue/run time, not by the API.
+    Description = "with invalid verbosityLevel value (values: not enforced at compile time)"
     Parameters = @{
       message = "Test message"
       verbosityLevel = "invalid"
@@ -36,19 +25,28 @@ $invalidTestCases = @(
   }
 )
 
-# Source Core.ps1 at script scope (not inside BeforeAll)
-# This ensures all imported functions are available to the test blocks
-$repoRoot = git rev-parse --show-toplevel 2>$null
-. (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+# Define invalid test cases
+$invalidTestCases = @(
+  @{
+    Description = "with empty message parameter"
+    Parameters = @{
+      message = ""
+      verbosityLevel = "info"
+    }
+  }
+)
 
 BeforeAll {
-  # Load task template from examples directory instead of default tasks directory
-  Initialize-TaskTestEnvironment -TestFilePath $PSScriptRoot -TaskTemplatePath "tests/framework/examples/example_echo_task.yml"
+  $repoRoot = git rev-parse --show-toplevel 2>$null
+  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+  Initialize-TaskTestEnvironment `
+    -TestFilePath $PSScriptRoot `
+    -TaskTemplatePath "tests/framework/examples/example_echo_task.yml"
 }
 
 Describe "Example Echo Task Template" {
   Context "Valid YAML Compilation" {
-    It "should compile with valid parameters: <Description>" -TestCases $script:ValidTestCases {
+    It "should compile with valid parameters: <Description>" -TestCases $validTestCases {
       param($Description, $Parameters)
 
       $result = Test-CompileYaml -YamlContent $script:TaskTemplate -Arguments $Parameters
@@ -57,7 +55,7 @@ Describe "Example Echo Task Template" {
   }
 
   Context "Invalid YAML Compilation" {
-    It "should reject invalid parameters: <Description>" -TestCases $script:InvalidTestCases {
+    It "should reject invalid parameters: <Description>" -TestCases $invalidTestCases {
       param($Description, $Parameters)
 
       $result = Test-CompileYaml -YamlContent $script:TaskTemplate -Arguments $Parameters
@@ -65,4 +63,9 @@ Describe "Example Echo Task Template" {
     }
   }
 }
+
+
+
+
+
 
