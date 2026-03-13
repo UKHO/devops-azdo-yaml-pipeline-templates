@@ -1,4 +1,4 @@
-output "pipeline_name" {
-  value       = azuredevops_build_definition.this.name
-  description = "The name of the test pipeline for yml validation."
+output "pipeline_id" {
+  value       = azuredevops_build_definition.this.id
+  description = "The id of the test pipeline for yml validation."
 }
