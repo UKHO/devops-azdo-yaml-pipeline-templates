@@ -44,4 +44,7 @@ parameters:
 
 variables:
   - name: ${{ parameters.OutputVariableName }}
-    value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}
+    ${{ if and(parameters.Items, gt(length(parameters.Items), 0)) }}:
+      value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}
+    ${{ else }}:
+      value: ''
