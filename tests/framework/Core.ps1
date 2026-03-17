@@ -138,15 +138,8 @@ $true if user is authenticated, $false otherwise.
 #>
 function Test-AzAuthentication
 {
-  try
-  {
-    $null = az account show --output json 2>$null | ConvertFrom-Json
-    return $true
-  }
-  catch
-  {
-    return $false
-  }
+  $output = az account show --output json 2>&1
+  return $LASTEXITCODE -eq 0
 }
 
 <#
@@ -250,12 +243,16 @@ function Test-TestFrameworkEnvironment
   # Handle validation results
   if (-not $allValidationsPassed)
   {
-    $errorMessage = "Test framework environment validation failed:`n`n"
-    $errorMessage += ($validationErrors -join "`n`n")
-    $errorMessage += "`n`nRemediation steps:`n"
-    $errorMessage += "1. Install Azure DevOps CLI: az extension add --name azure-devops`n"
-    $errorMessage += "2. Authenticate with Azure: az login`n"
-    $errorMessage += "3. Update Config.ps1 with correct Organization, Project, and PipelineId values`n"
+    $errorMessage = @"
+Test framework environment validation failed:
+
+$($validationErrors -join "`n`n")
+
+Remediation steps:
+1. Install Azure DevOps CLI: az extension add --name azure-devops
+2. Authenticate with Azure: az login
+3. Update Config.ps1 with correct Organization, Project, and PipelineId values
+"@
 
     if ($failOnError)
     {
@@ -482,6 +479,4 @@ function Find-RepositoryTestFiles
 # EXPORT CONFIGURATION
 # ============================================================================
 
-
 Write-Verbose "Test framework initialized. Repository root: $( $script:TestFrameworkConfig.RepositoryRoot )"
-
