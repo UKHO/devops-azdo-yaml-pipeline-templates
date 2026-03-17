@@ -1,4 +1,4 @@
----
+﻿---
 description: 'Run a full repository-wide audit across all template types for documentation, best practices, and anti-patterns'
 mode: 'edit'
 ---
