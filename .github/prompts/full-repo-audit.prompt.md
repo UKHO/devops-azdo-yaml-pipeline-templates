@@ -1,4 +1,4 @@
----
+﻿---
 description: 'Run a full repository-wide audit across all template types for documentation, best practices, and anti-patterns'
 mode: 'edit'
 ---
@@ -7,17 +7,20 @@ Perform a complete audit across the entire repository. Check every template agai
 documentation requirements, parameter best practices, and anti-pattern rules. Report all issues
 found.
 
+**Important:** Do NOT create or modify comment documentation blocks for templates in `/stages/`,
+`/jobs/`, or `/pipelines/` directories. These rely on external documentation only.
+
 ## Audit scope
 
 ### 1. Task and Utility Templates (`tasks/`, `utils/`)
 
-For each `.yml` file in these directories:
+For each `.yml` file in these directories, a comment block at the top is the **sole documentation**.
 
-#### Documentation
+#### Documentation in Comment Block
 
 - Verify the filename is `snake_case` based on the template's purpose (not the Azure DevOps
   task name)
-- Verify a comment block exists at the top with Purpose, Parameters, Example Usage, and Notes
+- Verify a comment block exists at the top with: Purpose, Parameters, Example Usage, and Notes
 - Compare every parameter in the `parameters:` block against the comment block — flag mismatches
   in name, type, default value, or required/optional status
 - Verify enum parameter descriptions include `Values: a, b, c.` suffix
@@ -29,7 +32,8 @@ For each `.yml` file in these directories:
   `displayName`
 - Verify examples reference correct parameter names
 - Verify three-or-more examples use `# Description` label comments on additional examples
-- Verify the task version in the comment matches the task version in `steps:`
+- Verify the task version in the comment matches the task version in `steps:` (if wrapping an
+  Azure DevOps task)
 - Verify Notes include a `See:` link to the Microsoft task reference docs when available
 
 #### Parameters
@@ -41,25 +45,53 @@ For each `.yml` file in these directories:
 
 ### 2. Pipeline Templates (`pipelines/`)
 
-For each `.yml` file in this directory:
+For each `.yml` file in this directory, **do NOT add comment blocks**. External documentation is the
+sole source of truth.
+
+#### External Documentation
 
 - Verify a corresponding markdown file exists in `docs/user-docs/`
 - Verify the pipeline is listed in `docs/user-docs/README.md`
 - Compare every parameter in the pipeline template against the documentation — flag any parameters
   that are missing, renamed, or have incorrect defaults in the docs
 - Verify YAML examples in the docs use current parameter names and defaults
+- Verify the pipeline file itself uses self-documenting parameters with `displayName` and appropriate
+  types
 
 ### 3. Schema Templates (`schemas/`)
 
 For each `.yml` file in this directory:
 
-- Verify a brief comment block exists at the top
+#### Comment Block (Brief)
+
+- Verify a brief comment block exists at the top (3-4 lines) with:
+  - Schema name
+  - One-line description of purpose
+  - Link to detailed definition docs
+- Example format:
+  ```yaml
+  # Schema Template: [Name]
+  # [One-line description of purpose]
+  # See: docs/definition_docs/infrastructure_pipeline/[name].md
+  ```
+
+#### External Definition Documentation
+
 - Verify corresponding definition docs exist in `docs/definition_docs/`
 - Compare every validation rule in the schema against the definition docs — flag any validated
   properties that are missing or incorrect in the docs
 - Verify accepted values (e.g., `VerificationMode` options) match between schema and docs
 
-### 4. Anti-patterns (all templates)
+### 4. Job and Stage Templates (`jobs/`, `stages/`)
+
+For each `.yml` file in these directories:
+
+- **Do NOT add comment documentation blocks.** These are orchestration templates that rely on
+  external documentation or are consumed via parameter documentation in parent templates.
+- Verify parameters use self-documenting names with descriptive `displayName` attributes
+- Verify parameters have appropriate `type` and `default` values where applicable
+
+### 5. Anti-patterns (all templates)
 
 For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipelines/`:
 
@@ -74,7 +106,7 @@ For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipel
 - **Compile-time vs runtime expressions** — Verify `${{ }}` and `$()` are used appropriately.
   Parameters and template logic should use compile-time; runtime variables should use `$()`.
 
-### 5. Formatting (all files)
+### 6. Formatting (all files)
 
 Check every `.yml` and `.md` file in the repository against `.editorconfig` rules. Fix any
 violations found:
@@ -87,7 +119,7 @@ violations found:
   trailing blank lines; add a newline if missing.
 - **Tab characters** — No tab characters anywhere in the file. Replace with spaces.
 
-### 6. Cross-cutting checks
+### 7. Cross-cutting checks
 
 - Verify all relative links between documentation files are valid
 - Check that `CHANGELOG.md` exists and has entries
