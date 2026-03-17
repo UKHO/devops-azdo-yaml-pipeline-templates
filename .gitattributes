@@ -1,0 +1,12 @@
+# Auto-detect text files and normalise to LF
+* text=auto eol=lf
+
+# Force batch/cmd scripts to CRLF (Windows requires it)
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Treat these as binary — never touch line endings
+*.png binary
+*.jpg binary
+*.pdf binary
+*.zip binary
