@@ -38,7 +38,7 @@ extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
     RelativePathToTerraformFiles: infra/webapp
-    TerraformVersion: '1.09'
+    TerraformVersion: '1.0.9'
     EnvironmentConfigs:
       - Name: dev
         Stage:
@@ -72,6 +72,7 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 **For complete configuration documentation, see:**
 - [EnvironmentConfig Documentation](../definition_docs/infrastructure_pipeline/environment_config.md) - Complete environment configuration structure
 - [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md) - Infrastructure-specific configuration details
+- [AdditionalFilesToPackage Documentation](../definition_docs/infrastructure_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
 
 **Quick reference of required fields:**
 
@@ -158,14 +159,22 @@ extends:
             - app_service_url
 ```
 
-### Custom Agent Pool
+### Including Additional Files in the Terraform Artifact
+
+Use `AdditionalFilesToPackage` to include additional files (beyond those in `RelativePathToTerraformFiles`) in the terraform artifact:
 
 ```yaml
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    PipelinePool: 'MyCustomPool'
     RelativePathToTerraformFiles: 'infrastructure/terraform'
+    AdditionalFilesToPackage:
+      - SourceDirectory: 'config/shared'
+        FilesPattern: '*.tfvars'
+        TargetSubdirectoryName: 'shared-config'
+      - SourceDirectory: 'scripts'
+        FilesPattern: '**/*.ps1'
+        TargetSubdirectoryName: 'scripts'
     TerraformVersion: '1.6.0'
     EnvironmentConfigs:
       - Name: dev
@@ -173,8 +182,24 @@ extends:
           DependsOn: Terraform_Build
           Condition: succeeded()
         InfrastructureConfig:
-          # ... infrastructure config ...
+          AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+          AzDOEnvironmentName: development-environment
+          BackendConfig:
+            ServiceConnection: AzureServiceConnection-TerraformState
+            ResourceGroupName: rg-terraform-state-dev
+            StorageAccountName: sttfstatedev
+            ContainerName: tfstate
+            BlobName: dev.terraform.tfstate
+          VerificationMode: VerifyOnDestroy
+          VariableFiles:
+            - config/common.tfvars
+            - config/dev.tfvars
 ```
+
+This will:
+1. Copy all `.tfvars` files from `config/shared/` into the artifact at `shared-config/`
+2. Copy all PowerShell scripts from `scripts/` into the artifact at `scripts/`
+3. Make these files available alongside the terraform files during deployment
 
 ### Injection Step to add required_version
 
@@ -183,7 +208,6 @@ extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
     RelativePathToTerraformFiles: infra/webapp
-    PipelinePool: "Mare Nubium"
     TerraformVersion: '1.1.9'
     TerraformBuildInjectionSteps:
       - pwsh: |
@@ -227,4 +251,4 @@ extends:
 
 ### Incorrect Terraform version being used
 
-**Solution**: Explicitly set the `TerraformVersion` parameter. The default is `1.14.x` which installs the latest patch version of 1.14.
+**Solution**: Explicitly set the `TerraformVersion` parameter. The default is `'1.14.0'`. Remember that only semantic versions (e.g., `'1.14.0'`, `'1.6.5'`) or the keyword `'latest'` are accepted — wildcards like `'1.14.x'` will be rejected with a validation error.

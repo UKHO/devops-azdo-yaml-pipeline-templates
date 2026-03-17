@@ -33,14 +33,14 @@ The deploy stage behavior is controlled by `RunPlanOnly` and `VerificationMode` 
 
 These parameters apply to the entire pipeline and all environments:
 
-| Parameter                                                     | Type     | Required | Default           | Description                                                                       |
-|---------------------------------------------------------------|----------|----------|-------------------|-----------------------------------------------------------------------------------|
-| [PipelinePool](#pipelinepool)                                 | string   |          | `'Mare Nectaris'` | The pool that the pipeline will run from the highest level.                       |
-| [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`              | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact. |
-| [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.x'`        | Version of Terraform CLI tool to use with the terraform files.                    |
-| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[]`              | Steps to be carried out before the terraform is init, validated, and packaged.    |
-| [RunPlanOnly](#runplanonly)                                   | boolean  |          | `false`           | Whether only the terraform plan should be ran and no deployment made.             |
-| [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -                 | List of environment configurations (see dev docs for complete structure).         |
+| Parameter                                                     | Type     | Required | Default    | Description                                                                        |
+|---------------------------------------------------------------|----------|----------|------------|------------------------------------------------------------------------------------|
+| [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`       | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.  |
+| [AdditionalFilesToPackage](#additionalfilestopackage)         | object   |          | `{}`       | List of additional files to include in the terraform artifact (see details below). |
+| [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.0'` | Version of Terraform CLI tool to use ('latest' or semantic version x.y.z).         |
+| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[]`       | Steps to be carried out before the terraform is init, validated, and packaged.     |
+| [RunPlanOnly](#runplanonly)                                   | boolean  |          | `false`    | Whether only the terraform plan should be ran and no deployment made.              |
+| [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -          | List of environment configurations (see dev docs for complete structure).          |
 
 ## Environment Configuration
 
@@ -79,16 +79,6 @@ EnvironmentConfigs:
 
 Below are all the pipeline-level parameters to this template with further details.
 
-### PipelinePool
-
-Change the agent pool that is being used by specifying it.
-
-```yaml
-PipelinePool: 'Mare Nubium'
-```
-
-`Mare Nectaris` is the default pool, no need to specify.
-
 ### RelativePathToTerraformFiles
 
 State where the terraform files that need packaging and then deploying are located.
@@ -99,7 +89,50 @@ RelativePathToTerraformFiles: 'infrastructure/terraform'
 
 The path prepended with `$(Pipeline.Workspace)/$(Build.Repository.Name)/` for creating an absolute path to the terraform files.
 
-### TerraformVersion
+### AdditionalFilesToPackage
+
+This parameter allows you to include additional files (beyond the Terraform files in `RelativePathToTerraformFiles`) in the terraform artifact that gets deployed.
+
+**For comprehensive guide, see:** [AdditionalFilesToPackage - Detailed Guide](./infrastructure_pipeline_additional_files_to_package.md)
+
+**For object structure, see:** [AdditionalFilesToPackage Definition](../definition_docs/infrastructure_pipeline/additional_files_to_package.md)
+
+#### Quick Reference
+
+Each item in `AdditionalFilesToPackage` is an object with three required properties:
+
+| Property               | Type   | Description                                                |
+|------------------------|--------|------------------------------------------------------------|
+| SourceDirectory        | string | Relative path from repository root to the source directory |
+| FilesPattern           | string | Glob pattern for files to copy (e.g., `**/*.json`)         |
+| TargetSubdirectoryName | string | Subdirectory within the artifact to place the copied files |
+
+#### Basic Example
+
+```yaml
+AdditionalFilesToPackage:
+  - SourceDirectory: 'config/shared'
+    FilesPattern: '*.tfvars'
+    TargetSubdirectoryName: 'shared-config'
+  - SourceDirectory: 'scripts'
+    FilesPattern: '**/*.ps1'
+    TargetSubdirectoryName: 'scripts'
+```
+
+This copies all `.tfvars` files from `config/shared/` to `{artifact}/shared-config/` and all PowerShell scripts from `scripts/` to `{artifact}/scripts/`.
+
+#### Common Patterns
+
+| Pattern | Use Case |
+|---------|----------|
+| `*.tfvars` | All variable files in the root directory (non-recursive) |
+| `**/*.tfvars` | All variable files recursively |
+| `**/*.tf` | All Terraform files recursively |
+| `**/*` | All files recursively |
+
+For more patterns and detailed examples, see the [Detailed Guide](./infrastructure_pipeline_additional_files_to_package.md#glob-pattern-matching).
+
+---
 
 State which terraform version you require.
 
@@ -107,7 +140,15 @@ State which terraform version you require.
 TerraformVersion: '1.6.0'
 ```
 
-The default version is `1.14.x`.
+**Valid formats:**
+- `'latest'` – Uses the latest available version
+- Semantic version (e.g., `'1.6.0'`, `'1.14.3'`) – Uses the specified exact version
+
+**Invalid formats (will fail):**
+- Wildcards like `'1.14.x'` or `'1.6.*'` are not accepted
+- Non-semantic formats will be rejected with a validation error
+
+The default version is `'1.14.0'`.
 
 ### TerraformBuildInjectionSteps
 
