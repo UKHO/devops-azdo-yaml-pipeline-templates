@@ -1,11 +1,12 @@
-# Azure DevOps Task: TerraformInstaller@1
+﻿# Azure DevOps Task: TerraformInstaller@1
 #
 # Purpose:
 #   Installs a specific version of the Terraform CLI in an Azure DevOps pipeline, enabling infrastructure-as-code workflows.
 #
 # Parameters:
-#   - TerraformVersion (string, optional): The version of Terraform CLI to install. Default: '1.14.0'
+#   - TerraformVersion (string, optional): The version of Terraform CLI to install.
 #     Must be 'latest' or a strict semantic version (e.g., '1.11.3'). Wildcards like '1.11.x' are not accepted.
+#     Default: 'latest'
 #
 # Example Usage:
 #   - template: tasks/terraform_installer.yml

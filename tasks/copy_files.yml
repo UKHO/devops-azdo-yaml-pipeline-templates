@@ -1,4 +1,4 @@
-# Azure DevOps Task: CopyFiles@2
+﻿# Azure DevOps Task: CopyFiles@2
 #
 # Purpose:
 #   Copies files from a source folder to a target folder using file matching patterns.
@@ -6,7 +6,7 @@
 #
 # Parameters:
 #   - SourceFolder (string, optional): Source folder containing files to copy. Default: ''
-#   - Contents (string, required): File matching patterns (newline-delimited) for files to copy.
+#   - FilesPattern (string, required): File matching patterns (newline-delimited) for files to copy.
 #   - TargetFolder (string, required): Destination folder to copy files into.
 #   - CleanTargetFolder (boolean, optional): Delete all existing files in target folder before
 #     copying. Default: false
