@@ -22,5 +22,5 @@ steps:
       - template: ../tasks/copy_files.yml
         parameters:
           SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-          Contents: ${{ additionalFileToPackage.Name }}
-          TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetDirectory }}
+          FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
+          TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.SubdirectoryName }}

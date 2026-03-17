@@ -43,7 +43,7 @@ parameters:
     default: ''
     displayName: 'Source folder containing files to copy'
 
-  - name: Contents
+  - name: FilesPattern
     type: string
     # NO default - Consumer must provide this
     displayName: 'File matching patterns for files to copy (required)'
@@ -79,7 +79,7 @@ steps:
     inputs:
       ${{ if ne(parameters.SourceFolder, '') }}:
         SourceFolder: '${{ parameters.SourceFolder }}'
-      Contents: '${{ parameters.Contents }}'
+      Contents: '${{ parameters.FilesPattern }}'
       TargetFolder: '${{ parameters.TargetFolder }}'
       CleanTargetFolder: ${{ parameters.CleanTargetFolder }}
       OverWrite: ${{ parameters.OverWrite }}
