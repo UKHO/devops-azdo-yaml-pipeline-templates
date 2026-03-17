@@ -33,19 +33,10 @@ jobs:
     workspace:
       clean: all
     steps:
-      - checkout: self
-        displayName: 'Checkout self repository'
-        path: $(RepositoryCheckoutFolderName)
-
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
-
-      - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
-          - template: ../tasks/copy_files.yml
-            parameters:
-              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-              Contents: ${{ additionalFileToPackage.Name }}
-              TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetDirectory }}
+      - template: terraform_repository_checkout_stepsList.yml
+        parameters:
+          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
+          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
       - template: ../tasks/terraform_installer.yml
         parameters:
@@ -62,21 +53,10 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      - checkout: self
-        displayName: 'Clean the directory post validation'
-        clean: true
-        path: $(RepositoryCheckoutFolderName)
-
-      # Repeat TerraformBuildInjectionSteps on clean code
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
-
-      - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
-          - template: ../tasks/copy_files.yml
-            parameters:
-              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
-              Contents: ${{ additionalFileToPackage.Name }}
-              TargetFolder: $(TerraformWorkingDirectory)
+      - template: terraform_repository_checkout_stepsList.yml
+        parameters:
+          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
+          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:
