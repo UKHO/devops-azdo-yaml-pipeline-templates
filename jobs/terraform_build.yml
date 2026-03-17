@@ -45,7 +45,7 @@ jobs:
             parameters:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
               Contents: ${{ additionalFileToPackage.Name }}
-              TargetFolder: $(TerraformWorkingDirectory)
+              TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetFolder }}
 
       - template: ../tasks/terraform_installer.yml
         parameters:
