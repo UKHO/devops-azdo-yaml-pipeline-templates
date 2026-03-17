@@ -23,4 +23,4 @@ steps:
         parameters:
           SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
           FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
-          TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.SubdirectoryName }}
+          TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetSubdirectoryName }}
