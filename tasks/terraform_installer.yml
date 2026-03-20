@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: TerraformInstaller@1
+# Azure DevOps Task: TerraformInstaller@1
 #
 # Purpose:
 #   Installs a specific version of the Terraform CLI in an Azure DevOps pipeline, enabling infrastructure-as-code workflows.
@@ -25,8 +25,8 @@ parameters:
     displayName: 'Terraform CLI version to install'
 
 steps:
-  - ${{ if and(ne(parameters.TerraformVersion, 'latest'), ne(length(split(parameters.TerraformVersion, '.')), 3)) }}:
-      - "'terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or semantic version 'x.y.z'.": "Error"
+  - ${{ if and(ne(parameters.TerraformVersion, 'latest'), or(ne(length(split(parameters.TerraformVersion, '.')), 3), ne(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(parameters.TerraformVersion, '0', ''), '1', ''), '2', ''), '3', ''), '4', ''), '5', ''), '6', ''), '7', ''), '8', ''), '9', ''), '.', ''), ''))) }}:
+      - "'terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or an exact numeric semantic version 'x.y.z' (digits only). Wildcards, comparators, and other non-semver formats are not allowed.": "Error"
   - task: TerraformInstaller@1
     displayName: 'Install Terraform CLI: ${{ parameters.TerraformVersion }}'
     name: TerraformInstall

@@ -190,6 +190,7 @@ extends:
             StorageAccountName: sttfstatedev
             ContainerName: tfstate
             BlobName: dev.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnDestroy
           VariableFiles:
             - config/common.tfvars

@@ -119,7 +119,7 @@ InfrastructureConfig:
 - `'PlanOnly'` - Will only create a plan
 - `'ApplyOnly'` - Will skip any plans and apply straightaway
 
-**Example:** `'VerifyOnAny'`
+**Example:** `'PlanVerifyApply'`
 
 ---
 

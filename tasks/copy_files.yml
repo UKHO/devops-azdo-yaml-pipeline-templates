@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: CopyFiles@2
+# Azure DevOps Task: CopyFiles@2
 #
 # Purpose:
 #   Copies files from a source folder to a target folder using file matching patterns.
@@ -18,14 +18,14 @@
 # Example Usage:
 #   - template: tasks/copy_files.yml
 #     parameters:
-#       Contents: '$(Pipeline.Workspace)/repo/scripts/**'
+#       FilesPattern: '$(Pipeline.Workspace)/repo/scripts/**'
 #       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 #
 #   # Copy specific file types with overwrite
 #   - template: tasks/copy_files.yml
 #     parameters:
 #       SourceFolder: '$(Build.SourcesDirectory)/config'
-#       Contents: |
+#       FilesPattern: |
 #         **/*.json
 #         **/*.xml
 #       TargetFolder: '$(Build.ArtifactStagingDirectory)/config'
