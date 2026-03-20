@@ -37,7 +37,7 @@ jobs:
           Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           Instructions: 'Please validate the terraform plan is acceptable to apply'
 
-  - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
+  - ${{ if in(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
       - template: ../jobs/terraform_deploy.yml
         parameters:
           # generic Parameters
