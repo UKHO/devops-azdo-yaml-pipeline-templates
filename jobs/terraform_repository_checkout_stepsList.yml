@@ -15,7 +15,6 @@ steps:
     clean: true
     path: $(RepositoryCheckoutFolderName)
 
-  # Repeat TerraformBuildInjectionSteps on clean code
   - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
       - ${{ step }}
 

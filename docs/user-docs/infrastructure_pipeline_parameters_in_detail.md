@@ -38,7 +38,7 @@ These parameters apply to the entire pipeline and all environments:
 | [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`       | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.  |
 | [AdditionalFilesToPackage](#additionalfilestopackage)         | object   |          | `[ ]`      | List of additional files to include in the terraform artifact (see details below). |
 | [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.0'` | Version of Terraform CLI tool to use ('latest' or semantic version x.y.z).         |
-| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[]`       | Steps to be carried out before the terraform is init, validated, and packaged.     |
+| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[ ]`       | Steps to be carried out before the terraform is init, validated, and packaged.     |
 | [RunPlanOnly](#runplanonly)                                   | boolean  |          | `false`    | Whether only the terraform plan should be ran and no deployment made.              |
 | [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -          | List of environment configurations (see dev docs for complete structure).          |
 
