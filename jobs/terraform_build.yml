@@ -11,7 +11,7 @@ parameters:
 
   - name: AdditionalFilesToPackage
     type: object
-    default: {}
+    default: [ ]
     displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
 
   - name: TerraformVersion

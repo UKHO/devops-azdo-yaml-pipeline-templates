@@ -23,7 +23,7 @@ parameters:
 
   - name: TerraformVersion
     type: string
-    default: '1.14.x'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformArtifactName

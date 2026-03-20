@@ -1,7 +1,8 @@
 parameters:
   - name: AdditionalFilesToPackage
     type: object
-    default: {}
+    default: [ ]
+    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
@@ -10,7 +11,7 @@ parameters:
 
 steps:
   - checkout: self
-    displayName: 'Clean the directory post validation'
+    displayName: 'Checkout self repository'
     clean: true
     path: $(RepositoryCheckoutFolderName)
 
