@@ -76,7 +76,7 @@ parameters:
 steps:
   - task: CopyFiles@2
     displayName: 'Copy files to: ${{ parameters.TargetFolder }}'
-    inputs:
+    inputs: # Wildly, this task inputs are a mix of Sentence case / lower case
       ${{ if ne(parameters.SourceFolder, '') }}:
         SourceFolder: ${{ parameters.SourceFolder }}
       Contents: ${{ parameters.FilesPattern }}
