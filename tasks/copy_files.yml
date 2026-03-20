@@ -32,9 +32,9 @@
 #       OverWrite: true
 #
 # Notes:
-#   - When SourceFolder is empty, Contents must use absolute paths or paths relative to
+#   - When SourceFolder is empty, Files patterns must use absolute paths or paths relative to
 #     $(Build.SourcesDirectory).
-#   - When SourceFolder is provided, Contents patterns are matched relative to that folder.
+#   - When SourceFolder is provided, Files patterns are matched relative to that folder.
 #   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/copy-files-v2
 
 parameters:
@@ -78,9 +78,9 @@ steps:
     displayName: 'Copy files to: ${{ parameters.TargetFolder }}'
     inputs:
       ${{ if ne(parameters.SourceFolder, '') }}:
-        SourceFolder: '${{ parameters.SourceFolder }}'
-      Contents: '${{ parameters.FilesPattern }}'
-      TargetFolder: '${{ parameters.TargetFolder }}'
+        SourceFolder: ${{ parameters.SourceFolder }}
+      Contents: ${{ parameters.FilesPattern }}
+      TargetFolder: ${{ parameters.TargetFolder }}
       CleanTargetFolder: ${{ parameters.CleanTargetFolder }}
       OverWrite: ${{ parameters.OverWrite }}
       flattenFolders: ${{ parameters.FlattenFolders }}
