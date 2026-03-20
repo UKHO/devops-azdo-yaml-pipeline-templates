@@ -19,11 +19,6 @@ parameters:
     default: [ ]
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
-  - name: RunPlanOnly
-    type: boolean
-    default: false
-    displayName: 'Whether only the terraform plan should be ran and no deployment made'
-
   - name: EnvironmentConfigs
     type: object
     # NO default - Consumer must provide this
@@ -43,5 +38,4 @@ stages:
           ${{ if or(not(environmentConfig.Name), eq(environmentConfig.Name, '')) }}:
             "an environment name is not properly defined and is a required field.": "Error"
           TerraformVersion: ${{ parameters.TerraformVersion }}
-          RunPlanOnly: ${{ parameters.RunPlanOnly }}
           EnvironmentConfig: ${{ environmentConfig }}

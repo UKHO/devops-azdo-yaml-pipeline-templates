@@ -27,7 +27,7 @@ The infrastructure pipeline consists of multiple stages:
    - **Manual Verification Job**: Optional approval gate (conditional)
    - **Apply Job**: Applies changes and exports outputs (conditional)
 
-The deploy stage behavior is controlled by `RunPlanOnly` and `VerificationMode` parameters within each environment's `InfrastructureConfig`. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
+The deploy stage behavior is controlled by `RunMode` and `VerificationMode` parameters within each environment's `InfrastructureConfig`. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
 
 ## Pipeline-Level Parameters
 
@@ -38,8 +38,7 @@ These parameters apply to the entire pipeline and all environments:
 | [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`       | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.  |
 | [AdditionalFilesToPackage](#additionalfilestopackage)         | object   |          | `[ ]`      | List of additional files to include in the terraform artifact (see details below). |
 | [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.0'` | Version of Terraform CLI tool to use ('latest' or semantic version x.y.z).         |
-| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[ ]`       | Steps to be carried out before the terraform is init, validated, and packaged.     |
-| [RunPlanOnly](#runplanonly)                                   | boolean  |          | `false`    | Whether only the terraform plan should be ran and no deployment made.              |
+| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[ ]`      | Steps to be carried out before the terraform is init, validated, and packaged.     |
 | [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -          | List of environment configurations (see dev docs for complete structure).          |
 
 ## Environment Configuration
@@ -123,12 +122,12 @@ This copies all `.tfvars` files from `config/shared/` to `{artifact}/shared-conf
 
 #### Common Patterns
 
-| Pattern | Use Case |
-|---------|----------|
-| `*.tfvars` | All variable files in the root directory (non-recursive) |
-| `**/*.tfvars` | All variable files recursively |
-| `**/*.tf` | All Terraform files recursively |
-| `**/*` | All files recursively |
+| Pattern       | Use Case                                                 |
+|---------------|----------------------------------------------------------|
+| `*.tfvars`    | All variable files in the root directory (non-recursive) |
+| `**/*.tfvars` | All variable files recursively                           |
+| `**/*.tf`     | All Terraform files recursively                          |
+| `**/*`        | All files recursively                                    |
 
 For more patterns and detailed examples, see the [Detailed Guide](./infrastructure_pipeline_additional_files_to_package.md#glob-pattern-matching).
 
@@ -186,16 +185,6 @@ TerraformBuildInjectionSteps:
       inlineScript: |
         az keyvault secret show --vault-name myvault --name terraform-vars
 ```
-
-### RunPlanOnly
-
-If you do not want to deploy any resources, you can run the plan only for all environments.
-
-```yaml
-RunPlanOnly: true
-```
-
-This applies to all environments configured in `EnvironmentConfigs`.
 
 ### EnvironmentConfigs
 
@@ -391,7 +380,7 @@ Specify Terraform output variables to export as pipeline variables after deploym
 
 **Within `InfrastructureConfig.OutputVariables`:**
 
-**Note**: Output variables are only exported during the **Apply job** (when `RunPlanOnly` is `false` and apply runs successfully).
+**Note**: Output variables are only exported during the **Apply job** (when `RunMode` is not `PlanOnly` and apply runs successfully).
 
 Example:
 ```yaml

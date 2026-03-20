@@ -1,9 +1,3 @@
-parameters:
-  - name: RunPlanOnly
-    type: boolean
-    default: false
-    displayName: 'Whether to run the plan only'
-
 resources:
   repositories:
     - repository: AzDOPipelineTemplates
@@ -21,7 +15,6 @@ extends:
     RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
-    RunPlanOnly: ${{ parameters.RunPlanOnly }}
     EnvironmentConfigs:
       - Name: dev
         Stage:
@@ -37,6 +30,7 @@ extends:
             StorageAccountName: cheesesa
             ContainerName: cheesecn
             BlobName: cheesebn
+          RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
             - group: ExampleVG1
@@ -67,6 +61,7 @@ extends:
             StorageAccountName: cheesesa
             ContainerName: cheesecn
             BlobName: cheesebn
+          RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
             - group: ExampleVG1
@@ -97,6 +92,7 @@ extends:
             StorageAccountName: cheesesa
             ContainerName: cheesecn
             BlobName: cheesebn
+          RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
             - group: ExampleVG1
@@ -127,6 +123,7 @@ extends:
             StorageAccountName: cheesesa
             ContainerName: cheesecn
             BlobName: cheesebn
+          RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
             - group: ExampleVG1

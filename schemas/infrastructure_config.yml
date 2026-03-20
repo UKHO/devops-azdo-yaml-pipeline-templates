@@ -35,6 +35,9 @@ jobs:
   - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.BlobName is not properly defined and is a required field.": "Error"
 
+  - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, ''), notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field.": "Error"
+
   - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, ''), notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
 

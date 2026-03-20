@@ -236,7 +236,7 @@ extends:
 **Issue**: Manual verification gate doesn't appear even when changes are detected.
 
 **Check**:
-- Verify `RunPlanOnly` is set to `false` (or not set, as default is `false`)
+- Verify `RunMode` is not set to `PlanOnly`
 - Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
 - Check the plan output to ensure changes were actually detected
 
@@ -247,7 +247,7 @@ extends:
 **Solution**: To use Terraform output variables in subsequent stages or jobs outside the infrastructure pipeline, you'll need to:
 1. Ensure the variables are listed in the `OutputVariables` property of your `InfrastructureConfig`
 2. Reference them using the correct dependency syntax: `dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']`
-3. Note: Variables are only exported when `RunPlanOnly` is `false` and the apply job runs successfully
+3. Note: Variables are only exported when `RunMode` is not `PlanOnly` and the apply job runs successfully
 
 ### Incorrect Terraform version being used
 
