@@ -1,4 +1,4 @@
-﻿# Azure DevOps Task: CopyFiles@2
+# Azure DevOps Task: CopyFiles@2
 #
 # Purpose:
 #   Copies files from a source folder to a target folder using file matching patterns.
