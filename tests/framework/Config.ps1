@@ -1,36 +1,40 @@
 # ============================================================================
 # TEST FRAMEWORK CONFIGURATION
 # ============================================================================
-# This file contains environment-specific configuration settings that may
+# This file contains all environment-specific configuration that may
 # need to be changed based on the deployment environment or Azure DevOps setup.
+#
+# All paths are relative to the repository root.
+# All settings are loaded into a hashtable that's passed to the test runner.
 
-$script:TestFrameworkConfiguration = @{
-  # Pipeline compilation settings
-  # These settings are used to compile YAML templates in the context of
-  # a specific Azure DevOps organization, project, and pipeline.
-  # Update these values to match your Azure DevOps environment.
-  CompileBaseParams = @{
+[CmdletBinding()]
+param()
+
+$config = @{
+  AzureDevOps = @{
     Organization = "ukhydro"
     Project = "DevOps Chapter"
     PipelineId = 1576
   }
 
-  # Validation settings
-  # These control environment validation behavior during framework initialization
+  TestDiscovery = @{
+    Pattern = "tests/**/*.Tests.ps1"
+  }
+
   Validation = @{
-    # Check if Azure DevOps CLI is installed
     CheckAzDevOpsCli = $true
-
-    # Check if user is authenticated with Azure (az account)
     CheckAzAuthentication = $true
-
-    # Check if configuration values are not null/empty
     CheckConfigValues = $true
-
-    # Fail on validation error (if $false, only warnings are shown)
     FailOnValidationError = $true
+    AttemptAutoSignIn = $true
+  }
+
+  TestExecution = @{
+    StopOnFirstFailure = $false
+    ShowVerboseOutput = $false
+    ShowAllResults = $false
   }
 }
 
-return $script:TestFrameworkConfiguration
+return $config
 

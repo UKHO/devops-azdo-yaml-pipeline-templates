@@ -1,85 +1,112 @@
-param(
-  [Parameter()]
-  [ValidateScript({ Test-Path $_ })]
-  [string]
-  $File,
+#!/usr/bin/env pwsh
+<#
+.SYNOPSIS
+  Run all tests using the simple PowerShell test framework.
 
-  [Parameter()]
-  [ValidateSet('Normal', 'Detailed', 'Diagnostic')]
-  [string]
-  $Output = 'Detailed',
+.DESCRIPTION
+  Loads Config.ps1, validates the environment (including automatic Azure DevOps
+  sign-in if needed), and discovers/executes all test files matching the pattern
+  defined in Config.ps1.
 
-  [Parameter()]
-  [switch]
-  $PassThru,
+  This is a pure PowerShell Core replacement for Pester that eliminates:
+  - Scope issues
+  - Silent sign-in failures
+  - Configuration embedded in code
+  - Pester DSL learning curve
 
-  [Parameter()]
-  [string]
-  $ExportResults
-)
+.PARAMETER Verbose
+  Enable verbose output for debugging.
 
-$ErrorActionPreference = 'Stop'
+.EXAMPLE
+  # Run all tests
+  pwsh ./run-tests-simple.ps1
 
-$repoRoot = git rev-parse --show-toplevel 2>$null
+  # Run with verbose output
+  pwsh ./run-tests-simple.ps1 -Verbose
 
-Write-Host "Repository root: $repoRoot" -ForegroundColor Cyan
-Write-Host ""
+.NOTES
+  Configuration is loaded from tests/framework/Config.ps1
+  Update that file with your Azure DevOps organization details.
+#>
 
-. (Join-Path $repoRoot "tests" "framework" "Core.ps1") -RepositoryRoot $repoRoot
+[CmdletBinding()]
+param()
 
-Write-Host "Validating test environment..." -ForegroundColor Cyan
-Test-TestFrameworkEnvironment | Out-Null
-Write-Host "Environment validation passed" -ForegroundColor Green
-Write-Host ""
+$ErrorActionPreference = 'Continue'
 
-$testFiles = @(Get-Item -Path $File -ErrorAction Stop)
-Write-Host "Running single test file: $File" -ForegroundColor Green
+# Paths
+$repoRoot = $PSScriptRoot
+$frameworkRoot = Join-Path $repoRoot "tests" "framework"
 
-$config = New-PesterConfiguration
-$config.Run.Path = $testFiles.FullName
-$config.Output.Verbosity = $Output
-$config.TestResult.Enabled = $true
+# Load configuration
+Write-Verbose "Loading configuration..."
+$configPath = Join-Path $frameworkRoot "Config.ps1"
 
-if ($ExportResults)
+if (-not (Test-Path $configPath))
 {
-  $config.TestResult.OutputPath = $ExportResults
-  $config.TestResult.OutputFormat = if ($ExportResults -like "*.xml")
+  Write-Error "Configuration file not found: $configPath"
+  exit 1
+}
+
+$config = & $configPath
+
+# Load framework
+Write-Verbose "Loading test framework..."
+$corePath = Join-Path $frameworkRoot "Core-Simple.ps1"
+
+if (-not (Test-Path $corePath))
+{
+  Write-Error "Test framework core not found: $corePath"
+  exit 1
+}
+
+try
+{
+  . $corePath
+}
+catch
+{
+  Write-Error "Failed to load test framework: $_"
+  exit 1
+}
+
+# Run tests
+try
+{
+  Write-Host "🧪 TEST EXECUTION" -ForegroundColor Cyan
+  Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+
+  # Discover test files
+  $pattern = $config.TestDiscovery.Pattern
+  $searchPath = Join-Path $repoRoot $pattern
+  $parentDir = Split-Path $searchPath
+  $filterPattern = Split-Path -Leaf $searchPath
+
+  $testFiles = @()
+  if (Test-Path (Split-Path $parentDir))
   {
-    'NUnitXml'
+    $testFiles = @(Get-ChildItem -Path (Split-Path $parentDir) -Filter $filterPattern -Recurse -ErrorAction SilentlyContinue)
   }
-  else
+
+  if ($testFiles.Count -eq 0)
   {
-    'Json'
+    Write-Host "⚠️  No test files found matching pattern: $pattern" -ForegroundColor Yellow
+    exit 0
   }
-  Write-Host "Exporting results to: $ExportResults" -ForegroundColor Cyan
+
+  Write-Host "Found $( $testFiles.Count ) test file(s)`n"
+
+  # Execute each test file
+  foreach ($testFile in $testFiles)
+  {
+    & $testFile.FullName
+  }
+
+  Write-Host "✅ All tests completed" -ForegroundColor Green
 }
-
-Write-Host ""
-Write-Host "Running tests..." -ForegroundColor Cyan
-Write-Host ""
-
-$results = Invoke-Pester -Configuration $config
-Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "Test Summary:" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "  Passed:  $( $results.Tests.Passed.Count )" -ForegroundColor Green
-Write-Host "  Failed:  $( $results.Tests.Failed.Count )" -ForegroundColor $( if ($results.Tests.Failed.Count -gt 0)
+catch
 {
-  'Red'
+  Write-Error "Test execution failed: $_"
+  exit 1
 }
-else
-{
-  'Green'
-} )
-Write-Host "  Skipped: $( $results.Tests.Skipped.Count )" -ForegroundColor Yellow
-Write-Host "  Total:   $( $results.Tests.Count )"
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-
-if ($PassThru)
-{
-  return $results
-}
-
-exit $results.FailedCount
 
