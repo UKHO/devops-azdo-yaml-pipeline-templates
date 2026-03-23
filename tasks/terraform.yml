@@ -81,6 +81,10 @@ parameters:
 
   # Specific TerraformCLI Task Parameters
 
+  #
+  #     The command here are OK, probably could do with adding workspace in... that maybe needed for elastic or azdo
+  #
+
   - name: Command
     type: string
     # NO default - Consumer must provide this
@@ -127,11 +131,19 @@ parameters:
       - json
     displayName: 'Format for show command output'
 
+  #
+  #     Ok so same issue as the rest of the authentication... I need to see about making use of some dyanmic way of doing this...
+  #
+
   # Azure Backend Configuration (for init command)
   - name: BackendAzureServiceConnection
     type: string
     default: ''
     displayName: 'Azure service connection for backend state storage'
+
+  #
+  #     Ok so all of these will be rolled up innto an object and not be worried about... I can pass all of this in via the use of a object
+  #
 
   - name: BackendAzureResourceGroupName
     type: string
@@ -153,15 +165,27 @@ parameters:
     default: ''
     displayName: 'Azure blob name (key) for backend state storage'
 
+  #
+  #     So this one I am probable going to want to keep OR just have as custom argument to the command
+  #
+
   - name: DisableBackend
     type: boolean
     default: false
     displayName: 'Skip backend configuration during init'
 
+  #
+  #     So I don't need to provide this one at all, people can just omit the BackendConfigurationObject
+  #
+
   - name: UseLocalBackend
     type: boolean
     default: false
     displayName: 'Only init for using the local backend'
+
+  #
+  #     So I am not sure how I am going to deal with the service connection bit... I need to see how I can get something to load the context of the service connection
+  #
 
   # Azure Provider Environment Configuration (for plan/apply/destroy commands)
   - name: EnvironmentAzureServiceConnection
