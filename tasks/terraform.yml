@@ -175,15 +175,6 @@ parameters:
     displayName: 'Skip backend configuration during init'
 
   #
-  #     So I don't need to provide this one at all, people can just omit the BackendConfigurationObject
-  #
-
-  - name: UseLocalBackend
-    type: boolean
-    default: false
-    displayName: 'Only init for using the local backend'
-
-  #
   #     So I am not sure how I am going to deal with the service connection bit... I need to see how I can get something to load the context of the service connection
   #
 
@@ -194,16 +185,11 @@ parameters:
     displayName: 'Azure service connection for provider authentication'
 
 steps:
-  - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.DisableBackend, true)) }}:
-      - script: 'terraform init -backend=false'
-        displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
-        workingDirectory: ${{ parameters.WorkingDirectory }}
-        env: ${{ parameters.TaskEnvironmentVariables }}
-        condition: ${{ parameters.Condition }}
-
-  - ${{ elseif and(eq(parameters.Command, 'init'), eq(parameters.UseLocalBackend, true)) }}:
-      - script: 'terraform init'
+  - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.EnvironmentAzureServiceConnection, '')) }}:
+      - script: >
+          terraform ${{ parameters.Command }}
+          ${{ if eq(parameters.DisableBackend, true) }}:
+            -backend=false
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
