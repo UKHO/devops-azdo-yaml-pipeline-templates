@@ -31,13 +31,11 @@ function Invoke-Test
       Write-Host "  ✗ $TestName" -ForegroundColor Red
       $script:TestState.TestsFailed++
       $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = "Test returned false" }
-      return $false
     }
     else
     {
       Write-Host "  ✓ $TestName" -ForegroundColor Green
       $script:TestState.TestsPassed++
-      return $true
     }
   }
   catch
@@ -45,7 +43,6 @@ function Invoke-Test
     Write-Host "  ✗ $TestName - ERROR: $_" -ForegroundColor Red
     $script:TestState.TestsFailed++
     $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $_.Exception.Message }
-    return $false
   }
 }
 
