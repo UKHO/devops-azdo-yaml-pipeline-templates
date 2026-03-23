@@ -116,7 +116,7 @@ Framework is not loaded. Please load the test framework first:
 
     if ($Arguments -and $Arguments.Count -gt 0) {
       Write-Verbose "Adding $($Arguments.Count) argument(s) to compilation request"
-      $bodyObject.variables = $Arguments
+      $bodyObject.templateParameters = $Arguments
     }
 
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
@@ -202,22 +202,27 @@ Framework is not loaded. Please load the test framework first:
       400 {
         Write-Verbose "Bad Request - Check YAML syntax, parameter names/types, required parameters, template paths"
         $errorObject.error.remediation = "Check YAML syntax, parameter names/types, required parameters, template paths"
+        break
       }
       401 {
         Write-Verbose "Unauthorized - Verify you are logged in with 'az login' and have the required Build (read & execute) scope"
         $errorObject.error.remediation = "Verify you are logged in with 'az login' and have the required Build (read & execute) scope"
+        break
       }
       403 {
         Write-Verbose "Forbidden - Verify your Azure CLI login has project permissions and required access"
         $errorObject.error.remediation = "Verify your Azure CLI login has project permissions and required access"
+        break
       }
       404 {
         Write-Verbose "Not Found - Verify pipeline ID ($PipelineId), organization ($Organization), and project ($Project)"
         $errorObject.error.remediation = "Verify pipeline ID ($PipelineId), organization ($Organization), and project ($Project)"
+        break
       }
       500 {
         Write-Verbose "Internal Server Error - Retry operation or check Azure DevOps service status"
         $errorObject.error.remediation = "Retry operation or check Azure DevOps service status"
+        break
       }
       default {
         Write-Verbose "Unexpected error - Review error message and Azure DevOps API documentation"
