@@ -27,7 +27,7 @@ The infrastructure pipeline consists of multiple stages:
    - **Manual Verification Job**: Optional approval gate (conditional)
    - **Apply Job**: Applies changes and exports outputs (conditional)
 
-The deploy stage behavior is controlled by `RunMode` and `VerificationMode` parameters within each environment's `InfrastructureConfig`. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
+The deploy stage behaviour is controlled by `RunMode` and `VerificationMode` parameters within each environment's `InfrastructureConfig`. See the [manual verification documentation](infrastructure_pipeline_manual_verification.md) for flow details.
 
 ## Pipeline-Level Parameters
 

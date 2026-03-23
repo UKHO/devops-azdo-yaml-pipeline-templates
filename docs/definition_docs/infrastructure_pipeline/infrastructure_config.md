@@ -112,12 +112,12 @@ InfrastructureConfig:
 
 **Type:** `string`
 
-**Description:** Controls what deployment jobs are ran.
+**Description:** Controls which deployment jobs are run.
 
 **Allowed Values:**
 - `'PlanVerifyApply'` - Will create a plan, allow for verification (VerificationMode), and apply the plan
 - `'PlanOnly'` - Will only create a plan
-- `'ApplyOnly'` - Will skip any plans and apply straightaway
+- `'ApplyOnly'` - Will skip any plans and apply straight away
 
 **Example:** `'PlanVerifyApply'`
 
