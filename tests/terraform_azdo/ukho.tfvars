@@ -1,0 +1,5 @@
+org_service_url               = "https://dev.azure.com/ukhydro"
+github_organisation_name      = "ukho"
+github_serviceconnection_name = "UKHO"
+azdo_project_name             = "DevOps Chapter"
+target_branch                 = "feature/248464-local-tests"
