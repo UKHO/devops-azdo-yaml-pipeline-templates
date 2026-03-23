@@ -4,6 +4,10 @@ $Config = & (Join-Path $frameworkRoot "Config.ps1")
 
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $frameworkRoot "Core.Utilities.ps1")
+. (Join-Path $frameworkRoot "Core.StartUpValidation.ps1")
+. (Join-Path $frameworkRoot "Core.Test-Yaml.ps1")
+
 $script:TestState = @{
   RepositoryRoot = $RepositoryRoot
   FrameworkRoot = $frameworkRoot
@@ -13,11 +17,8 @@ $script:TestState = @{
   TestsFailed = 0
   FailedTests = @()
   CompileBaseParams = $Config.AzureDevOps
+  AccessToken = Get-AccessToken
 }
-
-. (Join-Path $frameworkRoot "Core.Utilities.ps1")
-. (Join-Path $frameworkRoot "Core.StartUpValidation.ps1")
-. (Join-Path $frameworkRoot "Core.Test-Yaml.ps1")
 
 function Invoke-Test
 {

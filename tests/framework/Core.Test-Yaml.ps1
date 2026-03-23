@@ -122,20 +122,8 @@ Framework is not loaded. Please load the test framework first:
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
     Write-Verbose "Request body size: $($bodyJson.Length) bytes"
 
-    # Get access token from Azure CLI logged-in context
-    Write-Verbose "Retrieving access token from Azure CLI logged-in context..."
-    try {
-      $accessToken = az account get-access-token --query accessToken -o tsv
-      if (-not $accessToken) {
-        throw "Failed to retrieve access token from Azure CLI"
-      }
-    }
-    catch {
-      throw "Unable to get access token from Azure CLI. Ensure you are logged in with 'az login' and have the required permissions."
-    }
-
     $headers = @{
-      Authorization = "Bearer $accessToken"
+      Authorization = "Bearer $($script:TestState.AccessToken)"
       "Content-Type" = "application/json"
     }
 
