@@ -30,15 +30,6 @@ $validTestCases = @(
       message        = "Starting deployment process"
       verbosityLevel = "debug"
     }
-  },
-  @{
-    # Note: Azure DevOps does not enforce 'values:' constraints at compile time.
-    # An out-of-range value is only rejected at queue/run time, not by the API.
-    Description = "with invalid verbosityLevel value (values: not enforced at compile time)"
-    Parameters  = @{
-      message        = "Test message"
-      verbosityLevel = "invalid"
-    }
   }
 )
 
@@ -49,6 +40,13 @@ $invalidTestCases = @(
     Parameters  = @{
       message        = ""
       verbosityLevel = "info"
+    }
+  },
+  @{
+    Description = "with invalid verbosityLevel value"
+    Parameters  = @{
+      message        = "Test message"
+      verbosityLevel = "invalid"
     }
   }
 )
