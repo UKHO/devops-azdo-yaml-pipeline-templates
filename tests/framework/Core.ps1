@@ -51,12 +51,12 @@ function Run-Test
     foreach ($testCase in $TestCases)
     {
       Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
-        $result = Test-CompileYaml -YamlContent $yaml -Arguments $testCase.Parameters
+        $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
         $passed = & $PassCriteriaFunction
         $failureMessage = ""
         if ($passed -eq $false)
         {
-          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json)"
+          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json )"
         }
         return @{
           Passed = $passed
@@ -76,7 +76,7 @@ function Invoke-Test
     $result = & $TestScript
     if ($result.Passed -eq $false)
     {
-      Write-Host "  ✗ $TestName - $($result.FailureMessage)" -ForegroundColor Red
+      Write-Host "  ✗ $TestName - $( $result.FailureMessage )" -ForegroundColor Red
       $script:TestState.TestsFailed++
       $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $result.FailureMessage }
     }
