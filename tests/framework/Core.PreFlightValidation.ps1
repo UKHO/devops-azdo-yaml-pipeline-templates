@@ -99,7 +99,7 @@ function Invoke-AutoSignIn
   }
 }
 
-function Test-ConfigurationValues
+function Test-AzDOConfigurationValues
 {
   <#
   .SYNOPSIS
@@ -127,6 +127,12 @@ function Invoke-PreFlightValidation
   [CmdletBinding()]
   param()
 
+  if ($script:TestState.SkipValidation)
+  {
+    Write-Host "⚠️  Pre-flight validation is skipped. Ensure your environment is correctly configured." -ForegroundColor Yellow
+    return
+  }
+
   $allValidationsPassed = $true
   $validationErrors = @()
 
@@ -136,7 +142,7 @@ function Invoke-PreFlightValidation
 
   # Validate configuration values
   Write-Host -NoNewline "  ✓ Configuration values... "
-  if (-not (Test-ConfigurationValues))
+  if (-not (Test-AzDOConfigurationValues))
   {
     Write-Host "FAILED" -ForegroundColor Red
     $validationErrors += "Configuration values are invalid or empty (Organization: '$( $script:TestState.AzDO.Organization )', Project: '$( $script:TestState.AzDO.Project )', PipelineId: $( $script:TestState.AzDO.PipelineId ))"

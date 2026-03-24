@@ -17,6 +17,10 @@ $config = @{
     PipelineId = 1576
   }
 
+  Validation = @{
+    SkipValidation = $false
+  }
+
   TestDiscovery = @{
     Pattern = "tests/**/*.Tests.ps1"
   }
