@@ -14,6 +14,7 @@ InfrastructureConfig:
     StorageAccountName: string                  # REQUIRED
     ContainerName: string                       # REQUIRED
     BlobName: string                            # REQUIRED
+  RunMode: string                               # REQUIRED (PlanVerifyApply | PlanOnly | ApplyOnly)
   VerificationMode: string                      # REQUIRED (VerifyOnDestroy | VerifyOnAny | VerifyDisabled)
   KeyVaultConfig:                               # OPTIONAL (all-or-nothing)
     ServiceConnection: string
@@ -104,6 +105,21 @@ InfrastructureConfig:
 **Description:** Blob name for the Terraform state file.
 
 **Example:** `'production.terraform.tfstate'`
+
+---
+
+### RunMode
+
+**Type:** `string`
+
+**Description:** Controls which deployment jobs are run.
+
+**Allowed Values:**
+- `'PlanVerifyApply'` - Will create a plan, allow for verification (VerificationMode), and apply the plan
+- `'PlanOnly'` - Will only create a plan
+- `'ApplyOnly'` - Will skip any plans and apply straight away
+
+**Example:** `'PlanVerifyApply'`
 
 ---
 

@@ -1,12 +1,7 @@
 parameters:
-  - name: PipelinePool
-    type: string
-    default: 'Mare Nectaris'
-    displayName: 'The pool that the pipeline will run from the highest level'
-
   - name: TerraformVersion
     type: string
-    default: '1.14.x'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: RelativePathToTerraformFiles
@@ -14,29 +9,26 @@ parameters:
     default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
+  - name: AdditionalFilesToPackage
+    type: object
+    default: [ ]
+    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
+
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: [ ]
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
-
-  - name: RunPlanOnly
-    type: boolean
-    default: false
-    displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
   - name: EnvironmentConfigs
     type: object
     # NO default - Consumer must provide this
     displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
 
-variables:
-  - name: PipelinePool
-    value: ${{ parameters.PipelinePool }}
-
 stages:
   - template: ../stages/terraform_build.yml
     parameters:
       RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
+      AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
       TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
@@ -46,5 +38,4 @@ stages:
           ${{ if or(not(environmentConfig.Name), eq(environmentConfig.Name, '')) }}:
             "an environment name is not properly defined and is a required field.": "Error"
           TerraformVersion: ${{ parameters.TerraformVersion }}
-          RunPlanOnly: ${{ parameters.RunPlanOnly }}
           EnvironmentConfig: ${{ environmentConfig }}

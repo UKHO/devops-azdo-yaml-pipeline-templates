@@ -115,7 +115,7 @@ Copilot will ask for a short name and a one-line purpose, then generate three co
 - `stages/{name}.yml` — the stage template
 - `jobs/{name}.yml` — the job template
 
-All parameters are wired together with explicit pass-through. The scaffold includes a `PipelinePool` parameter, `workspace: clean: all`, and placeholder steps so the chain is immediately runnable.
+All parameters are wired together with explicit pass-through. The scaffold includes `workspace: clean: all` and placeholder steps so the chain is immediately runnable.
 
 #### `new-schema-template`
 

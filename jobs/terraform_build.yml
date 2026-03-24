@@ -9,9 +9,14 @@ parameters:
     default: ''
     displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
 
+  - name: AdditionalFilesToPackage
+    type: object
+    default: [ ]
+    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
+
   - name: TerraformVersion
     type: string
-    default: '1.14.x'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformBuildInjectionSteps
@@ -23,17 +28,16 @@ jobs:
   - job: TerraformBuild
     displayName: 'Terraform Build'
     variables:
-      RepositoryCheckoutPath: $(Build.Repository.Name)
-      TerraformWorkingDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutPath)/${{ parameters.RelativePathToTerraformFiles }}
+      RepositoryCheckoutFolderName: $(Build.Repository.Name)
+      RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
+      TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
     workspace:
       clean: all
     steps:
-      - checkout: self
-        displayName: 'Checkout self repository'
-        path: $(RepositoryCheckoutPath)
-
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
+      - template: terraform_repository_checkout_stepsList.yml
+        parameters:
+          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
+          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
       - template: ../tasks/terraform_installer.yml
         parameters:
@@ -50,14 +54,10 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      - checkout: self
-        displayName: 'Clean the directory post validation'
-        clean: true
-        path: $(RepositoryCheckoutPath)
-
-      # Repeat TerraformBuildInjectionSteps on clean code
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
+      - template: terraform_repository_checkout_stepsList.yml
+        parameters:
+          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
+          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
       - template: ../tasks/publish_pipeline_artifact.yml
         parameters:

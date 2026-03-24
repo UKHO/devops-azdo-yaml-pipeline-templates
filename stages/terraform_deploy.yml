@@ -1,18 +1,13 @@
 parameters:
   - name: TerraformVersion
     type: string
-    default: '1.14.x'
+    default: '1.14.0'
     displayName: 'Version of Terraform CLI tool to use with the terraform files'
 
   - name: TerraformArtifactName
     type: string
     default: 'TerraformArtifact'
     displayName: 'Name for the artifact containing the terraform files for deployment'
-
-  - name: RunPlanOnly
-    type: boolean
-    default: false
-    displayName: 'Whether only the terraform plan should be ran and no deployment made'
 
   - name: EnvironmentConfig
     type: object
@@ -35,6 +30,5 @@ stages:
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
-          RunPlanOnly: ${{ parameters.RunPlanOnly }}
           EnvironmentName: ${{ parameters.EnvironmentConfig.Name }}
           InfrastructureConfig: ${{ parameters.EnvironmentConfig.InfrastructureConfig }}

@@ -9,7 +9,7 @@
 #   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated. Default: ''
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
-#   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 3
+#   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 0
 #   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
@@ -76,7 +76,7 @@ parameters:
 
   - name: RetryCountOnTaskFailure
     type: number
-    default: 3
+    default: 0
     displayName: 'Number of times to retry the task on failure'
 
   # Specific TerraformCLI Task Parameters

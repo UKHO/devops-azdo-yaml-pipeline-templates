@@ -25,7 +25,7 @@ parameters:
   - name: ArtifactName
     type: string
     # NO default - Consumer must provide this
-    displayName: 'Artifact name'
+    displayName: 'Artifact name (required)'
 
   - name: ItemPattern
     type: string

@@ -42,16 +42,12 @@ into the job. Follow these rules:
 
 ```yaml
 parameters:
-  - name: PipelinePool
+  - name: ParamA
     type: string
-    default: 'Mare Nectaris'
-    displayName: 'Agent pool for the pipeline'
+    default: ''
+    displayName: 'Description'
 
   # ... pipeline-specific parameters ...
-
-variables:
-  - name: PipelinePool
-    value: ${{ parameters.PipelinePool }}
 
 stages:
   - template: ../stages/{name}.yml
@@ -59,9 +55,9 @@ stages:
       ParamA: ${{ parameters.ParamA }}
 ```
 
-- Always include a `PipelinePool` parameter with default `'Mare Nectaris'`.
-- Expose the pool as a variable so it is available to all stages.
+- Define all pipeline-specific parameters at this level with appropriate `displayName` and defaults.
 - The `stages:` block calls the stage template with explicit parameter pass-through.
+- **Note:** The `pool:` element must be defined in the root `azure-pipelines.yml` file, not in the pipeline template (it cannot be templated).
 
 ### Stage template (`stages/{name}.yml`)
 

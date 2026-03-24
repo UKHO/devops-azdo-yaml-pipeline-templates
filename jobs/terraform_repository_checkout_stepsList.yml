@@ -1,0 +1,26 @@
+parameters:
+  - name: AdditionalFilesToPackage
+    type: object
+    default: [ ]
+    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
+
+  - name: TerraformBuildInjectionSteps
+    type: stepList
+    default: [ ]
+    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
+
+steps:
+  - checkout: self
+    displayName: 'Checkout self repository'
+    clean: true
+    path: $(RepositoryCheckoutFolderName)
+
+  - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
+      - ${{ step }}
+
+  - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
+      - template: ../tasks/copy_files.yml
+        parameters:
+          SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
+          FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
+          TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetSubdirectoryName }}
