@@ -3,6 +3,7 @@ $frameworkRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Config = & (Join-Path $frameworkRoot "Config.ps1")
 
 $ErrorActionPreference = 'Stop'
+$VerbosePreference = $Config.TestExecution.ShowVerboseOutput ? 'Continue' : 'SilentlyContinue'
 
 . (Join-Path $frameworkRoot "Core.Utilities.ps1")
 . (Join-Path $frameworkRoot "Core.StartUpValidation.ps1")
