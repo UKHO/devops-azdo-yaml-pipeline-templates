@@ -84,17 +84,6 @@ Framework is not loaded. Please load the test framework first:
     $PipelineId = $script:TestState.AzDO.PipelineId
   }
 
-  # Validate parameters
-  if ([string]::IsNullOrWhiteSpace($Organization)) {
-    throw "Organization not provided and not set in framework config"
-  }
-  if ([string]::IsNullOrWhiteSpace($Project)) {
-    throw "Project not provided and not set in framework config"
-  }
-  if ($PipelineId -le 0) {
-    throw "PipelineId not provided and not set in framework config"
-  }
-
   # =========================================================================
   # INVOKE PIPELINE COMPILE - REST API CALL
   # =========================================================================
