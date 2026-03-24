@@ -3,18 +3,6 @@
 # ============================================================================
 # Path resolution and helper functions.
 
-function Get-RepositoryRoot
-{
-  <#
-  .SYNOPSIS
-    Get the repository root directory.
-  #>
-  [CmdletBinding()]
-  param()
-
-  return $script:TestState.RepositoryRoot
-}
-
 function Get-RepositoryPath
 {
   <#
@@ -30,18 +18,6 @@ function Get-RepositoryPath
   )
 
   return Join-Path $script:TestState.RepositoryRoot $RelativePath
-}
-
-function Get-FrameworkRoot
-{
-  <#
-  .SYNOPSIS
-    Get the test framework root directory.
-  #>
-  [CmdletBinding()]
-  param()
-
-  return $script:TestState.FrameworkRoot
 }
 
 function Get-AccessToken
