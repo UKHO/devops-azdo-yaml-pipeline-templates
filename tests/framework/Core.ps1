@@ -10,9 +10,6 @@ $VerbosePreference = $Config.TestExecution.ShowVerboseOutput ? 'Continue' : 'Sil
 . (Join-Path $frameworkRoot "Core.Test-Yaml.ps1")
 
 $script:TestState = @{
-  RepositoryRoot = $RepositoryRoot
-  FrameworkRoot = $frameworkRoot
-  Config = $Config
   TestsRun = 0
   TestsPassed = 0
   TestsFailed = 0
@@ -25,7 +22,7 @@ function Run-Tests
 {
   param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
 
-  $yaml = Get-Content -Path (Get-RepositoryPath $YamlPath) -Raw
+  $yaml = Get-Content -Path (Join-Path $RepositoryRoot $YamlPath) -Raw
   $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
 
   Write-Host "`nTesting: $TestName" -ForegroundColor Cyan
