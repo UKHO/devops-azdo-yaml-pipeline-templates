@@ -11,7 +11,7 @@
 param()
 
 $config = @{
-  AzureDevOps = @{
+  AzDO = @{
     Organization = "ukhydro"
     Project = "DevOps Chapter"
     PipelineId = 1576

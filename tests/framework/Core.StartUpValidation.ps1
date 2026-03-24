@@ -108,7 +108,7 @@ function Test-ConfigurationValues
   [CmdletBinding()]
   param()
 
-  $config = $script:TestState.Config.AzureDevOps
+  $config = $script:TestState.Config.AzDO
 
   return (
   -not [string]::IsNullOrWhiteSpace($config.Organization) -and
@@ -139,7 +139,7 @@ function Invoke-PreFlightValidation
   if (-not (Test-ConfigurationValues))
   {
     Write-Host "FAILED" -ForegroundColor Red
-    $validationErrors += "Configuration values are invalid or empty (Organization: '$( $script:TestState.Config.AzureDevOps.Organization )', Project: '$( $script:TestState.Config.AzureDevOps.Project )', PipelineId: $( $script:TestState.Config.AzureDevOps.PipelineId ))"
+    $validationErrors += "Configuration values are invalid or empty (Organization: '$( $script:TestState.Config.AzDO.Organization )', Project: '$( $script:TestState.Config.AzDO.Project )', PipelineId: $( $script:TestState.Config.AzDO.PipelineId ))"
     $allValidationsPassed = $false
   }
   else
@@ -171,7 +171,7 @@ function Invoke-PreFlightValidation
     Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
     try
     {
-      Invoke-AutoSignIn -Organization $script:TestState.Config.AzureDevOps.Organization
+      Invoke-AutoSignIn -Organization $script:TestState.Config.AzDO.Organization
       Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
       $allValidationsPassed = $true
       $validationErrors = $validationErrors | Where-Object { $_ -notmatch "not authenticated" }

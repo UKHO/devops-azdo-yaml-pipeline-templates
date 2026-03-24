@@ -17,7 +17,7 @@ $script:TestState = @{
   TestsPassed = 0
   TestsFailed = 0
   FailedTests = @()
-  CompileBaseParams = $Config.AzureDevOps
+  AzDO = $Config.AzDO
   AccessToken = Get-AccessToken
 }
 
