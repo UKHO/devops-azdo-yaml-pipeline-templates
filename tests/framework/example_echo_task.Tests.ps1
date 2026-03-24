@@ -5,8 +5,9 @@
 # No Pester DSL - just straightforward PowerShell.
 
 # Load framework
-$repoRoot = git rev-parse --show-toplevel 2>$null
-if (-not $repoRoot) {
+$repoRoot = git rev-parse --show-toplevel 2> $null
+if (-not $repoRoot)
+{
   $repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 }
 . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
@@ -41,6 +42,7 @@ $invalidTestCases = @(
       message        = ""
       verbosityLevel = "info"
     }
+    ErrorMessage = "The 'message' parameter is not a valid String."
   },
   @{
     Description = "with invalid verbosityLevel value"
@@ -48,6 +50,7 @@ $invalidTestCases = @(
       message        = "Test message"
       verbosityLevel = "invalid"
     }
+    ErrorMessage = "The 'verbosityLevel' parameter value 'invalid' is not a valid value."
   }
 )
 
