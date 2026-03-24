@@ -6,10 +6,6 @@
 
 # Load framework
 $repoRoot = git rev-parse --show-toplevel 2> $null
-if (-not $repoRoot)
-{
-  $repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-}
 . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
 
 # ============================================================================
@@ -62,9 +58,3 @@ Run-Tests `
   -YamlPath "tests/framework/example_echo_task.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
-
-
-
-
-
-
