@@ -63,16 +63,6 @@ function Test-CompileYaml
     $ApiVersion = "7.1-preview.1"
   )
 
-  # Get base params from framework if not provided
-  if (-not $script:TestState) {
-    throw @"
-Framework is not loaded. Please load the test framework first:
-
-  `$config = & (Join-Path `$frameworkRoot "TestConfig.ps1")
-  . (Join-Path `$frameworkRoot "Core.ps1") -Config `$config
-"@
-  }
-
   # Use framework defaults if parameters not provided
   if ([string]::IsNullOrWhiteSpace($Organization)) {
     $Organization = $script:TestState.AzDO.Organization
