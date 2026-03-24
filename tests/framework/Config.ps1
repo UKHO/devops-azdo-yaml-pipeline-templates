@@ -23,6 +23,7 @@ $config = @{
 
   TestExecution = @{
     ShowVerboseOutput = $false
+    ThrowExceptionOnTestFailure = $true
   }
 }
 

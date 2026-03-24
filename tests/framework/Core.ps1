@@ -37,6 +37,18 @@ function Run-Tests
   } -TestCasesTitle "`n✗ Invalid Test Cases (should fail):"
 
   Write-Host "`n"
+
+  Get-TestSummary
+
+  Throw-ExcepionOnTestFailure
+}
+
+function Throw-ExcepionOnTestFailure
+{
+  if ($Config.TestExecution.ThrowExceptionOnTestFailure -and $script:TestState.TestsFailed -gt 0)
+  {
+    throw "Test run completed with $($script:TestState.TestsFailed) failed test(s)."
+  }
 }
 
 function Run-Test
@@ -89,6 +101,31 @@ function Invoke-Test
     $script:TestState.TestsFailed++
     $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $_.Exception.Message }
   }
+}
+
+function Get-TestSummary
+{
+  [CmdletBinding()]
+  param()
+
+  $state = $script:TestState
+  Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+  Write-Host "📊 TEST SUMMARY" -ForegroundColor Cyan
+  Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+  Write-Host "  Tests Run:    $($state.TestsRun)"
+  Write-Host "  Passed:       $($state.TestsPassed)" -ForegroundColor Green
+  Write-Host "  Failed:       $($state.TestsFailed)" -ForegroundColor $(if ($state.TestsFailed -gt 0) { 'Red' } else { 'Green' })
+
+  if ($state.FailedTests.Count -gt 0)
+  {
+    Write-Host "`n⚠️  Failed Tests:" -ForegroundColor Yellow
+    foreach ($failedTest in $state.FailedTests)
+    {
+      Write-Host "  - $($failedTest.Name)" -ForegroundColor Red
+      Write-Host "    Error: $($failedTest.Error)" -ForegroundColor DarkRed
+    }
+  }
+  Write-Host ""
 }
 
 Write-Verbose "Test Framework loaded"
