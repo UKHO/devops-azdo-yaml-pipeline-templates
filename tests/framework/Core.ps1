@@ -7,7 +7,8 @@ $VerbosePreference = $Config.TestExecution.ShowVerboseOutput ? 'Continue' : 'Sil
 
 . (Join-Path $frameworkRoot "Core.Utilities.ps1")
 . (Join-Path $frameworkRoot "Core.StartUpValidation.ps1")
-. (Join-Path $frameworkRoot "Core.Test-Yaml.ps1")
+. (Join-Path $frameworkRoot "Core.CompileYaml.ps1")
+. (Join-Path $frameworkRoot "Core.Tests.ps1")
 
 $script:TestState = @{
   TestsRun = 0
@@ -43,66 +44,6 @@ function Run-Tests
   Throw-ExcepionOnTestFailure
 }
 
-function Throw-ExcepionOnTestFailure
-{
-  if ($Config.TestExecution.ThrowExceptionOnTestFailure -and $script:TestState.TestsFailed -gt 0)
-  {
-    throw "Test run completed with $($script:TestState.TestsFailed) failed test(s)."
-  }
-}
-
-function Run-Test
-{
-  param([string]$Yaml, [array]$TestCases, [scriptblock]$PassCriteriaFunction, [string]$TestCasesTitle)
-  if ($TestCases.Count -gt 0)
-  {
-    Write-Host $TestCasesTitle -ForegroundColor Yellow
-    foreach ($testCase in $TestCases)
-    {
-      Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
-        $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
-        $passed = & $PassCriteriaFunction
-        $failureMessage = ""
-        if ($passed -eq $false)
-        {
-          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json )"
-        }
-        return @{
-          Passed = $passed
-          FailureMessage = $failureMessage
-        }
-      } -TestFile $PSCommandPath
-    }
-  }
-}
-
-function Invoke-Test
-{
-  param([string]$TestName, [scriptblock]$TestScript, [string]$TestFile = "")
-  $script:TestState.TestsRun++
-  try
-  {
-    $result = & $TestScript
-    if ($result.Passed -eq $false)
-    {
-      Write-Host "  ✗ $TestName - $( $result.FailureMessage )" -ForegroundColor Red
-      $script:TestState.TestsFailed++
-      $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $result.FailureMessage }
-    }
-    else
-    {
-      Write-Host "  ✓ $TestName" -ForegroundColor Green
-      $script:TestState.TestsPassed++
-    }
-  }
-  catch
-  {
-    Write-Host "  ✗ $TestName - ERROR: $_" -ForegroundColor Red
-    $script:TestState.TestsFailed++
-    $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $_.Exception.Message }
-  }
-}
-
 function Get-TestSummary
 {
   [CmdletBinding()]
@@ -126,6 +67,14 @@ function Get-TestSummary
     }
   }
   Write-Host ""
+}
+
+function Throw-ExcepionOnTestFailure
+{
+  if ($Config.TestExecution.ThrowExceptionOnTestFailure -and $script:TestState.TestsFailed -gt 0)
+  {
+    throw "Test run completed with $($script:TestState.TestsFailed) failed test(s)."
+  }
 }
 
 Write-Verbose "Test Framework loaded"
