@@ -30,12 +30,6 @@ function Test-CompileYaml
   {
     Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId"
 
-    # Validate YAML content
-    if ($YamlContent.Trim().Length -eq 0)
-    {
-      throw "YamlContent cannot be empty or whitespace"
-    }
-
     # Prepare request body
     Write-Verbose "Preparing compilation request body..."
     $bodyObject = @{
