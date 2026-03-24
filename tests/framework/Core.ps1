@@ -5,10 +5,7 @@ $Config = & (Join-Path $frameworkRoot "Config.ps1")
 $ErrorActionPreference = 'Stop'
 $VerbosePreference = $Config.TestExecution.ShowVerboseOutput ? 'Continue' : 'SilentlyContinue'
 
-. (Join-Path $frameworkRoot "Core.Utilities.ps1")
-. (Join-Path $frameworkRoot "Core.StartUpValidation.ps1")
-. (Join-Path $frameworkRoot "Core.CompileYaml.ps1")
-. (Join-Path $frameworkRoot "Core.Tests.ps1")
+Get-ChildItem -Path $frameworkRoot -Filter "Core.*.ps1" | ForEach-Object { . $_.FullName }
 
 $script:TestState = @{
   TestsRun = 0
@@ -53,17 +50,24 @@ function Get-TestSummary
   Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
   Write-Host "📊 TEST SUMMARY" -ForegroundColor Cyan
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
-  Write-Host "  Tests Run:    $($state.TestsRun)"
-  Write-Host "  Passed:       $($state.TestsPassed)" -ForegroundColor Green
-  Write-Host "  Failed:       $($state.TestsFailed)" -ForegroundColor $(if ($state.TestsFailed -gt 0) { 'Red' } else { 'Green' })
+  Write-Host "  Tests Run:    $( $state.TestsRun )"
+  Write-Host "  Passed:       $( $state.TestsPassed )" -ForegroundColor Green
+  Write-Host "  Failed:       $( $state.TestsFailed )" -ForegroundColor $( if ($state.TestsFailed -gt 0)
+  {
+    'Red'
+  }
+  else
+  {
+    'Green'
+  } )
 
   if ($state.FailedTests.Count -gt 0)
   {
     Write-Host "`n⚠️  Failed Tests:" -ForegroundColor Yellow
     foreach ($failedTest in $state.FailedTests)
     {
-      Write-Host "  - $($failedTest.Name)" -ForegroundColor Red
-      Write-Host "    Error: $($failedTest.Error)" -ForegroundColor DarkRed
+      Write-Host "  - $( $failedTest.Name )" -ForegroundColor Red
+      Write-Host "    Error: $( $failedTest.Error )" -ForegroundColor DarkRed
     }
   }
   Write-Host ""
@@ -73,7 +77,7 @@ function Throw-ExcepionOnTestFailure
 {
   if ($Config.TestExecution.ThrowExceptionOnTestFailure -and $script:TestState.TestsFailed -gt 0)
   {
-    throw "Test run completed with $($script:TestState.TestsFailed) failed test(s)."
+    throw "Test run completed with $( $script:TestState.TestsFailed ) failed test(s)."
   }
 }
 
