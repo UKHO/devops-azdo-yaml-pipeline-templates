@@ -127,8 +127,6 @@ function Invoke-PreFlightValidation
   [CmdletBinding()]
   param()
 
-  $validationSettings = $script:TestState.Config.Validation
-  $failOnError = $validationSettings.FailOnValidationError
   $allValidationsPassed = $true
   $validationErrors = @()
 
@@ -137,68 +135,55 @@ function Invoke-PreFlightValidation
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
 
   # Validate configuration values
-  if ($validationSettings.CheckConfigValues)
+  Write-Host -NoNewline "  ✓ Configuration values... "
+  if (-not (Test-ConfigurationValues))
   {
-    Write-Host -NoNewline "  ✓ Configuration values... "
-    if (-not (Test-ConfigurationValues))
-    {
-      Write-Host "FAILED" -ForegroundColor Red
-      $validationErrors += "Configuration values are invalid or empty (Organization: '$( $script:TestState.Config.AzureDevOps.Organization )', Project: '$( $script:TestState.Config.AzureDevOps.Project )', PipelineId: $( $script:TestState.Config.AzureDevOps.PipelineId ))"
-      $allValidationsPassed = $false
-    }
-    else
-    {
-      Write-Host "OK" -ForegroundColor Green
-    }
+    Write-Host "FAILED" -ForegroundColor Red
+    $validationErrors += "Configuration values are invalid or empty (Organization: '$( $script:TestState.Config.AzureDevOps.Organization )', Project: '$( $script:TestState.Config.AzureDevOps.Project )', PipelineId: $( $script:TestState.Config.AzureDevOps.PipelineId ))"
+    $allValidationsPassed = $false
+  }
+  else
+  {
+    Write-Host "OK" -ForegroundColor Green
   }
 
   # Validate Azure DevOps CLI
-  if ($validationSettings.CheckAzDevOpsCli)
+  Write-Host -NoNewline "  ✓ Azure DevOps CLI... "
+  if (-not (Test-AzDevOpsCli))
   {
-    Write-Host -NoNewline "  ✓ Azure DevOps CLI... "
-    if (-not (Test-AzDevOpsCli))
-    {
-      Write-Host "FAILED" -ForegroundColor Red
-      $validationErrors += "Azure DevOps CLI is not installed or not available in PATH. Install with: az extension add --name azure-devops"
-      $allValidationsPassed = $false
-    }
-    else
-    {
-      Write-Host "OK" -ForegroundColor Green
-    }
+    Write-Host "FAILED" -ForegroundColor Red
+    $validationErrors += "Azure DevOps CLI is not installed or not available in PATH. Install with: az extension add --name azure-devops"
+    $allValidationsPassed = $false
+  }
+  else
+  {
+    Write-Host "OK" -ForegroundColor Green
   }
 
-  # Validate Azure authentication
-  if ($validationSettings.CheckAzAuthentication)
+  Write-Host -NoNewline "  ✓ Azure authentication... "
+  if (-not (Test-AzAuthentication))
   {
-    Write-Host -NoNewline "  ✓ Azure authentication... "
-    if (-not (Test-AzAuthentication))
-    {
-      Write-Host "FAILED" -ForegroundColor Red
-      $validationErrors += "User is not authenticated with Azure"
-      $allValidationsPassed = $false
+    Write-Host "FAILED" -ForegroundColor Red
+    $validationErrors += "User is not authenticated with Azure"
+    $allValidationsPassed = $false
 
-      # Attempt auto sign-in
-      if ($validationSettings.AttemptAutoSignIn)
-      {
-        Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
-        try
-        {
-          Invoke-AutoSignIn -Organization $script:TestState.Config.AzureDevOps.Organization
-          Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
-          $allValidationsPassed = $true
-          $validationErrors = $validationErrors | Where-Object { $_ -notmatch "not authenticated" }
-        }
-        catch
-        {
-          Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
-        }
-      }
-    }
-    else
+    # Attempt auto sign-in
+    Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
+    try
     {
-      Write-Host "OK" -ForegroundColor Green
+      Invoke-AutoSignIn -Organization $script:TestState.Config.AzureDevOps.Organization
+      Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
+      $allValidationsPassed = $true
+      $validationErrors = $validationErrors | Where-Object { $_ -notmatch "not authenticated" }
     }
+    catch
+    {
+      Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
+    }
+  }
+  else
+  {
+    Write-Host "OK" -ForegroundColor Green
   }
 
   # Handle validation results
@@ -217,15 +202,9 @@ REMEDIATION STEPS:
   4. Run: az devops configure --defaults organization=https://dev.azure.com/your-org
 
 "@
-    if ($failOnError)
-    {
-      throw $errorMessage
-    }
-    else
-    {
-      Write-Warning $errorMessage
-      return $false
-    }
+
+    throw $errorMessage
+
   }
 
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
