@@ -37,52 +37,31 @@ function Test-CompileYaml
 {
   [CmdletBinding()]
   param (
-    [Parameter(Mandatory, ValueFromPipeline)]
+    [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
     [string]
     $YamlContent,
 
     [Parameter()]
     [hashtable]
-    $Parameters = @{ },
-
-    [Parameter()]
-    [string]
-    $Organization,
-
-    [Parameter()]
-    [string]
-    $Project,
-
-    [Parameter()]
-    [int]
-    $PipelineId,
-
-    [Parameter()]
-    [string]
-    $ApiVersion = "7.1-preview.1"
+    $Parameters = @{ }
   )
 
-  # Use framework defaults if parameters not provided
-  if ([string]::IsNullOrWhiteSpace($Organization)) {
-    $Organization = $script:TestState.AzDO.Organization
-  }
-  if ([string]::IsNullOrWhiteSpace($Project)) {
-    $Project = $script:TestState.AzDO.Project
-  }
-  if ($PipelineId -eq 0) {
-    $PipelineId = $script:TestState.AzDO.PipelineId
-  }
+  $Organization = $script:TestState.AzDO.Organization
+  $Project = $script:TestState.AzDO.Project
+  $PipelineId = $script:TestState.AzDO.PipelineId
 
   # =========================================================================
   # INVOKE PIPELINE COMPILE - REST API CALL
   # =========================================================================
 
-  try {
+  try
+  {
     Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId"
 
     # Validate YAML content
-    if ($YamlContent.Trim().Length -eq 0) {
+    if ($YamlContent.Trim().Length -eq 0)
+    {
       throw "YamlContent cannot be empty or whitespace"
     }
 
@@ -93,21 +72,23 @@ function Test-CompileYaml
       previewRun = $true
     }
 
-    if ($Parameters -and $Parameters.Count -gt 0) {
-      Write-Verbose "Adding $($Parameters.Count) argument(s) to compilation request"
+    if ($Parameters -and $Parameters.Count -gt 0)
+    {
+      Write-Verbose "Adding $( $Parameters.Count ) argument(s) to compilation request"
       $bodyObject.templateParameters = $Parameters
     }
 
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
-    Write-Verbose "Request body size: $($bodyJson.Length) bytes"
+    Write-Verbose "Request body size: $( $bodyJson.Length ) bytes"
 
     $headers = @{
-      Authorization = "Bearer $($script:TestState.AccessToken)"
+      Authorization = "Bearer $( $script:TestState.AccessToken )"
       "Content-Type" = "application/json"
     }
 
     # Build URI
-    $uri = "https://dev.azure.com/$Organization/$Project/_apis/pipelines/$PipelineId/runs?api-version=$ApiVersion"
+    $apiVersion = "7.1-preview.1"
+    $uri = "https://dev.azure.com/$Organization/$Project/_apis/pipelines/$PipelineId/runs?api-version=$apiVersion"
     Write-Verbose "Target URI: $uri"
 
     # Send request
@@ -119,21 +100,24 @@ function Test-CompileYaml
       -TimeoutSec 300
 
     # Validate response
-    if ($null -eq $response) {
+    if ($null -eq $response)
+    {
       throw "Received null response from Azure DevOps API"
     }
 
-    Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $($response.id)"
+    Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $( $response.id )"
 
     return $response
   }
-  catch {
+  catch
+  {
     $errorMessage = $_.Exception.Message
     $statusCode = $_.Exception.Response.StatusCode.Value__
 
     Write-Verbose "Pipeline YAML compilation failed: $errorMessage"
 
-    if ($statusCode) {
+    if ($statusCode)
+    {
       Write-Verbose "HTTP Status Code: $statusCode"
     }
 
@@ -147,25 +131,30 @@ function Test-CompileYaml
     }
 
     # Try to extract detailed error from response body
-    if ($_.ErrorDetails.Message) {
-      try {
+    if ($_.ErrorDetails.Message)
+    {
+      try
+      {
         $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
         $errorObject.error.apiMessage = $errorJson.message
         $errorObject.error.apiResponse = $errorJson
 
-        if ($errorJson.customProperties) {
+        if ($errorJson.customProperties)
+        {
           $errorObject.error.customProperties = $errorJson.customProperties
-          Write-Verbose "Error Details: $($errorJson.customProperties | ConvertTo-Json)"
+          Write-Verbose "Error Details: $( $errorJson.customProperties | ConvertTo-Json )"
         }
       }
-      catch {
+      catch
+      {
         $errorObject.error.rawResponse = $_.ErrorDetails.Message
-        Write-Verbose "Raw API Response: $($_.ErrorDetails.Message)"
+        Write-Verbose "Raw API Response: $( $_.ErrorDetails.Message )"
       }
     }
 
     # Provide remediation guidance based on error type
-    switch ($statusCode) {
+    switch ($statusCode)
+    {
       400 {
         Write-Verbose "Bad Request - Check YAML syntax, parameter names/types, required parameters, template paths"
         $errorObject.error.remediation = "Check YAML syntax, parameter names/types, required parameters, template paths"
@@ -197,7 +186,7 @@ function Test-CompileYaml
       }
     }
 
-    Write-Verbose "Error details: $($errorObject | ConvertTo-Json -Depth 10)"
+    Write-Verbose "Error details: $( $errorObject | ConvertTo-Json -Depth 10 )"
 
     return $errorObject
   }
