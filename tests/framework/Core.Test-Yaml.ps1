@@ -11,8 +11,8 @@ Handles all REST API interaction, authentication, error handling, and remediatio
 .PARAMETER YamlContent
 The YAML pipeline content as a string.
 
-.PARAMETER Arguments
-Optional pipeline arguments/variables as a hashtable.
+.PARAMETER Parameters
+Optional pipeline parameters as a hashtable.
 
 .PARAMETER Organization
 Azure DevOps organization name (defaults to framework config).
@@ -25,7 +25,7 @@ Pipeline ID to compile against (defaults to framework config).
 
 .EXAMPLE
 $result = Test-CompileYaml -YamlContent $yaml
-$result = Test-CompileYaml -YamlContent $yaml -Arguments @{ env = "prod" }
+$result = Test-CompileYaml -YamlContent $yaml -Parameters @{ env = "prod" }
 
 .RETURNS
 On SUCCESS: [PSObject] Run object with properties like id, name, state, result, url, etc.
@@ -44,7 +44,7 @@ function Test-CompileYaml
 
     [Parameter()]
     [hashtable]
-    $Arguments = @{ },
+    $Parameters = @{ },
 
     [Parameter()]
     [string]
@@ -114,9 +114,9 @@ Framework is not loaded. Please load the test framework first:
       previewRun = $true
     }
 
-    if ($Arguments -and $Arguments.Count -gt 0) {
-      Write-Verbose "Adding $($Arguments.Count) argument(s) to compilation request"
-      $bodyObject.templateParameters = $Arguments
+    if ($Parameters -and $Parameters.Count -gt 0) {
+      Write-Verbose "Adding $($Parameters.Count) argument(s) to compilation request"
+      $bodyObject.templateParameters = $Parameters
     }
 
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
