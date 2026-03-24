@@ -67,12 +67,17 @@ function Test-CompileYaml
     # Validate response
     if ($null -eq $response)
     {
-      throw "Received null response from Azure DevOps API"
+      throw [System.NullReferenceException]::new("Received null response from Azure DevOps API")
     }
 
     Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $( $response.id )"
 
     return $response
+  }
+  catch [System.NullReferenceException]
+  {
+    Write-Verbose "Null response received from Azure DevOps API"
+    throw
   }
   catch
   {
