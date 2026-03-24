@@ -23,12 +23,11 @@ $script:TestState = @{
 
 function Run-Tests
 {
-  param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases, [string]$TestName = "")
+  param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
+
   $yaml = Get-Content -Path (Get-RepositoryPath $YamlPath) -Raw
-  if ( [string]::IsNullOrWhiteSpace($TestName))
-  {
-    $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
-  }
+  $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
+
   Write-Host "`nTesting: $TestName" -ForegroundColor Cyan
   Write-Host ("━" * ($TestName.Length + 10)) -ForegroundColor Cyan
 
