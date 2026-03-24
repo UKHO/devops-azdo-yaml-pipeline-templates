@@ -133,57 +133,9 @@ function Test-CompileYaml
     # Try to extract detailed error from response body
     if ($_.ErrorDetails.Message)
     {
-      try
-      {
-        $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
-        $errorObject.error.apiMessage = $errorJson.message
-        $errorObject.error.apiResponse = $errorJson
-
-        if ($errorJson.customProperties)
-        {
-          $errorObject.error.customProperties = $errorJson.customProperties
-          Write-Verbose "Error Details: $( $errorJson.customProperties | ConvertTo-Json )"
-        }
-      }
-      catch
-      {
-        $errorObject.error.rawResponse = $_.ErrorDetails.Message
-        Write-Verbose "Raw API Response: $( $_.ErrorDetails.Message )"
-      }
-    }
-
-    # Provide remediation guidance based on error type
-    switch ($statusCode)
-    {
-      400 {
-        Write-Verbose "Bad Request - Check YAML syntax, parameter names/types, required parameters, template paths"
-        $errorObject.error.remediation = "Check YAML syntax, parameter names/types, required parameters, template paths"
-        break
-      }
-      401 {
-        Write-Verbose "Unauthorized - Verify you are logged in with 'az login' and have the required Build (read & execute) scope"
-        $errorObject.error.remediation = "Verify you are logged in with 'az login' and have the required Build (read & execute) scope"
-        break
-      }
-      403 {
-        Write-Verbose "Forbidden - Verify your Azure CLI login has project permissions and required access"
-        $errorObject.error.remediation = "Verify your Azure CLI login has project permissions and required access"
-        break
-      }
-      404 {
-        Write-Verbose "Not Found - Verify pipeline ID ($PipelineId), organization ($Organization), and project ($Project)"
-        $errorObject.error.remediation = "Verify pipeline ID ($PipelineId), organization ($Organization), and project ($Project)"
-        break
-      }
-      500 {
-        Write-Verbose "Internal Server Error - Retry operation or check Azure DevOps service status"
-        $errorObject.error.remediation = "Retry operation or check Azure DevOps service status"
-        break
-      }
-      default {
-        Write-Verbose "Unexpected error - Review error message and Azure DevOps API documentation"
-        $errorObject.error.remediation = "Review error message and Azure DevOps API documentation"
-      }
+      $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
+      $errorObject.error.apiMessage = $errorJson.message
+      $errorObject.error.apiResponse = $errorJson
     }
 
     Write-Verbose "Error details: $( $errorObject | ConvertTo-Json -Depth 10 )"
