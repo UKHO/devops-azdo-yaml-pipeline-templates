@@ -209,6 +209,5 @@ REMEDIATION STEPS:
 
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
   Write-Host "`n"
-  return $true
 }
 

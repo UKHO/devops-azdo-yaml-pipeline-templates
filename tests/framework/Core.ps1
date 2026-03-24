@@ -16,6 +16,8 @@ $script:TestState = @{
   AccessToken = Get-AccessToken
 }
 
+Invoke-PreFlightValidation
+
 function Run-Tests
 {
   param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
