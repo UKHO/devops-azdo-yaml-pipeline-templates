@@ -21,18 +21,8 @@ $config = @{
     Pattern = "tests/**/*.Tests.ps1"
   }
 
-  Validation = @{
-    CheckAzDevOpsCli = $true
-    CheckAzAuthentication = $true
-    CheckConfigValues = $true
-    FailOnValidationError = $true
-    AttemptAutoSignIn = $true
-  }
-
   TestExecution = @{
-    StopOnFirstFailure = $false
     ShowVerboseOutput = $false
-    ShowAllResults = $false
   }
 }
 
