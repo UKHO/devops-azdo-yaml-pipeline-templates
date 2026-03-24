@@ -1,3 +1,28 @@
+function Run-Test
+{
+  param([string]$Yaml, [array]$TestCases, [scriptblock]$PassCriteriaFunction, [string]$TestCasesTitle)
+  if ($TestCases.Count -gt 0)
+  {
+    Write-Host $TestCasesTitle -ForegroundColor Yellow
+    foreach ($testCase in $TestCases)
+    {
+      Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
+        $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
+        $passed = & $PassCriteriaFunction
+        $failureMessage = ""
+        if ($passed -eq $false)
+        {
+          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json )"
+        }
+        return @{
+          Passed = $passed
+          FailureMessage = $failureMessage
+        }
+      } -TestFile $PSCommandPath
+    }
+  }
+}
+
 function Invoke-Test
 {
   param([string]$TestName, [scriptblock]$TestScript, [string]$TestFile = "")
@@ -24,29 +49,3 @@ function Invoke-Test
     $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $_.Exception.Message }
   }
 }
-
-function Run-Test
-{
-  param([string]$Yaml, [array]$TestCases, [scriptblock]$PassCriteriaFunction, [string]$TestCasesTitle)
-  if ($TestCases.Count -gt 0)
-  {
-    Write-Host $TestCasesTitle -ForegroundColor Yellow
-    foreach ($testCase in $TestCases)
-    {
-      Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
-        $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
-        $passed = & $PassCriteriaFunction
-        $failureMessage = ""
-        if ($passed -eq $false)
-        {
-          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json )"
-        }
-        return @{
-          Passed = $passed
-          FailureMessage = $failureMessage
-        }
-      } -TestFile $PSCommandPath
-    }
-  }
-}
-
