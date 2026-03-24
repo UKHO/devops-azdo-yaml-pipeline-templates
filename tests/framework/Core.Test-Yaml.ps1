@@ -75,13 +75,13 @@ Framework is not loaded. Please load the test framework first:
 
   # Use framework defaults if parameters not provided
   if ([string]::IsNullOrWhiteSpace($Organization)) {
-    $Organization = $script:TestState.CompileBaseParams.Organization
+    $Organization = $script:TestState.AzDO.Organization
   }
   if ([string]::IsNullOrWhiteSpace($Project)) {
-    $Project = $script:TestState.CompileBaseParams.Project
+    $Project = $script:TestState.AzDO.Project
   }
   if ($PipelineId -eq 0) {
-    $PipelineId = $script:TestState.CompileBaseParams.PipelineId
+    $PipelineId = $script:TestState.AzDO.PipelineId
   }
 
   # Validate parameters
