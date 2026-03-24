@@ -1,38 +1,9 @@
-<#
-.SYNOPSIS
-Compile an Azure DevOps pipeline YAML and return the result.
+# ============================================================================
+# TEST FRAMEWORK - COMPILE YAML
+# ============================================================================
+# Takes Yaml Content with Parameters, invokes Azure DevOps REST API to
+# compile the pipeline, and returns the response.
 
-.DESCRIPTION
-Sends a YAML pipeline to the Azure DevOps REST API for compilation and validation.
-Returns a Run object on success or an error object on failure.
-
-Handles all REST API interaction, authentication, error handling, and remediation.
-
-.PARAMETER YamlContent
-The YAML pipeline content as a string.
-
-.PARAMETER Parameters
-Optional pipeline parameters as a hashtable.
-
-.PARAMETER Organization
-Azure DevOps organization name (defaults to framework config).
-
-.PARAMETER Project
-Azure DevOps project name (defaults to framework config).
-
-.PARAMETER PipelineId
-Pipeline ID to compile against (defaults to framework config).
-
-.EXAMPLE
-$result = Test-CompileYaml -YamlContent $yaml
-$result = Test-CompileYaml -YamlContent $yaml -Parameters @{ env = "prod" }
-
-.RETURNS
-On SUCCESS: [PSObject] Run object with properties like id, name, state, result, url, etc.
-On FAILURE: [PSObject] Error object with success=$false and detailed error information.
-
-See: https://learn.microsoft.com/en-us/rest/api/azure/devops/pipelines/runs/run-pipeline
-#>
 function Test-CompileYaml
 {
   [CmdletBinding()]
