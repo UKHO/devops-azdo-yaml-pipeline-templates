@@ -95,6 +95,8 @@ try
   }
 
   Write-Host "Found $( $testFiles.Count ) test file(s)`n"
+  $testFiles | ForEach-Object { Write-Host "  - $($_.FullName)" -ForegroundColor Gray }
+  Write-Host ""
 
   # Execute each test file
   foreach ($testFile in $testFiles)
@@ -102,7 +104,7 @@ try
     & $testFile.FullName
   }
 
-  Write-Host "✅ All tests completed" -ForegroundColor Green
+  Write-Host "✅  All tests completed" -ForegroundColor Green
 }
 catch
 {
