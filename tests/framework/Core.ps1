@@ -117,7 +117,6 @@ function Get-TestSummary
     foreach ($failedTest in $state.FailedTests)
     {
       Write-Host "  - $( $failedTest.Name )" -ForegroundColor Red
-      Write-Host "    Error: $( $failedTest.Error )" -ForegroundColor DarkRed
     }
   }
   Write-Host ""
