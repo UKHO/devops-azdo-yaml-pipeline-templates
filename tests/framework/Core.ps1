@@ -14,10 +14,11 @@ $script:TestState = @{
   FailedTests = @()
   SkipValidation = $Config.Validation.SkipValidation
   AzDO = $Config.AzDO
-  AccessToken = Get-AccessToken
+  AccessToken = $null
 }
 
 Invoke-PreFlightValidation
+$script:TestState.AccessToken = Get-AccessToken
 
 function Run-Tests
 {
