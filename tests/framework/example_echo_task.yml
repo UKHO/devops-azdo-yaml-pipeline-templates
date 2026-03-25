@@ -1,0 +1,22 @@
+parameters:
+  - name: message
+    type: string
+    default: "Hello, World!"
+    displayName: "Message to echo"
+
+  - name: verbosityLevel
+    type: string
+    default: "info"
+    values:
+      - debug
+      - info
+      - warn
+      - error
+    displayName: "Verbosity level"
+
+steps:
+  - script: |
+      echo "[Verbosity: ${{ parameters.verbosityLevel }}]"
+      echo "${{ parameters.message }}"
+    displayName: "Echo: ${{ parameters.message }}"
+
