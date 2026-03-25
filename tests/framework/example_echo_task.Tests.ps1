@@ -2,7 +2,6 @@
 # TEST: Example Echo Task Template
 # ============================================================================
 # This test demonstrates how to write tests using the simple PowerShell framework.
-# No Pester DSL - just straightforward PowerShell.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue)) {

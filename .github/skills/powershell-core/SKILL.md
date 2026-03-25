@@ -284,33 +284,6 @@ function Invoke-WithRetry {
 
 ---
 
-## Testing with Pester
-
-Generate Pester 5 tests alongside every function:
-
-```powershell
-BeforeAll {
-    . "$PSScriptRoot/../Public/Get-Something.ps1"
-}
-
-Describe 'Get-Something' {
-    Context 'When input is valid' {
-        It 'Returns expected output' {
-            $result = Get-Something -ParameterName 'test'
-            $result.Name | Should -Be 'test'
-        }
-    }
-
-    Context 'When input is invalid' {
-        It 'Throws on null input' {
-            { Get-Something -ParameterName $null } | Should -Throw
-        }
-    }
-}
-```
-
----
-
 ## What NOT to Generate
 
 - **No `Write-Host`** for data (only use for intentional console-only output like progress UIs).

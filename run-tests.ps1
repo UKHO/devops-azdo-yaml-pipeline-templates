@@ -8,12 +8,6 @@
   sign-in if needed), and discovers/executes all test files matching the pattern
   defined in Config.ps1.
 
-  This is a pure PowerShell Core replacement for Pester that eliminates:
-  - Scope issues
-  - Silent sign-in failures
-  - Configuration embedded in code
-  - Pester DSL learning curve
-
 .PARAMETER Verbose
   Enable verbose output for debugging.
 
