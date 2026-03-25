@@ -4,9 +4,11 @@
 # This test demonstrates how to write tests using the simple PowerShell framework.
 # No Pester DSL - just straightforward PowerShell.
 
-# Load framework
-$repoRoot = git rev-parse --show-toplevel 2> $null
-. (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+# Load framework (only if not already loaded)
+if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue)) {
+  $repoRoot = git rev-parse --show-toplevel 2> $null
+  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+}
 
 # ============================================================================
 # DEFINE TEST CASES

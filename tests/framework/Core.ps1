@@ -15,15 +15,19 @@ $script:TestState = @{
   SkipValidation = $Config.Validation.SkipValidation
   AzDO = $Config.AzDO
   AccessToken = $null
+  PreflightCompleted = $false
 }
-
-Invoke-PreFlightValidation
-$script:TestState.AccessToken = Get-AccessToken
 
 function Run-Tests
 {
   param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
 
+  if (-not $script:TestState.PreflightCompleted)
+  {
+    Invoke-PreFlightValidation
+    $script:TestState.AccessToken = Get-AccessToken
+    $script:TestState.PreflightCompleted = $true
+  }
   $yaml = Get-Content -Path (Join-Path $RepositoryRoot $YamlPath) -Raw
   $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
 
