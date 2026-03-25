@@ -81,6 +81,10 @@ function Test-CompileYaml
   }
   catch
   {
+    if ($null -eq $_.Exception.Message -or $null -eq $_.Exception.Response) {
+      throw $_
+    }
+
     $errorMessage = $_.Exception.Message
     $statusCode = $_.Exception.Response.StatusCode.Value__
 
