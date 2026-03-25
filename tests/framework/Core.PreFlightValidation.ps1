@@ -4,7 +4,7 @@
 # Validates test environment (CLI, authentication, configuration)
 # Handles automatic sign-in if needed.
 
-function Test-AzDevOpsCli
+function Test-AzCli
 {
   <#
   .SYNOPSIS
@@ -84,12 +84,12 @@ function Invoke-PreFlightValidation
     Write-Host "OK" -ForegroundColor Green
   }
 
-  # Validate Azure DevOps CLI
-  Write-Host -NoNewline "  ✓ Azure DevOps CLI... "
-  if (-not (Test-AzDevOpsCli))
+  # Validate Az CLI
+  Write-Host -NoNewline "  ✓ Az CLI... "
+  if (-not (Test-AzCli))
   {
     Write-Host "FAILED" -ForegroundColor Red
-    $validationErrors += "Azure DevOps CLI is not installed or not available in PATH. Install with: az extension add --name azure-devops"
+    $validationErrors += "Az CLI is not installed or not available in PATH."
     $allValidationsPassed = $false
   }
   else
@@ -129,11 +129,9 @@ function Invoke-PreFlightValidation
 $( $validationErrors -join "`n" )
 
 REMEDIATION STEPS:
-  1. Install Azure DevOps CLI: az extension add --name azure-devops
+  1. Install Azure CLI 'az'
   2. Authenticate with Azure: az login
   3. Update Config.ps1 with correct Organization, Project, and PipelineId
-  4. Run: az devops configure --defaults organization=https://dev.azure.com/your-org
-
 "@
 
     throw $errorMessage
