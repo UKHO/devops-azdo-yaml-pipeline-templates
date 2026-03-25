@@ -8,11 +8,11 @@ function Run-Test
     {
       Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
         $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
-        $passed = & $PassCriteriaFunction
+        $passed = & $PassCriteriaFunction $result $testCase
         $failureMessage = ""
         if ($passed -eq $false)
         {
-          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json )"
+          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json -Depth 100 )"
         }
         return @{
           Passed = $passed

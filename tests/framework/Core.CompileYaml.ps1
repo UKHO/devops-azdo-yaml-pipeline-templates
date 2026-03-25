@@ -53,7 +53,9 @@ function Test-CompileYaml
 
     # Build URI
     $apiVersion = "7.1-preview.1"
-    $uri = "https://dev.azure.com/$Organization/$Project/_apis/pipelines/$PipelineId/runs?api-version=$apiVersion"
+    $encodedOrganization = [uri]::EscapeDataString($Organization)
+    $encodedProject = [uri]::EscapeDataString($Project)
+    $uri = "https://dev.azure.com/$encodedOrganization/$encodedProject/_apis/pipelines/$PipelineId/runs?api-version=$apiVersion"
     Write-Verbose "Target URI: $uri"
 
     # Send request
@@ -82,7 +84,7 @@ function Test-CompileYaml
   catch
   {
     if ($null -eq $_.Exception.Message -or $null -eq $_.Exception.Response) {
-      throw $_
+      throw
     }
 
     $errorMessage = $_.Exception.Message
