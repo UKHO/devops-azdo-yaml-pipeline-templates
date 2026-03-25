@@ -42,7 +42,7 @@ function Run-Tests
 
   Get-TestSummary
 
-  Throw-ExcepionOnTestFailure
+  Throw-ExceptionOnTestFailure
 }
 
 function Get-TestSummary
