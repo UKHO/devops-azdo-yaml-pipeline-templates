@@ -188,7 +188,7 @@ steps:
   - ${{ if and(eq(parameters.Command, 'init'), eq(parameters.EnvironmentAzureServiceConnection, '')) }}:
       - script: >
           terraform ${{ parameters.Command }}
-           -backend=${{ parameters.DisableBackend }}
+           ${{ iif(parameters.DisableBackend, '-backend=false', '') }}
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_init${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         workingDirectory: ${{ parameters.WorkingDirectory }}
