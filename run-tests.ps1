@@ -19,10 +19,10 @@
 
 .EXAMPLE
   # Run all tests
-  pwsh ./run-tests-simple.ps1
+  pwsh ./run-tests.ps1
 
   # Run with verbose output
-  pwsh ./run-tests-simple.ps1 -Verbose
+  pwsh ./run-tests.ps1 -Verbose
 
 .NOTES
   Configuration is loaded from tests/framework/Config.ps1
@@ -52,7 +52,7 @@ $config = & $configPath
 
 # Load framework
 Write-Verbose "Loading test framework..."
-$corePath = Join-Path $frameworkRoot "Core-Simple.ps1"
+$corePath = Join-Path $frameworkRoot "Core.ps1"
 
 if (-not (Test-Path $corePath))
 {
