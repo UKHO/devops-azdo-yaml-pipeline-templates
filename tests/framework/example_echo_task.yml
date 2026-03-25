@@ -1,18 +1,18 @@
 parameters:
   - name: message
     type: string
-    displayName: "Message to echo"
     default: "Hello, World!"
+    displayName: "Message to echo"
 
   - name: verbosityLevel
     type: string
-    displayName: "Verbosity level"
     default: "info"
     values:
       - debug
       - info
       - warn
       - error
+    displayName: "Verbosity level"
 
 steps:
   - script: |
