@@ -77,7 +77,7 @@ function Get-TestSummary
   Write-Host ""
 }
 
-function Throw-ExcepionOnTestFailure
+function Throw-ExceptionOnTestFailure
 {
   if ($Config.TestExecution.ThrowExceptionOnTestFailure -and $script:TestState.TestsFailed -gt 0)
   {
