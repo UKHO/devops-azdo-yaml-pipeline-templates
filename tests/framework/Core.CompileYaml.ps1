@@ -83,7 +83,8 @@ function Test-CompileYaml
   }
   catch
   {
-    if ($null -eq $_.Exception.Message -or $null -eq $_.Exception.Response) {
+    if ($null -eq $_.Exception.Message -or $null -eq $_.Exception.Response)
+    {
       throw
     }
 
@@ -109,9 +110,16 @@ function Test-CompileYaml
     # Try to extract detailed error from response body
     if ($_.ErrorDetails.Message)
     {
-      $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
-      $errorObject.error.apiMessage = $errorJson.message
-      $errorObject.error.apiResponse = $errorJson
+      try
+      {
+        $errorJson = $_.ErrorDetails.Message | ConvertFrom-Json
+        $errorObject.error.apiMessage = $errorJson.message
+        $errorObject.error.apiResponse = $errorJson
+      }
+      catch
+      {
+        Write-Verbose "Failed to parse error details from response body: $_"
+      }
     }
 
     Write-Verbose "Error details: $( $errorObject | ConvertTo-Json -Depth 10 )"

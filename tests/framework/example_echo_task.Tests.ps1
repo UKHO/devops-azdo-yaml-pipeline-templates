@@ -4,7 +4,8 @@
 # This test demonstrates how to write tests using the simple PowerShell framework.
 
 # Load framework (only if not already loaded)
-if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
+{
   $repoRoot = git rev-parse --show-toplevel 2> $null
   . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
 }
@@ -17,17 +18,20 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue)) {
 $validTestCases = @(
   @{
     Description = "with default parameters"
-    Parameters  = @{
-      message        = "Hello, World!"
+    Parameters = @{
+      message = "Hello, World!"
       verbosityLevel = "info"
     }
+    ExpectedYaml = @('echo "`[Verbosity: info`]"', 'echo "Hello, World!"')
+
   },
   @{
     Description = "with custom message and debug verbosity"
-    Parameters  = @{
-      message        = "Starting deployment process"
+    Parameters = @{
+      message = "Starting deployment process"
       verbosityLevel = "debug"
     }
+    ExpectedYaml = @('echo "`[Verbosity: debug`]"', 'echo "Starting deployment process"')
   }
 )
 
@@ -35,16 +39,16 @@ $validTestCases = @(
 $invalidTestCases = @(
   @{
     Description = "with empty message parameter"
-    Parameters  = @{
-      message        = ""
+    Parameters = @{
+      message = ""
       verbosityLevel = "info"
     }
     ErrorMessage = "The 'message' parameter is not a valid String."
   },
   @{
     Description = "with invalid verbosityLevel value"
-    Parameters  = @{
-      message        = "Test message"
+    Parameters = @{
+      message = "Test message"
       verbosityLevel = "invalid"
     }
     ErrorMessage = "The 'verbosityLevel' parameter value 'invalid' is not a valid value."

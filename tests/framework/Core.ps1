@@ -31,13 +31,58 @@ function Run-Tests
   Write-Host "`nTesting: $TestName" -ForegroundColor Cyan
   Write-Host ("━" * ($TestName.Length + 10)) -ForegroundColor Cyan
 
-  Run-Test -Yaml $yaml -TestCases $validTestCases -PassCriteriaFunction {
-    return ($null -ne $result.id -and $result.id -eq -1)
-  } -TestCasesTitle "`n✓ Valid Test Cases:"
+  # Valid test case criteria
+  $validPassCriteria = {
+    $hasValidId = $null -ne $result.id -and $result.id -eq -1
+    $hasFinalYaml = $result.finalYaml -ne $null
+    $expectedYamlFound = $testCase.ExpectedYaml -eq $null -or @($testCase.ExpectedYaml | Where-Object { $result.finalYaml -notlike "*$_*" }).Count -eq 0
 
-  Run-Test -Yaml $yaml -TestCases $invalidTestCases -PassCriteriaFunction {
-    return ($result.success -eq $false -and $result.error.statusCode -eq 400 -and $result.error.apiMessage -like "*$( $testCase.ErrorMessage )*")
-  } -TestCasesTitle "`n✗ Invalid Test Cases (should fail):"
+    return ($hasValidId -and $hasFinalYaml -and $expectedYamlFound)
+  }
+
+  $validErrorMessage = {
+    $hasFinalYaml = $result.finalYaml -ne $null
+    $expectedYamlFound = $testCase.ExpectedYaml -eq $null -or @($testCase.ExpectedYaml | Where-Object { $result.finalYaml -notlike "*$_*" }).Count -eq 0
+
+    if (-not $hasFinalYaml)
+    {
+      return "Expected finalYaml to be populated, but it was null or empty. Indication that the compilation did not complete successfully."
+    }
+    else
+    {
+      return "Final YAML:`n$( $result.finalYaml )`ndid not contain the following expected YAML: '$( $testCase.ExpectedYaml -join "', '" )'."
+    }
+  }
+
+  # Invalid test case criteria
+  $invalidPassCriteria = {
+    $testFailed = $result.success -eq $false
+    $correctStatusCode = $result.error.statusCode -eq 400
+    $errorMessageMatches = $testCase.ErrorMessage -eq "" -or $result.error.apiMessage -like "*$( $testCase.ErrorMessage )*"
+
+    return ($testFailed -and $correctStatusCode -and $errorMessageMatches)
+  }
+
+  $invalidErrorMessage = {
+    if ($null -ne $result.id -and $result.id -eq -1)
+    {
+      return "Expected test to fail, but it compiled successfully. Final YAML:`n$( $result.finalYaml )"
+    }
+    elseif ($null -ne $result.error -and $result.error.statusCode -ne 400)
+    {
+      return "Expected error status code 400, but got $( $result.error.statusCode ). Error: $( $result.error.apiMessage )"
+    }
+    else
+    {
+      return "Expected error message '$( $testCase.ErrorMessage )' not found. Actual error: $( $result.error.apiMessage )"
+    }
+  }
+
+  Run-Test -Yaml $yaml -TestCases $validTestCases -PassCriteriaFunction $validPassCriteria `
+    -TestCasesTitle "`n✓ Valid Test Cases:" -ErrorMessageFunction $validErrorMessage
+
+  Run-Test -Yaml $yaml -TestCases $invalidTestCases -PassCriteriaFunction $invalidPassCriteria `
+    -TestCasesTitle "`n✗ Invalid Test Cases (should fail):" -ErrorMessageFunction $invalidErrorMessage
 
   Write-Host "`n"
 

@@ -1,6 +1,6 @@
 function Run-Test
 {
-  param([string]$Yaml, [array]$TestCases, [scriptblock]$PassCriteriaFunction, [string]$TestCasesTitle)
+  param([string]$Yaml, [array]$TestCases, [scriptblock]$PassCriteriaFunction, [scriptblock]$ErrorMessageFunction, [string]$TestCasesTitle)
   if ($TestCases.Count -gt 0)
   {
     Write-Host $TestCasesTitle -ForegroundColor Yellow
@@ -8,11 +8,11 @@ function Run-Test
     {
       Invoke-Test -TestName "$( $testCase.Description )" -TestScript {
         $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
-        $passed = & $PassCriteriaFunction $result $testCase
+        $passed = & $PassCriteriaFunction
         $failureMessage = ""
         if ($passed -eq $false)
         {
-          $failureMessage = "Test failed with error: $( $result.error | ConvertTo-Json -Depth 100 )"
+          $failureMessage = & $ErrorMessageFunction
         }
         return @{
           Passed = $passed
