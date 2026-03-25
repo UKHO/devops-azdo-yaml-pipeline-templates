@@ -73,12 +73,11 @@ function Invoke-AutoSignIn
     }
 
     # Configure Azure DevOps organization default
-    Write-Verbose "Configuring Azure DevOps organization: $Organization"
-    az devops configure --defaults organization="https://dev.azure.com/$Organization" --auth-type browser 2> $null
-    Write-Verbose "Azure DevOps organization configured"
+    #Write-Verbose "Configuring Azure DevOps organization: $Organization"
+    #az devops configure --defaults organization="https://dev.azure.com/$Organization" --auth-type browser 2> $null
+    #Write-Verbose "Azure DevOps organization configured"
 
     Write-Verbose "Automatic sign-in completed successfully."
-    return $true
   }
   catch
   {

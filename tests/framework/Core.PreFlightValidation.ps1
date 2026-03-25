@@ -13,15 +13,8 @@ function Test-AzDevOpsCli
   [CmdletBinding()]
   param()
 
-  try
-  {
-    $null = az devops --version 2> $null
-    return $true
-  }
-  catch
-  {
-    return $false
-  }
+  $installed = Get-Command az -ErrorAction SilentlyContinue
+  return $null -ne $installed
 }
 
 function Test-AzAuthentication
@@ -34,7 +27,7 @@ function Test-AzAuthentication
   param()
 
   $output = az account show --output json 2>&1
-  return $LASTEXITCODE -eq 0
+  return $null -eq $output.Exception
 }
 
 function Test-AzDOConfigurationValues
@@ -46,13 +39,13 @@ function Test-AzDOConfigurationValues
   [CmdletBinding()]
   param()
 
-  $config = $script:TestState.AzDO
+  $azDO = $script:TestState.AzDO
 
   return (
-  -not [string]::IsNullOrWhiteSpace($config.Organization) -and
-    -not [string]::IsNullOrWhiteSpace($config.Project) -and
-    $null -ne $config.PipelineId -and
-    $config.PipelineId -gt 0
+  -not [string]::IsNullOrWhiteSpace($azDO.Organization) -and
+    -not [string]::IsNullOrWhiteSpace($azDO.Project) -and
+    $null -ne $azDO.PipelineId -and
+    $azDO.PipelineId -gt 0
   )
 }
 
@@ -108,20 +101,16 @@ function Invoke-PreFlightValidation
   if (-not (Test-AzAuthentication))
   {
     Write-Host "FAILED" -ForegroundColor Red
-    $validationErrors += "User is not authenticated with Azure"
-    $allValidationsPassed = $false
-
-    # Attempt auto sign-in
-    Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
     try
     {
+      Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
       Invoke-AutoSignIn -Organization $script:TestState.AzDO.Organization
       Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
-      $allValidationsPassed = $true
-      $validationErrors = $validationErrors | Where-Object { $_ -notmatch "not authenticated" }
     }
     catch
     {
+      $validationErrors += "User is not authenticated with Azure"
+      $allValidationsPassed = $false
       Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
     }
   }
