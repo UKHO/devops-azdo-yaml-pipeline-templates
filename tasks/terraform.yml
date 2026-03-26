@@ -1,8 +1,8 @@
-# Azure DevOps Task: TerraformTask@5
+# Azure DevOps Task: Terraform CLI
 #
 # Purpose:
-#   Executes Terraform commands in an Azure DevOps pipeline, supporting Azure as the backend and provider.
-#   Handles commands such as `init`, `plan`, `apply`, `destroy`, and custom commands, with flexible backend and provider configuration.
+#   Executes Terraform commands in an Azure DevOps pipeline, supporting init, validate, plan, apply, output, and custom commands.
+#   Flexible parameter handling via CommandOptions allows for advanced Terraform configurations.
 #
 # Parameters:
 #   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task. Default: {}
@@ -10,31 +10,21 @@
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
 #   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 0
-#   - Command (string, required): The Terraform command to execute. Supported: init, validate, show, plan, apply, output, destroy, custom.
+#   - Command (string, required): The Terraform command to execute. Supported: init, validate, plan, apply, output, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
-#   - OutputTo (string, optional): Where to send output for show/output commands. Values: console, file. Default: console
-#   - OutputFileName (string, optional): File name for output (when OutputTo is file). Default: ''
-#   - OutputFormat (string, optional): Format for show command output. Values: default, json. Default: default
-#   - BackendAzureServiceConnection (string, optional): Azure service connection for backend state storage. Default: ''
-#   - BackendAzureResourceGroupName (string, optional): Azure resource group for backend state storage. Default: ''
-#   - BackendAzureStorageAccountName (string, optional): Azure storage account for backend state storage. Default: ''
-#   - BackendAzureContainerName (string, optional): Azure storage container for backend state storage. Default: ''
-#   - BackendAzureBlobName (string, optional): Azure blob name (key) for backend state storage. Default: ''
-#   - DisableBackend (boolean, optional): Skip backend configuration during init. Default: false
-#   - UseLocalBackend (boolean, optional): Only init for using the local backend. Default: false
-#   - EnvironmentAzureServiceConnection (string, optional): Azure service connection for provider authentication. Default: ''
+#   - SaveOutputsToFile (boolean, optional): Save terraform output to terraform-output.json file (output command only). Default: false
 #
 # Example Usage:
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'init'
-#       BackendAzureServiceConnection: 'my-azure-connection'
+#       CommandOptions: '-backend-config="key=terraform.tfstate"'
 #
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'plan'
-#       CommandOptions: '-out=tfplan'
+#       CommandOptions: '-out=tfplan -input=false'
 #
 #   - template: tasks/terraform.yml
 #     parameters:
@@ -44,13 +34,18 @@
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'output'
-#       OutputTo: 'file'
+#       SaveOutputsToFile: true
+#
+#   - template: tasks/terraform.yml
+#     parameters:
+#       Command: 'custom'
+#       CustomCommand: 'version'
 #
 # Notes:
-#   - This template is designed for Azure and does not support other cloud providers.
-#   - Uses the TerraformTask@5 task from Microsoft DevLabs.
-#   - The DisableBackend parameter allows backend configuration to be skipped during init.
-#   - This TerraformTask is from this [extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks)
+#   - Backend and provider configuration should be managed via CommandOptions or Terraform configuration files.
+#   - Uses native shell execution (script task) for Terraform CLI commands.
+#   - Ensure Terraform CLI is installed and in PATH before executing this template.
+#   - See: https://www.terraform.io/cli
 
 parameters:
   # Standard Azure DevOps Task Parameters
@@ -83,14 +78,12 @@ parameters:
     type: string
     # NO default - Consumer must provide this
     values:
-      - init      # 🧪
-      - validate  # 🧪
-      - plan      # 🧪
-      - apply     # 🧪
-      - output    #
-      - show      #
-      - destroy   #
-      - custom    # 🧪
+      - init
+      - validate
+      - plan
+      - apply
+      - output
+      - custom
     displayName: 'Terraform command (required)'
 
   - name: CommandOptions
@@ -103,31 +96,10 @@ parameters:
     default: ''
     displayName: 'Custom Terraform CLI command (when Command is custom)'
 
-  # Output Configuration (for show/output commands)
-  - name: OutputTo
-    type: string
-    default: 'console'
-    values:
-      - console
-      - file
-    displayName: 'Where to send output for show/output commands'
-
-  - name: OutputFileName
-    type: string
-    default: ''
-    displayName: 'File name for output (when OutputTo is file)'
-
-  - name: OutputFormat
-    type: string
-    default: 'default'
-    values:
-      - default
-      - json
-    displayName: 'Format for show command output'
-
-  #
-  #     Ok so same issue as the rest of the authentication... I need to see about making use of some dyanmic way of doing this...
-  #
+  - name: SaveOutputsToFile
+    type: boolean
+    default: false
+    displayName: 'Save terraform output to terraform-output.json file (output command only)'
 
   - name: ServiceConnection
     type: string
@@ -136,7 +108,7 @@ parameters:
 
 steps:
   - ${{ if eq(parameters.ServiceConnection, '') }}:
-      - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }}
+      - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if ne(parameters.WorkingDirectory, '') }}:
