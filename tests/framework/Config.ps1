@@ -23,10 +23,6 @@ $config = @{
     SkipValidation = $false
   }
 
-  TestDiscovery = @{
-    Pattern = "tests/**/*.Tests.ps1"
-  }
-
   TestExecution = @{
     ShowVerboseOutput = $false
     ThrowExceptionOnTestFailure = $true
