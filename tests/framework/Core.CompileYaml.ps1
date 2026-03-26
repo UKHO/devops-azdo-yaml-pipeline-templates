@@ -21,6 +21,7 @@ function Test-CompileYaml
   $Organization = $script:TestState.AzDO.Organization
   $Project = $script:TestState.AzDO.Project
   $PipelineId = $script:TestState.AzDO.PipelineId
+  $TargetBranch = $script:TestState.TargetBranch
 
   # =========================================================================
   # INVOKE PIPELINE COMPILE - REST API CALL
@@ -28,13 +29,29 @@ function Test-CompileYaml
 
   try
   {
-    Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId"
+    Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId | TargetBranch=$TargetBranch"
+    if ($TargetBranch)
+    {
+      Write-Verbose "Using target branch: $TargetBranch"
+    }
 
     # Prepare request body
     Write-Verbose "Preparing compilation request body..."
     $bodyObject = @{
       yamlOverride = $YamlContent
       previewRun = $true
+    }
+
+    # Add source version if specified
+    if ($TargetBranch)
+    {
+      $bodyObject.resources = @{
+        repositories = @{
+          self = @{
+            refName = "refs/heads/$TargetBranch"
+          }
+        }
+      }
     }
 
     if ($Parameters -and $Parameters.Count -gt 0)

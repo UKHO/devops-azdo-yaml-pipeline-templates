@@ -12,6 +12,7 @@ $script:TestState = @{
   TestsPassed = 0
   TestsFailed = 0
   FailedTests = @()
+  TargetBranch = $Config.TargetBranch
   SkipValidation = $Config.Validation.SkipValidation
   AzDO = $Config.AzDO
   AccessToken = $null

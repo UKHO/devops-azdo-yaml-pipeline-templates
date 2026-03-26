@@ -17,6 +17,8 @@ $config = @{
     PipelineId = 1576
   }
 
+  TargetBranch = (git rev-parse --abbrev-ref HEAD)
+
   Validation = @{
     SkipValidation = $false
   }
