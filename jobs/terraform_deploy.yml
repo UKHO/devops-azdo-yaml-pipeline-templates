@@ -153,9 +153,9 @@ jobs:
                     - template: /tasks/terraform.yml
                       parameters:
                         Command: output
+                        SaveOutputsToFile: true
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
-                        OutputTo: file
 
                     - template: /tasks/powershell.yml
                       parameters:
@@ -165,4 +165,4 @@ jobs:
                         FailOnStandardError: true
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
-                          -OutputFileName $(TerraformTask_output.jsonOutputVariablesPath)
+                          -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
