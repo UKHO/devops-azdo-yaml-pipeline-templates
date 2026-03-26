@@ -46,6 +46,10 @@ function Run-Tests
 
     if (-not $hasFinalYaml)
     {
+      if ($result.error -ne $null -and $result.error.apiMessage -ne $null)
+      {
+        return "Expected finalYaml to be populated, but it was null or empty. API Error: $( $result.error.apiMessage )"
+      }
       return "Expected finalYaml to be populated, but it was null or empty. Indication that the compilation did not complete successfully."
     }
     else
