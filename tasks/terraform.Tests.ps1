@@ -45,7 +45,6 @@ $validTestCases = @(
       '-backend-config="key=terraform.tfstate"'
     )
   },
-
   # VALIDATE Command Test
   @{
     Description = "validate command"
@@ -56,7 +55,6 @@ $validTestCases = @(
       "terraform validate"
     )
   },
-
   @{
     Description = "validate command with command options"
     Parameters = @{
@@ -68,7 +66,6 @@ $validTestCases = @(
       "-no-color"
     )
   },
-
   # PLAN Command Tests
   @{
     Description = "plan command and command options"
@@ -79,6 +76,17 @@ $validTestCases = @(
     ExpectedYaml = @(
       "terraform plan"
       "-out=tfplan `$(VariableFilesCommandOption) -input=false"
+    )
+  },
+  @{
+    Description = "plan command with CommandOptions containing spaces and special characters"
+    Parameters = @{
+      Command = "plan"
+      CommandOptions = '-var="my_var=value with spaces" -var-file="path/to/file.tfvars"'
+    }
+    ExpectedYaml = @(
+      "terraform plan"
+      '-var="my_var=value with spaces" -var-file="path/to/file.tfvars"'
     )
   },
   # APPLY Command Tests
@@ -93,84 +101,59 @@ $validTestCases = @(
       '$(VariableFilesCommandOption) -input=false'
     )
   },
-
-    # OUTPUT Command Tests
-    @{
-      Description = "output command to console"
-      Parameters = @{
-        Command = "output"
-        OutputTo = "console"
-      }
-      ExpectedYaml = @(
-        "terraform output"
-        "outputTo: console"
-      )
-    },
-    @{
-      Description = "output command to file with filename"
-      Parameters = @{
-        Command = "output"
-        OutputTo = "file"
-        OutputFileName = "terraform-output.json"
-      }
-      ExpectedYaml = @(
-        "terraform output"
-        "outputTo: file"
-        "fileName: terraform-output.json"
-      )
-    },
-  #
-  #  # SHOW Command Tests
-  #  @{
-  #    Description = "show command with default format"
-  #    Parameters = @{
-  #      Command = "show"
-  #    }
-  #    ExpectedYaml = @(
-  #      "command: show"
-  #      "outputTo: console"
-  #    )
-  #  },
-  #  @{
-  #    Description = "show command with json output format"
-  #    Parameters = @{
-  #      Command = "show"
-  #      OutputFormat = "json"
-  #      OutputTo = "file"
-  #      OutputFileName = "plan.json"
-  #    }
-  #    ExpectedYaml = @(
-  #      "command: show"
-  #      "outputTo: file"
-  #      "fileName: plan.json"
-  #      "outputFormat: json"
-  #    )
-  #  },
-  #
-  #  # DESTROY Command Test
-  #  @{
-  #    Description = "destroy command with environment service connection"
-  #    Parameters = @{
-  #      Command = "destroy"
-  #      CommandOptions = "-auto-approve"
-  #    }
-  #    ExpectedYaml = @(
-  #      "command: destroy"
-  #      "commandOptions: -auto-approve"
-  #    )
-  #  },
-  #
-    # CUSTOM Command Test
-    @{
-      Description = "custom command"
-      Parameters = @{
-        Command = "custom"
-        CustomCommand = "version"
-      }
-      ExpectedYaml = @(
-        "terraform version"
-      )
-    },
+  @{
+    Description = "apply command with quoted CommandOptions"
+    Parameters = @{
+      Command = "apply"
+      CommandOptions = '"-var=environment=prod" "-var=region=us-east-1"'
+    }
+    ExpectedYaml = @(
+      "terraform apply"
+      '"-var=environment=prod" "-var=region=us-east-1"'
+    )
+  },
+  # OUTPUT Command Tests
+  @{
+    Description = "output command to console"
+    Parameters = @{
+      Command = "output"
+    }
+    ExpectedYaml = @(
+      "terraform output"
+    )
+  },
+  @{
+    Description = "output command to console with SaveOutputsToFile false"
+    Parameters = @{
+      Command = "output"
+      SaveOutputsToFile = $false
+    }
+    ExpectedYaml = @(
+      "terraform output"
+    )
+  },
+  @{
+    Description = "output command to file with SaveOutputsToFile true"
+    Parameters = @{
+      Command = "output"
+      SaveOutputsToFile = $true
+    }
+    ExpectedYaml = @(
+      "terraform output"
+      "> terraform-output.json"
+    )
+  },
+  # CUSTOM Command Test
+  @{
+    Description = "custom command"
+    Parameters = @{
+      Command = "custom"
+      CustomCommand = "version"
+    }
+    ExpectedYaml = @(
+      "terraform version"
+    )
+  },
   #
   # Task Naming and Retry Tests
   @{
