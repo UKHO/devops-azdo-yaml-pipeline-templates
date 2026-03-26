@@ -72,7 +72,7 @@ jobs:
           Suffix: '"'
           OutputVariableName: VariableFilesCommandOption
 
-      - template: ../utils/concat_wrap_list.yml
+      - template: /utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.InfrastructureConfig.BackendConfig }}
           Prefix: ' -backend-config="'
