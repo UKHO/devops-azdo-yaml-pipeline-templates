@@ -40,11 +40,30 @@ function Test-CompileYaml
     if ($Parameters -and $Parameters.Count -gt 0)
     {
       Write-Verbose "Adding $( $Parameters.Count ) argument(s) to compilation request"
-      $bodyObject.templateParameters = $Parameters
+
+      # The Azure DevOps REST API templateParameters expects a flat Dictionary<string, string>.
+      # Object/array parameter values must be serialised to JSON strings.
+      $stringifiedParameters = @{ }
+      foreach ($key in $Parameters.Keys)
+      {
+        $value = $Parameters[$key]
+        if ($value -is [hashtable] -or $value -is [System.Collections.IDictionary] -or $value -is [array])
+        {
+          $stringifiedParameters[$key] = ($value | ConvertTo-Json -Depth 10 -Compress)
+          Write-Verbose "Serialised object parameter '$key' to JSON string"
+        }
+        else
+        {
+          $stringifiedParameters[$key] = [string]$value
+        }
+      }
+
+      $bodyObject.templateParameters = $stringifiedParameters
     }
 
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
     Write-Verbose "Request body size: $( $bodyJson.Length ) bytes"
+    Write-Verbose "Request body: $( $bodyJson )"
 
     $headers = @{
       Authorization = "Bearer $( $script:TestState.AccessToken )"
@@ -71,6 +90,8 @@ function Test-CompileYaml
     {
       throw [System.NullReferenceException]::new("Received null response from Azure DevOps API")
     }
+
+    Write-Verbose "Pipeline Compiled Yaml: $( $response.finalYaml | Out-String )"
 
     Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $( $response.id )"
 
