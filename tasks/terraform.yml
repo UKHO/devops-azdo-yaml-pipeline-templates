@@ -49,27 +49,27 @@
 
 parameters:
   # Standard Azure DevOps Task Parameters
-  - name: TaskEnvironmentVariables # 🧪
+  - name: TaskEnvironmentVariables
     type: object
     default: { }
     displayName: 'Key/value pairs of environment variables to be passed to the task'
 
-  - name: TaskNameUniqueSlug  # 🧪
+  - name: TaskNameUniqueSlug
     type: string
     default: ''
     displayName: 'Unique string to add to the task name to make it unique if the same command is repeated'
 
-  - name: Condition # 🧪
+  - name: Condition
     type: string
     default: succeeded()
     displayName: 'Evaluate this condition expression to determine whether to run this task'
 
-  - name: WorkingDirectory  # 🧪
+  - name: WorkingDirectory
     type: string
     default: '$(Pipeline.Workspace)'
     displayName: 'Directory containing Terraform configuration files'
 
-  - name: RetryCountOnTaskFailure # 🧪
+  - name: RetryCountOnTaskFailure
     type: number
     default: 0
     displayName: 'Number of times to retry the task on failure'
