@@ -26,7 +26,7 @@ stages:
     condition: ${{ parameters.EnvironmentConfig.Stage.Condition }}
 
     jobs:
-      - template: ../jobs/terraform_plan_verify_apply_jobList.yml
+      - template: /jobs/terraform_plan_verify_apply_jobList.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
