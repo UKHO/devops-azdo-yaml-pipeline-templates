@@ -120,6 +120,7 @@ jobs:
                 CommandOptions: $(BackendConfigCommandOption)
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                ServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: /tasks/terraform.yml
