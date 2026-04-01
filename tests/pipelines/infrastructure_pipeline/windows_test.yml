@@ -24,10 +24,10 @@ extends:
           AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
-            ResourceGroupName: cheeserg
-            StorageAccountName: cheesesa
-            ContainerName: cheesecn
-            BlobName: cheesebn
+            resource_group_name: cheeserg
+            storage_account_name: cheesesa
+            container_name: cheesecn
+            key: cheesebn
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
