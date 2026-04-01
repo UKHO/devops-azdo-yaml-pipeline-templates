@@ -125,7 +125,7 @@ steps:
           azureSubscription: ${{ parameters.ServiceConnection }}
           scriptType: pscore
           scriptLocation: inlineScript
-          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
+          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(eq(parameters.Command, 'init'), '-backend-config="use_azuread_auth=true"', '') }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
         displayName: 'Terraform ${{ parameters.Command }}'
