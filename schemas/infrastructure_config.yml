@@ -32,18 +32,6 @@ jobs:
               - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
                   - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName), eq(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ResourceGroupName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.StorageAccountName), eq(parameters.InfrastructureConfig.BackendConfig.StorageAccountName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.StorageAccountName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ContainerName), eq(parameters.InfrastructureConfig.BackendConfig.ContainerName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ContainerName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.BlobName is not properly defined and is a required field.": "Error"
-
   - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, ''), notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field.": "Error"
 
