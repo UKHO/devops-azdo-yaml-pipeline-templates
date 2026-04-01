@@ -14,8 +14,8 @@ parameters:
     displayName: 'The environment name that the infrastructure is for'
 
 jobs:
-  - ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
+  - ${{ if or(not(parameters.InfrastructureConfig.AzureServiceConnection), eq(parameters.InfrastructureConfig.AzureServiceConnection, '')) }}:
+    - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined and is a required field.": "Error"
 
   - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"

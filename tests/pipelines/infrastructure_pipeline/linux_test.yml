@@ -21,10 +21,9 @@ extends:
             - build
           Condition: succeeded('build')
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: DevOps Chapter Dev
+          AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
-            ServiceConnection: DevOps Chapter Dev
             ResourceGroupName: cheeserg
             StorageAccountName: cheesesa
             ContainerName: cheesecn

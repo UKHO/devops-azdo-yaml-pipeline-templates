@@ -120,16 +120,18 @@ jobs:
                 CommandOptions: $(BackendConfigCommandOption)
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                ServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
+                ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                  ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
-                    ServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
                     CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
+                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
                 - template: /tasks/powershell.yml
                   parameters:
@@ -145,10 +147,11 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
-                    ServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
                     CommandOptions: '$(VariableFilesCommandOption) -input=false'
+                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
                 - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
                     - template: /tasks/terraform.yml
@@ -156,7 +159,8 @@ jobs:
                         Command: output
                         SaveOutputsToFile: true
                         WorkingDirectory: $(TerraformWorkingDirectory)
-                        ServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
+                        ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                          ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
                     - template: /tasks/powershell.yml
                       parameters:
