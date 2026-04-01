@@ -108,7 +108,7 @@ function Test-CompileYaml
       throw [System.NullReferenceException]::new("Received null response from Azure DevOps API")
     }
 
-    Write-Verbose "Pipeline Compiled Yaml: $( $response.finalYaml | Out-String )"
+    Write-Verbose "Pipeline Compiled Yaml: `n$( $response.finalYaml | Out-String )"
 
     Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $( $response.id )"
 

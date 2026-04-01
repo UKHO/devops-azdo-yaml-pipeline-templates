@@ -27,6 +27,8 @@ $config = @{
     ShowVerboseOutput = $false
     ThrowExceptionOnTestFailure = $true
   }
+
+  SaveCompiledYaml = $false
 }
 
 return $config
