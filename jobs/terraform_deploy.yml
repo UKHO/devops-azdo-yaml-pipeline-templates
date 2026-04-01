@@ -78,6 +78,7 @@ jobs:
           Prefix: ' -backend-config="'
           Suffix: '"'
           OutputVariableName: BackendConfigCommandOption
+
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: CheckoutPath
