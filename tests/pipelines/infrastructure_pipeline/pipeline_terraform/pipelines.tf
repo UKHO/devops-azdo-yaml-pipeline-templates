@@ -10,9 +10,9 @@ locals {
       pipeline_name = "windows-test"
       yamlfile_name = "windows_test.yml"
     },
-    environmentsTest = {
-      pipeline_name = "environments-test"
-      yamlfile_name = "environments_test.yml"
+    elasticTest = {
+      pipeline_name = "elastic-test"
+      yamlfile_name = "elastic_test.yml"
     },
   }
 }
