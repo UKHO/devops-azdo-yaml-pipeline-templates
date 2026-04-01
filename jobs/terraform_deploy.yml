@@ -150,7 +150,7 @@ jobs:
                     Command: apply
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    CommandOptions: '$(VariableFilesCommandOption) -input=false'
+                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
                     ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
