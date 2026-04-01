@@ -5,6 +5,8 @@ terraform {
       version = "0.12.0"
     }
   }
+
+  backend "azurerm" {}
 }
 
 provider "elasticstack" {
@@ -17,10 +19,10 @@ resource "elasticstack_kibana_slo" "custom_kql" {
   description = "custom kql devops chapter"
 
   kql_custom_indicator {
-    index           = "metrics-apm*,synthetics*"
-    good            = "summary.up:1"
-    total           = "summary.up:*"
-    filter          = "monitor.name:\"File Share Service - Website - Testing - DownloadFile\""
+    index  = "metrics-apm*,synthetics*"
+    good   = "summary.up:1"
+    total  = "summary.up:*"
+    filter = "monitor.name:\"File Share Service - Website - Testing - DownloadFile\""
   }
 
   time_window {
