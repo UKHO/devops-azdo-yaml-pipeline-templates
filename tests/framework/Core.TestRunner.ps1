@@ -32,19 +32,24 @@ function Invoke-Test
     $result = & $TestScript
     if ($result.Passed -eq $false)
     {
-      Write-Host "  ✗ $TestName - $( $result.FailureMessage )" -ForegroundColor Red
+      Write-Host "  ✗ $TestName" -ForegroundColor Red
+      Write-Host "    Error: $( $result.FailureMessage )" -ForegroundColor Red
+      Write-Host ""
       $script:TestState.TestsFailed++
       $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $result.FailureMessage }
     }
     else
     {
       Write-Host "  ✓ $TestName" -ForegroundColor Green
+      Write-Host ""
       $script:TestState.TestsPassed++
     }
   }
   catch
   {
-    Write-Host "  ✗ $TestName - ERROR: $_" -ForegroundColor Red
+    Write-Host "  ✗ $TestName" -ForegroundColor Red
+    Write-Host "    Error: $_" -ForegroundColor Red
+    Write-Host ""
     $script:TestState.TestsFailed++
     $script:TestState.FailedTests += @{ Name = $TestName; File = $TestFile; Error = $_.Exception.Message }
   }
