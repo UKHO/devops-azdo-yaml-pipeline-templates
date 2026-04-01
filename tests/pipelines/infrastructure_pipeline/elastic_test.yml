@@ -11,7 +11,7 @@ pool: 'Mare Nectaris'
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
+    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/elastic_terraform
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     EnvironmentConfigs:
@@ -30,6 +30,9 @@ extends:
             - "key=pipeline.elastic_test.tfstate"
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnAny'
+          EnvironmentVariableMappings:
+            ELASTICSEARCH_API_KEY: $(Elastic-ApiKey)
+            ELASTICSEARCH_ENDPOINTS: $(Elastic-Endpoints)
           JobsVariableMappings:
             - group: NonLive-Elastic
             - group: DevOpsChapterAzureSubscription
