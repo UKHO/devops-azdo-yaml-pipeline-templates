@@ -11,14 +11,8 @@ terraform {
 
 provider "elasticstack" {
   elasticsearch {
-    endpoints = [
-      "https://ukho-nonlive-elastic.es.uksouth.azure.elastic-cloud.com"
-    ]
   }
   kibana {
-    endpoints = [
-      "https://ukho-nonlive-elastic.kb.uksouth.azure.elastic-cloud.com:9243"
-    ]
   }
 }
 
