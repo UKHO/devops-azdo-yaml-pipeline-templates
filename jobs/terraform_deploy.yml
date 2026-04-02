@@ -128,9 +128,9 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
+                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
                     ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
@@ -139,18 +139,18 @@ jobs:
                     TaskName: TerraformChangesCheck
                     TargetType: 'filePath'
                     ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
-                    FailOnStandardError: true
                     ScriptFileArguments: >
                       -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                    FailOnStandardError: true
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
+                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
                     ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
@@ -168,7 +168,7 @@ jobs:
                         TaskName: TerraformExportOutputsVariables
                         TargetType: 'filePath'
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
-                        FailOnStandardError: true
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
                           -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
+                        FailOnStandardError: true
