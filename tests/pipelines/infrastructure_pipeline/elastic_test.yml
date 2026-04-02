@@ -30,12 +30,12 @@ extends:
             - "storage_account_name=$(TFStateStorageAccountName)"
             - "container_name=tfstate-devops-azdo-yaml-pipeline-templates"
             - "key=pipeline.elastic_test.tfstate"
-          RunMode: 'PlanOnly'
+          RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnAny'
           EnvironmentVariableMappings:
             ELASTICSEARCH_API_KEY: $(Elastic-ApiKey)
             ELASTICSEARCH_ENDPOINTS: $(Elastic-Endpoints)
-            KIBANA_ENDPOINTS: $(Kibana-Endpoints)
+            KIBANA_ENDPOINTS: $(KIBANA-Endpoints)
           JobsVariableMappings:
             - group: NonLive-Elastic
             - group: DevOpsChapterAzureSubscription
