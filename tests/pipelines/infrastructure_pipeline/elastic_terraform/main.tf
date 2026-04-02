@@ -11,8 +11,12 @@ terraform {
 
 provider "elasticstack" {
   elasticsearch {
+    api_key = var.api_key
+    endpoints = [var.elastic_endpoint]
   }
   kibana {
+    api_key = var.api_key
+    endpoints = [var.kibana_endpoint]
   }
 }
 
