@@ -34,7 +34,7 @@ jobs:
     workspace:
       clean: all
     steps:
-      - template: terraform_repository_checkout_stepsList.yml
+      - template: /jobs/terraform_repository_checkout_stepsList.yml
         parameters:
           AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
           TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
@@ -54,7 +54,7 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      - template: terraform_repository_checkout_stepsList.yml
+      - template: /jobs/terraform_repository_checkout_stepsList.yml
         parameters:
           AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
           TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
