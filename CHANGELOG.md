@@ -1,10 +1,5 @@
 # Changelog
 
-## [Unreleased]
-
-- Added task template `ukho_snyk_scan_task.yml` (@srjames-ukho)
-- Improved documentation and input scoping in `ukho_snyk_scan_task.yml`: added IaC example, documented MonitorWhen/FailOnType upstream behaviours, scoped FailOnType to app/container scan types only
-
 ## [0.1.0] - 2026-01-06
 
 Initial release version of this repository.
