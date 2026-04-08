@@ -19,7 +19,7 @@ steps:
       - ${{ step }}
 
   - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
-      - template: ../tasks/copy_files.yml
+      - template: /tasks/copy_files.yml
         parameters:
           SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
           FilesPattern: ${{ additionalFileToPackage.FilesPattern }}

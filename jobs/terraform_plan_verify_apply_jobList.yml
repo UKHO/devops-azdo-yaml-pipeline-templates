@@ -21,7 +21,7 @@ parameters:
 
 jobs:
   - ${{ if in(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly') }}:
-    - template: ../jobs/terraform_deploy.yml
+    - template: /jobs/terraform_deploy.yml
       parameters:
         # generic parameters
         TerraformDeployMode: Plan
@@ -31,14 +31,14 @@ jobs:
         EnvironmentName: ${{ parameters.EnvironmentName }}
 
   - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
-      - template: ../jobs/manual_verification.yml
+      - template: /jobs/manual_verification.yml
         parameters:
           DependsOn: TerraformDeploy_Plan
           Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           Instructions: 'Please validate the terraform plan is acceptable to apply'
 
   - ${{ if in(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
-      - template: ../jobs/terraform_deploy.yml
+      - template: /jobs/terraform_deploy.yml
         parameters:
           # generic Parameters
           TerraformDeployMode: Apply
