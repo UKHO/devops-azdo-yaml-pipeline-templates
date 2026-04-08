@@ -1,10 +1,3 @@
-#  - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
-#      - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
-#          - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
-#      - ${{ else }}:
-#          - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
-#              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-#                  - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 # Schema Template: Infrastructure Config
 # Validates infrastructure configuration objects used by deployment jobs.
 # See: docs/definition_docs/infrastructure_pipeline/infrastructure_config.md
@@ -21,25 +14,14 @@ parameters:
     displayName: 'The environment name that the infrastructure is for'
 
 jobs:
-  - ${{ if or(not(parameters.InfrastructureConfig.AzureServiceConnection), eq(parameters.InfrastructureConfig.AzureServiceConnection, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined and is a required field.": "Error"
-
   - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
 
-  - ${{ if not(parameters.InfrastructureConfig.BackendConfig) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
-
-  - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
-      - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
-      - ${{ else }}:
-          - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
-              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-                  - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, ''), notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly')) }}:
+  - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, '')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field.": "Error"
+
+  - ${{ if notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
 
   - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
@@ -49,6 +31,10 @@ jobs:
 
   # OPTIONAL PARAMETERS
 
+  - ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+    - ${{ if eq(parameters.InfrastructureConfig.AzureServiceConnection, '') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
+
   - ${{ if or(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
     # At least one property is set, so all three must be set
     - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection), eq(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, '')) }}:
@@ -57,6 +43,14 @@ jobs:
       - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.Name is required when any Key Vault configuration is provided.": "Error"
     - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter), eq(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter, '')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
+
+    - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
+        - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
+            - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+        - ${{ else }}:
+            - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
+                - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
