@@ -28,8 +28,7 @@ extends:
             storage_account_name: $(TFStateStorageAccountName)
             container_name: tfstate-devops-azdo-yaml-pipeline-templates
             key: pipeline.linux_test.tfstate
-          RunMode: 'PlanVerifyApply'
-          VerificationMode: 'VerifyOnDestroy'
+          RunMode: 'ApplyOnly'
           JobsVariableMappings:
             - group: DevOpsChapterAzureSubscription
             - group: ExampleVG1
