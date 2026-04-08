@@ -35,7 +35,7 @@ extends:
           EnvironmentVariableMappings:
             TF_VAR_api_key: $(Elastic-ApiKey)
             TF_VAR_elastic_endpoint: $(Elastic-Endpoint)
-            TF_VAR_kibana_endpoint: $(KIBANA-Endpoint)
+            TF_VAR_kibana_endpoint: $(Kibana-Endpoint)
           JobsVariableMappings:
             - group: NonLive-Elastic
             - group: DevOpsChapterAzureSubscription
