@@ -21,6 +21,7 @@ function Test-CompileYaml
   $Organization = $script:TestState.AzDO.Organization
   $Project = $script:TestState.AzDO.Project
   $PipelineId = $script:TestState.AzDO.PipelineId
+  $TargetBranch = $script:TestState.TargetBranch
 
   # =========================================================================
   # INVOKE PIPELINE COMPILE - REST API CALL
@@ -28,7 +29,11 @@ function Test-CompileYaml
 
   try
   {
-    Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId"
+    Write-Verbose "Compiling YAML for: Organization=$Organization | Project=$Project | Pipeline=$PipelineId | TargetBranch=$TargetBranch"
+    if ($TargetBranch)
+    {
+      Write-Verbose "Using target branch: $TargetBranch"
+    }
 
     # Prepare request body
     Write-Verbose "Preparing compilation request body..."
@@ -37,14 +42,44 @@ function Test-CompileYaml
       previewRun = $true
     }
 
+    # Add source version if specified
+    if ($TargetBranch)
+    {
+      $bodyObject.resources = @{
+        repositories = @{
+          self = @{
+            refName = "refs/heads/$TargetBranch"
+          }
+        }
+      }
+    }
+
     if ($Parameters -and $Parameters.Count -gt 0)
     {
       Write-Verbose "Adding $( $Parameters.Count ) argument(s) to compilation request"
-      $bodyObject.templateParameters = $Parameters
+
+      # The Azure DevOps REST API templateParameters expects a flat Dictionary<string, string>.
+      # Object/array parameter values must be serialised to JSON strings.
+      $stringifiedParameters = @{ }
+      foreach ($key in $Parameters.Keys)
+      {
+        $value = $Parameters[$key]
+        if ($value -is [hashtable] -or $value -is [System.Collections.IDictionary] -or $value -is [array])
+        {
+          $stringifiedParameters[$key] = ($value | ConvertTo-Json -Depth 10 -Compress)
+          Write-Verbose "Serialised object parameter '$key' to JSON string"
+        }
+        else
+        {
+          $stringifiedParameters[$key] = [string]$value
+        }
+      }
+
+      $bodyObject.templateParameters = $stringifiedParameters
     }
 
     $bodyJson = $bodyObject | ConvertTo-Json -Depth 10
-    Write-Verbose "Request body size: $( $bodyJson.Length ) bytes"
+    Write-Verbose "Request body: $( $bodyJson )"
 
     $headers = @{
       Authorization = "Bearer $( $script:TestState.AccessToken )"
