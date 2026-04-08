@@ -26,10 +26,10 @@ extends:
           AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Elastic
           BackendConfig:
-            - "resource_group_name=$(TFStateResourceGroupName)"
-            - "storage_account_name=$(TFStateStorageAccountName)"
-            - "container_name=tfstate-devops-azdo-yaml-pipeline-templates"
-            - "key=pipeline.elastic_test.tfstate"
+            resource_group_name: $(TFStateResourceGroupName)
+            storage_account_name: $(TFStateStorageAccountName)
+            container_name: tfstate-devops-azdo-yaml-pipeline-templates
+            key: pipeline.elastic_test.tfstate
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnAny'
           EnvironmentVariableMappings:
