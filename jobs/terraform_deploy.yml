@@ -42,7 +42,7 @@ parameters:
     displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
 
 jobs:
-  - template: ../schemas/infrastructure_config.yml
+  - template: /schemas/infrastructure_config.yml
     parameters:
       InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
@@ -65,7 +65,7 @@ jobs:
             value: ${{ join(',', parameters.InfrastructureConfig.OutputVariables) }}
 
       # Shared Variables
-      - template: ../utils/concat_wrap_list.yml
+      - template: /utils/concat_wrap_list.yml
         parameters:
           Items: ${{ parameters.InfrastructureConfig.VariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
@@ -92,22 +92,22 @@ jobs:
               persistCredentials: true
               path: $(CheckoutPath)
 
-            - template: ../tasks/download_pipeline_artifact.yml
+            - template: /tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
 
-            - template: ../tasks/terraform_installer.yml
+            - template: /tasks/terraform_installer.yml
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
             - ${{ if and(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
-                - template: ../tasks/azure_key_vault.yml
+                - template: /tasks/azure_key_vault.yml
                   parameters:
                     KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection }}
                     KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultConfig.Name }}
                     SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter }}
 
-            - template: ../tasks/terraform.yml
+            - template: /tasks/terraform.yml
               parameters:
                 Command: init
                 BackendAzureServiceConnection: ${{ parameters.InfrastructureConfig.BackendConfig.ServiceConnection }}
@@ -119,7 +119,7 @@ jobs:
                 TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
-                - template: ../tasks/terraform.yml
+                - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
                     EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
@@ -127,7 +127,7 @@ jobs:
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
                     CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
 
-                - template: ../tasks/powershell.yml
+                - template: /tasks/powershell.yml
                   parameters:
                     TaskName: TerraformChangesCheck
                     TargetType: 'filePath'
@@ -138,7 +138,7 @@ jobs:
                       -TerraformPlanFilePath "$(TerraformPlanFilePath)"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
-                - template: ../tasks/terraform.yml
+                - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
                     EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
@@ -147,14 +147,14 @@ jobs:
                     CommandOptions: '$(VariableFilesCommandOption) -input=false'
 
                 - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
-                    - template: ../tasks/terraform.yml
+                    - template: /tasks/terraform.yml
                       parameters:
                         Command: output
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
                         OutputTo: file
 
-                    - template: ../tasks/powershell.yml
+                    - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformExportOutputsVariables
                         TargetType: 'filePath'

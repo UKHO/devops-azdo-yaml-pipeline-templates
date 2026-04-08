@@ -31,9 +31,9 @@ jobs:
     pool: server
     displayName: 'Manual Verification'
     steps:
-      - template: ../tasks/delay.yml
+      - template: /tasks/delay.yml
 
-      - template: ../tasks/manual_validation.yml
+      - template: /tasks/manual_validation.yml
         parameters:
           TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
           Instructions: ${{ parameters.Instructions }}

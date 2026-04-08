@@ -25,7 +25,7 @@ parameters:
     displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
 
 stages:
-  - template: ../stages/terraform_build.yml
+  - template: /stages/terraform_build.yml
     parameters:
       RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
       AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
@@ -33,7 +33,7 @@ stages:
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
   - ${{ each environmentConfig in parameters.EnvironmentConfigs }}:
-      - template: ../stages/terraform_deploy.yml
+      - template: /stages/terraform_deploy.yml
         parameters:
           ${{ if or(not(environmentConfig.Name), eq(environmentConfig.Name, '')) }}:
             "an environment name is not properly defined and is a required field.": "Error"

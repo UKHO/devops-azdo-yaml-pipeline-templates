@@ -39,17 +39,17 @@ jobs:
           AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
           TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
-      - template: ../tasks/terraform_installer.yml
+      - template: /tasks/terraform_installer.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
 
-      - template: ../tasks/terraform.yml
+      - template: /tasks/terraform.yml
         parameters:
           Command: init
           DisableBackend: true
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      - template: ../tasks/terraform.yml
+      - template: /tasks/terraform.yml
         parameters:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
@@ -59,7 +59,7 @@ jobs:
           AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
           TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
-      - template: ../tasks/publish_pipeline_artifact.yml
+      - template: /tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: $(TerraformWorkingDirectory)
           ArtifactName: ${{ parameters.ArtifactName }}

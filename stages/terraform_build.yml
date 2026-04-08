@@ -28,7 +28,7 @@ stages:
   - stage: Build
     displayName: 'Build'
     jobs:
-      - template: ../jobs/terraform_build.yml
+      - template: /jobs/terraform_build.yml
         parameters:
           ArtifactName: ${{ parameters.ArtifactName }}
           RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
