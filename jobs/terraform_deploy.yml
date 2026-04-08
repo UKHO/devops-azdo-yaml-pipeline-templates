@@ -160,6 +160,7 @@ jobs:
                     - template: /tasks/terraform.yml
                       parameters:
                         Command: output
+                        CommandOptions: '-json'
                         SaveOutputsToFile: true
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
