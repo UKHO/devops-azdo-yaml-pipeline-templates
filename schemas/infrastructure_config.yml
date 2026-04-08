@@ -66,7 +66,7 @@ jobs:
     - ${{ else }}:
       - ${{ each variable in parameters.InfrastructureConfig.VariableFiles }}: # Make sure each item in the list is just a string
         - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter must be a list of string values.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.OutputVariables }}: # Only run validation if the optional parameter is present
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.OutputVariables), '[')) }}: # Make sure it is a list
@@ -74,4 +74,4 @@ jobs:
     - ${{ else }}:
       - ${{ each variable in parameters.InfrastructureConfig.OutputVariables }}: # Make sure each item in the list is just a string
         - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-          - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter must be a list of string values.": "Error"
