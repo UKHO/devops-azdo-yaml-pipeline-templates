@@ -75,7 +75,7 @@ jobs:
       - template: /utils/concat_wrap_list.yml
         parameters:
           Items:
-            - ${{ foreach backendConfig in parameters.InfrastructureConfig.BackendConfig }}:
+            - ${{ each backendConfig in parameters.InfrastructureConfig.BackendConfig }}:
                - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
           Prefix: ' -backend-config="'
           Suffix: '"'
