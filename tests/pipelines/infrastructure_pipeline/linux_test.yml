@@ -24,13 +24,14 @@ extends:
           AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
-            resource_group_name: cheeserg
-            storage_account_name: cheesesa
-            container_name: cheesecn
-            key: cheesebn
+            resource_group_name: $(TFStateResourceGroupName)
+            storage_account_name: $(TFStateStorageAccountName)
+            container_name: tfstate-devops-azdo-yaml-pipeline-templates
+            key: pipeline.linux_test.tfstate
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
+            - group: DevOpsChapterAzureSubscription
             - group: ExampleVG1
             - group: ExampleVG2
             - template: tests/pipelines/infrastructure_pipeline/variables.yml
