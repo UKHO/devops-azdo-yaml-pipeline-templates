@@ -23,11 +23,11 @@ jobs:
   - ${{ if notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
       - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
-
-  - ${{ if notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
+  - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
+    - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, '')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
+    - ${{ if notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
 
   # OPTIONAL PARAMETERS
 
