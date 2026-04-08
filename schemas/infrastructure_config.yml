@@ -54,24 +54,24 @@ jobs:
 
   - ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+      - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs.": "Error"
     - ${{ else }}:
       - ${{ each mapping in parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
         - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs. You muppet.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.VariableFiles }}: # Only run validation if the optional parameter is present
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.VariableFiles), '[')) }}: # Make sure it is a list
-      - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles is not correct. Must be a list of string values. You muppet.": "Error"
+      - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles is not correct. Must be a list of string values.": "Error"
     - ${{ else }}:
       - ${{ each variable in parameters.InfrastructureConfig.VariableFiles }}: # Make sure each item in the list is just a string
         - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.OutputVariables }}: # Only run validation if the optional parameter is present
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.OutputVariables), '[')) }}: # Make sure it is a list
-      - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables is not correct. Must be a list of string values. You muppet.": "Error"
+      - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables is not correct. Must be a list of string values.": "Error"
     - ${{ else }}:
       - ${{ each variable in parameters.InfrastructureConfig.OutputVariables }}: # Make sure each item in the list is just a string
         - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}: # if either is present, it is an object not a string
-          - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values. You muppet.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: OutputVariables item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter be a list of string values.": "Error"
