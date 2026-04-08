@@ -12,8 +12,10 @@ $script:TestState = @{
   TestsPassed = 0
   TestsFailed = 0
   FailedTests = @()
+  TargetBranch = $Config.TargetBranch
   SkipValidation = $Config.Validation.SkipValidation
   AzDO = $Config.AzDO
+  SaveCompiledYaml = $Config.SaveCompiledYaml
   AccessToken = $null
 }
 
@@ -25,8 +27,10 @@ function Run-Tests
 {
   param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
 
-  $yaml = Get-Content -Path (Join-Path $RepositoryRoot $YamlPath) -Raw
+  $yamlFullPath = Join-Path $RepositoryRoot $YamlPath
+  $yaml = Get-Content -Path $yamlFullPath -Raw
   $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
+  $TestDirectoryPath = [System.IO.Path]::GetDirectoryName($yamlFullPath)
 
   Write-Host "`nTesting: $TestName" -ForegroundColor Cyan
   Write-Host ("━" * ($TestName.Length + 10)) -ForegroundColor Cyan
@@ -46,6 +50,10 @@ function Run-Tests
 
     if (-not $hasFinalYaml)
     {
+      if ($result.error -ne $null -and $result.error.apiMessage -ne $null)
+      {
+        return "Expected finalYaml to be populated, but it was null or empty. API Error: $( $result.error.apiMessage )"
+      }
       return "Expected finalYaml to be populated, but it was null or empty. Indication that the compilation did not complete successfully."
     }
     else
@@ -79,10 +87,12 @@ function Run-Tests
   }
 
   Run-Test -Yaml $yaml -TestCases $validTestCases -PassCriteriaFunction $validPassCriteria `
-    -TestCasesTitle "`n✓ Valid Test Cases:" -ErrorMessageFunction $validErrorMessage
+    -TestCasesTitle "`n✓ Valid Test Cases:" -ErrorMessageFunction $validErrorMessage `
+    -TestFilePath $TestDirectoryPath -TemplateName $TestName
 
   Run-Test -Yaml $yaml -TestCases $invalidTestCases -PassCriteriaFunction $invalidPassCriteria `
-    -TestCasesTitle "`n✗ Invalid Test Cases (should fail):" -ErrorMessageFunction $invalidErrorMessage
+    -TestCasesTitle "`n✗ Invalid Test Cases (should fail):" -ErrorMessageFunction $invalidErrorMessage `
+    -TestFilePath $TestDirectoryPath -TemplateName $TestName
 
   Write-Host "`n"
 
@@ -117,7 +127,6 @@ function Get-TestSummary
     foreach ($failedTest in $state.FailedTests)
     {
       Write-Host "  - $( $failedTest.Name )" -ForegroundColor Red
-      Write-Host "    Error: $( $failedTest.Error )" -ForegroundColor DarkRed
     }
   }
   Write-Host ""

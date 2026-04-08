@@ -17,18 +17,18 @@ $config = @{
     PipelineId = 1576
   }
 
+  TargetBranch = (git rev-parse --abbrev-ref HEAD)
+
   Validation = @{
     SkipValidation = $false
-  }
-
-  TestDiscovery = @{
-    Pattern = "tests/**/*.Tests.ps1"
   }
 
   TestExecution = @{
     ShowVerboseOutput = $false
     ThrowExceptionOnTestFailure = $true
   }
+
+  SaveCompiledYaml = $false
 }
 
 return $config
