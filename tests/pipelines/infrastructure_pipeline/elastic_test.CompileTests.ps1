@@ -12,8 +12,7 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 $validTestCases = @(
   @{
     Description = "with default parameters"
-    Parameters = @{
-    }
+    Parameters = @{ }
     ExpectedYaml = @(
       ' -backend-config="resource_group_name=$(TFStateResourceGroupName)"'
       ' -backend-config="storage_account_name=$(TFStateStorageAccountName)"'
@@ -24,8 +23,7 @@ $validTestCases = @(
 )
 
 # Invalid test cases
-$invalidTestCases = @(
-)
+$invalidTestCases = @()
 
 # ============================================================================
 # RUN TESTS
