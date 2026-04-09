@@ -12,8 +12,7 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 $validTestCases = @(
   @{
     Description = "with default parameters"
-    Parameters = @{
-    }
+    Parameters = @{ }
   }
 )
 
