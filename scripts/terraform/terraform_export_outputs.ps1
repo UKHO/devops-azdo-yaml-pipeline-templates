@@ -15,18 +15,7 @@ param (
 
 Write-Host "Starting $( $MyInvocation.MyCommand.Name ) script"
 
-# Check if diagnostics are enabled in the pipeline
-$isDebugMode = $env:SYSTEM_DEBUG -eq 'true'
-
-# Helper function for debug logging
-function Write-DebugLog
-{
-  param([string]$Message)
-  if ($isDebugMode)
-  {
-    Write-Host "##[debug]$Message"
-  }
-}
+$OutputFileContent
 
 # Read the entire file as a single string to preserve JSON structure
 try
