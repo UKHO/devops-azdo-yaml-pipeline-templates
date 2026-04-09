@@ -21,10 +21,10 @@ extends:
             - build
           Condition: succeeded('build')
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: Pipeline-CloudDisco
+          AzureSubscriptionServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
-            ServiceConnection: Pipeline-CloudDisco
+            ServiceConnection: DevOps Chapter Dev
             ResourceGroupName: cheeserg
             StorageAccountName: cheesesa
             ContainerName: cheesecn
