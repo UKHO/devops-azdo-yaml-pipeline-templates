@@ -13,24 +13,35 @@ param (
   [string] $OutputFileName
 )
 
-Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
+Write-Host "Starting $( $MyInvocation.MyCommand.Name ) script"
 
 # Check if diagnostics are enabled in the pipeline
 $isDebugMode = $env:SYSTEM_DEBUG -eq 'true'
 
 # Helper function for debug logging
-function Write-DebugLog {
+function Write-DebugLog
+{
   param([string]$Message)
-  if ($isDebugMode) {
+  if ($isDebugMode)
+  {
     Write-Host "##[debug]$Message"
   }
 }
 
 # Read the entire file as a single string to preserve JSON structure
-$outputFileContent = Get-Content -Path $OutputFileName -Raw
+try
+{
+  $outputFileContent = Get-Content -Path $OutputFileName -Raw -ErrorAction Stop
+}
+catch
+{
+  Write-Host "##[error]Failed to read output file from '$OutputFileName'"
+  Write-Host "##[error]Error: $( $_.Exception.Message )"
+  throw
+}
 
 # Validate file content is not empty
-if ([string]::IsNullOrWhiteSpace($outputFileContent))
+if ( [string]::IsNullOrWhiteSpace($outputFileContent))
 {
   Write-Host "##[error]Output file '$OutputFileName' is empty or contains only whitespace"
   throw "Cannot parse empty JSON content"
@@ -44,7 +55,7 @@ try
 catch
 {
   Write-Host "##[error]Failed to parse JSON from '$OutputFileName'"
-  Write-Host "##[error]Error: $($_.Exception.Message)"
+  Write-Host "##[error]Error: $( $_.Exception.Message )"
   throw
 }
 
@@ -61,7 +72,14 @@ foreach ($outputVariableToExport in $OutputVariablesToExport)
     $isSensitive = $outputVariable.sensitive
 
     # Mask sensitive values in logging
-    $displayValue = if ($isSensitive) { "***REDACTED***" } else { $output }
+    $displayValue = if ($isSensitive)
+    {
+      "***REDACTED***"
+    }
+    else
+    {
+      $output
+    }
     Write-Host "Found variable '$outputVariableToExport' with value: $displayValue"
 
     # Export the actual value (including sensitive values)
