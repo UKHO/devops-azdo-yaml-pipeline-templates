@@ -81,11 +81,11 @@ $validTestCases = @(
     Description = "with custom artifact name and latest terraform"
     Parameters = @{
       ArtifactName = 'LatestTerraformArtifact'
-      TerraformVersion = '1.17.0'
+      TerraformVersion = 'latest'
     }
     ExpectedYaml = @(
       'artifact:*LatestTerraformArtifact',
-      'terraformVersion:*1.17.0'
+      'terraformVersion:*latest'
     )
   }
 )
