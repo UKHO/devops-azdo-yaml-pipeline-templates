@@ -36,8 +36,6 @@ if ([string]::IsNullOrWhiteSpace($outputFileContent))
   throw "Cannot parse empty JSON content"
 }
 
-Write-DebugLog "OutputFile content: $outputFileContent"
-
 # Parse JSON with better error handling
 try
 {
