@@ -14,6 +14,7 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+$numberOfDestroyWordsToIndicateDestructiveChange = 2
 
 Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
 
@@ -38,7 +39,7 @@ Write-DebugLog "Terraform Plan File: $TerraformPlanFilePath"
 # Read and validate the terraform plan file
 try
 {
-  $terraformPlan = Get-Content -Path $TerraformPlanFilePath -Raw -ErrorAction Stop
+  $terraformPlan = Get-Content -Path $TerraformPlanFilePath -ErrorAction Stop
 
   if ([string]::IsNullOrWhiteSpace($terraformPlan))
   {
@@ -46,7 +47,7 @@ try
     throw "Cannot process empty plan file"
   }
 
-  Write-DebugLog "Plan file read successfully ($(($terraformPlan | Measure-Object -Character).Characters) characters)"
+  Write-DebugLog "Plan file read successfully"
 }
 catch
 {
@@ -82,7 +83,7 @@ switch ($VerificationMode)
 
     Write-DebugLog "Found $destroyCount lines with 'destroy' keyword"
 
-    if ($destroyCount -ge 2)
+    if ($destroyCount -ge $numberOfDestroyWordsToIndicateDestructiveChange)
     {
       Write-Host "##[warning]Resources will be destroyed. Manual verification is REQUIRED."
       $changesNeedManualVerification = $true
