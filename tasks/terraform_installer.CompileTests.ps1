@@ -50,7 +50,7 @@ $validTestCases = @(
     Parameters = @{
       TerraformVersion = "0.15.0"
     }
-    ExpectedYaml = @('TerraformInstall', "terraformVersion: '0.15.0'") # Weird... Terraform task requires quotes around versions starting with 0 to avoid YAML parsing them as octal numbers
+    ExpectedYaml = @('TerraformInstall', "terraformVersion: '0.15.0'") # Keep the quoted form because the compiled YAML normalizes this version as a string
   },
   @{
     Description = "with semantic version 2.0.1"
