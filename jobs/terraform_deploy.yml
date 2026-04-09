@@ -136,6 +136,7 @@ jobs:
                     ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
+            - ${{ if parameters.InfrastructureConfig.VerificationMode }}:
                 - template: /tasks/powershell.yml
                   parameters:
                     TaskName: TerraformChangesCheck
