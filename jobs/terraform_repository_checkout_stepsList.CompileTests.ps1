@@ -60,10 +60,13 @@ $validTestCases = @(
       AdditionalFilesToPackage = @"
 - FilesPattern: '**'
   SourceDirectory: resources/keyvault
-  TargetSubdirectoryName: keyvault
+  TargetSubdirectoryName: newresourcedirectoryone
+- FilesPattern: '**'
+  SourceDirectory: resources/storageaccount
+  TargetSubdirectoryName: newresourcedirectorytwo
 "@
     }
-    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault')
+    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'resources/storageaccount', 'newresourcedirectoryone', 'newresourcedirectorytwo')
   },
   @{
     Description = "with both TerraformBuildInjectionSteps and AdditionalFilesToPackage"
