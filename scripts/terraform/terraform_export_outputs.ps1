@@ -13,12 +13,41 @@ param (
   [string] $OutputFileName
 )
 
-Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
+Write-Host "Starting $( $MyInvocation.MyCommand.Name ) script"
 
-$outputFileContent = Get-Content -Path $OutputFileName
-Write-Host "##[debug]OutputFile content: $outputFileContent"
+$OutputFileContent
 
-$terraformOutputVariables = $outputFileContent | ConvertFrom-Json
+# Read the entire file as a single string to preserve JSON structure
+try
+{
+  $outputFileContent = Get-Content -Path $OutputFileName -Raw -ErrorAction Stop
+}
+catch
+{
+  Write-Host "##[error]Failed to read output file from '$OutputFileName'"
+  Write-Host "##[error]Error: $( $_.Exception.Message )"
+  throw
+}
+
+# Validate file content is not empty
+if ( [string]::IsNullOrWhiteSpace($outputFileContent))
+{
+  Write-Host "##[error]Output file '$OutputFileName' is empty or contains only whitespace"
+  throw "Cannot parse empty JSON content"
+}
+
+# Parse JSON with better error handling
+try
+{
+  $terraformOutputVariables = $outputFileContent | ConvertFrom-Json
+}
+catch
+{
+  Write-Host "##[error]Failed to parse JSON from '$OutputFileName'"
+  Write-Host "##[error]Error: $( $_.Exception.Message )"
+  throw
+}
+
 Write-Host "Exporting required variables for deployment"
 
 foreach ($outputVariableToExport in $OutputVariablesToExport)
@@ -27,9 +56,23 @@ foreach ($outputVariableToExport in $OutputVariablesToExport)
 
   if ($terraformOutputVariables | Get-Member -Name $outputVariableToExport -MemberType NoteProperty)
   {
-    $output = $terraformOutputVariables.$outputVariableToExport.value
-    Write-Host "Found variable '$outputVariableToExport' with value: $output"
-    Write-Host "##vso[task.setvariable variable=$outputVariableToExport;isoutput=true]$output"
+    $outputVariable = $terraformOutputVariables.$outputVariableToExport
+    $output = $outputVariable.value
+    $isSensitive = $outputVariable.sensitive
+
+    # Mask sensitive values in logging
+    $displayValue = if ($isSensitive)
+    {
+      "***REDACTED***"
+    }
+    else
+    {
+      $output
+    }
+    Write-Host "Found variable '$outputVariableToExport' with value: $displayValue"
+
+    # Export the actual value (including sensitive values)
+    Write-Host "##vso[task.setvariable variable=$outputVariableToExport;isoutput=true;issecret=$isSensitive]$output"
     Write-Host "Exported."
   }
   else

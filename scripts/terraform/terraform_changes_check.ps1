@@ -13,58 +13,111 @@ param (
   [string] $TerraformPlanFilePath
 )
 
+$ErrorActionPreference = 'Stop'
+$numberOfDestroyWordsToIndicateDestructiveChange = 2
+
+Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
+
+# Check if diagnostics are enabled in the pipeline
+$isDebugMode = $env:SYSTEM_DEBUG -eq 'true'
+
+# Helper function for debug logging
+function Write-DebugLog {
+  param([string]$Message)
+  if ($isDebugMode) {
+    Write-Host "##[debug]$Message"
+  }
+}
+
+# Initialize output variables
 $changesNeedManualVerification = $true
 $changesNeedApplying = $false
 
-Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
-$terraformPlan = Get-Content -Path $TerraformPlanFilePath
+Write-DebugLog "Verification Mode: $VerificationMode"
+Write-DebugLog "Terraform Plan File: $TerraformPlanFilePath"
 
+# Read and validate the terraform plan file
+try
+{
+  $terraformPlan = Get-Content -Path $TerraformPlanFilePath -ErrorAction Stop
+
+  if ([string]::IsNullOrWhiteSpace($terraformPlan))
+  {
+    Write-Host "##[error]Terraform plan file is empty or contains only whitespace"
+    throw "Cannot process empty plan file"
+  }
+
+  Write-DebugLog "Plan file read successfully"
+}
+catch
+{
+  Write-Host "##[error]Failed to read Terraform plan file from '$TerraformPlanFilePath'"
+  Write-Host "##[error]Error: $($_.Exception.Message)"
+  throw
+}
+
+Write-Host "##[group]Analyzing Terraform plan for changes"
+
+# Check if plan has any changes
 if ($terraformPlan -match "no changes")
 {
-  Write-Host "Terraform plan indicates no changes."
+  Write-Host "✓ Terraform plan indicates no changes"
   $changesNeedManualVerification = $false
   $changesNeedApplying = $false
-  Write-Host "Script completed: no changes detected."
+  Write-Host "##[endgroup]"
+  Write-Host "##vso[task.setvariable variable=ChangesNeedManualVerification;isoutput=true]$changesNeedManualVerification"
+  Write-Host "##vso[task.setvariable variable=ChangesNeedApplying;isoutput=true]$changesNeedApplying"
+  Write-Host "Script completed successfully: no changes detected"
   return
 }
 
-Write-Host "##[group]Terraform plan indicates changes."
+Write-Host "! Terraform plan indicates changes will be made"
+
+# Determine verification requirements based on mode
 switch ($VerificationMode)
 {
   "VerifyOnDestroy" {
-    Write-Host "VerificationMode: VerifyOnDestroy"
-    $destroyCount = ($terraformPlan | Select-String -Pattern "destroy" -CaseSensitive).Count
-    Write-Host "Number of destroy lines: $destroyCount"
+    Write-DebugLog "Processing VerifyOnDestroy mode"
 
-    if ($destroyCount -ge 2)
+    $destroyCount = ($terraformPlan | Select-String -Pattern "destroy" -CaseSensitive).Count
+
+    Write-DebugLog "Found $destroyCount lines with 'destroy' keyword"
+
+    if ($destroyCount -ge $numberOfDestroyWordsToIndicateDestructiveChange)
     {
-      Write-Host "##[warning]Resources will be destroyed. Manual verification required."
+      Write-Host "##[warning]Resources will be destroyed. Manual verification is REQUIRED."
       $changesNeedManualVerification = $true
       $changesNeedApplying = $true
     }
     else
     {
-      Write-Host "No resources will be destroyed. Proceeding without manual verification."
+      Write-Host "✓ No resources will be destroyed. Proceeding without manual verification."
       $changesNeedManualVerification = $false
       $changesNeedApplying = $true
     }
   }
   "VerifyOnAny" {
-    Write-Host "VerificationMode: VerifyOnAny"
-    Write-Host "##[warning]Resources will be added, removed, or changed. Manual verification required."
+    Write-DebugLog "Processing VerifyOnAny mode"
+    Write-Host "##[warning]Resources will be added, removed, or changed. Manual verification is REQUIRED."
     $changesNeedManualVerification = $true
     $changesNeedApplying = $true
   }
-  default {
-    Write-Host "VerificationMode: VerifyDisabled"
-    Write-Host "Manual verification will be skipped."
+  "VerifyDisabled" {
+    Write-DebugLog "Processing VerifyDisabled mode"
+    Write-Host "⊘ Manual verification is DISABLED. Changes will be applied automatically."
     $changesNeedManualVerification = $false
     $changesNeedApplying = $true
   }
 }
+
 Write-Host "##[endgroup]"
 
+# Output the decision variables
+Write-Host "##[group]Exporting decision variables"
+Write-Host "ChangesNeedManualVerification: $changesNeedManualVerification"
+Write-Host "ChangesNeedApplying: $changesNeedApplying"
 Write-Host "##vso[task.setvariable variable=ChangesNeedManualVerification;isoutput=true]$changesNeedManualVerification"
 Write-Host "##vso[task.setvariable variable=ChangesNeedApplying;isoutput=true]$changesNeedApplying"
+Write-Host "##[endgroup]"
 
-Write-Host "Script completed: changes detected."
+Write-Host "Script completed successfully: changes detected and evaluated"
