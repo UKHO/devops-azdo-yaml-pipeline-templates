@@ -15,6 +15,12 @@ Terraform Workspace: This command is not currently available.
 
 Snyk Scanning: This is not currently part of the pipeline.
 
+### ⚠️ Known Limitations & Outstanding Issues
+
+**Lock File Not Preserved Between Build and Deploy Stages**: The `.terraform.lock.hcl` file created during the build stage is not currently preserved and passed to the deploy stages. This means each deploy stage performs fresh provider resolution, which could lead to different provider versions being installed in deploy stages compared to the build stage. See [outstanding issue](#) for investigation and fixes to improve robustness.
+
+**Plan Generated During Build is Discarded Before Apply**: The Terraform plan generated during the build/planning stage is evaluated during manual verification but is then discarded before the `terraform apply` runs in the deploy stage. This means the infrastructure provisioned during apply may differ from what was reviewed in the plan if there are external changes between stages. See [outstanding issue](#) for investigation and improvements to increase accountability and auditability of infrastructure deployments.
+
 ## Basic Usage
 
 ### Example of Basic Usage
