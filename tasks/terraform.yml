@@ -10,42 +10,51 @@
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
 #   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 0
-#   - Command (string, required): The Terraform command to execute. Supported: init, validate, plan, apply, output, custom.
+#   - Command (string, required): The Terraform command to execute. Values: init, validate, plan, apply, output, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
 #   - SaveOutputsToFile (boolean, optional): Save terraform output to terraform-output.json file (output command only). Default: false
+#   - ServiceConnection (string, optional): Azure service connection for backend state storage. When provided, uses AzureCLI@2 with authentication. Default: ''
 #
 # Example Usage:
+#   # Init command with backend configuration
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'init'
 #       CommandOptions: '-backend-config="key=terraform.tfstate"'
 #
+#   # Plan command
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'plan'
 #       CommandOptions: '-out=tfplan -input=false'
 #
+#   # Apply command
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'apply'
 #       CommandOptions: 'tfplan'
 #
+#   # Output command with file export
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'output'
 #       SaveOutputsToFile: true
 #
+#   # Custom command with service connection
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'custom'
 #       CustomCommand: 'version'
+#       ServiceConnection: 'MyAzureConnection'
 #
 # Notes:
+#   - Execution path depends on ServiceConnection: without it, uses native script task; with it, uses AzureCLI@2 for authenticated access.
+#   - When ServiceConnection is provided, init command automatically adds -backend-config="use_azuread_auth=true".
 #   - Backend and provider configuration should be managed via CommandOptions or Terraform configuration files.
-#   - Uses native shell execution (script task) for Terraform CLI commands.
 #   - Ensure Terraform CLI is installed and in PATH before executing this template.
 #   - See: https://www.terraform.io/cli
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-cli-v2
 
 parameters:
   # Standard Azure DevOps Task Parameters
