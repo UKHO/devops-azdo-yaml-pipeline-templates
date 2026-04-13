@@ -217,7 +217,23 @@ $invalidTestCases = @(
     Parameters = @{
     }
     ErrorMessage = "A value for the 'Command' parameter must be provided."
+  },
+  @{
+    Description = "custom command with missing custom command"
+    Parameters = @{
+      Command = "custom"
+    }
+    ErrorMessage = "The 'CustomCommand' parameter is required when 'Command' is 'custom'."
+  },
+  @{
+    Description = "custom command with empty custom command"
+    Parameters = @{
+      Command = "custom"
+      CustomCommand = ""
+    }
+    ErrorMessage = "The 'CustomCommand' parameter is not a valid String."
   }
+
 )
 
 # ============================================================================

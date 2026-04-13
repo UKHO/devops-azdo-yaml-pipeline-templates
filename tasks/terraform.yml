@@ -116,6 +116,8 @@ parameters:
     displayName: 'Service connection for backend state storage'
 
 steps:
+  - ${{ if and(eq(parameters.Command, 'custom'), eq(parameters.CustomCommand, '')) }}:
+      - "The 'CustomCommand' parameter is required when 'Command' is 'custom'.": "Error"
   - ${{ if eq(parameters.ServiceConnection, '') }}:
       - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
         displayName: 'Terraform ${{ parameters.Command }}'
