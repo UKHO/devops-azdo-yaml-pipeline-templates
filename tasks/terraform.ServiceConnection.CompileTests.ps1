@@ -26,6 +26,7 @@ $validTestCases = @(
       '-backend-config="storage_account_name=mysa"'
       '-backend-config="container_name=tfstate"'
       '-backend-config="key=terraform.tfstate"'
+      '-backend-config="use_azuread_auth=true"'
     )
   },
   # PLAN Command Tests
