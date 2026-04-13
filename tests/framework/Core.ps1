@@ -25,10 +25,13 @@ $script:TestState.PreflightCompleted = $true
 
 function Run-Tests
 {
-  param([string]$YamlPath, [array]$ValidTestCases, [array]$InvalidTestCases)
+  param([string]$YamlPath, [scriptblock]$TransformYamlFunction, [array]$ValidTestCases, [array]$InvalidTestCases)
 
   $yamlFullPath = Join-Path $RepositoryRoot $YamlPath
   $yaml = Get-Content -Path $yamlFullPath -Raw
+  if ($null -ne $TransformYamlFunction) {
+    $yaml = & $TransformYamlFunction
+  }
   $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
   $TestDirectoryPath = [System.IO.Path]::GetDirectoryName($yamlFullPath)
 
