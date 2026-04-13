@@ -41,13 +41,13 @@ jobs:
     - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter), eq(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter, '')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
 
-    - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
-        - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
-            - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
-        - ${{ else }}:
-            - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
-                - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-                    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+  - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
+      - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+      - ${{ else }}:
+          - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
+              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                  - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
