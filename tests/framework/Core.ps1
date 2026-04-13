@@ -30,7 +30,7 @@ function Run-Tests
   $yamlFullPath = Join-Path $RepositoryRoot $YamlPath
   $yaml = Get-Content -Path $yamlFullPath -Raw
   if ($null -ne $TransformYamlFunction) {
-    $yaml = & $TransformYamlFunction
+    $yaml = & $TransformYamlFunction $yaml
   }
   $TestName = [System.IO.Path]::GetFileNameWithoutExtension($YamlPath)
   $TestDirectoryPath = [System.IO.Path]::GetDirectoryName($yamlFullPath)
