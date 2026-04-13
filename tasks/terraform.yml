@@ -109,6 +109,8 @@ parameters:
     type: boolean
     default: false
     displayName: 'Save terraform output to terraform-output.json file (output command only)'
+    # Notes: '> terraform-output.json' has to be last in the command to pipe the output to a file
+
 
   - name: ServiceConnection
     type: string
@@ -119,7 +121,7 @@ steps:
   - ${{ if and(eq(parameters.Command, 'custom'), eq(parameters.CustomCommand, '')) }}:
       - "The 'CustomCommand' parameter is required when 'Command' is 'custom'.": "Error"
   - ${{ if eq(parameters.ServiceConnection, '') }}:
-      - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
+      - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }}
         displayName: 'Terraform ${{ parameters.Command }}'
         name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if ne(parameters.WorkingDirectory, '') }}:
@@ -136,7 +138,7 @@ steps:
           azureSubscription: ${{ parameters.ServiceConnection }}
           scriptType: pscore
           scriptLocation: inlineScript
-          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(eq(parameters.Command, 'init'), '-backend-config="use_azuread_auth=true"', '') }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }} # '> terraform-output.json' has to be last
+          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(eq(parameters.Command, 'init'), '-backend-config="use_azuread_auth=true"', '') }} ${{ iif(and(eq(parameters.Command, 'output'), parameters.SaveOutputsToFile), '> terraform-output.json', '') }}
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
         displayName: 'Terraform ${{ parameters.Command }}'
