@@ -52,13 +52,13 @@ extends:
           Condition: succeeded()
         InfrastructureConfig:
           AzDOEnvironmentName: dev-environment
-          AzureSubscriptionServiceConnection: Pipeline-dev
+          AzureServiceConnection: Pipeline-dev
           BackendConfig:
-            ServiceConnection: Pipeline-dev
-            ResourceGroupName: m-project-rg
-            StorageAccountName: projecttfsa
-            ContainerName: tfstate
-            BlobName: dev.terraform.tfstate
+            resource_group_name: m-project-rg
+            storage_account_name: projecttfsa
+            container_name: tfstate
+            key: dev.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnDestroy
           EnvironmentVariableMappings:
             TF_VAR_MinRandom: 1000
@@ -82,19 +82,16 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 
 **Quick reference of required fields:**
 
-| Field Path                                              | Type        | Description                                                                           |
-|---------------------------------------------------------|-------------|---------------------------------------------------------------------------------------|
-| Name                                                    | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                        |
-| Stage.DependsOn                                         | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                        |
-| Stage.Condition                                         | string      | Stage execution condition (e.g., 'succeeded()')                                       |
-| InfrastructureConfig.AzDOEnvironmentName                | string      | AzDO Environment name to associate the deployment jobs to                             |
-| InfrastructureConfig.AzureSubscriptionServiceConnection | string      | Azure service connection for the azdo environment                                     |
-| InfrastructureConfig.BackendConfig.ServiceConnection    | string      | Azure service connection for backend where the state is stored                        |
-| InfrastructureConfig.BackendConfig.ResourceGroupName    | string      | Azure resource group name for backend where the state is stored                       |
-| InfrastructureConfig.BackendConfig.StorageAccountName   | string      | Azure storage account name for backend where the state is stored                      |
-| InfrastructureConfig.BackendConfig.ContainerName        | string      | Azure storage container name for backend where the state is stored                    |
-| InfrastructureConfig.BackendConfig.BlobName             | string      | Azure storage blob name for backend where the state is stored                         |
-| InfrastructureConfig.VerificationMode                   | string      | How verification step should trigger: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
+| Field Path                                  | Type        | Description                                                                               |
+|---------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
+| Name                                        | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
+| Stage.DependsOn                             | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
+| Stage.Condition                             | string      | Stage execution condition (e.g., 'succeeded()')                                           |
+| InfrastructureConfig.AzDOEnvironmentName    | string      | AzDO Environment name to associate the deployment jobs to                                 |
+| InfrastructureConfig.AzureServiceConnection | string      | Azure service connection for deploying resources and backend state storage                |
+| InfrastructureConfig.BackendConfig          | object      | Free-form key-value pairs for Terraform backend configuration (e.g., resource_group_name) |
+| InfrastructureConfig.RunMode                | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
+| InfrastructureConfig.VerificationMode       | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
 See the [developer documentation](../definition_docs/infrastructure_pipeline/environment_config.md) for optional parameters and advanced configuration.
 
@@ -121,14 +118,14 @@ extends:
           DependsOn: Terraform_Build
           Condition: succeeded()
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+          AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
-            ServiceConnection: AzureServiceConnection-TerraformState
-            ResourceGroupName: rg-terraform-state-dev
-            StorageAccountName: sttfstatedev
-            ContainerName: tfstate
-            BlobName: dev.terraform.tfstate
+            resource_group_name: rg-terraform-state-dev
+            storage_account_name: sttfstatedev
+            container_name: tfstate
+            key: dev.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnDestroy
           VariableFiles:
             - config/common.tfvars
@@ -140,14 +137,14 @@ extends:
           DependsOn: Deploy_dev_Infrastructure
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+          AzureServiceConnection: AzureServiceConnection-Production
           AzDOEnvironmentName: production-environment
           BackendConfig:
-            ServiceConnection: AzureServiceConnection-TerraformState
-            ResourceGroupName: rg-terraform-state-prod
-            StorageAccountName: sttfstateprod
-            ContainerName: tfstate
-            BlobName: production.terraform.tfstate
+            resource_group_name: rg-terraform-state-prod
+            storage_account_name: sttfstateprod
+            container_name: tfstate
+            key: production.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnAny
           KeyVaultConfig:
             ServiceConnection: AzureServiceConnection-Production
@@ -188,14 +185,13 @@ extends:
           DependsOn: Terraform_Build
           Condition: succeeded()
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+          AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
-            ServiceConnection: AzureServiceConnection-TerraformState
-            ResourceGroupName: rg-terraform-state-dev
-            StorageAccountName: sttfstatedev
-            ContainerName: tfstate
-            BlobName: dev.terraform.tfstate
+            resource_group_name: rg-terraform-state-dev
+            storage_account_name: sttfstatedev
+            container_name: tfstate
+            key: dev.terraform.tfstate
           RunMode: PlanVerifyApply
           VerificationMode: VerifyOnDestroy
           VariableFiles:
@@ -243,19 +239,21 @@ extends:
 **Issue**: Manual verification gate doesn't appear even when changes are detected.
 
 **Check**:
-- Verify `RunMode` is not set to `PlanOnly`
+- Verify `RunMode` is set to `PlanVerifyApply` (not `PlanOnly` or `ApplyOnly`)
 - Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
 - Check the plan output to ensure changes were actually detected
 
 ### Output variables not available in subsequent stages/jobs
 
-**Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job.
+**Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job. Also, they are only exported when `RunMode` includes an apply operation (not `PlanOnly`).
 
-**Solution**: To use Terraform output variables in subsequent stages or jobs outside the infrastructure pipeline, you'll need to:
+**Solution**: To use Terraform output variables in subsequent stages or jobs:
 1. Ensure the variables are listed in the `OutputVariables` property of your `InfrastructureConfig`
-2. Reference them using the correct dependency syntax: `dependencies.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']`
-3. Note: Variables are only exported when `RunMode` is not `PlanOnly` and the apply job runs successfully
-
+2. Reference them using the correct dependency syntax for multi-stage pipelines:
+   ```
+   stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+   ```
+   where `{EnvironmentName}` is replaced with your environment name and `{variableName}` is the output variable name
 ### Incorrect Terraform version being used
 
 **Solution**: Explicitly set the `TerraformVersion` parameter. The default is `'1.14.0'`. Remember that only semantic versions (e.g., `'1.14.0'`, `'1.6.5'`) or the keyword `'latest'` are accepted — wildcards like `'1.14.x'` will be rejected with a validation error.

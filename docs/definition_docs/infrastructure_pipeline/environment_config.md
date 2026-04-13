@@ -62,7 +62,7 @@ EnvironmentConfigs:
 
 **Type:** `object`
 
-**Description:** The infrastructure deployment configuration containing Azure connections, backend configuration, verification settings, and Terraform parameters. See [infrastructure_config.md](./infrastructure_config.md) for complete details.
+**Description:** The infrastructure deployment configuration containing Azure connections (optional), backend configuration, verification settings, and Terraform parameters. See [infrastructure_config.md](./infrastructure_config.md) for complete details.
 
 ---
 
@@ -79,14 +79,14 @@ parameters:
           DependsOn: Terraform_Build
           Condition: succeeded()
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+          AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
-            ServiceConnection: AzureServiceConnection-TerraformState
-            ResourceGroupName: rg-terraform-state-dev
-            StorageAccountName: sttfstatedev
-            ContainerName: tfstate
-            BlobName: dev.terraform.tfstate
+            resource_group_name: rg-terraform-state-dev
+            storage_account_name: sttfstatedev
+            container_name: tfstate
+            key: dev.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnDestroy
           VariableFiles:
             - config/common.tfvars
@@ -98,14 +98,14 @@ parameters:
           DependsOn: Deploy_dev_Infrastructure
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+          AzureServiceConnection: AzureServiceConnection-Production
           AzDOEnvironmentName: production-environment
           BackendConfig:
-            ServiceConnection: AzureServiceConnection-TerraformState
-            ResourceGroupName: rg-terraform-state-prod
-            StorageAccountName: sttfstateprod
-            ContainerName: tfstate
-            BlobName: production.terraform.tfstate
+            resource_group_name: rg-terraform-state-prod
+            storage_account_name: sttfstateprod
+            container_name: tfstate
+            key: production.terraform.tfstate
+          RunMode: PlanVerifyApply
           VerificationMode: VerifyOnAny
           KeyVaultConfig:
             ServiceConnection: AzureServiceConnection-Production

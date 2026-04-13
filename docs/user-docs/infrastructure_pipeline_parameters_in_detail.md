@@ -62,15 +62,17 @@ EnvironmentConfigs:
       DependsOn: Terraform_Build
       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     InfrastructureConfig:
-      AzureSubscriptionServiceConnection: AzureServiceConnection-Production
       AzDOEnvironmentName: production-environment
-      BackendConfig:
-        ServiceConnection: AzureServiceConnection-TerraformState
-        ResourceGroupName: rg-terraform-state-prod
-        StorageAccountName: sttfstateprod
-        ContainerName: tfstate
-        BlobName: production.terraform.tfstate
+      RunMode: PlanVerifyApply
       VerificationMode: VerifyOnAny
+      # Optional: BackendConfig (omit if hardcoded in Terraform files)
+      # BackendConfig:
+      #   resource_group_name: rg-terraform-state-prod
+      #   storage_account_name: sttfstateprod
+      #   container_name: tfstate
+      #   key: production.terraform.tfstate
+      # Optional: AzureServiceConnection (omit to use client credentials)
+      # AzureServiceConnection: AzureServiceConnection-Production
       # ... additional optional properties ...
 ```
 
@@ -203,11 +205,12 @@ EnvironmentConfigs:
       DependsOn: string | list      # Stage dependencies
       Condition: string             # Stage execution condition
     InfrastructureConfig:           # Complete infrastructure configuration
-      AzureSubscriptionServiceConnection: string
       AzDOEnvironmentName: string
-      BackendConfig: { ... }
-      VerificationMode: string
-      # ... optional properties ...
+      RunMode: string               # PlanVerifyApply, PlanOnly, or ApplyOnly
+      VerificationMode: string      # Only required for PlanVerifyApply
+      BackendConfig: { }            # Optional - can hardcode in Terraform files
+      AzureServiceConnection: string # Optional - can use client credentials
+      # ... other optional properties ...
 ```
 
 **Multi-environment example:**
@@ -220,14 +223,14 @@ EnvironmentConfigs:
       DependsOn: Terraform_Build
       Condition: succeeded()
     InfrastructureConfig:
-      AzureSubscriptionServiceConnection: AzureServiceConnection-Dev
+      AzureServiceConnection: AzureServiceConnection-Dev
       AzDOEnvironmentName: development-environment
       BackendConfig:
-        ServiceConnection: AzureServiceConnection-TerraformState
-        ResourceGroupName: rg-terraform-state-dev
-        StorageAccountName: sttfstatedev
-        ContainerName: tfstate
-        BlobName: dev.terraform.tfstate
+        resource_group_name: rg-terraform-state-dev
+        storage_account_name: sttfstatedev
+        container_name: tfstate
+        key: dev.terraform.tfstate
+      RunMode: PlanVerifyApply
       VerificationMode: VerifyOnDestroy
       VariableFiles:
         - config/common.tfvars
@@ -239,14 +242,14 @@ EnvironmentConfigs:
       DependsOn: Deploy_dev_Infrastructure
       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     InfrastructureConfig:
-      AzureSubscriptionServiceConnection: AzureServiceConnection-Production
+      AzureServiceConnection: AzureServiceConnection-Production
       AzDOEnvironmentName: production-environment
       BackendConfig:
-        ServiceConnection: AzureServiceConnection-TerraformState
-        ResourceGroupName: rg-terraform-state-prod
-        StorageAccountName: sttfstateprod
-        ContainerName: tfstate
-        BlobName: production.terraform.tfstate
+        resource_group_name: rg-terraform-state-prod
+        storage_account_name: sttfstateprod
+        container_name: tfstate
+        key: production.terraform.tfstate
+      RunMode: PlanVerifyApply
       VerificationMode: VerifyOnAny
       KeyVaultConfig:
         ServiceConnection: AzureServiceConnection-Production
@@ -270,35 +273,56 @@ The following properties are configured within each environment's `Infrastructur
 
 ### Azure Service Connections
 
-Define the Azure service connections for deployment and backend state management.
+Define how to authenticate with Azure for deploying resources and accessing the Terraform state backend.
 
-**Within `InfrastructureConfig`:**
-- `AzureSubscriptionServiceConnection`: Service connection for deploying resources
-- `AzDOEnvironmentName`: Azure DevOps environment name for approvals
-- `BackendConfig.ServiceConnection`: Service connection for Terraform state backend
+**Option 1: Using Azure Service Connection (Recommended)**
 
-See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#azuresubscriptionserviceconnection) for details.
+Provide a service connection in `InfrastructureConfig`:
+```yaml
+InfrastructureConfig:
+  AzureServiceConnection: AzureServiceConnection-Production
+  AzDOEnvironmentName: production-environment
+  # ... other configuration ...
+```
+
+**Option 2: Using Client Credentials (If No Service Connection Available)**
+
+If `AzureServiceConnection` is not provided, supply Azure credentials via environment variables:
+```yaml
+InfrastructureConfig:
+  AzDOEnvironmentName: production-environment
+  EnvironmentVariableMappings:
+    ARM_CLIENT_ID: 'your-client-id'
+    ARM_CLIENT_SECRET: 'your-client-secret'
+    ARM_SUBSCRIPTION_ID: 'your-subscription-id'
+    ARM_TENANT_ID: 'your-tenant-id'
+  # ... other configuration ...
+```
+
+See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#azureserviceconnection) for details.
 
 ### Backend Configuration
 
-Define the required values for accessing the Terraform state for each environment.
+Define how Terraform state is stored and accessed.
 
-**Within `InfrastructureConfig.BackendConfig`:**
-- `ServiceConnection`: Azure service connection
-- `ResourceGroupName`: Resource group name
-- `StorageAccountName`: Storage account name
-- `ContainerName`: Container name
-- `BlobName`: Blob name for state file
+Provide backend config via the pipeline for flexibility across environments:
 
-Example:
 ```yaml
-BackendConfig:
-  ServiceConnection: 'my-backend-service-connection'
-  ResourceGroupName: 'my-resource-group'
-  StorageAccountName: 'mystorageaccount'
-  ContainerName: 'mycontainer'
-  BlobName: 'terraform.tfstate'
+InfrastructureConfig:
+  BackendConfig:
+    resource_group_name: 'my-resource-group'
+    storage_account_name: 'mystorageaccount'
+    container_name: 'mycontainer'
+    key: 'terraform.tfstate'
 ```
+
+**Common Azure Backend Keys:**
+- `resource_group_name`: Resource group name
+- `storage_account_name`: Storage account name
+- `container_name`: Container name
+- `key`: Blob name for state file
+
+**Note:** BackendConfig accepts any key-value pairs to support different backend types and providers, not just Azure. If omitted from the pipeline, ensure backend is configured in your Terraform files.
 
 See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipeline/infrastructure_config.md#backendconfig) for details.
 
@@ -325,7 +349,7 @@ See [InfrastructureConfig Documentation](../definition_docs/infrastructure_pipel
 
 ### Verification Mode
 
-Controls when manual verification is required for each environment.
+Controls when manual verification is required for each environment. **Note:** Only applicable when `RunMode` is `PlanVerifyApply`; ignored for other RunModes.
 
 **Within `InfrastructureConfig.VerificationMode`:**
 
@@ -336,6 +360,7 @@ Options:
 
 Example:
 ```yaml
+RunMode: PlanVerifyApply
 VerificationMode: 'VerifyOnAny'
 ```
 

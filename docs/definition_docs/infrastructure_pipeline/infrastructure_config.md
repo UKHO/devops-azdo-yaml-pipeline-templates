@@ -6,16 +6,11 @@ The configuration object that defines how Terraform should be deployed to a targ
 
 ```yaml
 InfrastructureConfig:
-  AzureSubscriptionServiceConnection: string    # REQUIRED
   AzDOEnvironmentName: string                   # REQUIRED
-  BackendConfig:                                # REQUIRED
-    ServiceConnection: string                   # REQUIRED
-    ResourceGroupName: string                   # REQUIRED
-    StorageAccountName: string                  # REQUIRED
-    ContainerName: string                       # REQUIRED
-    BlobName: string                            # REQUIRED
   RunMode: string                               # REQUIRED (PlanVerifyApply | PlanOnly | ApplyOnly)
-  VerificationMode: string                      # REQUIRED (VerifyOnDestroy | VerifyOnAny | VerifyDisabled)
+  VerificationMode: string                      # REQUIRED when RunMode is PlanVerifyApply
+  BackendConfig: object                         # OPTIONAL - Key/value pairs for terraform backend-config (if not provided, hardcode in Terraform files)
+  AzureServiceConnection: string                # OPTIONAL - Service connection (if not provided, use client credentials)
   KeyVaultConfig:                               # OPTIONAL (all-or-nothing)
     ServiceConnection: string
     Name: string
@@ -30,16 +25,6 @@ InfrastructureConfig:
 
 ## Required Properties
 
-### AzureSubscriptionServiceConnection
-
-**Type:** `string`
-
-**Description:** The Azure DevOps service connection name used to authenticate with Azure for deploying resources.
-
-**Example:** `'AzureServiceConnection-Production'`
-
----
-
 ### AzDOEnvironmentName
 
 **Type:** `string`
@@ -50,63 +35,6 @@ InfrastructureConfig:
 
 ---
 
-### BackendConfig
-
-**Type:** `object`
-
-**Description:** Configuration for Terraform backend state storage in Azure. All sub-properties are required.
-
----
-
-#### BackendConfig.ServiceConnection
-
-**Type:** `string`
-
-**Description:** Azure service connection for backend access (can be the same as AzureSubscriptionServiceConnection).
-
-**Example:** `'AzureServiceConnection-TerraformState'`
-
----
-
-#### BackendConfig.ResourceGroupName
-
-**Type:** `string`
-
-**Description:** Resource group containing the storage account for Terraform state.
-
-**Example:** `'rg-terraform-state-prod'`
-
----
-
-#### BackendConfig.StorageAccountName
-
-**Type:** `string`
-
-**Description:** Storage account name for Terraform state.
-
-**Example:** `'sttfstateprod'`
-
----
-
-#### BackendConfig.ContainerName
-
-**Type:** `string`
-
-**Description:** Container name within the storage account.
-
-**Example:** `'tfstate'`
-
----
-
-#### BackendConfig.BlobName
-
-**Type:** `string`
-
-**Description:** Blob name for the Terraform state file.
-
-**Example:** `'production.terraform.tfstate'`
-
----
 
 ### RunMode
 
@@ -115,9 +43,9 @@ InfrastructureConfig:
 **Description:** Controls which deployment jobs are run.
 
 **Allowed Values:**
-- `'PlanVerifyApply'` - Will create a plan, allow for verification (VerificationMode), and apply the plan
-- `'PlanOnly'` - Will only create a plan
-- `'ApplyOnly'` - Will skip any plans and apply straight away
+- `'PlanVerifyApply'` - Creates a plan, allows for manual verification (requires VerificationMode), then applies the plan
+- `'PlanOnly'` - Creates and reviews a plan only, does not apply
+- `'ApplyOnly'` - Skips planning and applies Terraform changes directly
 
 **Example:** `'PlanVerifyApply'`
 
@@ -127,7 +55,7 @@ InfrastructureConfig:
 
 **Type:** `string`
 
-**Description:** Controls when manual verification is required.
+**Description:** Controls when manual verification is required. Only applicable when `RunMode` is `PlanVerifyApply`; ignored for other RunModes.
 
 **Allowed Values:**
 - `'VerifyOnDestroy'` - Manual verification only when resources will be destroyed
@@ -136,9 +64,73 @@ InfrastructureConfig:
 
 **Example:** `'VerifyOnAny'`
 
+**Required When:** `RunMode` equals `'PlanVerifyApply'`
+
 ---
 
 ## Optional Properties
+
+### BackendConfig
+
+**Type:** `object`
+
+**Description:** Free-form key-value pairs passed as `-backend-config` arguments to `terraform init`. If not provided, backend configuration can be hardcoded directly in your Terraform files (e.g., in `main.tf` or `terraform.tf`). Keys and values are arbitrary and depend on your Terraform backend provider.
+
+**Option 1: Pipeline Parameter (Flexible)**
+Define backend config via pipeline for environment-specific configuration:
+```yaml
+BackendConfig:
+  resource_group_name: 'rg-terraform-state-prod'
+  storage_account_name: 'sttfstateprod'
+  container_name: 'tfstate'
+  key: 'production.terraform.tfstate'
+```
+
+**Option 2: Hardcoded in Terraform (Simple)**
+Define backend directly in your Terraform configuration file:
+```hcl
+# main.tf or terraform.tf
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "rg-terraform-state-prod"
+    storage_account_name = "sttfstateprod"
+    container_name       = "tfstate"
+    key                  = "production.terraform.tfstate"
+  }
+}
+```
+
+When using Option 2, omit `BackendConfig` from the pipeline entirely.
+
+**Common Azure Backend Keys:**
+- `resource_group_name` - Resource group containing the storage account for Terraform state
+- `storage_account_name` - Storage account name for Terraform state
+- `container_name` - Container name within the storage account
+- `key` - Blob name for the Terraform state file
+
+See [Terraform Backend Configuration Documentation](https://www.terraform.io/language/settings/backends) for details.
+
+---
+
+### AzureServiceConnection
+
+**Type:** `string`
+
+**Description:** The Azure DevOps service connection name used to authenticate with Azure for deploying resources and backend state storage. If not provided, the pipeline expects client credentials (ARM_CLIENT_ID and ARM_CLIENT_SECRET) to be provided via `EnvironmentVariableMappings`.
+
+**Example:** `'AzureServiceConnection-Production'`
+
+**Alternative (without service connection):**
+When `AzureServiceConnection` is not provided, supply credentials via environment variables:
+```yaml
+EnvironmentVariableMappings:
+  ARM_CLIENT_ID: 'your-client-id'
+  ARM_CLIENT_SECRET: 'your-client-secret'
+  ARM_SUBSCRIPTION_ID: 'your-subscription-id'
+  ARM_TENANT_ID: 'your-tenant-id'
+```
+
+---
 
 ### KeyVaultConfig
 
@@ -254,18 +246,20 @@ stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.
 
 ---
 
-## Complete Example
+## Complete Examples
+
+### PlanVerifyApply with Manual Verification
 
 ```yaml
 InfrastructureConfig:
-  AzureSubscriptionServiceConnection: AzureServiceConnection-Production
   AzDOEnvironmentName: production-environment
+  AzureServiceConnection: AzureServiceConnection-Production
   BackendConfig:
-    ServiceConnection: AzureServiceConnection-TerraformState
-    ResourceGroupName: rg-terraform-state-prod
-    StorageAccountName: sttfstateprod
-    ContainerName: tfstate
-    BlobName: production.terraform.tfstate
+    resource_group_name: rg-terraform-state-prod
+    storage_account_name: sttfstateprod
+    container_name: tfstate
+    key: production.terraform.tfstate
+  RunMode: PlanVerifyApply
   VerificationMode: VerifyOnAny
   KeyVaultConfig:
     ServiceConnection: AzureServiceConnection-Production
@@ -273,22 +267,31 @@ InfrastructureConfig:
     SecretsFilter: '*'
   JobsVariableMappings:
     - group: ProductionVariableGroup
-    - group: CommonVariableGroup
-    - template: config/production-variables.yml
-    - name: ENVIRONMENT_NAME
-      value: production
-    - name: LOG_LEVEL
-      value: info
   EnvironmentVariableMappings:
     TF_LOG: INFO
-    ARM_SKIP_PROVIDER_REGISTRATION: 'true'
   VariableFiles:
     - config/common.tfvars
     - config/production.tfvars
   OutputVariables:
     - resource_group_name
     - app_service_url
-    - storage_account_name
+```
+
+### ApplyOnly (Skips Planning)
+
+```yaml
+InfrastructureConfig:
+  AzDOEnvironmentName: dev-environment
+  AzureServiceConnection: AzureServiceConnection-Dev
+  BackendConfig:
+    resource_group_name: rg-terraform-state-dev
+    storage_account_name: sttfstatedev
+    container_name: tfstate
+    key: dev.terraform.tfstate
+  RunMode: ApplyOnly
+  VariableFiles:
+    - config/common.tfvars
+    - config/dev.tfvars
 ```
 
 ## See Also
