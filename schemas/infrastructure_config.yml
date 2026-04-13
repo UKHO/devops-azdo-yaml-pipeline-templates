@@ -17,11 +17,8 @@ jobs:
   - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, '')) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field.": "Error"
-
   - ${{ if notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
+      - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
 
   - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
     - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, '')) }}:
