@@ -25,6 +25,32 @@ $validTestCases = @(
         RunMode = "PlanOnly"
       }
     }
+  },
+  @{
+    Description = "with empty BackendConfig"
+    Parameters = @{
+      EnvironmentName = "dev"
+      InfrastructureConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+        BackendConfig = @{}
+      }
+    }
+    ExpectedYAML = "- name: BackendConfigCommandOption*value: ''"
+  },
+  @{
+    Description = "with empty BackendConfig"
+    Parameters = @{
+      EnvironmentName = "dev"
+      InfrastructureConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+        BackendConfig = @{
+          ConfigKey = "ConfigValue"
+        }
+      }
+    }
+    ExpectedYAML = "- name: BackendConfigCommandOption*value: ' -backend-config=`"ConfigKey=ConfigValue`"'"
   }
 )
 
