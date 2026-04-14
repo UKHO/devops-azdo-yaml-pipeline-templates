@@ -146,6 +146,7 @@ jobs:
                           -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
                           -TerraformPlanFilePath "$(TerraformPlanFilePath)"
                         FailOnStandardError: true
+                        UsePowerShellCoreOnWindows: true
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
@@ -177,3 +178,4 @@ jobs:
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
                           -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
                         FailOnStandardError: true
+                        UsePowerShellCoreOnWindows: true
