@@ -10,6 +10,8 @@ pool:
   name: Azure-UKHO-Engineering
   demands: ImageOverride -equals ubuntu-latest
 
+trigger: none
+
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:

@@ -8,6 +8,8 @@ resources:
 
 pool: 'Mare Nubium'
 
+trigger: none
+
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
