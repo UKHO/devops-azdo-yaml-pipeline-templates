@@ -39,6 +39,7 @@
 #   - template: tasks/terraform.yml
 #     parameters:
 #       Command: 'output'
+#       CommandOptions: '-json'
 #       SaveOutputsToFile: true
 #
 #   # Custom command with service connection
