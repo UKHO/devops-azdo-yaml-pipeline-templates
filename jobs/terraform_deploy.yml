@@ -136,16 +136,16 @@ jobs:
                     ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
-            - ${{ if parameters.InfrastructureConfig.VerificationMode }}:
-                - template: /tasks/powershell.yml
-                  parameters:
-                    TaskName: TerraformChangesCheck
-                    TargetType: 'filePath'
-                    ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
-                    ScriptFileArguments: >
-                      -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
-                      -TerraformPlanFilePath "$(TerraformPlanFilePath)"
-                    FailOnStandardError: true
+                - ${{ if parameters.InfrastructureConfig.VerificationMode }}:
+                    - template: /tasks/powershell.yml
+                      parameters:
+                        TaskName: TerraformChangesCheck
+                        TargetType: 'filePath'
+                        ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
+                        ScriptFileArguments: >
+                          -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
+                          -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                        FailOnStandardError: true
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
