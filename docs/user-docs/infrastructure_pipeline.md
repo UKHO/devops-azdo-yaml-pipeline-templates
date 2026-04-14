@@ -88,8 +88,6 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 | Stage.DependsOn                             | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
 | Stage.Condition                             | string      | Stage execution condition (e.g., 'succeeded()')                                           |
 | InfrastructureConfig.AzDOEnvironmentName    | string      | AzDO Environment name to associate the deployment jobs to                                 |
-| InfrastructureConfig.AzureServiceConnection | string      | Azure service connection for deploying resources and backend state storage                |
-| InfrastructureConfig.BackendConfig          | object      | Free-form key-value pairs for Terraform backend configuration (e.g., resource_group_name) |
 | InfrastructureConfig.RunMode                | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
 | InfrastructureConfig.VerificationMode       | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
@@ -250,7 +248,7 @@ extends:
 **Solution**: To use Terraform output variables in subsequent stages or jobs:
 1. Ensure the variables are listed in the `OutputVariables` property of your `InfrastructureConfig`
 2. Reference them using the correct dependency syntax for multi-stage pipelines:
-   
+
    stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
    ```
    where `{EnvironmentName}` is replaced with your environment name and `{variableName}` is the output variable name

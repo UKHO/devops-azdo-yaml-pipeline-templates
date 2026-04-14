@@ -240,7 +240,7 @@ OutputVariables:
 **Accessing Output Variables:**
 
 Exported variables can be accessed using:
-```
+```text
 stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
 ```
 
