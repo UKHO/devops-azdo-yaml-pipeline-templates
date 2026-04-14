@@ -164,6 +164,7 @@ jobs:
                         CommandOptions: '-json'
                         SaveOutputsToFile: true
                         WorkingDirectory: $(TerraformWorkingDirectory)
+                        TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
                         ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
                           ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
