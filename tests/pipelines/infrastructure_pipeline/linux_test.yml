@@ -12,6 +12,9 @@ pool:
 
 trigger: none
 
+pr:
+  - main
+
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
   parameters:
