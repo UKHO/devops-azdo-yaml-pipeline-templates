@@ -103,6 +103,6 @@ $invalidTestCases = @(
 
 Run-Tests `
   -YamlPath "jobs/terraform_deploy.yml" `
-  -TransformYamlFunction { return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
