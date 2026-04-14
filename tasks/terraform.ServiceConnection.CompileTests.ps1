@@ -29,6 +29,19 @@ $validTestCases = @(
       '-backend-config="use_azuread_auth=true"'
     )
   },
+  @{
+    Description = "init command with backend disabled"
+    Parameters = @{
+      Command = "init"
+      CommandOptions = '-backend=false'
+      ServiceConnection = "AzureRMServiceConnection"
+    }
+    ExpectedYaml = @(
+      '- task: AzureCLI@2'
+      'azureSubscription: AzureRMServiceConnection'
+      "terraform init -backend=false  '"
+    )
+  },
   # PLAN Command Tests
   @{
     Description = "plan command and command options"
