@@ -111,7 +111,6 @@ parameters:
     displayName: 'Save terraform output to terraform-output.json file (output command only)'
     # Notes: '> terraform-output.json' has to be last in the command to pipe the output to a file
 
-
   - name: ServiceConnection
     type: string
     default: ''
