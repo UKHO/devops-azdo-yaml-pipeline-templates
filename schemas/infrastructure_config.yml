@@ -26,8 +26,8 @@ jobs:
 
   # OPTIONAL PARAMETERS
 
-  - ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
-    - ${{ if eq(parameters.InfrastructureConfig.AzureServiceConnection, '') }}:
+  - ${{ if contains(convertToJson(parameters.InfrastructureConfig), 'AzureServiceConnection') }}:
+    - ${{ if eq(length(parameters.InfrastructureConfig.AzureServiceConnection), 0) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
 
   - ${{ if or(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
