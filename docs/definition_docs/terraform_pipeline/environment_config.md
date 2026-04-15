@@ -10,7 +10,7 @@ EnvironmentConfigs:
     Stage:                            # REQUIRED
       DependsOn: string | list        # REQUIRED - Stage dependencies
       Condition: string               # REQUIRED - Stage condition
-    InfrastructureConfig: object      # REQUIRED - See infrastructure_config.md
+    TerraformDeploymentConfig: object      # REQUIRED - See terraform_deployment_config.md
 ```
 
 ## Required Properties
@@ -58,11 +58,11 @@ EnvironmentConfigs:
 
 ---
 
-### InfrastructureConfig
+### TerraformDeploymentConfig
 
 **Type:** `object`
 
-**Description:** The infrastructure deployment configuration containing Azure connections (optional), backend configuration, verification settings, and Terraform parameters. See [infrastructure_config.md](./infrastructure_config.md) for complete details.
+**Description:** The infrastructure deployment configuration containing Azure connections (optional), backend configuration, verification settings, and Terraform parameters. See [terraform_deployment_config.md](./terraform_deployment_config.md) for complete details.
 
 ---
 
@@ -78,7 +78,7 @@ parameters:
         Stage:
           DependsOn: Terraform_Build
           Condition: succeeded()
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
@@ -97,7 +97,7 @@ parameters:
         Stage:
           DependsOn: Deploy_dev_Infrastructure
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Production
           AzDOEnvironmentName: production-environment
           BackendConfig:
@@ -125,6 +125,6 @@ parameters:
 
 ## See Also
 
-- [Infrastructure Config Documentation](./infrastructure_config.md) - Complete details on `InfrastructureConfig` properties
+- [Infrastructure Config Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
 - [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
 

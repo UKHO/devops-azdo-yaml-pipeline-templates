@@ -50,7 +50,7 @@ extends:
         Stage:
           DependsOn: Terraform_Build
           Condition: succeeded()
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzDOEnvironmentName: dev-environment
           AzureServiceConnection: Pipeline-dev
           BackendConfig:
@@ -77,7 +77,7 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 
 **For complete configuration documentation, see:**
 - [EnvironmentConfig Documentation](../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
-- [InfrastructureConfig Documentation](../definition_docs/terraform_pipeline/infrastructure_config.md) - Infrastructure-specific configuration details
+- [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md) - Infrastructure-specific configuration details
 - [AdditionalFilesToPackage Documentation](../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
 
 **Quick reference of required fields:**
@@ -87,9 +87,9 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 | Name                                        | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
 | Stage.DependsOn                             | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
 | Stage.Condition                             | string      | Stage execution condition (e.g., 'succeeded()')                                           |
-| InfrastructureConfig.AzDOEnvironmentName    | string      | AzDO Environment name to associate the deployment jobs to                                 |
-| InfrastructureConfig.RunMode                | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
-| InfrastructureConfig.VerificationMode       | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
+| TerraformDeploymentConfig.AzDOEnvironmentName    | string      | AzDO Environment name to associate the deployment jobs to                                 |
+| TerraformDeploymentConfig.RunMode                | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
+| TerraformDeploymentConfig.VerificationMode       | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
 See the [developer documentation](../definition_docs/terraform_pipeline/environment_config.md) for optional parameters and advanced configuration.
 
@@ -115,7 +115,7 @@ extends:
         Stage:
           DependsOn: Terraform_Build
           Condition: succeeded()
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
@@ -134,7 +134,7 @@ extends:
         Stage:
           DependsOn: Deploy_dev_Infrastructure
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Production
           AzDOEnvironmentName: production-environment
           BackendConfig:
@@ -182,7 +182,7 @@ extends:
         Stage:
           DependsOn: Terraform_Build
           Condition: succeeded()
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
           AzDOEnvironmentName: development-environment
           BackendConfig:
@@ -226,7 +226,7 @@ extends:
         Stage:
           DependsOn: Terraform_Build
           Condition: succeeded()
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           # ... infrastructure config ...
 ```
 
@@ -246,7 +246,7 @@ extends:
 **Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job. Also, they are only exported when `RunMode` includes an apply operation (not `PlanOnly`).
 
 **Solution**: To use Terraform output variables in subsequent stages or jobs:
-1. Ensure the variables are listed in the `OutputVariables` property of your `InfrastructureConfig`
+1. Ensure the variables are listed in the `OutputVariables` property of your `TerraformDeploymentConfig`
 2. Reference them using the correct dependency syntax for multi-stage pipelines:
 
    stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']

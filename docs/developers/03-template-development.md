@@ -4,7 +4,7 @@
 
 - **Required parameters**: Do not set a default. Add a comment: `# no default, consumer must supply this`.
 - **Optional parameters**: Provide a sensible default and mark clearly.
-- **Object parameters**: Group conceptually related values into a single object (e.g., `InfrastructureConfig`). Validate using a schema template in `schemas/`.
+- **Object parameters**: Group conceptually related values into a single object (e.g., `TerraformDeploymentConfig`). Validate using a schema template in `schemas/`.
 - Every parameter should have: `name`, `type`, `displayName`, and (where applicable) `default` and `allowed` values.
 
 ## Variable Scoping

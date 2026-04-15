@@ -1,11 +1,11 @@
-# InfrastructureConfig
+# TerraformDeploymentConfig
 
 The configuration object that defines how Terraform should be deployed to a target Azure environment. This includes Azure service connections, backend state storage, verification settings, Key Vault integration, variable mappings, and output exports.
 
 ## Definition
 
 ```yaml
-InfrastructureConfig:
+TerraformDeploymentConfig:
   AzDOEnvironmentName: string                   # REQUIRED
   RunMode: string                               # REQUIRED (PlanVerifyApply | PlanOnly | ApplyOnly)
   VerificationMode: string                      # REQUIRED when RunMode is PlanVerifyApply
@@ -251,7 +251,7 @@ stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.
 ### PlanVerifyApply with Manual Verification
 
 ```yaml
-InfrastructureConfig:
+TerraformDeploymentConfig:
   AzDOEnvironmentName: production-environment
   AzureServiceConnection: AzureServiceConnection-Production
   BackendConfig:
@@ -280,7 +280,7 @@ InfrastructureConfig:
 ### ApplyOnly (Skips Planning)
 
 ```yaml
-InfrastructureConfig:
+TerraformDeploymentConfig:
   AzDOEnvironmentName: dev-environment
   AzureServiceConnection: AzureServiceConnection-Dev
   BackendConfig:
