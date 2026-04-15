@@ -20,7 +20,7 @@ $validTestCases = @(
     Description = "with required parameters"
     Parameters = @{
       EnvironmentName = "dev"
-      InfrastructureConfig = @{
+      TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanOnly"
       }
@@ -30,7 +30,7 @@ $validTestCases = @(
     Description = "with empty BackendConfig"
     Parameters = @{
       EnvironmentName = "dev"
-      InfrastructureConfig = @{
+      TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanOnly"
         BackendConfig = @{}
@@ -42,7 +42,7 @@ $validTestCases = @(
     Description = "with empty BackendConfig"
     Parameters = @{
       EnvironmentName = "dev"
-      InfrastructureConfig = @{
+      TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanOnly"
         BackendConfig = @{
@@ -63,17 +63,17 @@ $invalidTestCases = @(
     ErrorMessage = "A value for the 'EnvironmentName' parameter must be provided."
   },
   @{
-    Description = "missing InfrastructureConfig parameter"
+    Description = "missing TerraformDeploymentConfig parameter"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
     }
-    ErrorMessage = "A value for the 'InfrastructureConfig' parameter must be provided."
+    ErrorMessage = "A value for the 'TerraformDeploymentConfig' parameter must be provided."
   },
   @{
     Description = "missing AzDOEnvironmentName"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
-      InfrastructureConfig = "{}"
+      TerraformDeploymentConfig = "{}"
     }
     ErrorMessage = "''compile-tests-only' environment error: AzDOEnvironmentName is not properly defined and is a required field.'"
   },
@@ -81,7 +81,7 @@ $invalidTestCases = @(
     Description = "missing RunMode"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
-      InfrastructureConfig = "{}"
+      TerraformDeploymentConfig = "{}"
     }
     ErrorMessage = "''compile-tests-only' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly).'"
   },
@@ -89,7 +89,7 @@ $invalidTestCases = @(
     Description = "incorrect RunMode"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
-      InfrastructureConfig = @{
+      TerraformDeploymentConfig = @{
         RunMode = "Plan"
       }
     }
