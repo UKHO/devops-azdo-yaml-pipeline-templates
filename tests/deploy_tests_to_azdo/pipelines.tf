@@ -1,34 +1,25 @@
 locals {
-  PipelineAzDoFolderName    = "terraform-pipelines"
-  PipelinesGitHubFolderPath = "tests/pipelines/terraform_pipeline/"
-  pipelinesToDeploy = {
-    linuxTest = {
-      pipeline_name = "linux-test"
-      yamlfile_name = "linux_test.yml"
-    },
-    windowsTest = {
-      pipeline_name = "windows-test"
-      yamlfile_name = "windows_test.yml"
-    },
-    elasticTest = {
-      pipeline_name = "elastic-test"
-      yamlfile_name = "elastic_test.yml"
-    },
-  }
+  pipelineTemplateTestsAzDoFolderName   = "terraform_pipelines"
+  pipelineTemplateTestsGitHubFolderPath = "tests/pipelines/terraform_pipeline/"
+  pipelineTemplateTestsToDeploy = [
+    "linux_test",
+    "windows_test",
+    "elastic_test"
+  ]
 }
 
 resource "azuredevops_build_definition" "this" {
   project_id = data.azuredevops_project.this.project_id
-  path       = "\\devops-azdo-yaml-pipeline-templates\\${local.PipelineAzDoFolderName}"
-  for_each   = local.pipelinesToDeploy
+  path       = "\\devops-azdo-yaml-pipeline-templates\\${local.pipelineTemplateTestsAzDoFolderName}"
+  for_each   = local.pipelineTemplateTestsToDeploy
 
-  name = "${local.PipelineAzDoFolderName}-${each.value.pipeline_name}"
+  name = "${local.pipelineTemplateTestsAzDoFolderName}-${each.value}"
 
   repository {
     repo_type             = "GitHub"
     repo_id               = "UKHO/devops-azdo-yaml-pipeline-templates"
     branch_name           = "refs/heads/${var.TargetBranchName}"
-    yml_path              = "${local.PipelinesGitHubFolderPath}${each.value.yamlfile_name}"
+    yml_path              = "${local.pipelineTemplateTestsGitHubFolderPath}${each.value}.yml"
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
   }
 }
