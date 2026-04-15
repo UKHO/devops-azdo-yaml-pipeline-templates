@@ -1,4 +1,4 @@
-# Infrastructure Pipeline Manual Verification
+# Terraform Pipeline Manual Verification
 
 This template allows a pipeline to deploy resources via Terraform with an optional manual verification step, aka gate, for any resources planned to be changed. This functionality is controlled by two parameters: a `RunMode` parameter, and a `VerificationMode` parameter. The `RunMode` parameter has three settings:
 

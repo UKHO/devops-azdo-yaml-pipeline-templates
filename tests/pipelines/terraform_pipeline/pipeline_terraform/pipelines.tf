@@ -1,6 +1,6 @@
 locals {
-  PipelineAzDoFolderName    = "infrastructure-pipelines"
-  PipelinesGitHubFolderPath = "tests/pipelines/infrastructure_pipeline/"
+  PipelineAzDoFolderName    = "terraform-pipelines"
+  PipelinesGitHubFolderPath = "tests/pipelines/terraform_pipeline/"
   pipelinesToDeploy = {
     linuxTest = {
       pipeline_name = "linux-test"

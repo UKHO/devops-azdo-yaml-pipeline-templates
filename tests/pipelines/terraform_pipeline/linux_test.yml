@@ -16,9 +16,9 @@ pr:
   - main
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
+    RelativePathToTerraformFiles: tests/pipelines/terraform_pipeline/test_terraform
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     EnvironmentConfigs:
@@ -41,7 +41,7 @@ extends:
             - group: DevOpsChapterAzureSubscription
             - group: ExampleVG1
             - group: ExampleVG2
-            - template: tests/pipelines/infrastructure_pipeline/variables.yml
+            - template: tests/pipelines/terraform_pipeline/variables.yml
             - name: DeploymentJobsVariableMappingVariable
               value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:

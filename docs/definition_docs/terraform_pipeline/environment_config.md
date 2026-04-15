@@ -126,5 +126,5 @@ parameters:
 ## See Also
 
 - [Infrastructure Config Documentation](./infrastructure_config.md) - Complete details on `InfrastructureConfig` properties
-- [User Documentation](../../user-docs/infrastructure_pipeline.md) - End-user pipeline documentation
+- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
 

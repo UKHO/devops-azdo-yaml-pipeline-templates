@@ -12,7 +12,7 @@ parameters:
   - name: EnvironmentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Environment configuration object (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
+    displayName: 'Environment configuration object (see docs/definition_docs/terraform_pipeline/environment_config.md)'
 
 stages:
   - stage: Deploy_${{ parameters.EnvironmentConfig.Name }}_Infrastructure

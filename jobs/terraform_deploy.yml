@@ -39,7 +39,7 @@ parameters:
   - name: InfrastructureConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
+    displayName: 'Infrastructure configuration object (see docs/definition_docs/terraform_pipeline/infrastructure_config.md)'
 
 jobs:
   - template: /schemas/infrastructure_config.yml

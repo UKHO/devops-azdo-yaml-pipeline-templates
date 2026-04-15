@@ -8,7 +8,7 @@ resources:
 
 pool:
   name: Azure-UKHO-Engineering
-  demands: ImageOverride -equals windows-latest
+  demands: ImageOverride -equals ubuntu-latest
 
 trigger: none
 
@@ -16,11 +16,10 @@ pr:
   - main
 
 extends:
-  template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
+  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/infrastructure_pipeline/test_terraform
+    RelativePathToTerraformFiles: tests/pipelines/terraform_pipeline/elastic_terraform
     TerraformVersion: latest
-    # TerraformBuildInjectionSteps # do not need to test
     EnvironmentConfigs:
       - Name: dev
         Stage:
@@ -29,27 +28,18 @@ extends:
           Condition: succeeded('build')
         InfrastructureConfig:
           AzureServiceConnection: DevOps Chapter Dev
-          AzDOEnvironmentName: Discovery
+          AzDOEnvironmentName: Elastic
           BackendConfig:
             resource_group_name: $(TFStateResourceGroupName)
             storage_account_name: $(TFStateStorageAccountName)
             container_name: tfstate-devops-azdo-yaml-pipeline-templates
-            key: pipeline.windows_test.tfstate
+            key: pipeline.elastic_test.tfstate
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
-          JobsVariableMappings:
-            - group: DevOpsChapterAzureSubscription
-            - group: ExampleVG1
-            - group: ExampleVG2
-            - template: tests/pipelines/infrastructure_pipeline/variables.yml
-            - name: DeploymentJobsVariableMappingVariable
-              value: DeploymentJobsVariableMappingValue
           EnvironmentVariableMappings:
-            TF_VAR_MinRandom: 1000
-            TF_VAR_MaxRandom: 100000
-          OutputVariables:
-            - random_number
-            - random_string
-          VariableFiles:
-            - config/common.tfvars
-            - config/discovery.tfvars
+            TF_VAR_api_key: $(Elastic-ApiKey)
+            TF_VAR_elastic_endpoint: $(Elastic-Endpoint)
+            TF_VAR_kibana_endpoint: $(Kibana-Endpoint)
+          JobsVariableMappings:
+            - group: NonLive-Elastic
+            - group: DevOpsChapterAzureSubscription

@@ -297,5 +297,5 @@ InfrastructureConfig:
 ## See Also
 
 - [Environment Config Documentation](./environment_config.md) - Complete environment configuration structure
-- [User Documentation](../../user-docs/infrastructure_pipeline.md) - End-user pipeline documentation
-- [Parameters in Detail](../../user-docs/infrastructure_pipeline_parameters_in_detail.md) - Legacy single-environment parameter reference
+- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
+- [Parameters in Detail](../../user-docs/terraform_pipeline_parameters_in_detail.md) - Legacy single-environment parameter reference

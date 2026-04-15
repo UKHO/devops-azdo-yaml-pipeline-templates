@@ -24,6 +24,6 @@ $invalidTestCases = @()
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/pipelines/infrastructure_pipeline/windows_test.yml" `
+  -YamlPath "tests/pipelines/terraform_pipeline/windows_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

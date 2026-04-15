@@ -22,7 +22,7 @@ parameters:
   - name: EnvironmentConfigs
     type: object
     # NO default - Consumer must provide this
-    displayName: 'List of environment configurations (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
+    displayName: 'List of environment configurations (see docs/definition_docs/terraform_pipeline/environment_config.md)'
 
 stages:
   - template: /stages/terraform_build.yml

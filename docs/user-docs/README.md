@@ -6,7 +6,7 @@ This directory contains comprehensive documentation for Azure DevOps YAML pipeli
 
 Complete end-to-end pipeline templates for specific use cases.
 
-- **[Infrastructure Pipeline](./infrastructure_pipeline.md)** – Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files
+- **[Terraform Pipeline](./terraform_pipeline.md)** – Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files
 
 ## Getting Help
 
