@@ -47,7 +47,7 @@ jobs:
       TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
+  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}
     displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
     environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}

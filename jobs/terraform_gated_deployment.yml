@@ -33,8 +33,8 @@ jobs:
   - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
       - template: /jobs/manual_verification.yml
         parameters:
-          DependsOn: TerraformDeploy_Plan
-          Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
+          DependsOn: TerraformDeployPlan
+          Condition: and(succeeded(), eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           Instructions: 'Please validate the terraform plan is acceptable to apply'
 
   - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
@@ -45,14 +45,14 @@ jobs:
           ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
             DependsOn:
               - ManualVerification
-              - TerraformDeploy_Plan
+              - TerraformDeployPlan
             Condition: >
               or(
                 succeeded('ManualVerification'),
                 and(
-                  succeeded('TerraformDeploy_Plan'),
-                  eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
-                  eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
+                  succeeded('TerraformDeployPlan'),
+                  eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                  eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
                 )
               )
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
