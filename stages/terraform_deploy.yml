@@ -31,4 +31,4 @@ stages:
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           EnvironmentName: ${{ parameters.EnvironmentConfig.Name }}
-          InfrastructureConfig: ${{ parameters.EnvironmentConfig.InfrastructureConfig }}
+          TerraformDeploymentConfig: ${{ parameters.EnvironmentConfig.TerraformDeploymentConfig }}

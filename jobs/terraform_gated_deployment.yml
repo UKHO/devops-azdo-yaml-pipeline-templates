@@ -14,35 +14,35 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'The environment name that the infrastructure is for'
 
-  - name: InfrastructureConfig
+  - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Infrastructure configuration object (see docs/definition_docs/terraform_pipeline/infrastructure_config.md)'
+    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_deployment_config.md)'
 
 jobs:
-  - ${{ if in(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly') }}:
+  - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'PlanOnly') }}:
     - template: /jobs/terraform_deploy.yml
       parameters:
         # generic parameters
         TerraformDeployMode: Plan
         TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
         TerraformVersion: ${{ parameters.TerraformVersion }}
-        InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+        TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
         EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
+  - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
       - template: /jobs/manual_verification.yml
         parameters:
           DependsOn: TerraformDeploy_Plan
           Condition: and(succeeded(), eq(dependencies.TerraformDeploy_Plan.outputs['TerraformDeploy_Plan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           Instructions: 'Please validate the terraform plan is acceptable to apply'
 
-  - ${{ if in(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
+  - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
       - template: /jobs/terraform_deploy.yml
         parameters:
           # generic Parameters
           TerraformDeployMode: Apply
-          ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
+          ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
             DependsOn:
               - ManualVerification
               - TerraformDeploy_Plan
@@ -57,6 +57,6 @@ jobs:
               )
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           TerraformVersion: ${{ parameters.TerraformVersion }}
-          InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+          TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
           EnvironmentName: ${{ parameters.EnvironmentName }}
 
