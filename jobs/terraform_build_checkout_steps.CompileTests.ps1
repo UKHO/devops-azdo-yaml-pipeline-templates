@@ -1,7 +1,7 @@
 # ============================================================================
 # TEST: Terraform Repository Checkout Steps List Template
 # ============================================================================
-# Tests for the terraform_repository_checkout_stepsList.yml template which checks out
+# Tests for the terraform_build_checkout_steps.yml template which checks out
 # the repository and optionally injects custom build steps and packages additional files.
 
 # Load framework (only if not already loaded)
@@ -93,6 +93,6 @@ $invalidTestCases = @()
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "jobs/terraform_repository_checkout_stepsList.yml" `
+  -YamlPath "jobs/terraform_build_checkout_steps.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
