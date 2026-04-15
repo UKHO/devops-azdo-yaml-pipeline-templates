@@ -71,6 +71,16 @@ jobs:
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: VariableFilesCommandOption
+
+      - template: /utils/concat_wrap_list.yml
+        parameters:
+          Items:
+            - ${{ each backendConfig in parameters.InfrastructureConfig.BackendConfig }}:
+               - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
+          Prefix: ' -backend-config="'
+          Suffix: '"'
+          OutputVariableName: BackendConfigCommandOption
+
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
       - name: CheckoutPath
@@ -110,56 +120,62 @@ jobs:
             - template: /tasks/terraform.yml
               parameters:
                 Command: init
-                BackendAzureServiceConnection: ${{ parameters.InfrastructureConfig.BackendConfig.ServiceConnection }}
-                BackendAzureResourceGroupName: ${{ parameters.InfrastructureConfig.BackendConfig.ResourceGroupName }}
-                BackendAzureStorageAccountName: ${{ parameters.InfrastructureConfig.BackendConfig.StorageAccountName }}
-                BackendAzureContainerName: ${{ parameters.InfrastructureConfig.BackendConfig.ContainerName }}
-                BackendAzureBlobName: ${{ parameters.InfrastructureConfig.BackendConfig.BlobName }}
+                CommandOptions: $(BackendConfigCommandOption) -upgrade
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                  ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
-                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
+                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
+                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
-                - template: /tasks/powershell.yml
-                  parameters:
-                    TaskName: TerraformChangesCheck
-                    TargetType: 'filePath'
-                    ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
-                    FailOnStandardError: true
-                    ScriptFileArguments: >
-                      -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
-                      -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                - ${{ if parameters.InfrastructureConfig.VerificationMode }}:
+                    - template: /tasks/powershell.yml
+                      parameters:
+                        TaskName: TerraformChangesCheck
+                        TargetType: 'filePath'
+                        ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
+                        ScriptFileArguments: >
+                          -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
+                          -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                        FailOnStandardError: true
+                        UsePowerShellCoreOnWindows: true
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
-                    EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
+                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    CommandOptions: '$(VariableFilesCommandOption) -input=false'
+                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
                 - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
                     - template: /tasks/terraform.yml
                       parameters:
                         Command: output
+                        CommandOptions: '-json'
+                        SaveOutputsToFile: true
                         WorkingDirectory: $(TerraformWorkingDirectory)
-                        EnvironmentAzureServiceConnection: ${{ parameters.InfrastructureConfig.AzureSubscriptionServiceConnection }}
-                        OutputTo: file
+                        TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
+                        ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
+                          ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
 
                     - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformExportOutputsVariables
                         TargetType: 'filePath'
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
-                        FailOnStandardError: true
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
-                          -OutputFileName $(TerraformTask_output.jsonOutputVariablesPath)
+                          -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
+                        FailOnStandardError: true
+                        UsePowerShellCoreOnWindows: true

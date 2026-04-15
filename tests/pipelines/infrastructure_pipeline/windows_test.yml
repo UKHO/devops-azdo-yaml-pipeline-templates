@@ -6,7 +6,14 @@ resources:
       name: UKHO/devops-azdo-yaml-pipeline-templates
       ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
 
-pool: 'Mare Nubium'
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals windows-latest
+
+trigger: none
+
+pr:
+  - main
 
 extends:
   template: pipelines/infrastructure_pipeline.yml@AzDOPipelineTemplates
@@ -21,17 +28,17 @@ extends:
             - build
           Condition: succeeded('build')
         InfrastructureConfig:
-          AzureSubscriptionServiceConnection: DevOps Chapter Dev
+          AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
-            ServiceConnection: DevOps Chapter Dev
-            ResourceGroupName: cheeserg
-            StorageAccountName: cheesesa
-            ContainerName: cheesecn
-            BlobName: cheesebn
+            resource_group_name: $(TFStateResourceGroupName)
+            storage_account_name: $(TFStateStorageAccountName)
+            container_name: tfstate-devops-azdo-yaml-pipeline-templates
+            key: pipeline.windows_test.tfstate
           RunMode: 'PlanVerifyApply'
           VerificationMode: 'VerifyOnDestroy'
           JobsVariableMappings:
+            - group: DevOpsChapterAzureSubscription
             - group: ExampleVG1
             - group: ExampleVG2
             - template: tests/pipelines/infrastructure_pipeline/variables.yml

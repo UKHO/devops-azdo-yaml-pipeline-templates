@@ -14,34 +14,21 @@ parameters:
     displayName: 'The environment name that the infrastructure is for'
 
 jobs:
-  - ${{ if or(not(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection), eq(parameters.InfrastructureConfig.AzureSubscriptionServiceConnection, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: AzureSubscriptionServiceConnection is not properly defined and is a required field.": "Error"
-
   - ${{ if or(not(parameters.InfrastructureConfig.AzDOEnvironmentName), eq(parameters.InfrastructureConfig.AzDOEnvironmentName, '')) }}:
     - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ServiceConnection), eq(parameters.InfrastructureConfig.BackendConfig.ServiceConnection, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ServiceConnection is not properly defined and is a required field.": "Error"
+  - ${{ if notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
 
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName), eq(parameters.InfrastructureConfig.BackendConfig.ResourceGroupName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ResourceGroupName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.StorageAccountName), eq(parameters.InfrastructureConfig.BackendConfig.StorageAccountName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.StorageAccountName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.ContainerName), eq(parameters.InfrastructureConfig.BackendConfig.ContainerName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.ContainerName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.BackendConfig.BlobName), eq(parameters.InfrastructureConfig.BackendConfig.BlobName, '')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig.BlobName is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.RunMode), eq(parameters.InfrastructureConfig.RunMode, ''), notIn(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly')) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field.": "Error"
-
-  - ${{ if or(not(parameters.InfrastructureConfig.VerificationMode), eq(parameters.InfrastructureConfig.VerificationMode, ''), notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled')) }}:
-    - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not properly defined and is a required field.": "Error"
+  - ${{ if eq(parameters.InfrastructureConfig.RunMode, 'PlanVerifyApply') }}:
+    - ${{ if notIn(parameters.InfrastructureConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
 
   # OPTIONAL PARAMETERS
+
+  - ${{ if contains(convertToJson(parameters.InfrastructureConfig), 'AzureServiceConnection') }}:
+    - ${{ if eq(length(parameters.InfrastructureConfig.AzureServiceConnection), 0) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
 
   - ${{ if or(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
     # At least one property is set, so all three must be set
@@ -51,6 +38,14 @@ jobs:
       - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.Name is required when any Key Vault configuration is provided.": "Error"
     - ${{ if or(not(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter), eq(parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter, '')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.": "Error"
+
+  - ${{ if parameters.InfrastructureConfig.BackendConfig }}:
+      - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.BackendConfig), '{')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+      - ${{ else }}:
+          - ${{ each mapping in parameters.InfrastructureConfig.BackendConfig }}:
+              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                  - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
   - ${{ if parameters.InfrastructureConfig.EnvironmentVariableMappings }}:
     - ${{ if not(contains(convertToJson(parameters.InfrastructureConfig.EnvironmentVariableMappings), '{')) }}:
