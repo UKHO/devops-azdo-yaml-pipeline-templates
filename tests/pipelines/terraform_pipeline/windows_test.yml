@@ -27,7 +27,7 @@ extends:
           DependsOn:
             - build
           Condition: succeeded('build')
-        InfrastructureConfig:
+        TerraformDeploymentConfig:
           AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Discovery
           BackendConfig:
