@@ -6,8 +6,8 @@ locals {
   pipelineTemplateTestsToDeploy = {
     for file in fileset(local.pipelineTemplateTestsAzDoFolderPath, "*/*${local.test_pipeline_identifier}") :
     replace(basename(file), ".yml", "") => {
-      filePath  = file
-      azdoName  = replace(replace(file, ".yml", ""), "/", "_")
+      filePath = file
+      azdoName = replace(replace(file, ".yml", ""), "/", "_")
     }
   }
 }
