@@ -1,0 +1,6 @@
+github_serviceconnection_name        = "DevOps Chapter"
+azurerm_serviceconnection_name       = "DevOps Chapter Dev"
+azdo_project_name                    = "DevOps Chapter"
+azdo_agent_pool_name                 = "Azure-UKHO-Engineering"
+azdo_environment_name                = "Discovery"
+devops_chapter_azure_subscription_id = ""
