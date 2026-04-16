@@ -57,6 +57,21 @@ $validTestCases = @(
     )
   },
   @{
+    Description = "with custom timeout behaviour"
+    Parameters = @{
+      JobName = "ManualVerification"
+      Condition = "succeeded()"
+      OnTimeoutBehaviour = "resume"
+      TimeoutInMinutes = 120
+      Instructions = "Please verify the deployment"
+    }
+    ExpectedYaml = @(
+      'timeoutInMinutes: 120',
+      'instructions:*Please verify the deployment'
+      'ontimeout: resume'
+    )
+  },
+  @{
     Description = "with custom condition"
     Parameters = @{
       JobName = "ManualVerification"
