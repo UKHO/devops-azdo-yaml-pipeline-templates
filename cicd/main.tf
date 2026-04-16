@@ -6,6 +6,10 @@ terraform {
       source  = "microsoft/azuredevops"
       version = ">= 1.11.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
 
   backend "azurerm" {
@@ -15,4 +19,8 @@ terraform {
 # https://registry.terraform.io/providers/microsoft/azuredevops/latest/docs#argument-reference
 provider "azuredevops" {
   org_service_url = "https://dev.azure.com/ukhydro" # Required for finding the azure devops server, combined with entra id login
+}
+
+provider "github" {
+  owner = "ukho"
 }

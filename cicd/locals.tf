@@ -14,6 +14,11 @@ locals {
     }
   }
 
+  all_pipeline_names = [
+    for pipe in values(local.pipelineTemplateTestsToDeploy) :
+    pipe.azdo_name
+  ]
+
   pipeline_authorizations = merge([
     for pipeline_key in keys(local.pipelineTemplateTestsToDeploy) : {
       for auth_type, resource_id in {
