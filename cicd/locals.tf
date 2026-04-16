@@ -1,4 +1,7 @@
 locals {
+  repository_name = "devops-azdo-yaml-pipeline-templates"
+  repo_id         = "UKHO/${local.repository_name}"
+
   test_pipeline_identifier              = "_test.yml"
   pipelineTemplateTestsAzDoFolderPath   = "${path.root}/../tests/pipelines"
   pipelineTemplateTestsAzDoFolderName   = "pipeline_template_tests"

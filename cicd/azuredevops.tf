@@ -16,7 +16,7 @@ resource "azuredevops_build_definition" "pipeline_template_tests" {
 
   repository {
     repo_type             = "GitHub"
-    repo_id               = "UKHO/devops-azdo-yaml-pipeline-templates"
+    repo_id               = local.repo_id
     branch_name           = "refs/heads/${var.TargetBranchName}"
     yml_path              = "${local.pipelineTemplateTestsGitHubFolderPath}${each.value.filePath}"
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
