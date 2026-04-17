@@ -1,0 +1,32 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+variables:
+  - name: artifact_name
+    value: terraform_test
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: tests/jobs/terraform_build/basic_terraform
+      ArtifactName: $(artifact_name)
+
+  - job:
+    steps:
+      - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
+        parameters:
+          ArtifactName: $(artifact_name)
