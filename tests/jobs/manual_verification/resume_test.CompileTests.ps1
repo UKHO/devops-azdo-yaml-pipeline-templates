@@ -33,6 +33,6 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/jobs/manual_verification/manual_verification_test.yml" `
+  -YamlPath "tests/jobs/manual_verification/resume_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
