@@ -65,6 +65,9 @@ jobs:
           CheckoutAlias: ${{ parameters.CheckoutAlias }}
           # generic Parameters
           TerraformDeployMode: Apply
+          ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'ApplyOnly') }}:
+            Condition: ${{ parameters.Condition }}
+            DependsOn: ${{ parameters.DependsOn }}
           ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
             DependsOn:
               - ManualVerification_${{ parameters.TerraformArtifactName }}

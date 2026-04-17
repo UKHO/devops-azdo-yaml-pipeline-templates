@@ -26,6 +26,19 @@ $validTestCases = @(
         RunMode = "PlanOnly"
       }
     }
+  },
+  @{
+    Description = "with applyonly and custom condition"
+    Parameters = @{
+      EnvironmentName = "dev"
+      CheckoutAlias = "self"
+      Condition = "always()"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "ApplyOnly"
+      }
+    }
+    ExpectedYAML = "condition: always()"
   }
 )
 
