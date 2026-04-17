@@ -21,7 +21,7 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/jobs/terraform_build/basic_terraform
+      RelativePathToTerraformFiles: tests/jobs/terraform_gated_deployment/basic_terraform
       ArtifactName: ${{ variables.artifact_name }}
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
