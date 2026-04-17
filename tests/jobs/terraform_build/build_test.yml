@@ -7,8 +7,7 @@ resources:
       ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
 
 pool:
-  name: Azure-UKHO-Engineering
-  demands: ImageOverride -equals ubuntu-latest
+  name: 'Mare Nectaris'
 
 trigger: none
 
@@ -25,7 +24,7 @@ jobs:
       RelativePathToTerraformFiles: tests/jobs/terraform_build/basic_terraform
       ArtifactName: ${{ variables.artifact_name }}
 
-  - job:
+  - job: ValidateResults
     steps:
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
