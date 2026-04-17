@@ -25,6 +25,8 @@ jobs:
       ArtifactName: ${{ variables.artifact_name }}
 
   - job: ValidateResults
+    dependsOn:
+      - TerraformBuild_${{ variables.artifact_name }}
     steps:
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
