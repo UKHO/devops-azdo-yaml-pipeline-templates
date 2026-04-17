@@ -25,6 +25,31 @@ $validTestCases = @(
         RunMode = "PlanOnly"
       }
     }
+    ExpectedYAML = "displayName: Terraform Plan 'TerraformArtifact'"
+  },
+  @{
+    Description = "with applyonly"
+    Parameters = @{
+      TerraformDeployMode = "Apply"
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "ApplyOnly"
+      }
+    }
+    ExpectedYAML = "displayName: Terraform Apply 'TerraformArtifact'"
+  },
+  @{
+    Description = "with custom artifact name"
+    Parameters = @{
+      TerraformArtifactName = "CustomArtifact"
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = "displayName: Terraform Plan 'CustomArtifact'"
   },
   @{
     Description = "with empty BackendConfig"
@@ -33,7 +58,7 @@ $validTestCases = @(
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanOnly"
-        BackendConfig = @{}
+        BackendConfig = @{ }
       }
     }
     ExpectedYAML = "- name: BackendConfigCommandOption*value: ''"
