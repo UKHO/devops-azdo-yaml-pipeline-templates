@@ -11,6 +11,14 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
+  - name: CheckoutAlias
+    type: string
+    default: AzDOPipelineTemplates
+    values:
+      - AzDOPipelineTemplates
+      - self
+    displayName: 'The checkout alias for for the template repository (testing purposes)'
+
   - name: DependsOn
     type: object
     default: [ ]
@@ -98,7 +106,7 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: AzDOPipelineTemplates
+            - checkout: ${{ parameters.CheckoutAlias }}
               persistCredentials: true
               path: $(CheckoutPath)
 
