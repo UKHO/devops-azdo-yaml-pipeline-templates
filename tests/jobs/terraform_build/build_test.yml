@@ -14,7 +14,7 @@ trigger: none
 
 variables:
   - name: artifact_name
-    value: terraform_test
+    value: terraform_build
 
 pr:
   - main
@@ -23,10 +23,10 @@ jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
       RelativePathToTerraformFiles: tests/jobs/terraform_build/basic_terraform
-      ArtifactName: $(artifact_name)
+      ArtifactName: ${{ variables.artifact_name }}
 
   - job:
     steps:
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
-          ArtifactName: $(artifact_name)
+          ArtifactName: ${{ variables.artifact_name }}
