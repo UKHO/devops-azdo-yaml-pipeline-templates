@@ -26,6 +26,8 @@ jobs:
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
     parameters:
+      DependsOn: TerraformBuild_${{ variables.artifact_name }}
+      Condition: succeeded('TerraformBuild_${{ variables.artifact_name }}')
       TerraformArtifactName: ${{ variables.artifact_name }}
       EnvironmentName: Discovery
       TerraformDeploymentConfig:
