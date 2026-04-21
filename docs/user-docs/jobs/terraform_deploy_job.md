@@ -104,20 +104,20 @@ The job is tied to an Azure DevOps Environment (specified in `TerraformDeploymen
 
 ### Core Parameters
 
-| Parameter Name              | Type   | Required | Default                 | Description                                                                                                                                                                                                                  |
-|-----------------------------|--------|----------|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `TerraformDeployMode`       | string | No       | `Plan`                  | Deployment mode: `Plan` (preview changes) or `Apply` (deploy infrastructure).                                                                                                                                                |
-| `TerraformVersion`          | string | No       | `'1.14.0'`              | Version of Terraform CLI to install and use on the deployment agent.                                                                                                                                                         |
-| `TerraformArtifactName`     | string | No       | `'TerraformArtifact'`   | Name of the artifact published by the build job. Must match the artifact name from `terraform_build` job.                                                                                                                    |
-| `EnvironmentName`           | string | **Yes**  | —                       | User-friendly name of the environment (e.g., 'dev', 'staging', 'production'). Used for identification.                                                                                                                       |
+| Parameter Name              | Type   | Required | Default                 | Description                                                                                                                                                                                                                     |
+|-----------------------------|--------|----------|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `TerraformDeployMode`       | string | No       | `Plan`                  | Deployment mode: `Plan` (preview changes) or `Apply` (deploy infrastructure).                                                                                                                                                   |
+| `TerraformVersion`          | string | No       | `'1.14.0'`              | Version of Terraform CLI to install and use on the deployment agent.                                                                                                                                                            |
+| `TerraformArtifactName`     | string | No       | `'TerraformArtifact'`   | Name of the artifact published by the build job. Must match the artifact name from `terraform_build` job.                                                                                                                       |
+| `EnvironmentName`           | string | **Yes**  | —                       | User-friendly name of the environment (e.g., 'dev', 'staging', 'production'). Used for identification.                                                                                                                          |
 | `TerraformDeploymentConfig` | object | **Yes**  | —                       | Complex configuration object containing backend, variables, Azure integration, and deployment settings. See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md). |
-| `DependsOn`                 | object | No       | `[]`                    | List of job names this deployment depends on (e.g., `['TerraformBuild_TerraformArtifact']`).                                                                                                                                 |
-| `Condition`                 | string | No       | `succeeded()`           | Condition expression controlling whether this job runs (e.g., `eq(variables['Build.SourceBranch'], 'refs/heads/main')`).                                                                                                     |
-| `CheckoutAlias`             | string | No       | `AzDOPipelineTemplates` | Repository checkout alias for the template repository (internal use, leave default).                                                                                                                                         |
+| `DependsOn`                 | object | No       | `[]`                    | List of job names this deployment depends on (e.g., `['TerraformBuild_TerraformArtifact']`).                                                                                                                                    |
+| `Condition`                 | string | No       | `succeeded()`           | Condition expression controlling whether this job runs (e.g., `eq(variables['Build.SourceBranch'], 'refs/heads/main')`).                                                                                                        |
+| `CheckoutAlias`             | string | No       | `AzDOPipelineTemplates` | Repository checkout alias for the template repository (internal use, leave default).                                                                                                                                            |
 
 ### TerraformDeploymentConfig Parameters
 
-See [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md) for
+See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md) for
 detailed configuration structure.
 
 **Essential fields:**
@@ -312,38 +312,3 @@ The exported variables will be available as pipeline variables in the format: `$
         - load_balancer_ip
         - database_endpoint
 ```
-
-## Common Issues
-
-### "Backend initialization failed"
-
-This typically indicates issues with backend configuration or Azure credentials:
-
-- Verify `BackendConfig` keys and values are correct
-- Ensure the Azure service connection has permissions to the storage account
-- Check that the storage account and container exist in Azure
-- Verify the storage account is accessible from the build agent network
-
-### "Terraform outputs not exported"
-
-If outputs aren't available in downstream jobs:
-
-- Ensure `OutputVariables` lists only outputs defined in your Terraform configuration
-- Verify the apply job actually ran successfully (check logs)
-- Check the output variable names match exactly (case-sensitive)
-
-### "State lock timeout"
-
-This usually means another deployment is running concurrently:
-
-- Avoid running multiple deployments to the same environment simultaneously
-- Check Azure DevOps for concurrent pipeline runs targeting the same state file
-- Review state file locks in the backend storage account
-
-## Related Templates
-
-- [**terraform_build_job.md**](terraform_build_job.md) — Build and validate Terraform files before deployment
-- [**terraform_gated_deployment_job.md**](terraform_gated_deployment_job.md) — Orchestrate Plan→Verify→Apply workflow with manual gates
-- [**manual_verification_job.md**](manual_verification_job.md) — Manual approval gate for deployments
-- [**Terraform Pipeline**](../pipelines/terraform_pipeline.md) — Complete end-to-end infrastructure deployment pipeline
-

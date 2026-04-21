@@ -233,10 +233,3 @@ stages:
           TerraformDeployMode: Apply
           # ... configuration ...
 ```
-
-## Related Templates
-
-- [**terraform_deploy_job.md**](terraform_deploy_job.md) — Infrastructure deployment job
-- [**terraform_gated_deployment_job.md**](terraform_gated_deployment_job.md) — Uses this job for conditional approval gates
-- [**Terraform Pipeline**](../pipelines/terraform_pipeline.md) — Complete infrastructure deployment with approval gates
-

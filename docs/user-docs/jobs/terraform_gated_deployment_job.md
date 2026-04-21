@@ -59,14 +59,10 @@ Preview infrastructure changes without applying:
       AzureServiceConnection: 'Pipeline-dev'
       RunMode: PlanOnly
       BackendConfig:
-        - Key: resource_group_name
-          Value: 'my-rg'
-        - Key: storage_account_name
-          Value: 'mytfsa'
-        - Key: container_name
-          Value: 'tfstate'
-        - Key: key
-          Value: 'dev.terraform.tfstate'
+        resource_group_name: 'my-rg'
+        storage_account_name: 'mytfsa'
+        container_name: 'tfstate'
+        key: 'dev.terraform.tfstate'
       VariableFiles:
         - 'config/dev.tfvars'
 ```
@@ -118,15 +114,15 @@ Deploy without planning (for environments already planned):
 
 ### Core Parameters
 
-| Parameter Name              | Type   | Required | Default                 | Description                                                                                                                                                                                                              |
-|-----------------------------|--------|----------|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `EnvironmentName`           | string | **Yes**  | —                       | User-friendly environment name (e.g., 'dev', 'staging', 'production'). Used for identification.                                                                                                                          |
+| Parameter Name              | Type   | Required | Default                 | Description                                                                                                                                                                                                                 |
+|-----------------------------|--------|----------|-------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `EnvironmentName`           | string | **Yes**  | —                       | User-friendly environment name (e.g., 'dev', 'staging', 'production'). Used for identification.                                                                                                                             |
 | `TerraformDeploymentConfig` | object | **Yes**  | —                       | Complex configuration object controlling deployment behavior, backend, variables, and verification. See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md). |
-| `TerraformArtifactName`     | string | No       | `'TerraformArtifact'`   | Name of the artifact published by the build job. Must match the artifact name from `terraform_build` job.                                                                                                                |
-| `TerraformVersion`          | string | No       | `'1.14.0'`              | Version of Terraform CLI to install and use on deployment agents.                                                                                                                                                        |
-| `DependsOn`                 | object | No       | `[]`                    | List of job names this orchestration depends on (e.g., `['TerraformBuild_TerraformArtifact']`).                                                                                                                          |
-| `Condition`                 | string | No       | `succeeded()`           | Condition expression controlling whether this orchestration runs.                                                                                                                                                        |
-| `CheckoutAlias`             | string | No       | `AzDOPipelineTemplates` | Repository checkout alias for template repository (internal use, leave default).                                                                                                                                         |
+| `TerraformArtifactName`     | string | No       | `'TerraformArtifact'`   | Name of the artifact published by the build job. Must match the artifact name from `terraform_build` job.                                                                                                                   |
+| `TerraformVersion`          | string | No       | `'1.14.0'`              | Version of Terraform CLI to install and use on deployment agents.                                                                                                                                                           |
+| `DependsOn`                 | object | No       | `[]`                    | List of job names this orchestration depends on (e.g., `['TerraformBuild_TerraformArtifact']`).                                                                                                                             |
+| `Condition`                 | string | No       | `succeeded()`           | Condition expression controlling whether this orchestration runs.                                                                                                                                                           |
+| `CheckoutAlias`             | string | No       | `AzDOPipelineTemplates` | Repository checkout alias for template repository (internal use, leave default).                                                                                                                                            |
 
 ### TerraformDeploymentConfig Parameters
 
@@ -186,7 +182,7 @@ stages:
             VariableFiles:
               - 'config/dev.tfvars'
 
-   - stage: DeployProd
+  - stage: DeployProd
     dependsOn: DeployDev
     jobs:
       - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
@@ -318,43 +314,3 @@ stages:
             VerificationMode: VerifyOnDestroy
             # ... backend and variables config ...
 ```
-
-## Common Issues
-
-### Verification Gate Not Appearing
-
-If the manual verification gate doesn't appear when expected:
-
-- Check that `RunMode` is set to `PlanVerifyApply`
-- Verify `VerificationMode` is set to `VerifyOnDestroy` or `VerifyOnAny`
-- Plan output may show no detectible changes (check terraform plan logs)
-- Environment approvers may be configured incorrectly
-
-### Apply Job Not Running
-
-If the apply job doesn't execute after verification:
-
-- Check the verification gate was actually approved (not just timed out)
-- Verify job dependencies are correctly set up in the generated jobs
-- Review Azure DevOps job logs for condition evaluation failures
-- Check that `RunMode` includes apply (`PlanVerifyApply` or `ApplyOnly`)
-
-### State Conflicts
-
-If you see state lock timeouts between Plan and Apply:
-
-- Ensure sufficient time between Plan and Apply phases
-- Avoid running multiple pipelines to the same environment concurrently
-- Check backend configuration for correctness
-
-## Related Templates
-
-- [**terraform_build_job.md**](terraform_build_job.md) — Build and validate Terraform before deployment
-- [**terraform_deploy_job.md**](terraform_deploy_job.md) — Single-phase plan or apply job (lower-level component)
-- [**manual_verification_job.md**](manual_verification_job.md) — Manual verification gate (used internally)
-- [**Terraform Pipeline**](../pipelines/terraform_pipeline.md) — Complete end-to-end infrastructure deployment pipeline
-
-## Related Documentation
-
-- [**TerraformDeploymentConfig Documentation**](../../definition_docs/terraform_pipeline/terraform_deployment_config.md) — Complete configuration object reference
-
