@@ -23,7 +23,7 @@ Once referenced, you will be able to make use of any templates in this repositor
 - Set-Menu: These are pipeline templates that can be used out of the box; these are intended to cover the majority of use cases
 - Salad bar: These are all the templates involved that make up the pipeline templates; these are intended for those with special use cases and require a custom pipeline using standard templates
 
-For the former, there is extensive documentation with examples, see [user docs](docs/user-docs/README.md). For the latter, the templates themselves are self-documenting, see the directories: [tasks](tasks), [jobs](jobs), [stages](stages), [scripts](scripts).
+For both, there is extensive documentation with examples, see [user docs](docs/user-docs/README.md). All yaml templates themselves are self-documenting, see the directories: [tasks](tasks), [jobs](jobs), [stages](stages), [pipelines](pipelines).
 
 ## Contributing to the templates
 
