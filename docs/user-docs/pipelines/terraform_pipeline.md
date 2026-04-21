@@ -76,20 +76,21 @@ extends:
 The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains a list of environment configurations. Each environment configuration has the following structure:
 
 **For complete configuration documentation, see:**
-- [EnvironmentConfig Documentation](../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
+
+- [EnvironmentConfig Documentation](../definition_docs/terraform_pipeline/environment_config.md) - Complete environment   configuration structure
 - [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md) - Infrastructure-specific configuration details
 - [AdditionalFilesToPackage Documentation](../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
 
 **Quick reference of required fields:**
 
-| Field Path                                  | Type        | Description                                                                               |
-|---------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
-| Name                                        | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
-| Stage.DependsOn                             | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
-| Stage.Condition                             | string      | Stage execution condition (e.g., 'succeeded()')                                           |
-| TerraformDeploymentConfig.AzDOEnvironmentName    | string      | AzDO Environment name to associate the deployment jobs to                                 |
-| TerraformDeploymentConfig.RunMode                | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
-| TerraformDeploymentConfig.VerificationMode       | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
+| Field Path                                    | Type        | Description                                                                               |
+|-----------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
+| Name                                          | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
+| Stage.DependsOn                               | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
+| Stage.Condition                               | string      | Stage execution condition (e.g., 'succeeded()')                                           |
+| TerraformDeploymentConfig.AzDOEnvironmentName | string      | AzDO Environment name to associate the deployment jobs to                                 |
+| TerraformDeploymentConfig.RunMode             | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
+| TerraformDeploymentConfig.VerificationMode    | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
 See the [developer documentation](../definition_docs/terraform_pipeline/environment_config.md) for optional parameters and advanced configuration.
 
@@ -198,6 +199,7 @@ extends:
 ```
 
 This will:
+
 1. Copy all `.tfvars` files from `config/shared/` into the artifact at `shared-config/`
 2. Copy all PowerShell scripts from `scripts/` into the artifact at `scripts/`
 3. Make these files available alongside the terraform files during deployment
@@ -237,6 +239,7 @@ extends:
 **Issue**: Manual verification gate doesn't appear even when changes are detected.
 
 **Check**:
+
 - Verify `RunMode` is set to `PlanVerifyApply` (not `PlanOnly` or `ApplyOnly`)
 - Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
 - Check the plan output to ensure changes were actually detected
@@ -246,12 +249,25 @@ extends:
 **Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job. Also, they are only exported when `RunMode` includes an apply operation (not `PlanOnly`).
 
 **Solution**: To use Terraform output variables in subsequent stages or jobs:
+
 1. Ensure the variables are listed in the `OutputVariables` property of your `TerraformDeploymentConfig`
 2. Reference them using the correct dependency syntax for multi-stage pipelines:
 
+   ```yaml
    stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
    ```
    where `{EnvironmentName}` is replaced with your environment name and `{variableName}` is the output variable name
+
 ### Incorrect Terraform version being used
 
 **Solution**: Explicitly set the `TerraformVersion` parameter. The default is `'1.14.0'`. Remember that only semantic versions (e.g., `'1.14.0'`, `'1.6.5'`) or the keyword `'latest'` are accepted — wildcards like `'1.14.x'` will be rejected with a validation error.
+
+## Job Templates
+
+The Terraform Pipeline is constructed from the following reusable job templates, which are also available for direct consumption to build custom pipelines:
+
+- **[Terraform Build Job](../jobs/terraform_build_job.md)** – Builds and validates Terraform files before deployment
+- **[Terraform Gated Deployment Job](../jobs/terraform_gated_deployment_job.md)** – Orchestrates deployments with optional plan verification and approval gates
+- **[Terraform Deploy Job](../jobs/terraform_deploy_job.md)** – Single-phase infrastructure deployment (Plan or Apply)
+- **[Manual Verification Job](../jobs/manual_verification_job.md)** – Manual approval gate for deployment verification
+

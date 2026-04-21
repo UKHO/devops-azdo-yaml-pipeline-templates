@@ -1,18 +1,26 @@
 # Terraform Pipeline Manual Verification
 
-This template allows a pipeline to deploy resources via Terraform with an optional manual verification step, aka gate, for any resources planned to be changed. This functionality is controlled by two parameters: a `RunMode` parameter, and a `VerificationMode` parameter. The `RunMode` parameter has three settings:
+This template allows a pipeline to deploy resources via Terraform with an optional manual verification step, aka gate,
+for any resources planned to be changed. This functionality is controlled by two parameters: a `RunMode` parameter, and
+a `VerificationMode` parameter. The `RunMode` parameter has three settings:
 
 - `PlanOnly`: Runs only the Terraform `plan` and does not trigger the gate or the `apply` stage
-- `PlanVerifyApply`: Runs the Terraform `plan`, applies verification logic based on `VerificationMode`, and then runs `apply`
+- `PlanVerifyApply`: Runs the Terraform `plan`, applies verification logic based on `VerificationMode`, and then runs
+  `apply`
 - `ApplyOnly`: Skips the plan step and applies the configuration directly
 
-When `RunMode` is `PlanOnly`, the pipeline terminates after the plan step. When `RunMode` is `ApplyOnly`, the configuration is applied directly without any verification. When `RunMode` is `PlanVerifyApply`, the `VerificationMode` parameter determines how the gate behaves and has three settings:
+When `RunMode` is `PlanOnly`, the pipeline terminates after the plan step. When `RunMode` is `ApplyOnly`, the
+configuration is applied directly without any verification. When `RunMode` is `PlanVerifyApply`, the `VerificationMode`
+parameter determines how the gate behaves and has three settings:
 
 - `VerifyDisabled`: Do not trigger the gate at all; apply changes automatically
 - `VerifyOnDestroy`: Trigger the gate only if the changes are destructive
 - `VerifyOnAny`: Trigger the gate for adds, changes, and deletions
 
-If the Terraform `plan` indicates that any resources will be changed (in `PlanVerifyApply` mode), then `VerificationMode` will be checked and the appropriate verification taken; if no resources will be changed then the `apply` will not be called. If the gate is triggered, then authorised users will need to approve in Azure DevOps in order to move on to the `apply` step. The gate will fail the pipeline if either rejected or times out.
+If the Terraform `plan` indicates that any resources will be changed (in `PlanVerifyApply` mode), then
+`VerificationMode` will be checked and the appropriate verification taken; if no resources will be changed then the
+`apply` will not be called. If the gate is triggered, then authorised users will need to approve in Azure DevOps in
+order to move on to the `apply` step. The gate will fail the pipeline if either rejected or times out.
 
 The template is broken into three jobs:
 
@@ -60,7 +68,8 @@ flowchart TD
 
 ### PlanVerifyApply Flow
 
-When `RunMode` is set to `PlanVerifyApply`, the pipeline runs the plan job, detects changes, applies verification logic based on `VerificationMode`, and then runs the apply job:
+When `RunMode` is set to `PlanVerifyApply`, the pipeline runs the plan job, detects changes, applies verification logic
+based on `VerificationMode`, and then runs the apply job:
 
 ```mermaid
 ---

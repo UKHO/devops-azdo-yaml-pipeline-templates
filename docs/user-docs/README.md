@@ -6,7 +6,14 @@ This directory contains comprehensive documentation for Azure DevOps YAML pipeli
 
 Complete end-to-end pipeline templates for specific use cases.
 
-- **[Terraform Pipeline](./terraform_pipeline.md)** – Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files
+- **[Terraform Pipeline](./pipelines/terraform_pipeline.md)** – Complete infrastructure deployment pipeline using
+  Terraform for building, validating, and packaging infrastructure-as-code files
+
+### Related Pipeline Documentation
+
+- [Terraform Pipeline - Manual Verification](./pipelines/terraform_pipeline_manual_verification.md)
+- [Terraform Pipeline - Parameters in Detail](./pipelines/terraform_pipeline_parameters_in_detail.md)
+- [Terraform Pipeline - Additional Files to Package](./pipelines/terraform_pipeline_additional_files_to_package.md)
 
 ## Getting Help
 
@@ -17,7 +24,7 @@ Complete end-to-end pipeline templates for specific use cases.
 
 ## Template Self-Documentation
 
-Tasks, jobs, and stages templates in this repository are self-documenting through:
+All templates in this repository are self-documenting through:
 
 - Descriptive names and `displayName` properties
 - Comprehensive parameter metadata (types, defaults, descriptions)

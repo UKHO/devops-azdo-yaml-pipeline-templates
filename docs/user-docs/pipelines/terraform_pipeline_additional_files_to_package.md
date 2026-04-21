@@ -2,7 +2,8 @@
 
 This document provides comprehensive guidance on using the `AdditionalFilesToPackage` parameter in the Terraform Pipeline template.
 
-**Quick Start:** See [terraform_pipeline_parameters_in_detail.md](./terraform_pipeline_parameters_in_detail.md#additionalfilestopackage) for the quick reference and basic examples.
+**Quick Start:**
+See [terraform_pipeline_parameters_in_detail.md](./terraform_pipeline_parameters_in_detail.md#additionalfilestopackage) for the quick reference and basic examples.
 
 ---
 
@@ -86,6 +87,7 @@ AdditionalFilesToPackage:
 **Purpose:** Enables multiple environments to reference shared variables during deployment.
 
 **Usage in Terraform:**
+
 ```hcl
 terraform {
   required_version = ">= 1.0"
@@ -113,6 +115,7 @@ AdditionalFilesToPackage:
 **Purpose:** Includes local terraform modules alongside main configuration.
 
 **Usage in Terraform:**
+
 ```hcl
 module "networking" {
   source = "./modules/networking"
@@ -140,6 +143,7 @@ AdditionalFilesToPackage:
 **Purpose:** Include PowerShell or other scripts needed during deployment.
 
 **Usage in TerraformBuildInjectionSteps:**
+
 ```yaml
 TerraformBuildInjectionSteps:
   - task: PowerShell@2
@@ -163,6 +167,7 @@ AdditionalFilesToPackage:
 **Purpose:** Organize multiple configuration sources while preserving directory structure in the artifact.
 
 **Directory structure:**
+
 ```
 config/
 ├── shared/
@@ -186,6 +191,7 @@ If files aren't being copied as expected, follow these debugging steps:
 Patterns are relative to `SourceDirectory`, not the repository root.
 
 **Example issue:**
+
 ```yaml
 # WRONG: FilesPattern: '*.tfvars' with files in subdirectories
 AdditionalFilesToPackage:
@@ -197,6 +203,7 @@ AdditionalFilesToPackage:
 The pattern `*.tfvars` only matches `.tfvars` files in the root of `SourceDirectory`, not subdirectories like `config/dev/app.tfvars`.
 
 **Solution:**
+
 ```yaml
 # CORRECT: Use ** for recursive matching
 AdditionalFilesToPackage:
@@ -210,11 +217,13 @@ AdditionalFilesToPackage:
 If `SourceDirectory` doesn't exist, the copy operation succeeds silently with no files copied.
 
 **Debugging:**
+
 - Verify the path is relative to the repository root
 - Check that the directory actually exists in your repository
 - Use simpler patterns to isolate the issue
 
 **Example:**
+
 ```yaml
 # Verify this directory exists: {repo}/terraform/modules
 AdditionalFilesToPackage:
@@ -233,6 +242,7 @@ Pattern matching behaves differently on Windows vs. Linux/Mac runners.
 | Linux/Mac | Case-sensitive   | Only exact case matches (`*.tfvars` matches `file.tfvars` but not `file.TFVARS`) |
 
 **Debugging on Linux/Mac:**
+
 ```yaml
 # Might not work on Linux (case-sensitive):
 FilesPattern: '*.TFVARS'
@@ -246,6 +256,7 @@ FilesPattern: '*.tfvars'
 Break complex patterns into multiple `AdditionalFilesToPackage` items to isolate issues:
 
 **Complex pattern (hard to debug):**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config'
@@ -255,6 +266,7 @@ AdditionalFilesToPackage:
 ```
 
 **Simplified patterns (easier to debug):**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config'
@@ -270,6 +282,7 @@ AdditionalFilesToPackage:
 When multiple items target the same `TargetSubdirectoryName`, files with the same name may overwrite each other.
 
 **Example problem:**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config/shared'
@@ -285,6 +298,7 @@ If both `config/shared/` and `config/env/` contain a file named `common.tfvars`,
 **Solutions:**
 
 **Option 1: Use different target directories**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config/shared'
@@ -296,6 +310,7 @@ AdditionalFilesToPackage:
 ```
 
 **Option 2: Use a single item with merged patterns**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config'
@@ -322,6 +337,7 @@ Each `AdditionalFilesToPackage` item executes one copy operation during the buil
 ### Performance Analysis
 
 **Less efficient (multiple copy operations):**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config'
@@ -338,6 +354,7 @@ AdditionalFilesToPackage:
 This executes 3 separate copy operations (6 total per build, since files are copied twice).
 
 **More efficient (consolidated patterns):**
+
 ```yaml
 AdditionalFilesToPackage:
   - SourceDirectory: 'config'
@@ -360,6 +377,7 @@ This executes 1 copy operation (2 total per build).
 | Different pattern purposes | Consider separate items for clarity    |
 
 **Example - Good separation:**
+
 ```yaml
 AdditionalFilesToPackage:
   # Configuration files (separate purpose)
