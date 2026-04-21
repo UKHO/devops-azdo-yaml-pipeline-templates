@@ -12,13 +12,17 @@ pool:
 
 trigger: none
 
+variables:
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
+
 pr:
   - main
 
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: tests/pipelines/terraform_pipeline/linux_windows_test_terraform
+    RelativePathToTerraformFiles: $(terraform_path)
     TerraformVersion: latest
     # TerraformBuildInjectionSteps # do not need to test
     EnvironmentConfigs:
