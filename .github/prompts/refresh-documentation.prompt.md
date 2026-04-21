@@ -15,7 +15,7 @@ Use this mapping to find the documentation file for each pipeline:
 
 | Pipeline Template                       | Documentation File                          |
 |-----------------------------------------|---------------------------------------------|
-| `pipelines/infrastructure_pipeline.yml` | `docs/user-docs/infrastructure_pipeline.md` |
+| `pipelines/terraform_pipeline.yml`      | `docs/user-docs/pipelines/terraform_pipeline.md` |
 
 If a pipeline template has no matching documentation file, create one and add an entry to
 `docs/user-docs/README.md`.
@@ -33,7 +33,35 @@ For each pipeline and its documentation file:
 - **Downstream links** — If the pipeline consumes `EnvironmentConfigs` or other complex objects
   validated by a schema, verify that links to `docs/definition_docs/` are still valid.
 
-## 2. Schema Templates (`schemas/` → `docs/definition_docs/`)
+## 2. Job Templates (`jobs/` → `docs/user-docs/jobs/`)
+
+Use this mapping to find the documentation file for each job template:
+
+| Job Template                           | Documentation File                           |
+|----------------------------------------|----------------------------------------------|
+| `jobs/terraform_build.yml`             | `docs/user-docs/jobs/terraform_build_job.md` |
+| `jobs/terraform_deploy.yml`            | `docs/user-docs/jobs/terraform_deploy_job.md` |
+| `jobs/terraform_gated_deployment.yml`  | `docs/user-docs/jobs/terraform_gated_deployment_job.md` |
+| `jobs/manual_verification.yml`         | `docs/user-docs/jobs/manual_verification_job.md` |
+
+If a job template has no matching documentation file, create one and add an entry to
+`docs/user-docs/README.md` under the Job Templates section.
+
+For each job template and its documentation file:
+
+- **Parameters** — Read the `parameters:` block in the job template. For each parameter,
+  verify the documentation has an accurate entry in the parameter table (name, type, default,
+  description). Add any new parameters, remove any deleted parameters, and update any that were
+  renamed or had their type/default changed.
+- **Usage examples** — Verify the Basic Usage and Advanced Usage YAML examples are copy-paste
+  accurate with current parameter names and defaults. Fix any that are stale.
+- **Breaking changes** — If a parameter was removed, renamed, or had its type changed, add a
+  clear migration note explaining what changed and what consumers need to do.
+- **Downstream links** — If the job consumes complex objects validated by a schema (e.g., 
+  `DeploymentConfig`, `EnvironmentConfig`), verify that links to `docs/definition_docs/` are 
+  still valid.
+
+## 3. Schema Templates (`schemas/` → `docs/definition_docs/`)
 
 Use this mapping to find the documentation files for each schema:
 
@@ -68,7 +96,7 @@ For each schema and its definition docs:
 - **Removed or relaxed rules** — If a validation rule was removed or a field became optional,
   update the definition doc accordingly.
 
-## 3. Task and Utility Templates (`tasks/`, `utils/`)
+## 4. Task and Utility Templates (`tasks/`, `utils/`)
 
 These templates use in-file comment blocks as their sole documentation. For each file, verify
 the comment block matches the current `parameters:` and `steps:` implementation. This is covered
@@ -77,18 +105,19 @@ in detail by the `audit-task-documentation` prompt — only perform a light chec
 - Comment block exists with Purpose, Parameters, Example Usage, and Notes
 - Parameter names, types, defaults, and required/optional status match the code
 
-## 4. Cross-cutting checks
+## 5. Cross-cutting checks
 
 After updating individual documentation files:
 
-- **Link integrity** — Verify all relative links between `docs/user-docs/`,
-  `docs/definition_docs/`, and schema comment blocks are valid. Fix any broken links caused by
-  renames or moves.
-- **README index** — Verify `docs/user-docs/README.md` lists all pipeline templates and their
-  documentation files.
+- **Link integrity** — Verify all relative links between `docs/user-docs/`, `docs/user-docs/jobs/`,
+  `docs/user-docs/pipelines/`, `docs/definition_docs/`, and schema comment blocks are valid. Fix 
+  any broken links caused by renames or moves.
+- **README index** — Verify `docs/user-docs/README.md` lists all pipeline templates and job 
+  templates, with their corresponding documentation files under the appropriate sections.
 - **Cascade consistency** — If a schema change affects the shape of objects consumed by a
-  pipeline (e.g., `EnvironmentConfigs`, `InfrastructureConfig`), verify that both
-  `docs/definition_docs/` and `docs/user-docs/` reflect the same current structure.
+  pipeline or job (e.g., `DeploymentConfig`, `EnvironmentConfig`), verify that both
+  `docs/definition_docs/` and all relevant `docs/user-docs/` files reflect the same current 
+  structure.
 
 ## Output
 

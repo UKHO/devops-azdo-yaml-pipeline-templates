@@ -60,13 +60,13 @@ to reflect the changes. The comment block is the **sole documentation** for thes
 
 ### 2. Pipeline Templates (`pipelines/`)
 
-**Documentation location:** External markdown files in `docs/user-docs/`.
+**Documentation location:** External markdown files in `docs/user-docs/pipelines/`.
 
 Pipeline templates themselves should **NOT** have in-file comment blocks. They rely on
 self-documenting parameter names with `displayName` attributes. Comprehensive documentation lives
-in the `docs/user-docs/` directory.
+in the `docs/user-docs/pipelines/` directory.
 
-**What to update in `docs/user-docs/`:**
+**What to update in `docs/user-docs/pipelines/`:**
 
 - **Parameter documentation** — If pipeline parameters are added, removed, or changed, update the
   parameter tables and descriptions in the corresponding markdown file
@@ -77,21 +77,57 @@ in the `docs/user-docs/` directory.
 
 **Mapping:**
 
-| Pipeline Template                       | Documentation File                          |
-|-----------------------------------------|---------------------------------------------|
-| `pipelines/infrastructure_pipeline.yml` | `docs/user-docs/infrastructure_pipeline.md` |
+| Pipeline Template                  | Documentation File                                   |
+|-----------------------------------|------------------------------------------------------|
+| `pipelines/terraform_pipeline.yml` | `docs/user-docs/pipelines/terraform_pipeline.md`    |
 
 When a new pipeline template is added, create a corresponding documentation file in
-`docs/user-docs/` and add an entry to `docs/user-docs/README.md`.
+`docs/user-docs/pipelines/` and add an entry to `docs/user-docs/README.md`.
 
 **Trigger conditions:**
 
 - Parameter added, removed, renamed, or default changed
 - New stage or environment behaviour introduced
 - Pipeline structure changes (new stages, changed ordering, new dependencies)
-- Changes to how `EnvironmentConfigs` or other complex objects are consumed
+- Changes to how `DeploymentConfig` or other complex objects are consumed
 
-### 3. Schema Templates (`schemas/`)
+### 3. Job Templates (`jobs/`)
+
+**Documentation location:** External markdown files in `docs/user-docs/jobs/`.
+
+Job templates should **NOT** have comprehensive in-file comment blocks. They use self-documenting
+parameter names with `displayName` attributes. Comprehensive documentation lives in the
+`docs/user-docs/jobs/` directory and makes these templates part of the public API guarantee.
+
+**What to update in `docs/user-docs/jobs/`:**
+
+- **Parameter documentation** — If job parameters are added, removed, or changed, update the
+  parameter tables and descriptions in the corresponding markdown file
+- **Usage examples** — If parameter changes affect how consumers reference the job, update the
+  basic and advanced usage examples
+- **Breaking changes** — Document what changed, why, and how consumers should migrate
+- **New features** — Add sections describing new capabilities with examples
+
+**Mapping:**
+
+| Job Template                          | Documentation File                                       |
+|---------------------------------------|----------------------------------------------------------|
+| `jobs/terraform_build.yml`            | `docs/user-docs/jobs/terraform_build_job.md`            |
+| `jobs/terraform_deploy.yml`           | `docs/user-docs/jobs/terraform_deploy_job.md`           |
+| `jobs/terraform_gated_deployment.yml` | `docs/user-docs/jobs/terraform_gated_deployment_job.md` |
+| `jobs/manual_verification.yml`        | `docs/user-docs/jobs/manual_verification_job.md`        |
+
+When a new job template is added, create a corresponding documentation file in
+`docs/user-docs/jobs/` and add an entry to `docs/user-docs/README.md`.
+
+**Trigger conditions:**
+
+- Parameter added, removed, renamed, or default changed
+- New job workflow or output behaviour introduced
+- Changes to how complex objects are consumed
+- Changes that affect how the job integrates with pipelines or stages
+
+### 4. Schema Templates (`schemas/`)
 
 **Documentation location:** Both the in-file comment block **and** external markdown files in
 `docs/definition_docs/`.
@@ -144,10 +180,12 @@ Changes can cascade across documentation. Be aware of these relationships:
 | What Changed | Also Update |
 |---|---|
 | Task/util parameter | In-file comment block |
-| Pipeline parameter | `docs/user-docs/` markdown |
+| Pipeline parameter | `docs/user-docs/pipelines/` markdown |
+| Job parameter | `docs/user-docs/jobs/` markdown |
 | Schema validation rule | Schema comment block + `docs/definition_docs/` markdown |
-| Schema validation rule | `docs/user-docs/` markdown (if it affects pipeline usage) |
-| New pipeline template | `docs/user-docs/README.md` (add entry) |
+| Schema validation rule | `docs/user-docs/` markdown (if it affects pipeline or job usage) |
+| New pipeline template | `docs/user-docs/README.md` (add entry under Pipeline Templates) |
+| New job template | `docs/user-docs/README.md` (add entry under Job Templates) |
 | Breaking change (any) | `CHANGELOG.md` |
 
 ## CHANGELOG.md Updates
@@ -205,9 +243,10 @@ All YAML examples in markdown files should be:
 Before considering documentation complete:
 
 - [ ] In-file comment blocks in `tasks/` and `utils/` reflect current parameters and behaviour
-- [ ] External documentation in `docs/user-docs/` reflects current pipeline parameters and usage
+- [ ] External documentation in `docs/user-docs/pipelines/` reflects current pipeline parameters and usage
+- [ ] External documentation in `docs/user-docs/jobs/` reflects current job parameters and usage
 - [ ] Schema comment blocks and `docs/definition_docs/` reflect current validation rules
 - [ ] YAML examples in documentation are accurate and runnable
 - [ ] `CHANGELOG.md` is updated for significant changes
 - [ ] Links between documentation files are valid
-- [ ] `docs/user-docs/README.md` lists all pipeline templates
+- [ ] `docs/user-docs/README.md` lists all pipeline templates and job templates

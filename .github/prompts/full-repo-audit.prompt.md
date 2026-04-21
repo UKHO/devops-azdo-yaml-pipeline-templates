@@ -7,8 +7,10 @@ Perform a complete audit across the entire repository. Check every template agai
 documentation requirements, parameter best practices, and anti-pattern rules. Report all issues
 found.
 
-**Important:** Do NOT create or modify comment documentation blocks for templates in `/stages/`,
-`/jobs/`, or `/pipelines/` directories. These rely on external documentation only.
+**Important:** Do NOT create or modify comprehensive in-file comment documentation blocks for 
+templates in `/pipelines/`, `/jobs/`, and `/stages/` directories. These rely on external 
+documentation in `docs/` or are consumed via parent template parameter documentation. Schemas 
+have brief comment blocks only (3-4 lines linking to external docs).
 
 ## Audit scope
 
@@ -50,15 +52,31 @@ sole source of truth.
 
 #### External Documentation
 
-- Verify a corresponding markdown file exists in `docs/user-docs/`
-- Verify the pipeline is listed in `docs/user-docs/README.md`
+- Verify a corresponding markdown file exists in `docs/user-docs/pipelines/`
+- Verify the pipeline is listed in `docs/user-docs/README.md` under the Pipeline Templates section
 - Compare every parameter in the pipeline template against the documentation — flag any parameters
   that are missing, renamed, or have incorrect defaults in the docs
 - Verify YAML examples in the docs use current parameter names and defaults
 - Verify the pipeline file itself uses self-documenting parameters with `displayName` and appropriate
   types
 
-### 3. Schema Templates (`schemas/`)
+### 3. Job Templates (`jobs/`)
+
+For each `.yml` file in this directory, **do NOT add comment blocks**. External documentation is the
+sole source of truth for documented job templates.
+
+#### External Documentation
+
+- Verify a corresponding markdown file exists in `docs/user-docs/jobs/` for each documented job
+  template (not all jobs require external documentation if internal-only)
+- Verify documented jobs are listed in `docs/user-docs/README.md` under the Job Templates section
+- Compare every parameter in the job template against the documentation — flag any parameters
+  that are missing, renamed, or have incorrect defaults in the docs
+- Verify YAML examples in the docs use current parameter names and defaults
+- Verify the job file itself uses self-documenting parameters with `displayName` and appropriate
+  types
+
+### 4. Schema Templates (`schemas/`)
 
 For each `.yml` file in this directory:
 
@@ -82,16 +100,17 @@ For each `.yml` file in this directory:
   properties that are missing or incorrect in the docs
 - Verify accepted values (e.g., `VerificationMode` options) match between schema and docs
 
-### 4. Job and Stage Templates (`jobs/`, `stages/`)
+### 5. Stage Templates (`stages/`)
 
-For each `.yml` file in these directories:
+For each `.yml` file in this directory:
 
 - **Do NOT add comment documentation blocks.** These are orchestration templates that rely on
-  external documentation or are consumed via parameter documentation in parent templates.
+  external documentation in consuming pipelines or are consumed via parameter documentation in 
+  parent templates.
 - Verify parameters use self-documenting names with descriptive `displayName` attributes
 - Verify parameters have appropriate `type` and `default` values where applicable
 
-### 5. Anti-patterns (all templates)
+### 6. Anti-patterns (all templates)
 
 For every `.yml` template file in `tasks/`, `utils/`, `jobs/`, `stages/`, `pipelines/`:
 

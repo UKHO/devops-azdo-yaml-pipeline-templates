@@ -123,7 +123,7 @@ Add the new definition doc to the mapping tables in:
 
 - `.github/instructions/update-documentation.instructions.md` (Schema Template → Definition
   Docs table)
-- `.github/prompts/refresh-documentation.prompt.md` (Section 2 mapping table)
+- `.github/prompts/refresh-documentation.prompt.md` (Section 3 mapping table)
 
 ## Deriving properties from schema validation rules
 

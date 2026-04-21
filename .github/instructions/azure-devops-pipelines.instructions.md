@@ -64,14 +64,25 @@ steps:
 - ✅ When three or more examples, label each additional with a `# Description` comment
 - ✅ Notes section with a `See:` link to Microsoft docs when available
 
-### Pipelines, Jobs, and Stages (`pipelines/`, `jobs/`, `stages/`) - External Documentation
+### Pipelines and Jobs (`pipelines/`, `jobs/`) - External Documentation
 
 These templates should **NOT** have comprehensive in-file documentation blocks:
 
 - ✅ Use self-documenting parameter names
 - ✅ Use `displayName` attribute on all parameters
 - ✅ Keep template files clean and implementation-focused
-- ✅ Document comprehensively in `docs/` directory (e.g., `docs/user-docs/infrastructure_pipeline.md`)
+- ✅ Document comprehensively in `docs/` directory:
+  - Pipelines in `docs/user-docs/pipelines/` (e.g., `docs/user-docs/pipelines/terraform_pipeline.md`)
+  - Jobs in `docs/user-docs/jobs/` (e.g., `docs/user-docs/jobs/terraform_build_job.md`)
+
+### Stages (`stages/`) - External Documentation or Parameter Pass-Through
+
+Stage templates rely on external documentation in consuming pipelines or are consumed via parameter
+documentation in parent templates:
+
+- ✅ Use self-documenting parameter names
+- ✅ Use `displayName` attribute on all parameters
+- ✅ May have minimal inline comments for complex orchestration logic
 
 ### Schemas (`schemas/`) - Brief Comments Only
 
