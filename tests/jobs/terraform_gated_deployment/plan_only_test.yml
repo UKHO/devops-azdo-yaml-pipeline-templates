@@ -14,6 +14,8 @@ trigger: none
 variables:
   - name: artifact_name
     value: terraform_build
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
 
 pr:
   - main
@@ -21,7 +23,7 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/jobs/terraform_gated_deployment/basic_terraform
+      RelativePathToTerraformFiles: $(terraform_path)
       ArtifactName: ${{ variables.artifact_name }}
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
