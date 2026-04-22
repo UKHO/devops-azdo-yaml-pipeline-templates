@@ -3,7 +3,7 @@ data "azuredevops_project" "this" {
 }
 
 data "azuredevops_serviceendpoint_github" "this" {
-  project_id            = data.azuredevops_project.this.project_id
+  project_id            = data.azuredevops_project.this.id
   service_endpoint_name = var.github_serviceconnection_name
 }
 
@@ -28,7 +28,7 @@ data "azuredevops_variable_group" "this" {
 }
 
 resource "azuredevops_build_definition" "pipeline_template_tests" {
-  project_id = data.azuredevops_project.this.project_id
+  project_id = data.azuredevops_project.this.id
   path       = "\\devops-azdo-yaml-pipeline-templates\\${local.pipelineTemplateTestsAzDoFolderName}"
   for_each   = local.pipelineTemplateTestsToDeploy
 
