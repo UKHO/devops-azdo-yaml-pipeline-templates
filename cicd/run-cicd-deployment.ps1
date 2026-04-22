@@ -29,9 +29,28 @@
 #>
 
 param(
-[string]$TenantId = "",
-[string]$ResourceGroupName = "",
-[string]$SubscriptionId = "",
+[Parameter(Mandatory = $true)]
+[ValidateScript({
+    if ([guid]::TryParse($_, [ref][guid]::Empty)) {
+        return $true
+    }
+    throw "TenantId must be a valid GUID"
+})]
+[string]$TenantId,
+
+[Parameter(Mandatory = $true)]
+[ValidateNotNullOrEmpty()]
+[string]$ResourceGroupName,
+
+[Parameter(Mandatory = $true)]
+[ValidateScript({
+    if ([guid]::TryParse($_, [ref][guid]::Empty)) {
+        return $true
+    }
+    throw "SubscriptionId must be a valid GUID"
+})]
+[string]$SubscriptionId,
+
 [switch]$SkipValidation,
 [switch]$SkipPlan
 )
