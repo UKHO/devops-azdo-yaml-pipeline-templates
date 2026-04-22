@@ -1,0 +1,46 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+variables:
+  - name: artifact_name
+    value: terraform_build_with_injection
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: $(terraform_path)
+      ArtifactName: ${{ variables.artifact_name }}
+      TerraformBuildInjectionSteps:
+        - task: PowerShell@2
+          displayName: 'Inject: Setup Environment'
+          inputs:
+            targetType: 'inline'
+            script: |
+              Write-Host "Setting up build environment..."
+              Set-Item -Path Env:BUILD_INJECTED -Value "true"
+        - script: echo "Pre-build validation step"
+          displayName: 'Inject: Pre-build validation'
+
+  - job: ValidateResults
+    dependsOn:
+      - TerraformBuild_${{ variables.artifact_name }}
+    steps:
+      - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
+        parameters:
+          ArtifactName: ${{ variables.artifact_name }}
+
