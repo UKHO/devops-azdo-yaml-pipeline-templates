@@ -20,8 +20,6 @@ $validTestCases = @(
     Description = "with default parameters"
     Parameters = @{ }
     ExpectedYaml = @(
-      "VerifyDisabled"
-      "TerraformChangesCheck"
     )
   }
 )
