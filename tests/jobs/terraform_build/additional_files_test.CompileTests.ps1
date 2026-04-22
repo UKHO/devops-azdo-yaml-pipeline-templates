@@ -1,7 +1,8 @@
 # ============================================================================
-# TEST: Example Echo Task Template
+# TEST: Terraform Build with Additional Files to Package
 # ============================================================================
-# This test demonstrates how to write tests using the simple PowerShell framework.
+# This test verifies that the terraform_build job can package additional
+# files beyond the terraform files themselves.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -16,12 +17,12 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 
 # Valid test cases with different parameter combinations
 $validTestCases = @(
-  @{
-    Description = "with default parameters"
-    Parameters = @{ }
-    ExpectedYaml = @(
-    )
-  }
+    @{
+        Description = "with default parameters"
+        Parameters = @{ }
+        ExpectedYaml = @(
+        )
+    }
 )
 
 # Invalid test cases
@@ -33,6 +34,7 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/jobs/manual_verification/reject_test.yml" `
+  -YamlPath "tests/jobs/terraform_build/additional_files_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
+
