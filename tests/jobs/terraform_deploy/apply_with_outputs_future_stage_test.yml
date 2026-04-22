@@ -56,8 +56,8 @@ stages:
       - RunTemplate
     condition: succeeded('RunTemplate')
     variables:
-      RandomNumber: $[stageDependencies.RunTemplate.TerraformDeployApply_TerraformArtifact.outputs['TerraformExportOutputsVariables.random_number']]
-      RandomString: $[stageDependencies.RunTemplate.TerraformDeployApply_TerraformArtifact.outputs['TerraformExportOutputsVariables.random_string']]
+      RandomNumber: $[stageDependencies.RunTemplate.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_number']]
+      RandomString: $[stageDependencies.RunTemplate.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_string']]
     jobs:
       - job: ValidateOutputVariables
         displayName: 'Validate Output Variables'
