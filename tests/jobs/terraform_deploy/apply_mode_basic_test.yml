@@ -12,8 +12,6 @@ pool:
 trigger: none
 
 variables:
-  - name: artifact_name
-    value: terraform_build
   - name: terraform_path
     value: tests/shared_resources/basic_terraform
 
@@ -24,14 +22,11 @@ jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
       RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: ${{ variables.artifact_name }}
 
   - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
     parameters:
       TerraformDeployMode: Apply
-      DependsOn: TerraformBuild_${{ variables.artifact_name }}
-      Condition: succeeded('TerraformBuild_${{ variables.artifact_name }}')
-      TerraformArtifactName: ${{ variables.artifact_name }}
+      DependsOn: TerraformBuild_TerraformArtifact
       EnvironmentName: Discovery
       TerraformDeploymentConfig:
         AzureServiceConnection: DevOps Chapter Dev
@@ -44,9 +39,3 @@ jobs:
         RunMode: 'ApplyOnly'
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
-        EnvironmentVariableMappings:
-          TF_VAR_MinRandom: 1000
-          TF_VAR_MaxRandom: 100000
-        VariableFiles:
-          - config/common.tfvars
-
