@@ -1,8 +1,8 @@
 # AdditionalFilesToPackage – Detailed Guide
 
-This document provides comprehensive guidance on using the `AdditionalFilesToPackage` parameter in the Infrastructure Pipeline template.
+This document provides comprehensive guidance on using the `AdditionalFilesToPackage` parameter in the Terraform Pipeline template.
 
-**Quick Start:** See [infrastructure_pipeline_parameters_in_detail.md](./infrastructure_pipeline_parameters_in_detail.md#additionalfilestopackage) for the quick reference and basic examples.
+**Quick Start:** See [terraform_pipeline_parameters_in_detail.md](./terraform_pipeline_parameters_in_detail.md#additionalfilestopackage) for the quick reference and basic examples.
 
 ---
 
@@ -384,7 +384,7 @@ AdditionalFilesToPackage:
 
 ## See Also
 
-- [Infrastructure Pipeline Parameters in Detail](./infrastructure_pipeline_parameters_in_detail.md) - Quick reference and other parameters
-- [AdditionalFilesToPackage Definition](../definition_docs/infrastructure_pipeline/additional_files_to_package.md) - Object structure and properties
+- [Terraform Pipeline Parameters in Detail](./terraform_pipeline_parameters_in_detail.md) - Quick reference and other parameters
+- [AdditionalFilesToPackage Definition](../definition_docs/terraform_pipeline/additional_files_to_package.md) - Object structure and properties
 - [Copy Files Task Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/copy-files-v2?view=azure-devops) - Microsoft Azure DevOps documentation
 

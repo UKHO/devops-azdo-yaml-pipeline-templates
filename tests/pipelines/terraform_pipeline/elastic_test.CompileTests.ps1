@@ -30,6 +30,6 @@ $invalidTestCases = @()
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/pipelines/infrastructure_pipeline/elastic_test.yml" `
+  -YamlPath "tests/pipelines/terraform_pipeline/elastic_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

@@ -68,5 +68,5 @@ AdditionalFilesToPackage:
 
 ## See Also
 
-- [Infrastructure Pipeline Documentation](../../user-docs/infrastructure_pipeline.md) – User documentation with usage patterns and examples
-- [Infrastructure Pipeline Parameters in Detail](../../user-docs/infrastructure_pipeline_parameters_in_detail.md) – Parameter reference including AdditionalFilesToPackage usage and troubleshooting
+- [Terraform Pipeline Documentation](../../user-docs/terraform_pipeline.md) – User documentation with usage patterns and examples
+- [Terraform Pipeline Parameters in Detail](../../user-docs/terraform_pipeline_parameters_in_detail.md) – Parameter reference including AdditionalFilesToPackage usage and troubleshooting
