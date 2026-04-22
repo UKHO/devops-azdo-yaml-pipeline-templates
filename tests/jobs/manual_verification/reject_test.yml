@@ -21,12 +21,13 @@ jobs:
       TimeoutInMinutes: 1
       OnTimeoutBehaviour: reject
       Instructions: 'Please verify the deployment was successful. Check application health and running services.'
+      ContinueOnError: true
 
   # Demonstrates handling of rejection from the verification job
   - job: HandleRejection
     displayName: 'Handle Rejection (if occurred)'
     dependsOn: ManualVerification_Reject
-    condition: always()
+    condition: failed()
     steps:
       - script: echo Manual verification was rejected or timed out - taking corrective action
         displayName: 'Log rejection handling'
