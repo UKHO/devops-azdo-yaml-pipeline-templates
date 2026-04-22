@@ -73,8 +73,6 @@ stages:
                 exit 1
               }
               
-              Write-Host ${{ variables['System.CollectionUri'] }}
-              
               Write-Host "##[section]All output variables are populated successfully"
             displayName: 'Check Output Variables Are Not Empty'
   
