@@ -54,8 +54,8 @@ jobs:
     dependsOn: TerraformDeployApply_TerraformArtifact
     condition: succeeded('TerraformDeployApply_TerraformArtifact')
     variables:
-      RandomNumber: $[stageDependencies.TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_number]
-      RandomString: $[stageDependencies.TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_string]
+      RandomNumber: $[dependencies.TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_number]
+      RandomString: $[dependencies.TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.random_string]
     steps:
       - pwsh: |
           Write-Host "Validating output variables..."
