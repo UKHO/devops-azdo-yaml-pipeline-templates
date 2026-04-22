@@ -12,10 +12,10 @@
     5. Applies the Terraform changes
 
 .PARAMETER TenantId
-    The Azure tenant ID to authenticate against. Default is the UKHO tenant.
+    The Azure tenant ID to authenticate against.
 
 .PARAMETER SkipValidation
-    If specified, skips the terraform validate and tflint steps.
+    If specified, skips the terraform validate step.
 
 .PARAMETER SkipPlan
     If specified, skips the terraform plan step and goes directly to apply (requires existing tfplan file).
