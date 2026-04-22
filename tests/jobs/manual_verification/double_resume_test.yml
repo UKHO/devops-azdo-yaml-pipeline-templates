@@ -27,3 +27,4 @@ jobs:
       TimeoutInMinutes: 1
       OnTimeoutBehaviour: resume
       JobName: ManualVerification_2
+      DependsOn: ManualVerification_1
