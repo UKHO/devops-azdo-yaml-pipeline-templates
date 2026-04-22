@@ -32,11 +32,4 @@ jobs:
       TerraformDeploymentConfig:
         AzureServiceConnection: DevOps Chapter Dev
         AzDOEnvironmentName: Discovery
-        BackendConfig:
-          resource_group_name: $(TFStateResourceGroupName)
-          storage_account_name: $(TFStateStorageAccountName)
-          container_name: tfstate-devops-azdo-yaml-pipeline-templates
-          key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'ApplyOnly'
-        JobsVariableMappings:
-          - group: DevOpsChapterAzureSubscription
