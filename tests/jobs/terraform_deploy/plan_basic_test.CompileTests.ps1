@@ -33,7 +33,7 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/jobs/terraform_deploy/plan_mode_basic_test.yml" `
+  -YamlPath "tests/jobs/terraform_deploy/plan_basic_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
 
