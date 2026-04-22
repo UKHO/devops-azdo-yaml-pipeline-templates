@@ -29,7 +29,7 @@ data "azuredevops_variable_group" "this" {
 
 resource "azuredevops_build_definition" "pipeline_template_tests" {
   project_id = data.azuredevops_project.this.id
-  path       = "\\devops-azdo-yaml-pipeline-templates\\${local.pipelineTemplateTestsAzDoFolderName}"
+  path       = "\\${local.repository_name}\\${local.pipelineTemplateTestsAzDoFolderName}"
   for_each   = local.pipelineTemplateTestsToDeploy
 
   name = each.value.azdo_name
