@@ -27,6 +27,7 @@ jobs:
     parameters:
       TerraformDeployMode: Plan
       DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
       EnvironmentName: Discovery
       TerraformDeploymentConfig:
         AzureServiceConnection: DevOps Chapter Dev
