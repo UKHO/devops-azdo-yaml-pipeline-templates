@@ -65,14 +65,3 @@ variable "azdo_environment_name" {
     error_message = "Environment name must be 1-128 characters and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
   }
 }
-
-variable "devops_chapter_azure_subscription_id" {
-  type        = string
-  description = "GUID of the Azure subscription for the DevOps chapter"
-  validation {
-    condition = (
-      can(regex("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", lower(var.devops_chapter_azure_subscription_id)))
-    )
-    error_message = "Subscription GUID must be a valid UUID format (e.g., 550e8400-e29b-41d4-a716-446655440000)"
-  }
-}
