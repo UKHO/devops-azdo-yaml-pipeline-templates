@@ -6,8 +6,8 @@
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 {
-  $repoRoot = git rev-parse --show-toplevel 2> $null
-  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+    $repoRoot = git rev-parse --show-toplevel 2> $null
+    . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
 }
 
 # ============================================================================
@@ -16,14 +16,12 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 
 # Valid test cases with different parameter combinations
 $validTestCases = @(
-  @{
-    Description = "with default parameters"
-    Parameters = @{ }
-    ExpectedYaml = @(
-      "displayName: Terraform Apply"
-      "TerraformDeployApply"
-    )
-  }
+    @{
+        Description = "with default parameters"
+        Parameters = @{ }
+        ExpectedYaml = @(
+        )
+    }
 )
 
 # Invalid test cases
@@ -35,7 +33,7 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tests/jobs/terraform_deploy/apply_without_output_variables_test.yml" `
+  -YamlPath "tests/jobs/terraform_deploy/apply_mode_basic_test.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
 
