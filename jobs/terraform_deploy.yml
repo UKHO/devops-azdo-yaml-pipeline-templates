@@ -69,6 +69,8 @@ jobs:
     environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
+    workspace:
+      clean: all
     variables:
 
       # Terraform Plan Variables
