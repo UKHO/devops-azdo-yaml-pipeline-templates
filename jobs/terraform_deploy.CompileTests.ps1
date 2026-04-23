@@ -35,7 +35,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "displayName: Terraform Plan 'TerraformArtifact'"
+            "displayName: Plan 'TerraformArtifact'"
             "TerraformDeployPlan_TerraformArtifact"
         )
     },
@@ -50,7 +50,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "displayName: Terraform Apply 'TerraformArtifact'"
+            "displayName: Apply 'TerraformArtifact'"
             "TerraformDeployApply_TerraformArtifact"
         )
     },
@@ -410,7 +410,7 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "TerraformDeployApply_CustomArtifact"
-            "displayName: Terraform Apply 'CustomArtifact'"
+            "displayName: Apply 'CustomArtifact'"
         )
     },
     @{
@@ -424,7 +424,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "displayName: Terraform Apply 'TerraformArtifact'"
+            "displayName: Apply 'TerraformArtifact'"
         )
     }
 )

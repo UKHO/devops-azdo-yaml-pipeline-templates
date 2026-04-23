@@ -61,7 +61,7 @@ jobs:
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
   - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
-    displayName: "Terraform ${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}'"
+    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}'"
     
     ${{ if parameters.Pool }}:
       pool: ${{ parameters.Pool }}
