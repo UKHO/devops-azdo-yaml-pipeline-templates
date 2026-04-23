@@ -37,6 +37,11 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'The environment name that the infrastructure is for'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
   - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
@@ -49,6 +54,7 @@ jobs:
           CheckoutAlias: ${{ parameters.CheckoutAlias }}
           # generic parameters
           TerraformDeployMode: Plan
+          Pool: ${{ parameters.Pool }}
           Condition: ${{ parameters.Condition }}
           DependsOn: ${{ parameters.DependsOn }}
           Pool: ${{ parameters.Pool }}
@@ -71,6 +77,7 @@ jobs:
           CheckoutAlias: ${{ parameters.CheckoutAlias }}
           # generic Parameters
           TerraformDeployMode: Apply
+          Pool: ${{ parameters.Pool }}
           ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'ApplyOnly') }}:
             DependsOn: ${{ parameters.DependsOn }}
             Condition: ${{ parameters.Condition }}
