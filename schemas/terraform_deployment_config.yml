@@ -53,7 +53,7 @@ jobs:
     - ${{ else }}:
       - ${{ each mapping in parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}:
         - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs.": "Error"
+          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Key: '${{ mapping.Key }}'. Value: '${{ mapping.Value }}'. Must be an object of key/value pairs.": "Error"
 
   - ${{ if parameters.TerraformDeploymentConfig.VariableFiles }}: # Only run validation if the optional parameter is present
     - ${{ if not(contains(convertToJson(parameters.TerraformDeploymentConfig.VariableFiles), '[')) }}: # Make sure it is a list
