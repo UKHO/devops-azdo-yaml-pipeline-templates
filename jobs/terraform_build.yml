@@ -4,6 +4,11 @@ parameters:
     default: 'TerraformArtifact'
     displayName: 'Artifact Name for Target Path to be saved as'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
@@ -26,6 +31,8 @@ parameters:
 
 jobs:
   - job: TerraformBuild_${{ parameters.ArtifactName }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
     displayName: "Terraform Build '${{ parameters.ArtifactName }}'"
     variables:
       RepositoryCheckoutFolderName: $(Build.Repository.Name)
