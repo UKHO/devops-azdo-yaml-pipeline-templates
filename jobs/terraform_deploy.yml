@@ -11,6 +11,11 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
   - name: CheckoutAlias
     type: string
     default: AzDOPipelineTemplates
@@ -57,6 +62,10 @@ jobs:
 
   - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
     displayName: "Terraform ${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}'"
+    
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+
     environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
