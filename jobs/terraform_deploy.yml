@@ -119,6 +119,8 @@ jobs:
               persistCredentials: true
               path: $(CheckoutPath)
 
+            - download: none
+
             - template: /tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
