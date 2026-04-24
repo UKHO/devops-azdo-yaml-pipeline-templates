@@ -88,7 +88,7 @@ steps:
           === Pipeline Information ===
           Pipeline: $(Build.DefinitionName)
           BuildNumber: $(Build.BuildNumber)
-          Branch: $(Build.SourceBranchName)
+          Branch: $(Build.SourceBranch)
           Requested by: $(Build.RequestedFor)
           Build ID: $(Build.BuildId)
           ===========================
