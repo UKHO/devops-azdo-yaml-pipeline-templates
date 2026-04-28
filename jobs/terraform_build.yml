@@ -4,6 +4,11 @@ parameters:
     default: 'TerraformArtifact'
     displayName: 'Artifact Name for Target Path to be saved as'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
@@ -25,8 +30,10 @@ parameters:
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 jobs:
-  - job: TerraformBuild
-    displayName: 'Terraform Build'
+  - job: TerraformBuild_${{ parameters.ArtifactName }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+    displayName: "Terraform Build '${{ parameters.ArtifactName }}'"
     variables:
       RepositoryCheckoutFolderName: $(Build.Repository.Name)
       RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)

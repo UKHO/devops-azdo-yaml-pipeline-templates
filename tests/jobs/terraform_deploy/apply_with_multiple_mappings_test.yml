@@ -1,0 +1,53 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+variables:
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: $(terraform_path)
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+          - group: ExampleVG1
+          - group: ExampleVG2
+          - name: Example
+            value: ExampleValue
+        EnvironmentVariableMappings:
+          TF_VAR_MinRandom: 1000
+          TF_VAR_MaxRandom: 100000
+        VariableFiles:
+          - config/common.tfvars
+          - config/discovery.tfvars
+

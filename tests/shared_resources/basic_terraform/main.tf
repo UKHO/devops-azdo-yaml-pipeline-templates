@@ -9,10 +9,12 @@
 
 variable "Project" {
   type = string
+  default = "dev"
 }
 
 variable "Environment" {
   type = string
+  default = "dev"
 }
 
 variable "MaxRandom" {

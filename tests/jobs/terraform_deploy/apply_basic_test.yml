@@ -1,0 +1,35 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+variables:
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: $(terraform_path)
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        RunMode: 'ApplyOnly'

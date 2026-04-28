@@ -11,6 +11,19 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
+  - name: CheckoutAlias
+    type: string
+    default: AzDOPipelineTemplates
+    values:
+      - AzDOPipelineTemplates
+      - self
+    displayName: 'The checkout alias for for the template repository (testing purposes)'
+
   - name: DependsOn
     type: object
     default: [ ]
@@ -47,11 +60,18 @@ jobs:
       TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}
-    displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
+  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
+    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}'"
+    
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+
     environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
+    workspace:
+      clean: all
+    
     variables:
 
       # Terraform Plan Variables
@@ -98,13 +118,16 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: AzDOPipelineTemplates
+            - checkout: ${{ parameters.CheckoutAlias }}
               persistCredentials: true
               path: $(CheckoutPath)
+
+            - download: none
 
             - template: /tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
+                TargetPath: $(TerraformWorkingDirectory)
 
             - template: /tasks/terraform_installer.yml
               parameters:

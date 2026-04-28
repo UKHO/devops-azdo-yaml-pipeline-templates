@@ -1,4 +1,22 @@
 parameters:
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
+  - name: CheckoutAlias
+    type: string
+    default: AzDOPipelineTemplates
+    values:
+      - AzDOPipelineTemplates
+      - self
+    displayName: 'The checkout alias for for the template repository (testing purposes)'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
   - name: TerraformVersion
     type: string
     default: '1.14.0'
@@ -14,6 +32,11 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'The environment name that the infrastructure is for'
 
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool to run this job on'
+
   - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
@@ -21,38 +44,48 @@ parameters:
 
 jobs:
   - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'PlanOnly') }}:
-    - template: /jobs/terraform_deploy.yml
-      parameters:
-        # generic parameters
-        TerraformDeployMode: Plan
-        TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
-        TerraformVersion: ${{ parameters.TerraformVersion }}
-        TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
-        EnvironmentName: ${{ parameters.EnvironmentName }}
+      - template: /jobs/terraform_deploy.yml
+        parameters:
+          CheckoutAlias: ${{ parameters.CheckoutAlias }}
+          # generic parameters
+          TerraformDeployMode: Plan
+          Pool: ${{ parameters.Pool }}
+          Condition: ${{ parameters.Condition }}
+          DependsOn: ${{ parameters.DependsOn }}
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
+          EnvironmentName: ${{ parameters.EnvironmentName }}
 
   - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
       - template: /jobs/manual_verification.yml
         parameters:
-          DependsOn: TerraformDeployPlan
-          Condition: and(succeeded(), eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
+          JobName: ManualVerification_${{ parameters.TerraformArtifactName }}
+          DependsOn: TerraformDeployPlan_${{ parameters.TerraformArtifactName }}
+          Condition: and(succeeded(), eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           Instructions: 'Please validate the terraform plan is acceptable to apply'
 
   - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
       - template: /jobs/terraform_deploy.yml
         parameters:
+          CheckoutAlias: ${{ parameters.CheckoutAlias }}
           # generic Parameters
           TerraformDeployMode: Apply
+          Pool: ${{ parameters.Pool }}
+          ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'ApplyOnly') }}:
+            Condition: ${{ parameters.Condition }}
+            DependsOn: ${{ parameters.DependsOn }}
           ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
             DependsOn:
-              - ManualVerification
-              - TerraformDeployPlan
+              - ManualVerification_${{ parameters.TerraformArtifactName }}
+              - TerraformDeployPlan_${{ parameters.TerraformArtifactName }}
             Condition: >
               or(
-                succeeded('ManualVerification'),
+                succeeded('ManualVerification_${{ parameters.TerraformArtifactName }}'),
                 and(
-                  succeeded('TerraformDeployPlan'),
-                  eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
-                  eq(dependencies.TerraformDeployPlan.outputs['TerraformDeployPlan.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
+                  succeeded('TerraformDeployPlan_${{ parameters.TerraformArtifactName }}'),
+                  eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                  eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
                 )
               )
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}

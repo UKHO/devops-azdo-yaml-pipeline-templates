@@ -26,8 +26,8 @@ $validTestCases = @(
     Parameters = @{
     }
     ExpectedYaml = @(
-      'job: TerraformBuild',
-      'displayName:*Terraform Build',
+      'job: TerraformBuild_TerraformArtifact',
+      "displayName:*Terraform Build 'TerraformArtifact'",
       'terraformVersion:*1.14.0',
       'artifact:*TerraformArtifact'
     )
@@ -47,6 +47,8 @@ $validTestCases = @(
       ArtifactName = 'CustomTerraformArtifact'
     }
     ExpectedYaml = @(
+      'job: TerraformBuild_CustomTerraformArtifact',
+      "displayName:*Terraform Build 'CustomTerraformArtifact'",
       'artifact:*CustomTerraformArtifact'
     )
   },

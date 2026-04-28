@@ -430,7 +430,7 @@ $invalidTestCases = @(
         }
       }
     }
-    ErrorMessage = "'dev' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs."
+    ErrorMessage = "'dev' environment error: EnvironmentVariableMappings is not correct. Key: 'ARM_SUBSCRIPTION_ID'. Value: ''. Must be an object of key/value pairs.'"
   },
   @{
     Description = "EnvironmentVariableMappings with empty key"
@@ -444,7 +444,7 @@ $invalidTestCases = @(
         }
       }
     }
-    ErrorMessage = "'dev' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs."
+    ErrorMessage = "'dev' environment error: EnvironmentVariableMappings is not correct. Key: ''. Value: 'value'. Must be an object of key/value pairs."
   },
   @{
     Description = "VariableFiles is not a list"
