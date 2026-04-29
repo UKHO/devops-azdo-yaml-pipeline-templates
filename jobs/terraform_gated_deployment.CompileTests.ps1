@@ -1,7 +1,6 @@
 # ============================================================================
 # TEST: Terraform Deploy
 # ============================================================================
-# This test demonstrates how to write tests using the simple PowerShell framework.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))

@@ -14,7 +14,7 @@ parameters:
   - name: Pool
     type: string
     default: ''
-    displayName: 'The pool to run this job on'
+    displayName: 'The pool that this job will run'
 
   - name: CheckoutAlias
     type: string
@@ -61,7 +61,7 @@ jobs:
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
   - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
-    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}'"
+    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
     
     ${{ if parameters.Pool }}:
       pool: ${{ parameters.Pool }}

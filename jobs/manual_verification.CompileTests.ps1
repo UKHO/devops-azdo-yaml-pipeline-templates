@@ -1,7 +1,6 @@
 # ============================================================================
 # TEST: Manual Verification Job Template
 # ============================================================================
-# This test verifies the manual_verification job template with different parameter combinations.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))

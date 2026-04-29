@@ -1,16 +1,7 @@
 # ============================================================================
 # TEST: Terraform Deploy Job Template
 # ============================================================================
-# Comprehensive test cases for terraform_deploy.yml template covering:
-# - Core deployment modes (Plan, Apply)
-# - Verification logic (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)
-# - Output variable export and consumption
-# - Key Vault configuration
-# - Backend configuration
-# - Environment variables, variable files, and variable groups
-# - Terraform versions and checkout aliases
-# - Job conditions and dependencies
-# - Integration scenarios
+# Comprehensive test cases for terraform_deploy.yml template.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
