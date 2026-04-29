@@ -4,15 +4,15 @@
     default: ManualVerification
     displayName: 'Name of the job'
 
-  - name: DependsOn
-    type: object
-    default: [ ]
-    displayName: 'List of jobs this job depends on'
-
   - name: Condition
     type: string
     default: succeeded()
     displayName: 'Condition to run the job'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
 
   - name: OnTimeoutBehaviour
     type: string
@@ -32,8 +32,8 @@
 
 jobs:
   - job: ${{ parameters.JobName }}
-    dependsOn: ${{ parameters.DependsOn }}
     condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
     pool: server
     displayName: 'Manual Verification'
     steps:

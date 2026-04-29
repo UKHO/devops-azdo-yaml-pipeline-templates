@@ -4,11 +4,21 @@ parameters:
     default: 'TerraformArtifact'
     displayName: 'Artifact Name for Target Path to be saved as'
 
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
   - name: Pool
     type: string
     default: ''
     displayName: 'The pool that this job will run'
-
+  
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
@@ -31,15 +41,20 @@ parameters:
 
 jobs:
   - job: TerraformBuild_${{ parameters.ArtifactName }}
+    displayName: "Build '${{ parameters.ArtifactName }}' Terraform Artifact"
+    
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
     ${{ if parameters.Pool }}:
       pool: ${{ parameters.Pool }}
-    displayName: "Build '${{ parameters.ArtifactName }}' Terraform Artifact"
+    workspace:
+      clean: all
+      
     variables:
       RepositoryCheckoutFolderName: $(Build.Repository.Name)
       RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
       TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
-    workspace:
-      clean: all
+
     steps:
       - template: /jobs/terraform_build_checkout_steps.yml
         parameters:

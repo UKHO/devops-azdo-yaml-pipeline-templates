@@ -11,11 +11,6 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
-  - name: Pool
-    type: string
-    default: ''
-    displayName: 'The pool that this job will run'
-
   - name: CheckoutAlias
     type: string
     default: AzDOPipelineTemplates
@@ -24,15 +19,20 @@ parameters:
       - self
     displayName: 'The checkout alias for for the template repository (testing purposes)'
 
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
   - name: DependsOn
     type: object
     default: [ ]
     displayName: 'List of jobs this job depends on'
 
-  - name: Condition
+  - name: Pool
     type: string
-    default: succeeded()
-    displayName: 'The condition that will control whether this job runs or not'
+    default: ''
+    displayName: 'The pool that this job will run'
 
   - name: TerraformVersion
     type: string
@@ -63,14 +63,14 @@ jobs:
   - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
     displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
     
-    ${{ if parameters.Pool }}:
-      pool: ${{ parameters.Pool }}
-
-    environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
     workspace:
       clean: all
+
+    environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
     
     variables:
 
