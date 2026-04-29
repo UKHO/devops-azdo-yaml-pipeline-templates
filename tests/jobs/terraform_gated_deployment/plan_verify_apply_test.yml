@@ -14,8 +14,6 @@ trigger: none
 variables:
   - name: artifact_name
     value: terraform_build
-  - name: terraform_path
-    value: tests/shared_resources/basic_terraform
 
 pr:
   - main
@@ -23,14 +21,12 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: ${{ variables.artifact_name }}
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
     parameters:
-      DependsOn: TerraformBuild_${{ variables.artifact_name }}
-      Condition: succeeded('TerraformBuild_${{ variables.artifact_name }}')
-      TerraformArtifactName: ${{ variables.artifact_name }}
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
       EnvironmentName: Discovery
       TerraformDeploymentConfig:
         AzureServiceConnection: DevOps Chapter Dev

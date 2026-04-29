@@ -11,10 +11,6 @@ pool:
 
 trigger: none
 
-variables:
-  - name: terraform_path
-    value: tests/shared_resources/basic_terraform
-
 pr:
   - main
 
@@ -23,7 +19,7 @@ stages:
     jobs:
       - template: jobs/terraform_build.yml@AzDOPipelineTemplates
         parameters:
-          RelativePathToTerraformFiles: $(terraform_path)
+          RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
 
       - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
         parameters:
