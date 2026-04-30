@@ -340,7 +340,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "TerraformVersion: 1.6.0"
+            "inputs:*TerraformVersion:* 1.6.0"
         )
     },
     @{
@@ -355,7 +355,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "TerraformVersion: 1.4.6"
+            "inputs:*TerraformVersion:* 1.4.6"
         )
     },
     @{

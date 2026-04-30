@@ -159,7 +159,7 @@ $validTestCases = @(
         RunMode = "ApplyOnly"
       }
     }
-    ExpectedYAML = "TerraformVersion: 1.6.5"
+    ExpectedYAML = "inputs:*TerraformVersion:* 1.6.5"
   },
 
   @{
@@ -171,7 +171,7 @@ $validTestCases = @(
         RunMode = "PlanOnly"
       }
     }
-    ExpectedYAML = "TerraformVersion: 1.14.0"
+    ExpectedYAML = "inputs:*TerraformVersion:* 1.14.0"
   },
 
   @{
@@ -244,7 +244,7 @@ $validTestCases = @(
     }
     ExpectedYAML = @(
       "repository: self"
-      "terraformVersion: 1.5.7"
+      "inputs:*TerraformVersion:* 1.5.7"
       "artifactName: ProdInfraArtifact"
       "pool:*name: Production-Agents"
       "ManualVerification_ProdInfraArtifact"
