@@ -125,7 +125,7 @@ $validTestCases = @(
         RunMode = "PlanOnly"
       }
     }
-    ExpectedYAML = "Condition: failed()"
+    ExpectedYAML = "condition: failed()"
   },
 
   # ========================================================================

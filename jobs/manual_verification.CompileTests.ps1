@@ -67,7 +67,7 @@ $validTestCases = @(
     ExpectedYaml = @(
       'timeoutInMinutes: 120',
       'instructions:*Please verify the deployment'
-      'ontimeout: resume'
+      'onTimeout: resume'
     )
   },
   @{
