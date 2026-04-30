@@ -20,7 +20,7 @@ parameters:
     values:
       - AzDOPipelineTemplates
       - self
-    displayName: 'The checkout alias for for the template repository (testing purposes)'
+    displayName: 'The checkout alias for the template repository (testing purposes)'
 
   - name: TerraformVersion
     type: string
