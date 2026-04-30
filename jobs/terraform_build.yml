@@ -17,7 +17,7 @@ parameters:
   - name: Pool
     type: string
     default: ''
-    displayName: 'The pool that this job will run'
+    displayName: 'The pool that this job will run on'
   
   - name: RelativePathToTerraformFiles
     type: string
@@ -56,6 +56,8 @@ jobs:
       TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
 
     steps:
+      - download: none
+
       - template: /jobs/terraform_build_checkout_steps.yml
         parameters:
           AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}

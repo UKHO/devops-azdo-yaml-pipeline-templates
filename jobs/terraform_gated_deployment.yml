@@ -12,7 +12,7 @@ parameters:
   - name: Pool
     type: string
     default: ''
-    displayName: 'The pool that this job will run'
+    displayName: 'The pool that this job will run on'
     
   - name: CheckoutAlias
     type: string
