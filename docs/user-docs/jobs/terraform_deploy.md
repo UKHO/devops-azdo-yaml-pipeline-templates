@@ -210,11 +210,11 @@ When `OutputVariables` are configured, Terraform outputs are exported as pipelin
 ```yaml
 variables:
   - name: ResourceGroupName
-    value: $[ stageDependencies.Deploy_prod_Infrastructure.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.resource_group_name'] ]
+    value: $[ stageDependencies.Deploy_prod_Terraform.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.resource_group_name'] ]
 ```
 
 Replace:
-- `Deploy_prod_Infrastructure` with your stage name
+- `Deploy_prod_Terraform` with your stage name
 - `TerraformDeployApply_TerraformArtifact` with the actual job name
 - `resource_group_name` with your output variable name
 
