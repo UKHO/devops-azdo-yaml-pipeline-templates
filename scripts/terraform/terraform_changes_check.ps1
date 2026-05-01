@@ -63,7 +63,7 @@ if ($isDebugMode) {
 Write-Host "##[group]Analyzing Terraform plan for changes"
 
 # Check if plan has any changes
-if (($terraformPlan | Select-String -Pattern "No changes. Your infrastructure matches the configuration." -CaseSensitive).Count -eq 1)
+if (($terraformPlan | Select-String -Pattern "No changes.*Your infrastructure matches the configuration." -CaseSensitive).Count -eq 1)
 {
   Write-Host "✓ Terraform plan indicates no changes"
   $changesNeedManualVerification = $false
