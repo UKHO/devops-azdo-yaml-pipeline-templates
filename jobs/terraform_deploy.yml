@@ -166,6 +166,8 @@ jobs:
                     Command: 'custom'
                     CustomCommand: 'show'
                     CommandOptions: '-json $(TerraformPlanFilePath)'
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
                       
