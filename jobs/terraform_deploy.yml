@@ -96,7 +96,7 @@ jobs:
         parameters:
           Items:
             - ${{ each backendConfig in parameters.TerraformDeploymentConfig.BackendConfig }}:
-               - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
+                - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
           Prefix: ' -backend-config="'
           Suffix: '"'
           OutputVariableName: BackendConfigCommandOption
@@ -160,13 +160,15 @@ jobs:
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
-                      
+
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: 'custom'
                     CustomCommand: 'show'
                     CommandOptions: '-json'
-
+                    ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
+                      
                 - ${{ if parameters.TerraformDeploymentConfig.VerificationMode }}:
                     - template: /tasks/powershell.yml
                       parameters:
@@ -178,7 +180,7 @@ jobs:
                           -TerraformPlanFilePath "$(TerraformPlanFilePath)"
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
-                        
+
                     - template: /tasks/publish_pipeline_artifact.yml
                       parameters:
                         TargetPath: $(TerraformWorkingDirectory)/terraform-plan-output.txt
