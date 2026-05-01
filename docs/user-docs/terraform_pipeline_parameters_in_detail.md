@@ -1,6 +1,14 @@
-# Template parameters in detail
+# Template Parameters in Detail
 
 This document provides detailed information about all parameters available in the Terraform Pipeline template.
+
+**Quick links**:
+- For basic usage examples, see [Terraform Pipeline](./terraform_pipeline.md)
+- For common scenarios, see [Common Scenarios in Terraform Pipeline](./terraform_pipeline.md#common-scenarios--patterns)
+- For manual verification details, see [Manual Verification](./terraform_pipeline_manual_verification.md)
+- For additional files packaging, see [AdditionalFilesToPackage Guide](./terraform_pipeline_additional_files_to_package.md)
+
+---
 
 ## Configuration Documentation
 
@@ -134,6 +142,8 @@ This copies all `.tfvars` files from `config/shared/` to `{artifact}/shared-conf
 For more patterns and detailed examples, see the [Detailed Guide](./terraform_pipeline_additional_files_to_package.md#glob-pattern-matching).
 
 ---
+
+### TerraformVersion
 
 State which terraform version you require.
 
