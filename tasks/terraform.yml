@@ -122,12 +122,6 @@ parameters:
     default: ''
     displayName: 'Service connection for backend state storage'
 
-variables:
-  - name: TerraformCommandName
-    value: ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}
-  - name: TerraformFullCommand
-    value: terraform ${{ variables.TerraformCommandName }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
-
 steps:
   - ${{ if and(eq(parameters.Command, 'custom'), eq(parameters.CustomCommand, '')) }}:
       - "The 'CustomCommand' parameter is required when 'Command' is 'custom'.": "Error"
@@ -139,9 +133,9 @@ steps:
       - "The 'SaveCommandConsoleOutputToFile' parameter is required when 'CommandConsoleOutputFileName' is not empty.": "Error"
         
   - ${{ if eq(parameters.ServiceConnection, '') }}:
-      - script: ${{ variables.TerraformFullCommand }}
-        displayName: "Terraform ${{ variables.TerraformCommandName }}"
-        name: TerraformTask_${{ variables.TerraformCommandName }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+      - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
+        displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if ne(parameters.WorkingDirectory, '') }}:
           workingDirectory: ${{ parameters.WorkingDirectory }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
@@ -157,11 +151,11 @@ steps:
           azureSubscription: ${{ parameters.ServiceConnection }}
           scriptType: pscore
           scriptLocation: inlineScript
-          inlineScript: ${{ variables.TerraformFullCommand }}
+          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
-        displayName: "Terraform ${{ variables.TerraformCommandName }}"
-        name: TerraformTask_${{ variables.TerraformCommandName }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
           env: ${{ parameters.TaskEnvironmentVariables }}
         ${{ if ne(parameters.Condition, '') }}:
