@@ -165,7 +165,7 @@ jobs:
                   parameters:
                     Command: 'custom'
                     CustomCommand: 'show'
-                    CommandOptions: '-json'
+                    CommandOptions: '-json $(TerraformPlanFilePath)'
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
                       
