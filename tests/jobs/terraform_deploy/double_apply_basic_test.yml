@@ -1,0 +1,73 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+variables:
+  - name: terraform_path
+    value: tests/shared_resources/basic_terraform
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: $(terraform_path)
+      ArtifactName: artifact1
+
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: $(terraform_path)
+      ArtifactName: artifact2
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: 
+        - TerraformBuild_artifact1
+        - TerraformBuild_artifact2
+      Condition: succeeded()
+      TerraformArtifactName: artifact1
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact1.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: 
+        - TerraformBuild_artifact1
+        - TerraformBuild_artifact2
+      Condition: succeeded()
+      TerraformArtifactName: artifact2
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact2.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+

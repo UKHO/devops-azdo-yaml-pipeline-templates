@@ -1,0 +1,36 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+      AdditionalFilesToPackage:
+        - SourceDirectory: tests/shared_resources/additional_files/policies
+          FilesPattern: '**/*.json'
+          TargetSubdirectoryName: policies
+        - SourceDirectory: tests/shared_resources/additional_files/configs
+          FilesPattern: '**/*.env'
+          TargetSubdirectoryName: configs
+
+  - job: ValidateResults
+    dependsOn:
+      - TerraformBuild_TerraformArtifact
+    steps:
+      - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
+        parameters:
+          ArtifactName: TerraformArtifact
+

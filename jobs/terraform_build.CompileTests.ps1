@@ -26,9 +26,9 @@ $validTestCases = @(
     Parameters = @{
     }
     ExpectedYaml = @(
-      'job: TerraformBuild',
-      'displayName:*Terraform Build',
-      'terraformVersion:*1.14.0',
+      'job: TerraformBuild_TerraformArtifact',
+      "displayName:*Build 'TerraformArtifact' Terraform Artifact",
+      'inputs:*TerraformVersion:**1.14.0',
       'artifact:*TerraformArtifact'
     )
   },
@@ -47,6 +47,8 @@ $validTestCases = @(
       ArtifactName = 'CustomTerraformArtifact'
     }
     ExpectedYaml = @(
+      'job: TerraformBuild_CustomTerraformArtifact',
+      "displayName:*Build 'CustomTerraformArtifact' Terraform Artifact",
       'artifact:*CustomTerraformArtifact'
     )
   },
@@ -56,7 +58,7 @@ $validTestCases = @(
       TerraformVersion = '1.15.0'
     }
     ExpectedYaml = @(
-      'terraformVersion:*1.15.0'
+      'inputs:*TerraformVersion:**1.15.0'
     )
   },
   @{
@@ -65,7 +67,7 @@ $validTestCases = @(
       TerraformVersion = 'latest'
     }
     ExpectedYaml = @(
-      'terraformVersion:*latest'
+      'inputs:*TerraformVersion:**latest'
     )
   },
   @{
@@ -85,7 +87,7 @@ $validTestCases = @(
     }
     ExpectedYaml = @(
       'artifact:*LatestTerraformArtifact',
-      'terraformVersion:*latest'
+      'inputs:*TerraformVersion:**latest'
     )
   }
 )

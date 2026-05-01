@@ -1,0 +1,57 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Plan
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.$(Build.DefinitionName).tfstate
+        RunMode: 'PlanOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformDeployPlan_TerraformArtifact
+      Condition: succeeded('TerraformDeployPlan_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+

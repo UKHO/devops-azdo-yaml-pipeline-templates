@@ -27,18 +27,18 @@ data "azuredevops_variable_group" "this" {
   project_id = data.azuredevops_project.this.id
 }
 
-resource "azuredevops_build_definition" "pipeline_template_tests" {
+resource "azuredevops_build_definition" "template_tests" {
   project_id = data.azuredevops_project.this.id
-  path       = "\\${local.repository_name}\\${local.pipelineTemplateTestsAzDoFolderName}"
-  for_each   = local.pipelineTemplateTestsToDeploy
+  for_each   = local.template_tests_to_deploy
 
   name = each.value.azdo_name
 
+  path = "\\${local.repository_name}\\${each.value.azdo_folder_name}"
   repository {
     repo_type             = "GitHub"
     repo_id               = local.repo_id
-    branch_name           = "refs/heads/${local.target_branch_name}"
-    yml_path              = "${local.pipelineTemplateTestsGitHubFolderPath}${each.value.file_path}"
+    branch_name           = "refs/heads/main"
+    yml_path              = each.value.file_path
     service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
   }
 
@@ -60,6 +60,6 @@ resource "azuredevops_pipeline_authorization" "this" {
 
   project_id  = data.azuredevops_project.this.id
   type        = each.value.type
-  pipeline_id = azuredevops_build_definition.pipeline_template_tests[each.value.pipeline_key].id
+  pipeline_id = azuredevops_build_definition.template_tests[each.value.pipeline_key].id
   resource_id = each.value.resource_id
 }

@@ -1,6 +1,3 @@
-# Job Template: Terraform deploy
-# Purpose: Runs Terraform deploy infrastructure, supporting variable injection and Azure Key Vault integration.
-
 parameters:
   # generic parameters
   - name: TerraformDeployMode
@@ -11,15 +8,28 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
-  - name: DependsOn
-    type: object
-    default: [ ]
-    displayName: 'List of jobs this job depends on'
+  - name: CheckoutAlias
+    type: string
+    default: AzDOPipelineTemplates
+    values:
+      - AzDOPipelineTemplates
+      - self
+    displayName: 'The checkout alias for the template repository (testing purposes)'
 
   - name: Condition
     type: string
     default: succeeded()
     displayName: 'The condition that will control whether this job runs or not'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool that this job will run on'
 
   - name: TerraformVersion
     type: string
@@ -47,11 +57,18 @@ jobs:
       TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}
-    displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
-    environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
+  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
+    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
+    
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+    workspace:
+      clean: all
+
+    environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
+    
     variables:
 
       # Terraform Plan Variables
@@ -98,13 +115,16 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: AzDOPipelineTemplates
+            - checkout: ${{ parameters.CheckoutAlias }}
               persistCredentials: true
               path: $(CheckoutPath)
+
+            - download: none
 
             - template: /tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
+                TargetPath: $(TerraformWorkingDirectory)
 
             - template: /tasks/terraform_installer.yml
               parameters:
