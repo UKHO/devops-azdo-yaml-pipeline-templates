@@ -85,6 +85,8 @@ jobs:
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
             value: ${{ join(',', parameters.TerraformDeploymentConfig.OutputVariables) }}
+          - name: TerraformOutputVariablesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-output-variables.json
 
       # Shared Variables
       - template: /utils/concat_wrap_list.yml
@@ -201,7 +203,7 @@ jobs:
                         Command: output
                         CommandOptions: '-json'
                         SaveCommandConsoleOutputToFile: true
-                        CommandConsoleOutputFileName: 'terraform-output.json'
+                        CommandConsoleOutputFileName: $(TerraformOutputVariablesFilePath)
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                         ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -214,6 +216,6 @@ jobs:
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
-                          -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
+                          -OutputFileName $(TerraformOutputVariablesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
