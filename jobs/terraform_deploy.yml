@@ -154,9 +154,6 @@ jobs:
                   parameters:
                     Command: plan
                     CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
-                    ${{ if parameters.TerraformDeploymentConfig.VerificationMode }}:
-                      SaveCommandConsoleOutputToFile: true
-                      CommandConsoleOutputFileName: 'terraform-plan-output.txt'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -182,7 +179,7 @@ jobs:
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                         ScriptFileArguments: >
                           -VerificationMode ${{ parameters.TerraformDeploymentConfig.VerificationMode }}
-                          -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                          -TerraformPlannedChangesFilePath "$(TerraformWorkingDirectory)/terraform-planned-changes.json"
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
 
