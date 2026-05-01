@@ -18,8 +18,8 @@
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 {
-  $repoRoot = git rev-parse --show-toplevel 2> $null
-  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+    $repoRoot = git rev-parse --show-toplevel 2> $null
+    . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
 }
 
 # ============================================================================
@@ -29,105 +29,106 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # Each test case documents a realistic usage scenario.
 
 $validTestCases = @(
-  @{
-    Description = "with default parameters (no injection steps, no additional files)"
-    Parameters = @{
-    }
-    ExpectedYaml = @(
-      'job: TerraformBuild_TerraformArtifact',
-      "displayName:*Terraform Build 'TerraformArtifact'",
-      'terraformVersion:*1.14.0',
-      'artifact:*TerraformArtifact',
-      'terraform init -backend=false',
-      'terraform validate'
-    )
-  },
-  @{
-    Description = "with custom artifact name"
-    Parameters = @{
-      ArtifactName = 'CustomTerraformArtifact'
-    }
-    ExpectedYaml = @(
-      'job: TerraformBuild_CustomTerraformArtifact',
-      "displayName:*Terraform Build 'CustomTerraformArtifact'",
-      'artifact:*CustomTerraformArtifact'
-    )
-  },
-  @{
-    Description = "with custom terraform version"
-    Parameters = @{
-      TerraformVersion = '1.15.0'
-    }
-    ExpectedYaml = @(
-      'terraformVersion:*1.15.0'
-    )
-  },
-  @{
-    Description = "with latest terraform version"
-    Parameters = @{
-      TerraformVersion = 'latest'
-    }
-    ExpectedYaml = @(
-      'terraformVersion:*latest'
-    )
-  },
-  @{
-    Description = "with relative path to terraform files"
-    Parameters = @{
-      RelativePathToTerraformFiles = 'terraform/production'
-    }
-    ExpectedYaml = @(
-      'value: $(RepositoryDirectory)/terraform/production'
-    )
-  },
-  @{
-    Description = "with custom artifact name and latest terraform"
-    Parameters = @{
-      ArtifactName = 'LatestTerraformArtifact'
-      TerraformVersion = 'latest'
-    }
-    ExpectedYaml = @(
-      'artifact:*LatestTerraformArtifact',
-      'terraformVersion:*latest'
-    )
-  },
-  @{
-    Description = "with single TerraformBuildInjectionStep"
-    Parameters = @{
-      TerraformBuildInjectionSteps = @"
+    @{
+        Description = "with default parameters (no injection steps, no additional files)"
+        Parameters = @{
+        }
+        ExpectedYaml = @(
+            'path: $(RepositoryCheckoutFolderName)',
+            'job: TerraformBuild_TerraformArtifact',
+            "displayName:*Terraform Build 'TerraformArtifact'",
+            'terraformVersion:*1.14.0',
+            'artifact:*TerraformArtifact',
+            'terraform init -backend=false',
+            'terraform validate'
+        )
+    },
+    @{
+        Description = "with custom artifact name"
+        Parameters = @{
+            ArtifactName = 'CustomTerraformArtifact'
+        }
+        ExpectedYaml = @(
+            'job: TerraformBuild_CustomTerraformArtifact',
+            "displayName:*Terraform Build 'CustomTerraformArtifact'",
+            'artifact:*CustomTerraformArtifact'
+        )
+    },
+    @{
+        Description = "with custom terraform version"
+        Parameters = @{
+            TerraformVersion = '1.15.0'
+        }
+        ExpectedYaml = @(
+            'terraformVersion:*1.15.0'
+        )
+    },
+    @{
+        Description = "with latest terraform version"
+        Parameters = @{
+            TerraformVersion = 'latest'
+        }
+        ExpectedYaml = @(
+            'terraformVersion:*latest'
+        )
+    },
+    @{
+        Description = "with relative path to terraform files"
+        Parameters = @{
+            RelativePathToTerraformFiles = 'terraform/production'
+        }
+        ExpectedYaml = @(
+            'value: $(RepositoryDirectory)/terraform/production'
+        )
+    },
+    @{
+        Description = "with custom artifact name and latest terraform"
+        Parameters = @{
+            ArtifactName = 'LatestTerraformArtifact'
+            TerraformVersion = 'latest'
+        }
+        ExpectedYaml = @(
+            'artifact:*LatestTerraformArtifact',
+            'terraformVersion:*latest'
+        )
+    },
+    @{
+        Description = "with single TerraformBuildInjectionStep"
+        Parameters = @{
+            TerraformBuildInjectionSteps = @"
 - script: echo "Pre-build step"
   displayName: Run pre-build validation
 "@
-    }
-    ExpectedYaml = @('CmdLine@2', 'Run pre-build validation', 'echo "Pre-build step"')
-  },
-  @{
-    Description = "with multiple TerraformBuildInjectionSteps"
-    Parameters = @{
-      TerraformBuildInjectionSteps = @"
+        }
+        ExpectedYaml = @('CmdLine@2', 'Run pre-build validation', 'echo "Pre-build step"')
+    },
+    @{
+        Description = "with multiple TerraformBuildInjectionSteps"
+        Parameters = @{
+            TerraformBuildInjectionSteps = @"
 - script: echo "Step 1"
   displayName: Pre-build step 1
 - script: echo "Step 2"
   displayName: Pre-build step 2
 "@
-    }
-    ExpectedYaml = @('CmdLine@2', 'Pre-build step 1', 'Pre-build step 2', 'echo "Step 1"', 'echo "Step 2"')
-  },
-  @{
-    Description = "with single AdditionalFileToPackage"
-    Parameters = @{
-      AdditionalFilesToPackage = @"
+        }
+        ExpectedYaml = @('CmdLine@2', 'Pre-build step 1', 'Pre-build step 2', 'echo "Step 1"', 'echo "Step 2"')
+    },
+    @{
+        Description = "with single AdditionalFileToPackage"
+        Parameters = @{
+            AdditionalFilesToPackage = @"
 - FilesPattern: '**'
   SourceDirectory: resources/keyvault
   TargetSubdirectoryName: keyvault
 "@
-    }
-    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'keyvault')
-  },
-  @{
-    Description = "with multiple AdditionalFilesToPackage"
-    Parameters = @{
-      AdditionalFilesToPackage = @"
+        }
+        ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'keyvault')
+    },
+    @{
+        Description = "with multiple AdditionalFilesToPackage"
+        Parameters = @{
+            AdditionalFilesToPackage = @"
 - FilesPattern: '**'
   SourceDirectory: resources/keyvault
   TargetSubdirectoryName: newresourcedirectoryone
@@ -135,48 +136,48 @@ $validTestCases = @(
   SourceDirectory: resources/storageaccount
   TargetSubdirectoryName: newresourcedirectorytwo
 "@
-    }
-    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'resources/storageaccount', 'newresourcedirectoryone', 'newresourcedirectorytwo')
-  },
-  @{
-    Description = "with both TerraformBuildInjectionSteps and AdditionalFilesToPackage"
-    Parameters = @{
-      TerraformBuildInjectionSteps = @"
+        }
+        ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'resources/storageaccount', 'newresourcedirectoryone', 'newresourcedirectorytwo')
+    },
+    @{
+        Description = "with both TerraformBuildInjectionSteps and AdditionalFilesToPackage"
+        Parameters = @{
+            TerraformBuildInjectionSteps = @"
 - script: echo "Validating configuration"
   displayName: Validate configuration
 "@
-      AdditionalFilesToPackage = @"
+            AdditionalFilesToPackage = @"
 - FilesPattern: '**'
   SourceDirectory: scripts
   TargetSubdirectoryName: terraform_scripts
 "@
+        }
+        ExpectedYaml = @('CmdLine@2', 'Validate configuration', 'CopyFiles@2', 'scripts', 'terraform_scripts')
     }
-    ExpectedYaml = @('CmdLine@2', 'Validate configuration', 'CopyFiles@2', 'scripts', 'terraform_scripts')
-  }
 )
 
 $invalidTestCases = @(
-  @{
-    Description = "with invalid terraform version format"
-    Parameters = @{
-      TerraformVersion = '1.0.x'
+    @{
+        Description = "with invalid terraform version format"
+        Parameters = @{
+            TerraformVersion = '1.0.x'
+        }
+        ErrorMessage = "terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or an exact numeric semantic version 'x.y.z' (digits only). Wildcards, comparators, and other non-semver formats are not allowed."
+    },
+    @{
+        Description = "with invalid AdditionalFilesToPackage parameter"
+        Parameters = @{
+            AdditionalFilesToPackage = "junk"
+        }
+        ErrorMessage = "Expected a sequence or mapping. Actual value 'junk'"
+    },
+    @{
+        Description = "with invalid TerraformBuildInjectionSteps parameter"
+        Parameters = @{
+            TerraformBuildInjectionSteps = "junk"
+        }
+        ErrorMessage = "The 'TerraformBuildInjectionSteps' parameter is not a valid StepList."
     }
-    ErrorMessage = "terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or an exact numeric semantic version 'x.y.z' (digits only). Wildcards, comparators, and other non-semver formats are not allowed."
-  },
-  @{
-    Description = "with invalid AdditionalFilesToPackage parameter"
-    Parameters = @{
-      AdditionalFilesToPackage = "junk"
-    }
-    ErrorMessage = "Expected a sequence or mapping. Actual value 'junk'"
-  },
-  @{
-    Description = "with invalid TerraformBuildInjectionSteps parameter"
-    Parameters = @{
-      TerraformBuildInjectionSteps = "junk"
-    }
-    ErrorMessage = "The 'TerraformBuildInjectionSteps' parameter is not a valid StepList."
-  }
 )
 
 # ============================================================================

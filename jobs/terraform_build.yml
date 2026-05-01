@@ -41,9 +41,14 @@ jobs:
     workspace:
       clean: all
     steps:
+      - checkout: self
+        displayName: 'Checkout self repository'
+        clean: true
+        path: $(RepositoryCheckoutFolderName)
+        
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
-    
+
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
           - template: /tasks/copy_files.yml
             parameters:
