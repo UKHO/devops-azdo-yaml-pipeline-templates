@@ -8,9 +8,9 @@ Complete end-to-end pipeline templates for specific use cases.
 
 ### Available Pipelines
 
-| Pipeline                                          | Purpose                                                                                                                                                                                       |
-|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **[Terraform Pipeline](./terraform_pipeline.md)** | Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files with multi-environment support and manual verification gates |
+| Pipeline                                                    | Purpose                                                                                                                                                                                       |
+|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **[Terraform Pipeline](./pipelines/terraform_pipeline.md)** | Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files with multi-environment support and manual verification gates |
 
 ## Self-Documentation
 
