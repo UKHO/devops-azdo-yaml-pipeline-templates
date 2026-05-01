@@ -20,15 +20,15 @@ This document provides detailed information about all parameters available in th
 
 The infrastructure pipeline consists of multiple stages:
 
-1. **Build Stage**: Validates and packages Terraform files
+1. **Build Stage** (`Build_Terraform`) – Validates and packages Terraform files
    - Installs specified Terraform version
    - Runs injection steps (if provided)
-   - Initializes Terraform (without backend)
+   - Initializes Terraform (without backend to allow flexible backend config in deploy)
    - Validates Terraform configuration
    - Publishes Terraform files as an artifact
 
 2. **Deploy Stages** (one per environment in EnvironmentConfigs): Deploys infrastructure with optional manual verification
-   - Stage name format: `Deploy_{EnvironmentName}_Infrastructure`
+   - Stage name format: `Deploy_{EnvironmentName}_Terraform`
    - Downloads Terraform artifact
    - Initializes Terraform (with backend)
    - **Plan Job**: Creates execution plan
@@ -65,10 +65,10 @@ The `EnvironmentConfigs` parameter is a list of environment configuration object
 
 ```yaml
 EnvironmentConfigs:
-  - Name: production
-    Stage:
-      DependsOn: Terraform_Build
-      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+   - Name: production
+     Stage:
+       DependsOn: Terraform_Build
+       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     TerraformDeploymentConfig:
       AzDOEnvironmentName: production-environment
       RunMode: PlanVerifyApply
@@ -227,30 +227,30 @@ EnvironmentConfigs:
 
 ```yaml
 EnvironmentConfigs:
-  # Development
-  - Name: dev
-    Stage:
-      DependsOn: Terraform_Build
-      Condition: succeeded()
-    TerraformDeploymentConfig:
-      AzureServiceConnection: AzureServiceConnection-Dev
-      AzDOEnvironmentName: development-environment
-      BackendConfig:
-        resource_group_name: rg-terraform-state-dev
-        storage_account_name: sttfstatedev
-        container_name: tfstate
-        key: dev.terraform.tfstate
-      RunMode: PlanVerifyApply
-      VerificationMode: VerifyOnDestroy
-      VariableFiles:
-        - config/common.tfvars
-        - config/dev.tfvars
+   # Development
+   - Name: dev
+     Stage:
+       DependsOn: Terraform_Build
+       Condition: succeeded()
+     TerraformDeploymentConfig:
+       AzureServiceConnection: AzureServiceConnection-Dev
+       AzDOEnvironmentName: development-environment
+       BackendConfig:
+         resource_group_name: rg-terraform-state-dev
+         storage_account_name: sttfstatedev
+         container_name: tfstate
+         key: dev.terraform.tfstate
+       RunMode: PlanVerifyApply
+       VerificationMode: VerifyOnDestroy
+       VariableFiles:
+         - config/common.tfvars
+         - config/dev.tfvars
 
-  # Production (depends on dev, only on main branch)
-  - Name: production
-    Stage:
-      DependsOn: Deploy_dev_Infrastructure
-      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+   # Production (depends on dev, only on main branch)
+   - Name: production
+     Stage:
+       DependsOn: Deploy_dev_Terraform
+       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     TerraformDeploymentConfig:
       AzureServiceConnection: AzureServiceConnection-Production
       AzDOEnvironmentName: production-environment
@@ -429,7 +429,7 @@ OutputVariables:
 The output variables are exported as Azure DevOps pipeline variables with the following naming convention:
 
 ```
-stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
 ```
 
 **Example**: If you export a Terraform output named `resource_id` from an environment named `dev`, you would access it in a subsequent stage like this:
@@ -439,9 +439,9 @@ stages:
   # ... infrastructure pipeline stages ...
 
   - stage: UseOutputs
-    dependsOn: Deploy_dev_Infrastructure
+    dependsOn: Deploy_dev_Terraform
     variables:
-      ResourceId: $[stageDependencies.Deploy_dev_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.resource_id']]
+      ResourceId: $[stageDependencies.Deploy_dev_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.resource_id']]
     jobs:
       - job: ConsumeOutput
         steps:

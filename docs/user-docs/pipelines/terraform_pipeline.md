@@ -113,7 +113,7 @@ With this configuration, the pipeline will:
    - Run `terraform validate` to check syntax
    - Package terraform files as an artifact
 
-2. **Deploy Stage** (`Deploy_dev_Infrastructure`)
+2. **Deploy Stage** (`Deploy_dev_Terraform`)
    - Download terraform artifact
    - Run `terraform init` with the backend configuration
    - Run `terraform plan` to show what will change
@@ -178,7 +178,7 @@ extends:
       # Production Environment (deploys after dev, only on main branch)
       - Name: production
         Stage:
-          DependsOn: Deploy_dev_Infrastructure
+          DependsOn: Deploy_dev_Terraform
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Production
@@ -315,7 +315,7 @@ extends:
       # Production: Requires approval for any changes
       - Name: production
         Stage:
-          DependsOn: Deploy_dev_Infrastructure       # Must deploy to dev first
+          DependsOn: Deploy_dev_Terraform       # Must deploy to dev first
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Prod
@@ -461,7 +461,7 @@ resources:
 ```yaml
 variables:
   - name: ResourceGroupId
-    value: $[ stageDependencies.Deploy_dev_Infrastructure.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.rg_id'] ]
+    value: $[ stageDependencies.Deploy_dev_Terraform.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.rg_id'] ]
 ```
 
 ### Incorrect Terraform Version Being Used
