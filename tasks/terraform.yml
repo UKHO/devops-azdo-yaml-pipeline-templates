@@ -134,8 +134,8 @@ steps:
         
   - ${{ if eq(parameters.ServiceConnection, '') }}:
       - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
-        displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if ne(parameters.WorkingDirectory, '') }}:
           workingDirectory: ${{ parameters.WorkingDirectory }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
@@ -144,6 +144,7 @@ steps:
           condition: ${{ parameters.Condition }}
         ${{ if gt(parameters.RetryCountOnTaskFailure, 0) }}:
           retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
+          
   - ${{ else }}:
       - task: AzureCLI@2
         inputs:
@@ -153,8 +154,8 @@ steps:
           inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'init'), not(contains(parameters.CommandOptions, '-backend=false'))), '-backend-config="use_azuread_auth=true"', '') }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }} # TODO: Refactor use_azuread_auth handling to terraform_deploy.yml for better separation of concerns
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
-        displayName: 'Terraform ${{ parameters.Command }}'
-        name: TerraformTask_${{ parameters.Command }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
           env: ${{ parameters.TaskEnvironmentVariables }}
         ${{ if ne(parameters.Condition, '') }}:
