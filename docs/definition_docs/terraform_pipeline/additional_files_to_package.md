@@ -68,5 +68,6 @@ AdditionalFilesToPackage:
 
 ## See Also
 
-- [Terraform Pipeline Documentation](../../user-docs/terraform_pipeline.md) – User documentation with usage patterns and examples
-- [Terraform Pipeline Parameters in Detail](../../user-docs/terraform_pipeline_parameters_in_detail.md) – Parameter reference including AdditionalFilesToPackage usage and troubleshooting
+- [Terraform Pipeline Documentation](../../user-docs/pipelines/terraform_pipeline.md) – User documentation with usage patterns and examples
+- [AdditionalFilesToPackage Detailed Guide](../../user-docs/pipelines/terraform_pipeline_additional_files_to_package.md) – Comprehensive guide on file patterns and usage
+- [Terraform Build Job Documentation](../../user-docs/jobs/terraform_build.md) – Job that uses AdditionalFilesToPackage

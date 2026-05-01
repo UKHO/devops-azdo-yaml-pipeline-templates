@@ -41,7 +41,7 @@ EnvironmentConfigs:
 
 **Examples:**
 - `'Terraform_Build'` - Depends on the build stage
-- `['Terraform_Build', 'Deploy_dev_Infrastructure']` - Depends on multiple stages
+- `['Terraform_Build', 'Deploy_dev_Terraform']` - Depends on multiple stages
 
 ---
 
@@ -95,7 +95,7 @@ parameters:
       # Production Environment
       - Name: production
         Stage:
-          DependsOn: Deploy_dev_Infrastructure
+          DependsOn: Deploy_dev_Terraform
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Production
@@ -125,6 +125,7 @@ parameters:
 
 ## See Also
 
-- [Infrastructure Config Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
-- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
+- [TerraformDeploymentConfig Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
+- [Terraform Pipeline User Documentation](../../user-docs/pipelines/terraform_pipeline.md) - End-user pipeline documentation
+- [Terraform Gated Deployment Job](../../user-docs/jobs/terraform_gated_deployment.md) - Job that uses EnvironmentConfigs
 
