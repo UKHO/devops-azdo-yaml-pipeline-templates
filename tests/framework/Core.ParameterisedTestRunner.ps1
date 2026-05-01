@@ -125,7 +125,7 @@ function script:Get-InvalidErrorMessageFunction
         }
         elseif ($null -ne $result.error -and $result.error.statusCode -eq 400)
         {
-            return "Expected error code but got unexpected error message: $( $result.error.apiMessage )"
+            return "Expected error message containing '$( $testCase.ErrorMessage )' but got: $( $result.error.apiMessage )"
         }
         elseif ($null -ne $result.error -and $result.error.statusCode -ne 400)
         {
