@@ -349,6 +349,16 @@ Apply job runs only if:
 
 ---
 
+## Live Examples
+
+View working test examples in the repository:
+
+- **PlanVerifyApply Mode**: [tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
+- **PlanOnly Mode**: [tests/jobs/terraform_gated_deployment/plan_only_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/plan_only_test.yml)
+- **ApplyOnly Mode**: [tests/jobs/terraform_gated_deployment/apply_only_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/apply_only_test.yml)
+
+---
+
 ## See Also
 
 - [Terraform Deploy Job](./terraform_deploy.md) – Individual plan and apply steps

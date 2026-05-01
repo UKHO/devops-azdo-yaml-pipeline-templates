@@ -181,6 +181,15 @@ TimeoutInMinutes: 480  # 8 hours instead of 60 minutes (1 hour)
 
 ---
 
+## Live Examples
+
+View working test examples in the repository:
+
+- **Resume on Timeout**: [tests/jobs/manual_verification/resume_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/manual_verification/resume_test.yml)
+- **Double Resume Test**: [tests/jobs/manual_verification/double_resume_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/manual_verification/double_resume_test.yml)
+
+---
+
 ## See Also
 
 - [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Uses this job for infrastructure approvals

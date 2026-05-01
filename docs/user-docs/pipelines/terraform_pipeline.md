@@ -531,3 +531,19 @@ extends:
 - Verify terraform providers are correctly configured for your Azure environment
 
 
+
+---
+
+## Live Examples
+
+View working test examples in the repository:
+
+- **Windows Pipeline**: [tests/pipelines/terraform_pipeline/windows_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/pipelines/terraform_pipeline/windows_test.yml)
+- **Linux Pipeline**: [tests/pipelines/terraform_pipeline/linux_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/pipelines/terraform_pipeline/linux_test.yml)
+- **Elastic Pipeline**: [tests/pipelines/terraform_pipeline/elastic_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/pipelines/terraform_pipeline/elastic_test.yml)
+- **Key Vault Integration**: [tests/pipelines/terraform_pipeline/keyvault_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/pipelines/terraform_pipeline/keyvault_test.yml)
+
+These are functional test pipelines that demonstrate the template in action with various configurations.
+
+
+
