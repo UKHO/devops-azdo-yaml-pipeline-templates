@@ -24,8 +24,8 @@ extends:
       - Name: dev
         Stage:
           DependsOn:
-            - build
-          Condition: succeeded('build')
+            - build_terraform
+          Condition: succeeded('build_terraform')
         TerraformDeploymentConfig:
           AzureServiceConnection: DevOps Chapter Dev
           AzDOEnvironmentName: Elastic
