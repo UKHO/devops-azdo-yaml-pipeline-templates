@@ -89,7 +89,8 @@ $validTestCases = @(
     Description = "output command to file with SaveOutputsToFile true"
     Parameters = @{
       Command = "output"
-      SaveOutputsToFile = $true
+      SaveCommandConsoleOutputToFile = $true
+      CommandConsoleOutputFileName = "terraform-output.json"
       ServiceConnection = "AzureRMServiceConnection"
     }
     ExpectedYaml = @(
