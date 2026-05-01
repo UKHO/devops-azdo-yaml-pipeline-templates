@@ -256,6 +256,14 @@ Deploy stages download this artifact and use it for planning and applying infras
 
 ---
 
+## Live Examples
+
+View working test examples in the repository:
+
+- **Basic Build**: [tests/jobs/terraform_build/build_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/build_test.yml)
+- **With Injection Steps**: [tests/jobs/terraform_build/injection_steps_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/injection_steps_test.yml)
+- **With Additional Files**: [tests/jobs/terraform_build/additional_files_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/additional_files_test.yml)
+
 ## See Also
 
 - [Terraform Deploy Job](./terraform_deploy.md) – Uses artifact from this job

@@ -262,6 +262,17 @@ Replace:
 
 ---
 
+## Live Examples
+
+View working test examples in the repository:
+
+- **Plan Mode**: [tests/jobs/terraform_deploy/plan_basic_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/plan_basic_test.yml)
+- **Apply Mode**: [tests/jobs/terraform_deploy/apply_basic_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/apply_basic_test.yml)
+- **With Output Variables**: [tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml)
+- **With Multiple Mappings**: [tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml)
+
+---
+
 ## Best Practices
 
 - **Use with Gated Deployment** – Consider using [Terraform Gated Deployment Job](./terraform_gated_deployment.md) for orchestrated workflows
