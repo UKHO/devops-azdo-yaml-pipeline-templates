@@ -170,6 +170,11 @@ jobs:
                           -TerraformPlanFilePath "$(TerraformPlanFilePath)"
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
+                        
+                    - template: /tasks/publish_pipeline_artifact.yml
+                      parameters:
+                        TargetPath: $(TerraformWorkingDirectory)
+                        ArtifactName: "terraform-output.json"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
