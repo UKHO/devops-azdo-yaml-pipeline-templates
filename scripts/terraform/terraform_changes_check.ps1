@@ -56,6 +56,10 @@ catch
   throw
 }
 
+if ($isDebugMode) {
+    Write-Host "##[debug]$terraformPlan"
+}
+
 Write-Host "##[group]Analyzing Terraform plan for changes"
 
 # Check if plan has any changes
