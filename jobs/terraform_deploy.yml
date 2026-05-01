@@ -140,7 +140,7 @@ jobs:
             - template: /tasks/terraform.yml
               parameters:
                 Command: init
-                CommandOptions: $(BackendConfigCommandOption) -upgrade
+                CommandOptions: $(BackendConfigCommandOption)
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                 ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
