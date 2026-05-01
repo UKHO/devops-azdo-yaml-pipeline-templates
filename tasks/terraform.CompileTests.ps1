@@ -152,6 +152,8 @@ $validTestCases = @(
             CustomCommand = "version"
         }
         ExpectedYaml = @(
+            'TerraformTask_version'
+            'displayName: Terraform version'
             "terraform version"
         )
     },
