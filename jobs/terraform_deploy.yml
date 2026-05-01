@@ -161,7 +161,7 @@ jobs:
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
                       
-                - template: tasks/terraform.yml
+                - template: /tasks/terraform.yml
                   parameters:
                     Command: 'custom'
                     CustomCommand: 'show'
