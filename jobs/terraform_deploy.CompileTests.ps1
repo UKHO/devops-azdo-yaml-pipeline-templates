@@ -125,7 +125,7 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "TerraformExportOutputsVariables"
-            "terraform-output.json"
+            "terraform-output-variables.json"
         )
     },
     @{
@@ -425,6 +425,38 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "displayName: Apply 'TerraformArtifact'"
+        )
+    },
+    @{
+        Description = "Plan with AzureServiceConnection adds use_azuread_auth backend config to init"
+        Parameters = @{
+            EnvironmentName = "dev"
+            TerraformDeploymentConfig = @{
+                AzDOEnvironmentName = "compile-tests-only"
+                RunMode = "PlanOnly"
+                AzureServiceConnection = "MyServiceConnection"
+            }
+        }
+        ExpectedYAML = @(
+            "terraform init"
+            "use_azuread_auth=true"
+            "task: AzureCLI@2"
+        )
+    },
+    @{
+        Description = "Plan with VerificationMode includes custom terraform show command"
+        Parameters = @{
+            EnvironmentName = "dev"
+            TerraformDeploymentConfig = @{
+                AzDOEnvironmentName = "compile-tests-only"
+                RunMode = "PlanOnly"
+                VerificationMode = "VerifyOnDestroy"
+            }
+        }
+        ExpectedYAML = @(
+            "terraform show"
+            "-json `$(TerraformPlanFilePath)"
+            "> `$(TerraformPlannedChangesFilePath)"
         )
     }
 )
