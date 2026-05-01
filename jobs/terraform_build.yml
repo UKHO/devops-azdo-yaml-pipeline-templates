@@ -71,6 +71,15 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
+      - template: /tasks/powershell.yml
+        parameters:
+          TaskName: 'RemoveTerraformDirectory'
+          TargetType: 'inline'
+          InlineScript: |
+            Remove-Item -Path "$(TerraformWorkingDirectory)/.terraform" -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "Removed .terraform directory from artifact"
+          FailOnStandardError: false
+
       - template: /tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: $(TerraformWorkingDirectory)
