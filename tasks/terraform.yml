@@ -151,7 +151,7 @@ steps:
           azureSubscription: ${{ parameters.ServiceConnection }}
           scriptType: pscore
           scriptLocation: inlineScript
-          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(and(eq(parameters.Command, 'init'), not(contains(parameters.CommandOptions, '-backend=false'))), '-backend-config="use_azuread_auth=true"', '') }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }} # TODO: Refactor use_azuread_auth handling to terraform_deploy.yml for better separation of concerns
+          inlineScript: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
         displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
