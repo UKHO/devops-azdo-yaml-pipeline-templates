@@ -123,6 +123,10 @@ function script:Get-InvalidErrorMessageFunction
         {
             return "Expected test to fail but it succeeded: $( $result.finalYaml )"
         }
+        elseif ($null -ne $result.error -and $result.error.statusCode -eq 400)
+        {
+            return "Expected error code but got unexpected error message: $( $result.error.apiMessage )"
+        }
         elseif ($null -ne $result.error -and $result.error.statusCode -ne 400)
         {
             return "Expected error code 400 but got $( $result.error.statusCode ): $( $result.error.apiMessage )"
