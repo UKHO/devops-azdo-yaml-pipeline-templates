@@ -241,7 +241,7 @@ OutputVariables:
 
 Exported variables can be accessed using:
 ```text
-stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
 ```
 
 ---
@@ -297,5 +297,6 @@ TerraformDeploymentConfig:
 ## See Also
 
 - [Environment Config Documentation](./environment_config.md) - Complete environment configuration structure
-- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
-- [Parameters in Detail](../../user-docs/terraform_pipeline_parameters_in_detail.md) - Legacy single-environment parameter reference
+- [Terraform Pipeline User Documentation](../../user-docs/pipelines/terraform_pipeline.md) - End-user pipeline documentation
+- [Terraform Deploy Job Documentation](../../user-docs/jobs/terraform_deploy.md) - Job that uses TerraformDeploymentConfig
+- [Terraform Gated Deployment Job Documentation](../../user-docs/jobs/terraform_gated_deployment.md) - Orchestrator job using this config
