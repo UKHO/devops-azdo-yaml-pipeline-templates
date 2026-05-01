@@ -124,9 +124,9 @@ With this configuration, the pipeline will:
 The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains a list of environment configurations. Each environment configuration has the following structure:
 
 **For complete configuration documentation, see:**
-- [EnvironmentConfig Documentation](../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
-- [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md) - Infrastructure-specific configuration details
-- [AdditionalFilesToPackage Documentation](../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
+- [EnvironmentConfig Documentation](../../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
+- [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md) - Infrastructure-specific configuration details
+- [AdditionalFilesToPackage Documentation](../../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
 
 **Quick reference of required fields:**
 
@@ -139,7 +139,7 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 | TerraformDeploymentConfig.RunMode             | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
 | TerraformDeploymentConfig.VerificationMode    | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
 
-See the [developer documentation](../definition_docs/terraform_pipeline/environment_config.md) for optional parameters and advanced configuration.
+See the [developer documentation](../../definition_docs/terraform_pipeline/environment_config.md) for optional parameters and advanced configuration.
 
 ---
 
