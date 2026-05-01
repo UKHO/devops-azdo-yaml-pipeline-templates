@@ -153,7 +153,7 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
+                    CommandOptions: '-out=$(TerraformPlanFilePath) -json $(VariableFilesCommandOption) -input=false'
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -173,8 +173,8 @@ jobs:
                         
                     - template: /tasks/publish_pipeline_artifact.yml
                       parameters:
-                        TargetPath: $(TerraformWorkingDirectory)
-                        ArtifactName: "terraform-output.json"
+                        TargetPath: $(TerraformPlanFilePath)
+                        ArtifactName: "tfplan"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
