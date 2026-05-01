@@ -14,7 +14,7 @@ trigger: none
 
 variables:
   - name: terraform_path
-    value: tests/shared_resources/elastic_terraform
+    value: tests/shared_resources/elastic_test_terraform
 
 pr:
   - main
