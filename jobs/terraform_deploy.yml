@@ -78,6 +78,8 @@ jobs:
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
           - name: TerraformPlanFilePath
             value: $(TerraformWorkingDirectory)/tfplan
+          - name: TerraformPlannedChangesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-planned-changes.json
 
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
@@ -166,7 +168,7 @@ jobs:
                         CustomCommand: 'show'
                         CommandOptions: '-json $(TerraformPlanFilePath)'
                         SaveCommandConsoleOutputToFile: true
-                        CommandConsoleOutputFileName: 'terraform-planned-changes.json'
+                        CommandConsoleOutputFileName: $(TerraformPlannedChangesFilePath)
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                         ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -179,14 +181,9 @@ jobs:
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                         ScriptFileArguments: >
                           -VerificationMode ${{ parameters.TerraformDeploymentConfig.VerificationMode }}
-                          -TerraformPlannedChangesFilePath "$(TerraformWorkingDirectory)/terraform-planned-changes.json"
+                          -TerraformPlannedChangesFilePath $(TerraformPlannedChangesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
-
-                    - template: /tasks/publish_pipeline_artifact.yml
-                      parameters:
-                        TargetPath: $(TerraformWorkingDirectory)/terraform-planned-changes.json
-                        ArtifactName: "tfplan"
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
                 - template: /tasks/terraform.yml
