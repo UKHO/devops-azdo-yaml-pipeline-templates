@@ -20,12 +20,6 @@
     values: [ reject, resume ]
     displayName: 'Action to take when validation times out (reject or resume)'
 
-  - name: OnTimeoutBehaviour
-    type: string
-    default: 'reject'
-    values: [ reject, resume ]
-    displayName: 'Action to take when validation times out (reject or resume)'
-
   - name: TimeoutInMinutes
     type: number
     default: 60
