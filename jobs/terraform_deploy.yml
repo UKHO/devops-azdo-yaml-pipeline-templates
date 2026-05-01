@@ -160,6 +160,12 @@ jobs:
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
+                      
+                - template: tasks/terraform.yml
+                  parameters:
+                    Command: 'custom'
+                    CustomCommand: 'show'
+                    CommandOptions: '-json'
 
                 - ${{ if parameters.TerraformDeploymentConfig.VerificationMode }}:
                     - template: /tasks/powershell.yml
