@@ -26,7 +26,7 @@ parameters:
 
 stages:
   - stage: Build_Terraform
-    displayName: 'Build'
+    displayName: "Build '${{ parameters.ArtifactName }}' Terraform"
     jobs:
       - template: /jobs/terraform_build.yml
         parameters:
