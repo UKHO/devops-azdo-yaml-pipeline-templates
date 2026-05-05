@@ -329,7 +329,6 @@ $invalidTestCases = @(
       }
     }
   },
-
   @{
     Description = "invalid CheckoutAlias value (must be AzDOPipelineTemplates or self)"
     Parameters = @{
