@@ -37,8 +37,7 @@ $validTestCases = @(
             'job: TerraformBuild_TerraformArtifact',
             "displayName:*Build 'TerraformArtifact' Terraform Artifact",
             'artifact:*TerraformArtifact',
-            'inputs:*TerraformVersion:**1.14.0',
-            'artifact:*TerraformArtifact'
+            'inputs:*TerraformVersion:**1.14.0'
         )
     },
     @{
