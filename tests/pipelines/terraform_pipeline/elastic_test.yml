@@ -19,7 +19,7 @@ extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
     RelativePathToTerraformFiles: tests/shared_resources/elastic_test_terraform
-    TerraformVersion: latest
+    TerraformVersion: 1.14.0
     EnvironmentConfigs:
       - Name: dev
         Stage:
