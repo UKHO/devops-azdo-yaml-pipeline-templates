@@ -7,13 +7,14 @@
 # Parameters:
 #   - TaskEnvironmentVariables (object, optional): Environment variables to be passed to the task. Default: {}
 #   - TaskNameUniqueSlug (string, optional): Unique string to add to the task name to make it unique if the same command is repeated. Default: ''
-#   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
+#   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 0
 #   - Command (string, required): The Terraform command to execute. Values: init, validate, plan, apply, output, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
-#   - SaveOutputsToFile (boolean, optional): Save terraform output to terraform-output.json file (output command only). Default: false
+#   - SaveCommandConsoleOutputToFile (boolean, optional): Save terraform console output to a file. Default: false
+#   - CommandConsoleOutputFileName (string, optional): File name to save terraform console output to (required when SaveCommandConsoleOutputToFile is true). Default: ''
 #   - ServiceConnection (string, optional): Azure service connection for backend state storage. When provided, uses AzureCLI@2 with authentication. Default: ''
 #
 # Example Usage:
@@ -40,7 +41,8 @@
 #     parameters:
 #       Command: 'output'
 #       CommandOptions: '-json'
-#       SaveOutputsToFile: true
+#       SaveCommandConsoleOutputToFile: true
+#       CommandConsoleOutputFileName: 'terraform-output.json'
 #
 #   # Custom command with service connection
 #   - template: tasks/terraform.yml
@@ -51,7 +53,6 @@
 #
 # Notes:
 #   - Execution path depends on ServiceConnection: without it, uses native script task; with it, uses AzureCLI@2 for authenticated access.
-#   - When ServiceConnection is provided, init command automatically adds -backend-config="use_azuread_auth=true".
 #   - Backend and provider configuration should be managed via CommandOptions or Terraform configuration files.
 #   - Ensure Terraform CLI is installed and in PATH before executing this template.
 #   - See: https://www.terraform.io/cli
@@ -111,11 +112,11 @@ parameters:
     default: false
     displayName: 'Save terraform console output to a file'
     # Notes: '>' has to be last in the command to pipe the output to a file
-    
+
   - name: CommandConsoleOutputFileName
     type: string
     default: ''
-    displayName: 'Name of file for terraform console output to be saved to'
+    displayName: 'Name of file for terraform console output to be saved to (required when SaveCommandConsoleOutputToFile is true)'
 
   - name: ServiceConnection
     type: string
@@ -125,13 +126,13 @@ parameters:
 steps:
   - ${{ if and(eq(parameters.Command, 'custom'), eq(parameters.CustomCommand, '')) }}:
       - "The 'CustomCommand' parameter is required when 'Command' is 'custom'.": "Error"
-        
+
   - ${{ if and(parameters.SaveCommandConsoleOutputToFile, eq(parameters.CommandConsoleOutputFileName, '')) }}:
       - "The 'CommandConsoleOutputFileName' parameter is required when 'SaveCommandConsoleOutputToFile' is true.": "Error"
-        
+
   - ${{ if and(not(parameters.SaveCommandConsoleOutputToFile), ne(parameters.CommandConsoleOutputFileName, '')) }}:
       - "The 'SaveCommandConsoleOutputToFile' parameter is required when 'CommandConsoleOutputFileName' is not empty.": "Error"
-        
+
   - ${{ if eq(parameters.ServiceConnection, '') }}:
       - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
         displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
@@ -144,7 +145,7 @@ steps:
           condition: ${{ parameters.Condition }}
         ${{ if gt(parameters.RetryCountOnTaskFailure, 0) }}:
           retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
-          
+
   - ${{ else }}:
       - task: AzureCLI@2
         inputs:
