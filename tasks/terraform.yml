@@ -136,7 +136,7 @@ steps:
   - ${{ if eq(parameters.ServiceConnection, '') }}:
       - script: terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }} ${{ parameters.CommandOptions }} ${{ iif(parameters.SaveCommandConsoleOutputToFile, format('> {0}', parameters.CommandConsoleOutputFileName), '') }}
         displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
-        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, replace(parameters.CustomCommand, ' ', '_')) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if ne(parameters.WorkingDirectory, '') }}:
           workingDirectory: ${{ parameters.WorkingDirectory }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
@@ -156,7 +156,7 @@ steps:
           ${{ if ne(parameters.WorkingDirectory, '') }}:
             workingDirectory: ${{ parameters.WorkingDirectory }}
         displayName: "Terraform ${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}"
-        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, parameters.CustomCommand) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+        name: TerraformTask_${{ iif(ne(parameters.Command, 'custom'), parameters.Command, replace(parameters.CustomCommand, ' ', '_')) }}${{ iif(parameters.TaskNameUniqueSlug, format('_{0}', parameters.TaskNameUniqueSlug), '') }}
         ${{ if gt(length(parameters.TaskEnvironmentVariables), 0) }}:
           env: ${{ parameters.TaskEnvironmentVariables }}
         ${{ if ne(parameters.Condition, '') }}:
