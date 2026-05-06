@@ -21,7 +21,7 @@ provider "elasticstack" {
 }
 
 resource "elasticstack_kibana_slo" "custom_kql" {
-  name        = "test-slo-devopschapter-2"
+  name        = "test-slo-devopschapter"
   description = "SLO terraform test"
 
   kql_custom_indicator {

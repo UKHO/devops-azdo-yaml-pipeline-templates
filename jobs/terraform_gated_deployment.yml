@@ -13,7 +13,7 @@ parameters:
     type: string
     default: ''
     displayName: 'The pool that this job will run on'
-    
+
   - name: CheckoutAlias
     type: string
     default: AzDOPipelineTemplates

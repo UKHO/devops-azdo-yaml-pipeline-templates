@@ -59,7 +59,7 @@ jobs:
 
   - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
     displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
-    
+
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     ${{ if parameters.Pool }}:
@@ -68,18 +68,22 @@ jobs:
       clean: all
 
     environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
-    
+
     variables:
 
       # Terraform Plan Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
           - name: TerraformPlanFilePath
             value: $(TerraformWorkingDirectory)/tfplan
+          - name: TerraformPlannedChangesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-planned-changes.json
 
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
             value: ${{ join(',', parameters.TerraformDeploymentConfig.OutputVariables) }}
+          - name: TerraformOutputVariablesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-output-variables.json
 
       # Shared Variables
       - template: /utils/concat_wrap_list.yml
@@ -93,7 +97,7 @@ jobs:
         parameters:
           Items:
             - ${{ each backendConfig in parameters.TerraformDeploymentConfig.BackendConfig }}:
-               - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
+                - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
           Prefix: ' -backend-config="'
           Suffix: '"'
           OutputVariableName: BackendConfigCommandOption
@@ -140,7 +144,7 @@ jobs:
             - template: /tasks/terraform.yml
               parameters:
                 Command: init
-                CommandOptions: $(BackendConfigCommandOption)
+                CommandOptions: $(BackendConfigCommandOption) ${{ iif(parameters.TerraformDeploymentConfig.AzureServiceConnection, '-backend-config="use_azuread_auth=true"', '') }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
                 TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                 ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -150,21 +154,33 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
+                    CommandOptions: -out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
                       ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
 
                 - ${{ if parameters.TerraformDeploymentConfig.VerificationMode }}:
+                    - template: /tasks/terraform.yml
+                      parameters:
+                        Command: custom
+                        CustomCommand: show
+                        CommandOptions: -json $(TerraformPlanFilePath)
+                        SaveCommandConsoleOutputToFile: true
+                        CommandConsoleOutputFileName: $(TerraformPlannedChangesFilePath)
+                        WorkingDirectory: $(TerraformWorkingDirectory)
+                        TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                        ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                          ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
+
                     - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformChangesCheck
-                        TargetType: 'filePath'
+                        TargetType: filePath
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                         ScriptFileArguments: >
                           -VerificationMode ${{ parameters.TerraformDeploymentConfig.VerificationMode }}
-                          -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                          -TerraformPlannedChangesFilePath $(TerraformPlannedChangesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
 
@@ -172,7 +188,7 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
-                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
+                    CommandOptions: $(VariableFilesCommandOption) -input=false -auto-approve
                     WorkingDirectory: $(TerraformWorkingDirectory)
                     TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                     ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -182,8 +198,9 @@ jobs:
                     - template: /tasks/terraform.yml
                       parameters:
                         Command: output
-                        CommandOptions: '-json'
-                        SaveOutputsToFile: true
+                        CommandOptions: -json
+                        SaveCommandConsoleOutputToFile: true
+                        CommandConsoleOutputFileName: $(TerraformOutputVariablesFilePath)
                         WorkingDirectory: $(TerraformWorkingDirectory)
                         TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
                         ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
@@ -192,10 +209,10 @@ jobs:
                     - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformExportOutputsVariables
-                        TargetType: 'filePath'
+                        TargetType: filePath
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
-                          -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
+                          -OutputFileName $(TerraformOutputVariablesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true

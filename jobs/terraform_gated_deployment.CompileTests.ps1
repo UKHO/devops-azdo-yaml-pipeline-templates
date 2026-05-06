@@ -18,7 +18,7 @@ $validTestCases = @(
   # ========================================================================
   # RUNMODE TESTS
   # ========================================================================
-  
+
   @{
     Description = "PlanOnly mode - includes only Plan job"
     Parameters = @{
@@ -67,7 +67,7 @@ $validTestCases = @(
   # ========================================================================
   # VERIFICATION MODE TESTS (with PlanVerifyApply)
   # ========================================================================
-  
+
   @{
     Description = "PlanVerifyApply with VerifyOnDestroy verification mode"
     Parameters = @{
@@ -97,7 +97,7 @@ $validTestCases = @(
   # ========================================================================
   # CHECKOUT ALIAS TESTS
   # ========================================================================
-  
+
   @{
     Description = "with CheckoutAlias set to 'self'"
     Parameters = @{
@@ -114,7 +114,7 @@ $validTestCases = @(
   # ========================================================================
   # CONDITION TESTS
   # ========================================================================
-  
+
   @{
     Description = "with failed() condition on PlanOnly mode"
     Parameters = @{
@@ -131,7 +131,7 @@ $validTestCases = @(
   # ========================================================================
   # POOL TESTS
   # ========================================================================
-  
+
   @{
     Description = "with custom Pool configuration"
     Parameters = @{
@@ -148,7 +148,7 @@ $validTestCases = @(
   # ========================================================================
   # VERSION AND ARTIFACT TESTS
   # ========================================================================
-  
+
   @{
     Description = "with custom Terraform version"
     Parameters = @{
@@ -206,7 +206,7 @@ $validTestCases = @(
   # ========================================================================
   # DEPENDENCIES TESTS
   # ========================================================================
-  
+
   @{
     Description = "PlanVerifyApply with proper dependencies between jobs"
     Parameters = @{
@@ -226,7 +226,7 @@ $validTestCases = @(
   # ========================================================================
   # COMBINED/INTEGRATION TESTS
   # ========================================================================
-  
+
   @{
     Description = "Complex scenario: PlanVerifyApply with custom versions, pool, and artifact name"
     Parameters = @{
