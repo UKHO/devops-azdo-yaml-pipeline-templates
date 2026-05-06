@@ -240,7 +240,7 @@ $invalidTestCases = @(
         Description = "custom command with missing custom command"
         Parameters = @{
             Command = "plan"
-            SaveCommandConsoleOutputToFile = "true"
+            SaveCommandConsoleOutputToFile = $true
         }
         ErrorMessage = "The 'CommandConsoleOutputFileName' parameter is required when 'SaveCommandConsoleOutputToFile' is true."
     },
