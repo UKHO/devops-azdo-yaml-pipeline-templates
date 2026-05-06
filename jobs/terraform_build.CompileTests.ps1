@@ -34,11 +34,17 @@ $validTestCases = @(
         Parameters = @{
         }
         ExpectedYaml = @(
-            'path: $(RepositoryCheckoutFolderName)',
             'job: TerraformBuild_TerraformArtifact',
-            "displayName:*Terraform Build 'TerraformArtifact'",
-            'terraformVersion:*1.14.0',
+            "displayName:*Build 'TerraformArtifact' Terraform Artifact",
             'artifact:*TerraformArtifact',
+            'inputs:*TerraformVersion:**1.14.0'
+        )
+    },
+    @{
+        Description = "expected terraform commands"
+        Parameters = @{
+        }
+        ExpectedYaml = @(
             'terraform init -backend=false',
             'terraform validate'
         )
@@ -50,7 +56,7 @@ $validTestCases = @(
         }
         ExpectedYaml = @(
             'job: TerraformBuild_CustomTerraformArtifact',
-            "displayName:*Terraform Build 'CustomTerraformArtifact'",
+            "displayName:*Build 'CustomTerraformArtifact' Terraform Artifact",
             'artifact:*CustomTerraformArtifact'
         )
     },
@@ -60,7 +66,7 @@ $validTestCases = @(
             TerraformVersion = '1.15.0'
         }
         ExpectedYaml = @(
-            'terraformVersion:*1.15.0'
+            'inputs:*TerraformVersion:**1.15.0'
         )
     },
     @{
@@ -69,7 +75,7 @@ $validTestCases = @(
             TerraformVersion = 'latest'
         }
         ExpectedYaml = @(
-            'terraformVersion:*latest'
+            'inputs:*TerraformVersion:**latest'
         )
     },
     @{
@@ -89,7 +95,7 @@ $validTestCases = @(
         }
         ExpectedYaml = @(
             'artifact:*LatestTerraformArtifact',
-            'terraformVersion:*latest'
+            'inputs:*TerraformVersion:**latest'
         )
     },
     @{

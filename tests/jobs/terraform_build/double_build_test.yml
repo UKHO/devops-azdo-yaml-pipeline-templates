@@ -41,6 +41,7 @@ jobs:
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
           ArtifactName: ${{ variables.artifact_name_one }}
+          
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
           ArtifactName: ${{ variables.artifact_name_two }}

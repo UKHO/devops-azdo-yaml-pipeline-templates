@@ -11,20 +11,13 @@ pool:
 
 trigger: none
 
-variables:
-  - name: artifact_name
-    value: terraform_build_with_injection
-  - name: terraform_path
-    value: tests/shared_resources/basic_terraform
-
 pr:
   - main
 
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: ${{ variables.artifact_name }}
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
       TerraformBuildInjectionSteps:
         - task: PowerShell@2
           displayName: 'Inject: Setup Environment'
@@ -38,9 +31,9 @@ jobs:
 
   - job: ValidateResults
     dependsOn:
-      - TerraformBuild_${{ variables.artifact_name }}
+      - TerraformBuild_TerraformArtifact
     steps:
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
-          ArtifactName: ${{ variables.artifact_name }}
+          ArtifactName: TerraformArtifact
 

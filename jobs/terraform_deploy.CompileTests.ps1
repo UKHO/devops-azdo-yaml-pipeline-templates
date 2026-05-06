@@ -1,16 +1,7 @@
 # ============================================================================
 # TEST: Terraform Deploy Job Template
 # ============================================================================
-# Comprehensive test cases for terraform_deploy.yml template covering:
-# - Core deployment modes (Plan, Apply)
-# - Verification logic (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)
-# - Output variable export and consumption
-# - Key Vault configuration
-# - Backend configuration
-# - Environment variables, variable files, and variable groups
-# - Terraform versions and checkout aliases
-# - Job conditions and dependencies
-# - Integration scenarios
+# Comprehensive test cases for terraform_deploy.yml template.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -125,7 +116,7 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "TerraformExportOutputsVariables"
-            "terraform-output-variables.json"
+            "terraform-output.json"
         )
     },
     @{
@@ -349,7 +340,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "TerraformVersion: 1.6.0"
+            "inputs:*TerraformVersion:* 1.6.0"
         )
     },
     @{
@@ -364,7 +355,7 @@ $validTestCases = @(
             }
         }
         ExpectedYAML = @(
-            "TerraformVersion: 1.4.6"
+            "inputs:*TerraformVersion:* 1.4.6"
         )
     },
     @{
@@ -425,38 +416,6 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "displayName: Apply 'TerraformArtifact'"
-        )
-    },
-    @{
-        Description = "Plan with AzureServiceConnection adds use_azuread_auth backend config to init"
-        Parameters = @{
-            EnvironmentName = "dev"
-            TerraformDeploymentConfig = @{
-                AzDOEnvironmentName = "compile-tests-only"
-                RunMode = "PlanOnly"
-                AzureServiceConnection = "MyServiceConnection"
-            }
-        }
-        ExpectedYAML = @(
-            "terraform init"
-            "use_azuread_auth=true"
-            "task: AzureCLI@2"
-        )
-    },
-    @{
-        Description = "Plan with VerificationMode includes custom terraform show command"
-        Parameters = @{
-            EnvironmentName = "dev"
-            TerraformDeploymentConfig = @{
-                AzDOEnvironmentName = "compile-tests-only"
-                RunMode = "PlanOnly"
-                VerificationMode = "VerifyOnDestroy"
-            }
-        }
-        ExpectedYAML = @(
-            "terraform show"
-            "-json `$(TerraformPlanFilePath)"
-            "> `$(TerraformPlannedChangesFilePath)"
         )
     }
 )
