@@ -56,13 +56,23 @@ jobs:
       TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
 
     steps:
+      - checkout: self
+        displayName: 'Checkout self repository'
+        clean: true
+        path: $(RepositoryCheckoutFolderName)
+        
       - download: none
 
-      - template: /jobs/terraform_build_checkout_steps.yml
-        parameters:
-          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
-          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
+      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
+          - ${{ step }}
 
+      - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
+          - template: /tasks/copy_files.yml
+            parameters:
+              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
+              FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
+              TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetSubdirectoryName }}
+              
       - template: /tasks/terraform_installer.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
@@ -78,10 +88,14 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      - template: /jobs/terraform_build_checkout_steps.yml
+      - template: /tasks/powershell.yml
         parameters:
-          AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
-          TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
+          TaskName: 'RemoveTerraformDirectory'
+          TargetType: 'inline'
+          InlineScript: |
+            Remove-Item -Path "$(TerraformWorkingDirectory)/.terraform" -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "Removed .terraform directory from artifact"
+          FailOnStandardError: false
 
       - template: /tasks/publish_pipeline_artifact.yml
         parameters:
