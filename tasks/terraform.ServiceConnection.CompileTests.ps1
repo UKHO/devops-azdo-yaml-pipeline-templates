@@ -85,7 +85,7 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "output command to file with SaveOutputsToFile true"
+    Description = "output command to file with SaveCommandConsoleOutputToFile true"
     Parameters = @{
       Command = "output"
       SaveCommandConsoleOutputToFile = $true

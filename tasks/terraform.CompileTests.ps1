@@ -123,7 +123,7 @@ $validTestCases = @(
         )
     },
     @{
-        Description = "output command to console with SaveOutputsToFile false"
+        Description = "output command to console with SaveCommandConsoleOutputToFile false"
         Parameters = @{
             Command = "output"
             SaveCommandConsoleOutputToFile = $false
@@ -133,7 +133,7 @@ $validTestCases = @(
         )
     },
     @{
-        Description = "output command to file with SaveOutputsToFile true"
+        Description = "output command to file with SaveCommandConsoleOutputToFile true"
         Parameters = @{
             Command = "output"
             SaveCommandConsoleOutputToFile = $true
