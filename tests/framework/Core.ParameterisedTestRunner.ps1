@@ -101,7 +101,7 @@ function script:Get-ValidErrorMessageFunction
         }
         else
         {
-            return "Final YAML did not contain expected content:  $( $testCase.ExpectedYaml -join ", " )"
+            return "Final YAML did not contain expected content:  $( $testCase.ExpectedYaml -join ", " )`n. Actual content: $( $result.finalYaml )"
         }
     }
 }
