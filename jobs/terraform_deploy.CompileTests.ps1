@@ -116,7 +116,7 @@ $validTestCases = @(
         }
         ExpectedYAML = @(
             "TerraformExportOutputsVariables"
-            "terraform-output.json"
+            "terraform-output-variables.json"
         )
     },
     @{
