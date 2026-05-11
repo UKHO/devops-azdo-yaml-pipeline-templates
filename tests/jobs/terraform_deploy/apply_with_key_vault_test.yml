@@ -40,7 +40,7 @@ jobs:
           key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'ApplyOnly'
         EnvironmentVariableMappings:
-          TF_VAR_StringInput: $(PIPELINE-TENANT-ID)
+          TF_VAR_Tenant_Id: $(PIPELINE-TENANT-ID)
         OutputVariables:
           - tenant_id
         JobsVariableMappings:
