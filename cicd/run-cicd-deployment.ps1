@@ -39,10 +39,6 @@ param(
 [string]$TenantId,
 
 [Parameter(Mandatory = $true)]
-[ValidateNotNullOrEmpty()]
-[string]$ResourceGroupName,
-
-[Parameter(Mandatory = $true)]
 [ValidateScript({
     if ([guid]::TryParse($_, [ref][guid]::Empty)) {
         return $true
@@ -90,7 +86,7 @@ if (-not $existingToken)
 }
 else
 {
-  Write-Host "✓ Valid token already exists, skipping login" -ForegroundColor Yellow
+  Write-Host "[OK] Valid token already exists, skipping login" -ForegroundColor Yellow
 }
 
 Write-Host "Verifying access token for Azure Storage..."
@@ -99,7 +95,7 @@ az account get-access-token --resource "https://storage.azure.com/" | Out-Null
 Write-Host "Displaying current account..."
 az account show --output table
 
-Write-Host "✓ Azure authentication successful" -ForegroundColor Green
+Write-Host "[OK] Azure authentication successful" -ForegroundColor Green
 Write-Host ""
 
 # Step 2: Terraform Initialization
@@ -109,11 +105,11 @@ terraform init -migrate-state `
     -backend-config="key=cicd.tfstate" `
     -backend-config="container_name=tfstate-devops-azdo-yaml-pipeline-templates" `
     -backend-config="storage_account_name=devopschapdevsa" `
-    -backend-config="resource_group_name=$ResourceGroupName" `
+    -backend-config="resource_group_name=DevOps Chapter Dev" `
     -backend-config="subscription_id=$SubscriptionId" `
     -backend-config="use_azuread_auth=true"
 
-Write-Host "✓ Terraform initialization successful" -ForegroundColor Green
+Write-Host "[OK] Terraform initialization successful" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Validation and Formatting
@@ -127,7 +123,7 @@ if (-not $SkipValidation)
   Write-Host "Running terraform fmt..."
   terraform fmt
 
-  Write-Host "✓ Validation and formatting successful" -ForegroundColor Green
+  Write-Host "[OK] Validation and formatting successful" -ForegroundColor Green
   Write-Host ""
 }
 else
@@ -146,7 +142,7 @@ if (-not $SkipPlan)
   Get-ChildItem | Write-Host
   Write-Host "terraform plan -var-file=`"$scriptDir\ukho.tfvars`" -out tfplan"
   terraform plan -var-file="$scriptDir\ukho.tfvars" -out tfplan
-  Write-Host "✓ Terraform plan successful" -ForegroundColor Green
+  Write-Host "[OK] Terraform plan successful" -ForegroundColor Green
   Write-Host ""
 }
 else
@@ -162,7 +158,7 @@ Write-Host "[5/6] Confirmation..." -ForegroundColor Green
 $confirmation = Read-Host -Prompt "Are you happy with the plan? (yes to continue)"
 if ($confirmation -ne "yes")
 {
-  Write-Host "✗ Deployment cancelled by user." -ForegroundColor Red
+  Write-Host "[ERROR] Deployment cancelled by user." -ForegroundColor Red
   exit 1
 }
 
@@ -172,15 +168,15 @@ Write-Host "Running terraform apply..."
 if (Test-Path -Path 'tfplan')
 {
   terraform apply "tfplan"
-  Write-Host "✓ Terraform apply successful" -ForegroundColor Green
+  Write-Host "[OK] Terraform apply successful" -ForegroundColor Green
   Write-Host ""
 }
 else
 {
-  Write-Host "✗ Terraform plan file 'tfplan' not found." -ForegroundColor Red
+  Write-Host "[ERROR] Terraform plan file 'tfplan' not found." -ForegroundColor Red
   Write-Host "    Ensure a plan has been created (e.g., run without --SkipPlan) or provide the correct plan file." -ForegroundColor Red
   exit 1
 }
 Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "✓ CI/CD Deployment Complete!" -ForegroundColor Cyan
+Write-Host "[OK] CI/CD Deployment Complete!" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
