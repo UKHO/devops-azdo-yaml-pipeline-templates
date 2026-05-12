@@ -8,12 +8,17 @@
 }
 
 variable "Project" {
-  type = string
+  type    = string
   default = "dev"
 }
 
+variable "Tenant_Id" {
+  type    = string
+  default = ""
+}
+
 variable "Environment" {
-  type = string
+  type    = string
   default = "dev"
 }
 
@@ -40,4 +45,8 @@ output "random_number" {
 
 output "random_string" {
   value = var.Environment
+}
+
+output "tenant_id" {
+  value = var.Tenant_Id
 }

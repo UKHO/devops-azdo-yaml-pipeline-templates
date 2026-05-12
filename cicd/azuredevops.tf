@@ -33,6 +33,8 @@ resource "azuredevops_build_definition" "template_tests" {
 
   name = each.value.azdo_name
 
+  agent_pool_name = data.azuredevops_agent_queue.this.name
+
   path = "\\${local.repository_name}\\${each.value.azdo_folder_name}"
   repository {
     repo_type             = "GitHub"
