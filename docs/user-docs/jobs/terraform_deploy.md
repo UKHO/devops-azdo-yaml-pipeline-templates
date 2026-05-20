@@ -289,4 +289,3 @@ View working test examples in the repository:
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using these jobs
 - [Terraform Backend Configuration](https://www.terraform.io/language/settings/backends)
 
-
