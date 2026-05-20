@@ -245,30 +245,30 @@ EnvironmentConfigs:
      Stage:
        DependsOn: Deploy_dev_Terraform
        Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    TerraformDeploymentConfig:
-      AzureServiceConnection: AzureServiceConnection-Production
-      AzDOEnvironmentName: production-environment
-      BackendConfig:
-        resource_group_name: rg-terraform-state-prod
-        storage_account_name: sttfstateprod
-        container_name: tfstate
-        key: production.terraform.tfstate
-      RunMode: PlanVerifyApply
-      VerificationMode: VerifyOnAny
-      KeyVaultConfig:
-        ServiceConnection: AzureServiceConnection-Production
-        Name: kv-production-secrets
-        SecretsFilter: '*'
-      JobsVariableMappings:
-        - group: ProductionVariableGroup
-      EnvironmentVariableMappings:
-        TF_LOG: INFO
-      VariableFiles:
-        - config/common.tfvars
-        - config/production.tfvars
-      OutputVariables:
-        - resource_group_name
-        - app_service_url
+      TerraformDeploymentConfig:
+        AzureServiceConnection: AzureServiceConnection-Production
+        AzDOEnvironmentName: production-environment
+        BackendConfig:
+          resource_group_name: rg-terraform-state-prod
+          storage_account_name: sttfstateprod
+          container_name: tfstate
+          key: production.terraform.tfstate
+        RunMode: PlanVerifyApply
+        VerificationMode: VerifyOnAny
+        KeyVaultConfig:
+          ServiceConnection: AzureServiceConnection-Production
+          Name: kv-production-secrets
+          SecretsFilter: '*'
+        JobsVariableMappings:
+          - group: ProductionVariableGroup
+        EnvironmentVariableMappings:
+          TF_LOG: INFO
+        VariableFiles:
+          - config/common.tfvars
+          - config/production.tfvars
+        OutputVariables:
+          - resource_group_name
+          - app_service_url
 ```
 
 ## TerraformDeploymentConfig Properties
