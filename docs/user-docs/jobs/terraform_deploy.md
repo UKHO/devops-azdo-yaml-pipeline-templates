@@ -25,7 +25,6 @@ Use this job template when you need to:
 2. Runs `terraform init` with backend configuration
 3. Runs `terraform plan` to show what will change
 4. Saves plan output to JSON for analysis
-5. Exports outputs as pipeline variables (if configured)
 
 ### Apply Mode
 
@@ -246,7 +245,7 @@ Replace:
 
 **Cause**: Output variables only available after Apply in the correct context.
 
-**Solution**: 
+**Solution**:
 - Ensure `RunMode` includes apply (not `PlanOnly`)
 - Use correct variable reference syntax with stage/job dependencies
 - Verify output names match Terraform output definitions
