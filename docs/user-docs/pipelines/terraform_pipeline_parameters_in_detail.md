@@ -279,7 +279,7 @@ EnvironmentConfigs:
 
 ## TerraformDeploymentConfig Properties
 
-The following properties are configured within each environment's `TerraformDeploymentConfig` object. For complete documentation, see [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md).
+The following properties are configured within each environment's `TerraformDeploymentConfig` object. For complete documentation, see [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md).
 
 ### Azure Service Connections
 
@@ -374,7 +374,7 @@ RunMode: PlanVerifyApply
 VerificationMode: 'VerifyOnAny'
 ```
 
-See [How does Infrastructure Manual Verification work?](terraform_pipeline_manual_verification.md) and [TerraformDeploymentConfig Documentation](../definition_docs/terraform_pipeline/terraform_deployment_config.md#verificationmode).
+See [How does Infrastructure Manual Verification work?](terraform_pipeline_manual_verification.md) and [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md#verificationmode).
 
 ### Environment Variables
 
