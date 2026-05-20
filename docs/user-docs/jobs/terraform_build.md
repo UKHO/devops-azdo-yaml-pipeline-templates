@@ -48,15 +48,14 @@ stages:
 
 ### Required Parameters
 
-| Parameter                      | Type   | Description                                                                                                                                       |
-|--------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | string | Relative path from repository root to terraform files (e.g., `infra/`, `terraform/`). Path is relative to repo root, not workspace.               |
-| `TerraformVersion`             | string | Terraform CLI version to install. Use `'latest'` for latest version or semantic version like `'1.5.0'`. Wildcards like `'1.5.x'` are not allowed. |
+None - all parameters have defaults.
 
 ### Optional Parameters
 
 | Parameter                      | Type     | Default             | Description                                                 |
 |--------------------------------|----------|---------------------|-------------------------------------------------------------|
+| `RelativePathToTerraformFiles` | string   | `''`                | Relative path from repository root to Terraform files; empty defaults to repo root. |
+| `TerraformVersion`             | string   | `'1.14.0'`          | Terraform CLI version (`latest` or exact semantic version such as `'1.5.0'`; wildcards like `'1.5.x'` are not allowed). |
 | `ArtifactName`                 | string   | `TerraformArtifact` | Name of the published artifact for later retrieval          |
 | `Pool`                         | string   | `''`                | Agent pool to run job on. Empty uses default pool.          |
 | `AdditionalFilesToPackage`     | object   | `[ ]`               | List of additional files to include in artifact (see below) |
