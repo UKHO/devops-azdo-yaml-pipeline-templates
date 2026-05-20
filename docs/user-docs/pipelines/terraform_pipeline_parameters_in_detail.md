@@ -67,7 +67,7 @@ The `EnvironmentConfigs` parameter is a list of environment configuration object
 EnvironmentConfigs:
    - Name: production
      Stage:
-       DependsOn: Terraform_Build
+       DependsOn: Build_Terraform
        Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     TerraformDeploymentConfig:
       AzDOEnvironmentName: production-environment
@@ -230,7 +230,7 @@ EnvironmentConfigs:
    # Development
    - Name: dev
      Stage:
-       DependsOn: Terraform_Build
+       DependsOn: Build_Terraform
        Condition: succeeded()
      TerraformDeploymentConfig:
        AzureServiceConnection: AzureServiceConnection-Dev

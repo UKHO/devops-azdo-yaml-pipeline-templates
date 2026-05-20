@@ -133,7 +133,7 @@ extends:
     EnvironmentConfigs:
       - Name: production
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           # ...

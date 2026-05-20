@@ -82,7 +82,7 @@ extends:
     EnvironmentConfigs:
       - Name: dev                                       # Environment name
         Stage:
-          DependsOn: Terraform_Build                    # Depends on the build stage
+          DependsOn: Build_Terraform                    # Depends on the build stage
           Condition: succeeded()                        # Execute if build succeeded
         TerraformDeploymentConfig:
           AzDOEnvironmentName: dev-environment          # AzDO Environment for approvals
@@ -106,7 +106,7 @@ extends:
 
 With this configuration, the pipeline will:
 
-1. **Build Stage** (`Terraform_Build`)
+1. **Build Stage** (`Build_Terraform`)
    - Check out your repository
    - Install Terraform CLI version 1.5.0
    - Run `terraform init` (without backend to allow flexible backend config in deploy)
@@ -133,7 +133,7 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 | Field Path                                    | Type        | Description                                                                               |
 |-----------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
 | Name                                          | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
-| Stage.DependsOn                               | string/list | Stage dependencies (e.g., 'Terraform_Build' or list of stages)                            |
+| Stage.DependsOn                               | string/list | Stage dependencies (e.g., 'Build_Terraform' or list of stages)                            |
 | Stage.Condition                               | string      | Stage execution condition (e.g., 'succeeded()')                                           |
 | TerraformDeploymentConfig.AzDOEnvironmentName | string      | AzDO Environment name to associate the deployment jobs to                                 |
 | TerraformDeploymentConfig.RunMode             | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
@@ -159,7 +159,7 @@ extends:
       # Development Environment
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
@@ -226,7 +226,7 @@ extends:
     EnvironmentConfigs:
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
@@ -270,7 +270,7 @@ extends:
     EnvironmentConfigs:
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           # ... infrastructure config ...
@@ -296,7 +296,7 @@ extends:
       # Development: Auto-deploy with verify-on-destroy only
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
@@ -345,7 +345,7 @@ extends:
     EnvironmentConfigs:
       - Name: precheck
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: and(succeeded(), not(eq(variables['Build.SourceBranch'], 'refs/heads/main')))
         TerraformDeploymentConfig:
           AzDOEnvironmentName: precheck-environment
@@ -368,7 +368,7 @@ extends:
     EnvironmentConfigs:
       - Name: production
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Prod

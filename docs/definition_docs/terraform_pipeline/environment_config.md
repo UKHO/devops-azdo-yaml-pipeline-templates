@@ -40,8 +40,8 @@ EnvironmentConfigs:
 **Description:** The stage(s) that must complete before this stage runs. Use the generated stage name format or reference previous stages.
 
 **Examples:**
-- `'Terraform_Build'` - Depends on the build stage
-- `['Terraform_Build', 'Deploy_dev_Terraform']` - Depends on multiple stages
+- `'Build_Terraform'` - Depends on the build stage
+- `['Build_Terraform', 'Deploy_dev_Terraform']` - Depends on multiple stages
 
 ---
 
@@ -54,7 +54,7 @@ EnvironmentConfigs:
 **Examples:**
 - `succeeded()` - Run if previous stages succeeded
 - `and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))` - Conditional logic
-- `eq(dependencies.Terraform_Build.result, 'Succeeded')` - Explicit dependency check
+- `eq(dependencies.Build_Terraform.result, 'Succeeded')` - Explicit dependency check
 
 ---
 
@@ -76,7 +76,7 @@ parameters:
       # Development Environment
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
