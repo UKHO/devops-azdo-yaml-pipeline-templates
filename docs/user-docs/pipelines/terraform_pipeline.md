@@ -39,7 +39,7 @@ The pipeline runs on the agent pool specified in your environment configuration 
 
 #### Plan Generation and Reuse
 
-The Terraform plan generated during the build/planning stage is evaluated during manual verification but is then discarded before the `terraform apply` runs in the deploy stage. This means infrastructure provisioned during apply may differ from what was reviewed in the plan if there are external changes between stages.
+The Terraform plan generated during the deploy stage's Plan job is evaluated during manual verification but is then discarded before the `terraform apply` runs. This means infrastructure provisioned during apply may differ from what was reviewed in the plan if there are external changes between stages.
 
 **Recommendation**: Use `VerificationMode: VerifyOnDestroy` during deployments to add an extra layer of safety for destructive changes.
 
