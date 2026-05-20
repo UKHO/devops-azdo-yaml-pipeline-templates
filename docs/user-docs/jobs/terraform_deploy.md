@@ -214,7 +214,7 @@ variables:
 
 Replace:
 - `Deploy_prod_Terraform` with your stage name
-- `TerraformDeployApply_TerraformArtifact` with the actual job name
+- if using a non-default `TerraformArtifactName`, replace `TerraformArtifact` in `TerraformDeployApply_TerraformArtifact` with your artifact name
 - `resource_group_name` with your output variable name
 
 ---
