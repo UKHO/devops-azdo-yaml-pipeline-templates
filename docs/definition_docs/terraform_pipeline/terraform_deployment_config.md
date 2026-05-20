@@ -294,6 +294,15 @@ TerraformDeploymentConfig:
     - config/dev.tfvars
 ```
 
+## Related Tests
+
+- **Plan Basic**: [`tests/jobs/terraform_deploy/plan_basic_test.yml`](../../../tests/jobs/terraform_deploy/plan_basic_test.yml)
+- **Plan with Verify Mode**: [`tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml`](../../../tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml)
+- **Apply Basic**: [`tests/jobs/terraform_deploy/apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/apply_basic_test.yml)
+- **Apply with Key Vault**: [`tests/jobs/terraform_deploy/apply_with_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_key_vault_test.yml)
+- **Apply with Output Variables**: [`tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml)
+- **Apply with Multiple Mappings**: [`tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml)
+
 ## See Also
 
 - [Environment Config Documentation](./environment_config.md) - Complete environment configuration structure

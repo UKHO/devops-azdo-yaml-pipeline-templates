@@ -259,9 +259,10 @@ Deploy stages download this artifact and use it for planning and applying infras
 
 View working test examples in the repository:
 
-- **Basic Build**: [tests/jobs/terraform_build/build_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/build_test.yml)
-- **With Injection Steps**: [tests/jobs/terraform_build/injection_steps_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/injection_steps_test.yml)
-- **With Additional Files**: [tests/jobs/terraform_build/additional_files_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_build/additional_files_test.yml)
+- **Basic Build**: [`tests/jobs/terraform_build/build_test.yml`](../../../tests/jobs/terraform_build/build_test.yml)
+- **Double Build**: [`tests/jobs/terraform_build/double_build_test.yml`](../../../tests/jobs/terraform_build/double_build_test.yml)
+- **With Injection Steps**: [`tests/jobs/terraform_build/injection_steps_test.yml`](../../../tests/jobs/terraform_build/injection_steps_test.yml)
+- **With Additional Files**: [`tests/jobs/terraform_build/additional_files_test.yml`](../../../tests/jobs/terraform_build/additional_files_test.yml)
 
 ## See Also
 
@@ -269,4 +270,5 @@ View working test examples in the repository:
 - [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Orchestrates build with deploy
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
 - [Additional Files Packaging Guide](../pipelines/terraform_pipeline_additional_files_to_package.md) – Detailed guide on file patterns
+
 

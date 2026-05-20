@@ -123,6 +123,13 @@ parameters:
             - app_service_url
 ```
 
+## Related Tests
+
+- **Pipeline (Windows)**: [`tests/pipelines/terraform_pipeline/windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml)
+- **Pipeline (Linux)**: [`tests/pipelines/terraform_pipeline/linux_test.yml`](../../../tests/pipelines/terraform_pipeline/linux_test.yml)
+- **Gated Deployment (PlanVerifyApply)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
+- **Gated Deployment (PlanOnly)**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml)
+
 ## See Also
 
 - [TerraformDeploymentConfig Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties

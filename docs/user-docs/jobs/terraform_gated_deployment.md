@@ -353,9 +353,13 @@ Apply job runs only if:
 
 View working test examples in the repository:
 
-- **PlanVerifyApply Mode**: [tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
-- **PlanOnly Mode**: [tests/jobs/terraform_gated_deployment/plan_only_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/plan_only_test.yml)
-- **ApplyOnly Mode**: [tests/jobs/terraform_gated_deployment/apply_only_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_gated_deployment/apply_only_test.yml)
+- **PlanVerifyApply Mode**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
+- **PlanVerifyApply with VerifyDisabled**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml)
+- **PlanOnly Mode**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml)
+- **ApplyOnly Mode**: [`tests/jobs/terraform_gated_deployment/apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/apply_only_test.yml)
+- **Double PlanVerifyApply**: [`tests/jobs/terraform_gated_deployment/double_plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_verify_apply_test.yml)
+- **Double PlanOnly**: [`tests/jobs/terraform_gated_deployment/double_plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml)
+- **Double ApplyOnly**: [`tests/jobs/terraform_gated_deployment/double_apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_apply_only_test.yml)
 
 ---
 

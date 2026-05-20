@@ -265,10 +265,17 @@ Replace:
 
 View working test examples in the repository:
 
-- **Plan Mode**: [tests/jobs/terraform_deploy/plan_basic_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/plan_basic_test.yml)
-- **Apply Mode**: [tests/jobs/terraform_deploy/apply_basic_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/apply_basic_test.yml)
-- **With Output Variables**: [tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml)
-- **With Multiple Mappings**: [tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml)
+- **Plan Mode**: [`tests/jobs/terraform_deploy/plan_basic_test.yml`](../../../tests/jobs/terraform_deploy/plan_basic_test.yml)
+- **Plan with Verification Mode**: [`tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml`](../../../tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml)
+- **Plan with Multiple Mappings**: [`tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml)
+- **Plan + Apply Sequence**: [`tests/jobs/terraform_deploy/plan_apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/plan_apply_basic_test.yml)
+- **Apply Mode**: [`tests/jobs/terraform_deploy/apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/apply_basic_test.yml)
+- **Apply with Key Vault**: [`tests/jobs/terraform_deploy/apply_with_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_key_vault_test.yml)
+- **Apply with Multiple Mappings**: [`tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml)
+- **Apply with Outputs (Same Stage)**: [`tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml)
+- **Apply with Outputs (Future Stage)**: [`tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml)
+- **Double Plan Execution**: [`tests/jobs/terraform_deploy/double_plan_basic_test.yml`](../../../tests/jobs/terraform_deploy/double_plan_basic_test.yml)
+- **Double Apply Execution**: [`tests/jobs/terraform_deploy/double_apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/double_apply_basic_test.yml)
 
 ---
 
@@ -288,4 +295,5 @@ View working test examples in the repository:
 - [Terraform Build Job](./terraform_build.md) – Creates artifacts used by this job
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using these jobs
 - [Terraform Backend Configuration](https://www.terraform.io/language/settings/backends)
+
 

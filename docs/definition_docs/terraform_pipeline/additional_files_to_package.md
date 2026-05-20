@@ -66,6 +66,14 @@ AdditionalFilesToPackage:
 
 ---
 
+## Related Tests
+
+- **Additional Files Packaging**: [`tests/jobs/terraform_build/additional_files_test.yml`](../../../tests/jobs/terraform_build/additional_files_test.yml)
+- **Build Job Baseline**: [`tests/jobs/terraform_build/build_test.yml`](../../../tests/jobs/terraform_build/build_test.yml)
+- **Pipeline Integration**: [`tests/pipelines/terraform_pipeline/windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml)
+
+---
+
 ## See Also
 
 - [Terraform Pipeline Documentation](../../user-docs/pipelines/terraform_pipeline.md) – User documentation with usage patterns and examples
