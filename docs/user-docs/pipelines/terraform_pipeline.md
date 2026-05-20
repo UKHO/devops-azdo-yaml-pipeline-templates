@@ -451,10 +451,11 @@ resources:
 1. Ensure the variables are listed in the `OutputVariables` property of your `TerraformDeploymentConfig`
 2. Reference them using the correct dependency syntax:
    ```text
-   stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.{variableName}']
+   stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
    ```
    where:
    - `{EnvironmentName}` is replaced with your environment name (e.g., `dev`, `prod`)
+   - `{ArtifactName}` is the value of `TerraformArtifactName` (default: `TerraformArtifact`)
    - `{variableName}` is the output variable name
 
 **Example**:

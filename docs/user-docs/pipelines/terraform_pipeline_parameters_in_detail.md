@@ -429,8 +429,10 @@ OutputVariables:
 The output variables are exported as Azure DevOps pipeline variables with the following naming convention:
 
 ```
-stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
 ```
+
+Where `{ArtifactName}` is the value of `TerraformArtifactName` (default: `TerraformArtifact`).
 
 **Example**: If you export a Terraform output named `resource_id` from an environment named `dev`, you would access it in a subsequent stage like this:
 
@@ -441,7 +443,7 @@ stages:
   - stage: UseOutputs
     dependsOn: Deploy_dev_Terraform
     variables:
-      ResourceId: $[stageDependencies.Deploy_dev_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.resource_id']]
+      ResourceId: $[stageDependencies.Deploy_dev_Terraform.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.resource_id']]
     jobs:
       - job: ConsumeOutput
         steps:

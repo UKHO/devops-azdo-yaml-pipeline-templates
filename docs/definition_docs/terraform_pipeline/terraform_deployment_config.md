@@ -241,7 +241,7 @@ OutputVariables:
 
 Exported variables can be accessed using:
 ```text
-stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
+stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
 ```
 
 ---
