@@ -117,7 +117,7 @@ With this configuration, the pipeline will:
    - Download terraform artifact
    - Run `terraform init` with the backend configuration
    - Run `terraform plan` to show what will change
-   - If changes detected and `VerificationMode` is set, request manual approval
+   - If changes are detected, `VerificationMode` determines whether a manual approval gate is triggered (`VerifyOnDestroy`, `VerifyOnAny`) or skipped (`VerifyDisabled`)
    - Run `terraform apply` to provision resources
    - Export specified outputs as pipeline variables
 
