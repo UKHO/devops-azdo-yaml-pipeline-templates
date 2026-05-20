@@ -87,7 +87,7 @@ AdditionalFilesToPackage:
 
 ### TerraformBuildInjectionSteps
 
-Execute custom steps before terraform validation. These steps run **twice** to ensure modifications are both validated and packaged:
+Execute custom steps before terraform validation. These steps run once, before `terraform init` and `terraform validate`:
 
 ```yaml
 TerraformBuildInjectionSteps:
@@ -166,7 +166,7 @@ stages:
                 $tfDir = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp"
                 $mainTf = "$tfDir/main.tf"
                 $content = Get-Content $mainTf -Raw
-                
+
                 if ($content -match 'terraform\s*\{') {
                   $content = $content -replace '(terraform\s*\{)', "`$1`n  required_version = `"1.5.0`""
                   Set-Content $mainTf $content

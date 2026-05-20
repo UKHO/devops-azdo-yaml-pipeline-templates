@@ -163,13 +163,7 @@ The default version is `'1.14.0'`.
 
 ### TerraformBuildInjectionSteps
 
-This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged.
-
-**Important**: These steps are run **twice** during the Build stage:
-1. First, before validation (to allow modifications needed for validation to pass)
-2. Second, after a clean checkout (to ensure the packaged artifact has the modifications)
-
-This ensures that any modifications you make are both validated and included in the final artifact.
+This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged. The steps run once, before `terraform init` and `terraform validate`.
 
 Common use cases include:
 

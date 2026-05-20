@@ -335,7 +335,7 @@ AdditionalFilesToPackage:
     TargetSubdirectoryName: 'config'
 ```
 
-This executes 3 separate copy operations (6 total per build, since files are copied twice).
+This executes 3 separate copy operations per build.
 
 **More efficient (consolidated patterns):**
 ```yaml
@@ -348,7 +348,7 @@ AdditionalFilesToPackage:
     TargetSubdirectoryName: 'config'
 ```
 
-This executes 1 copy operation (2 total per build).
+This executes 1 copy operation per build.
 
 ### When to Consolidate
 
