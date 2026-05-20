@@ -270,4 +270,3 @@ View working test examples in the repository:
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
 - [Additional Files Packaging Guide](../pipelines/terraform_pipeline_additional_files_to_package.md) – Detailed guide on file patterns
 
-
