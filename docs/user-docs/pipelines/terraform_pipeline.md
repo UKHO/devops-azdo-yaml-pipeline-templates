@@ -531,8 +531,6 @@ extends:
 - Check that the Terraform backend contains existing state from previous deployments
 - Verify terraform providers are correctly configured for your Azure environment
 
-
-
 ---
 
 ## Live Examples
@@ -545,6 +543,3 @@ View working test examples in the repository:
 - **Key Vault Integration**: [tests/pipelines/terraform_pipeline/keyvault_test.yml](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/blob/main/tests/pipelines/terraform_pipeline/keyvault_test.yml)
 
 These are functional test pipelines that demonstrate the template in action with various configurations.
-
-
-
