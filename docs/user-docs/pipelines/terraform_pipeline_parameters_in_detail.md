@@ -65,10 +65,10 @@ The `EnvironmentConfigs` parameter is a list of environment configuration object
 
 ```yaml
 EnvironmentConfigs:
-   - Name: production
-     Stage:
-       DependsOn: Build_Terraform
-       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  - Name: production
+    Stage:
+      DependsOn: Build_Terraform
+      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     TerraformDeploymentConfig:
       AzDOEnvironmentName: production-environment
       RunMode: PlanVerifyApply
