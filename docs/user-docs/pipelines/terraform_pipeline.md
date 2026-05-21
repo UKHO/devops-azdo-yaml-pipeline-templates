@@ -21,7 +21,7 @@ resources:
       type: github
       endpoint: UKHO                    # Your GitHub service connection
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/v0.1.0             # Always use a specific version tag
+      ref: refs/tags/<version>          # Always use a specific version tag
 ```
 
 See the [Basic Usage](#basic-usage) example below for the complete configuration.
@@ -259,11 +259,9 @@ extends:
     TerraformBuildInjectionSteps:
       - pwsh: |
           $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
-          $content = Get-Content $path
-          $terraformStart = $content.IndexOf($($content | Where-Object { $_ -match "^terraform\s*{" }))
-          if ($terraformStart -ge 0) {
-            $insertIndex = $terraformStart + 1
-            $content = $content[0..($insertIndex-1)] + '  required_version = "1.1.9"' + $content[$insertIndex..($content.Count-1)]
+          $content = Get-Content $path -Raw
+          if ($content -match '(?m)^terraform\s*\{') {
+            $content = $content -replace '(?m)^(terraform\s*\{)\r?\n', "`$1`r`n  required_version = `"1.1.9`"`r`n"
             Set-Content $path $content
           }
         displayName: "Injecting into terraform block 'required_version'"
