@@ -204,7 +204,20 @@ jobs:
 
 ## Output Variables
 
-When `OutputVariables` are configured, Terraform outputs are exported as pipeline variables available to subsequent jobs:
+When `OutputVariables` are configured, Terraform outputs are exported as pipeline variables available to:
+
+- later jobs in the same stage
+- jobs in later stages
+
+Same stage syntax:
+
+```yaml
+variables:
+  - name: ResourceGroupName
+    value: $[ dependencies.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.resource_group_name'] ]
+```
+
+Later stage syntax:
 
 ```yaml
 variables:
@@ -214,6 +227,7 @@ variables:
 
 Replace:
 - `Deploy_prod_Terraform` with your stage name
+- `dependencies` (same stage) or `stageDependencies` (cross-stage), depending on where you consume the variable
 - if using a non-default `TerraformArtifactName`, replace `TerraformArtifact` in `TerraformDeployApply_TerraformArtifact` with your artifact name
 - `resource_group_name` with your output variable name
 

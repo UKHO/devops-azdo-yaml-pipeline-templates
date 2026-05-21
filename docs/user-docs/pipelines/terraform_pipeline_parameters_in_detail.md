@@ -420,11 +420,17 @@ OutputVariables:
 
 #### Accessing Output Variables
 
-The output variables are exported as Azure DevOps pipeline variables with the following naming convention:
+The output variables are exported as Azure DevOps pipeline variables with the following naming conventions:
 
-```
-stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
-```
+- Same stage (later job):
+  ```text
+  dependencies.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
+
+- Later stage:
+  ```text
+  stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
 
 Where `{ArtifactName}` is the value of `TerraformArtifactName` (default: `TerraformArtifact`).
 

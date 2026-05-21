@@ -227,7 +227,7 @@ VariableFiles:
 
 **Type:** `list` of `string`
 
-**Description:** List of Terraform output variable names to export as pipeline variables after a successful apply. These can be referenced in subsequent stages/jobs.
+**Description:** List of Terraform output variable names to export as pipeline variables after a successful apply. These can be referenced by later jobs in the same stage, or by jobs in later stages.
 
 **Example:**
 ```yaml
@@ -239,10 +239,15 @@ OutputVariables:
 
 **Accessing Output Variables:**
 
-Exported variables can be accessed using:
-```text
-stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
-```
+- Same stage (later job):
+  ```text
+  dependencies.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
+
+- Later stage:
+  ```text
+  stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
 
 ---
 
