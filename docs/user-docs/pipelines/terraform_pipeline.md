@@ -28,12 +28,28 @@ See the [Basic Usage](#basic-usage) example below for the complete configuration
 
 ### Agent Pool Considerations
 
-The pipeline runs on the agent pool specified in your environment configuration (or defaults to Microsoft-hosted if not specified).
+This pipeline template does not expose a per-environment pool setting through `EnvironmentConfigs`.
+`EnvironmentConfig.Stage` supports `DependsOn` and `Condition`, but not `Pool`.
+
+If you do not specify a pool, Azure DevOps uses the pipeline/job default pool configured for the run.
 
 **Important considerations:**
+- To set a pool for the entire consumer pipeline, define a top-level `pool:` in your `azure-pipelines.yml`
+- If you need per-job pool control, use the job templates directly (for example `jobs/terraform_build.yml`, `jobs/terraform_deploy.yml`, `jobs/terraform_gated_deployment.yml`) because those templates expose a `Pool` parameter
 - Ensure your chosen pool has internet access to download Terraform CLI
 - For self-hosted agents, verify Terraform can be installed on the agent OS
-- Use consistent pools for all stages to avoid unexpected behavior differences between build and deploy
+
+Example (top-level pool in consumer pipeline):
+
+```yaml
+pool:
+  vmImage: ubuntu-latest
+
+extends:
+  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
+  parameters:
+    # ...template parameters...
+```
 
 ### Limitations & Known Issues
 
