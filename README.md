@@ -1,39 +1,96 @@
 ﻿# Azure DevOps YAML Pipeline Templates
 
-This repository is for centralised reusable Azure DevOps (AzDO) YAML pipeline templates. The goal of these templates is to provide consistent, compliant, and well-designed pipelines for the building, testing, and deploying of software to Azure.
+This repository provides reusable Azure DevOps YAML templates for Terraform
+infrastructure delivery on Azure.
 
-This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
+The goal is to help teams ship faster with consistent, production-ready
+pipelines, while reducing duplication across repositories.
+
+## Why use these templates
+
+- **Standardization**: consistent Terraform build/deploy behavior across teams
+  and services.
+- **Faster delivery**: reuse templates instead of rebuilding pipeline logic.
+- **Safer releases**: built-in support for plan/apply workflows, verification,
+  and approval gates.
+- **Composable architecture**: use full pipelines for quick adoption, or modular
+  jobs/templates for custom workflows.
 
 ## Versioning scope
 
-Semantic Versioning guarantees in this repository apply to the templates in:
+This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
+
+SemVer compatibility guarantees apply to templates in:
 
 - [pipelines](pipelines)
 - [jobs](jobs)
 
-Changes to those templates are versioned and released using SemVer expectations for breaking, feature, and patch updates.
+## Reference this repository
 
-## Using the templates
+In your consumer `azure-pipelines.yml`, add this repository as a template
+resource:
 
-To reference these templates in your repository, you will require a resource block:
-
-```yml
+```yaml
 resources:
   repositories:
-    - repository: AzDOPipelineTemplates                 # 'PipelineTemplates' has commonly been used for https://github.com/UKHO/devops-pipelinetemplates
+    - repository: AzDOPipelineTemplates
       type: github
-      endpoint: UKHO                                    # this endpoint needs defining in your AzDO Project as a service connection to GitHub
+      endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/0.0.0                              # Do consult the https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases for the latest version
+      ref: refs/tags/v0.1.0
 ```
 
-Once referenced, you will be able to make use of any templates in this repository. This repository follows a 'set-menu with salad bar' approach to the availability of its templates.
+Then reference templates using `@AzDOPipelineTemplates`.
 
-- Set-Menu: These are pipeline templates that can be used out of the box; these are intended to cover the majority of use cases
-- Salad bar: These are all the templates involved that make up the pipeline templates; these are intended for those with special use cases and require a custom pipeline using standard templates
+## What is available
 
-For the former, there is extensive documentation with examples, see [user docs](docs/user-docs/README.md). For the latter, the templates themselves are self-documenting, see the directories: [tasks](tasks), [jobs](jobs), [stages](stages), [scripts](scripts).
+This repository follows a **set-menu + salad bar** model.
 
-## Contributing to the templates
+### Set-menu: ready-to-use pipeline templates
 
-Contributions are welcome, these templates are not possible without community support. Please see [contributing](./CONTRIBUTING.md).
+- [`pipelines/terraform_pipeline.yml`](pipelines/terraform_pipeline.yml)
+
+Use this when you want an end-to-end Terraform pipeline with minimal setup.
+
+### Salad bar: modular templates for custom pipelines
+
+Reusable job templates:
+
+- [`jobs/terraform_build.yml`](jobs/terraform_build.yml)
+- [`jobs/terraform_deploy.yml`](jobs/terraform_deploy.yml)
+- [`jobs/terraform_gated_deployment.yml`](jobs/terraform_gated_deployment.yml)
+- [`jobs/manual_verification.yml`](jobs/manual_verification.yml)
+
+Supporting components:
+
+- [`stages`](stages)
+- [`tasks`](tasks)
+- [`utils`](utils)
+- [`schemas`](schemas)
+- [`scripts`](scripts)
+
+## Quality assurance and CI/CD confidence
+
+These templates are validated with compile/test automation and runnable template
+test suites.
+
+- PowerShell compile/test framework in [`tests/framework`](tests/framework)
+- Job test runner:
+  [`tests/jobs/jobs.CompileTests.ps1`](tests/jobs/jobs.CompileTests.ps1)
+- Pipeline test runner:
+  [`tests/pipelines/pipelines.CompileTests.ps1`](tests/pipelines/pipelines.CompileTests.ps1)
+- Template test suites under [`tests`](tests), including:
+  - [`tests/pipelines/terraform_pipeline`](tests/pipelines/terraform_pipeline)
+  - [`tests/jobs/manual_verification`](tests/jobs/manual_verification)
+  - [`tests/jobs/terraform_build`](tests/jobs/terraform_build)
+  - [`tests/jobs/terraform_deploy`](tests/jobs/terraform_deploy)
+  - [`tests/jobs/terraform_gated_deployment`](tests/jobs/terraform_gated_deployment)
+- Merge policy: every merge to `main` requires all Azure DevOps template tests
+  to pass successfully
+- CI/CD infrastructure assets and deployment utilities in [`cicd`](cicd)
+
+## Documentation
+
+- User documentation: [`docs/user-docs/README.md`](docs/user-docs/README.md)
+- Definition/reference docs:
+  [`docs/definition_docs`](docs/definition_docs)
