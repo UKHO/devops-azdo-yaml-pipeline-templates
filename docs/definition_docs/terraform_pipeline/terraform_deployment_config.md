@@ -227,7 +227,7 @@ VariableFiles:
 
 **Type:** `list` of `string`
 
-**Description:** List of Terraform output variable names to export as pipeline variables after a successful apply. These can be referenced in subsequent stages/jobs.
+**Description:** List of Terraform output variable names to export as pipeline variables after a successful apply. These can be referenced by later jobs in the same stage, or by jobs in later stages.
 
 **Example:**
 ```yaml
@@ -239,10 +239,15 @@ OutputVariables:
 
 **Accessing Output Variables:**
 
-Exported variables can be accessed using:
-```text
-stageDependencies.Deploy_{EnvironmentName}_Infrastructure.TerraformDeploy_Apply.outputs['TerraformDeploy_Apply.TerraformExportOutputsVariables.{variableName}']
-```
+- Same stage (later job):
+  ```text
+  dependencies.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
+
+- Later stage:
+  ```text
+  stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
+  ```
 
 ---
 
@@ -294,8 +299,18 @@ TerraformDeploymentConfig:
     - config/dev.tfvars
 ```
 
+## Related Tests
+
+- **Plan Basic**: [`tests/jobs/terraform_deploy/plan_basic_test.yml`](../../../tests/jobs/terraform_deploy/plan_basic_test.yml)
+- **Plan with Verify Mode**: [`tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml`](../../../tests/jobs/terraform_deploy/plan_with_verify_mode_test.yml)
+- **Apply Basic**: [`tests/jobs/terraform_deploy/apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/apply_basic_test.yml)
+- **Apply with Key Vault**: [`tests/jobs/terraform_deploy/apply_with_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_key_vault_test.yml)
+- **Apply with Output Variables**: [`tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml)
+- **Apply with Multiple Mappings**: [`tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml)
+
 ## See Also
 
 - [Environment Config Documentation](./environment_config.md) - Complete environment configuration structure
-- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
-- [Parameters in Detail](../../user-docs/terraform_pipeline_parameters_in_detail.md) - Legacy single-environment parameter reference
+- [Terraform Pipeline User Documentation](../../user-docs/pipelines/terraform_pipeline.md) - End-user pipeline documentation
+- [Terraform Deploy Job Documentation](../../user-docs/jobs/terraform_deploy.md) - Job that uses TerraformDeploymentConfig
+- [Terraform Gated Deployment Job Documentation](../../user-docs/jobs/terraform_gated_deployment.md) - Orchestrator job using this config

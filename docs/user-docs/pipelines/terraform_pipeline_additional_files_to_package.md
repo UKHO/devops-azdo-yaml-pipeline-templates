@@ -335,7 +335,7 @@ AdditionalFilesToPackage:
     TargetSubdirectoryName: 'config'
 ```
 
-This executes 3 separate copy operations (6 total per build, since files are copied twice).
+This executes 3 separate copy operations per build.
 
 **More efficient (consolidated patterns):**
 ```yaml
@@ -348,7 +348,7 @@ AdditionalFilesToPackage:
     TargetSubdirectoryName: 'config'
 ```
 
-This executes 1 copy operation (2 total per build).
+This executes 1 copy operation per build.
 
 ### When to Consolidate
 
@@ -385,6 +385,6 @@ AdditionalFilesToPackage:
 ## See Also
 
 - [Terraform Pipeline Parameters in Detail](./terraform_pipeline_parameters_in_detail.md) - Quick reference and other parameters
-- [AdditionalFilesToPackage Definition](../definition_docs/terraform_pipeline/additional_files_to_package.md) - Object structure and properties
+- [AdditionalFilesToPackage Definition](../../definition_docs/terraform_pipeline/additional_files_to_package.md) - Object structure and properties
 - [Copy Files Task Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/copy-files-v2?view=azure-devops) - Microsoft Azure DevOps documentation
 

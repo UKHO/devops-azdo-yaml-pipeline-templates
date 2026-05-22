@@ -40,8 +40,8 @@ EnvironmentConfigs:
 **Description:** The stage(s) that must complete before this stage runs. Use the generated stage name format or reference previous stages.
 
 **Examples:**
-- `'Terraform_Build'` - Depends on the build stage
-- `['Terraform_Build', 'Deploy_dev_Infrastructure']` - Depends on multiple stages
+- `'Build_Terraform'` - Depends on the build stage
+- `['Build_Terraform', 'Deploy_dev_Terraform']` - Depends on multiple stages
 
 ---
 
@@ -54,7 +54,7 @@ EnvironmentConfigs:
 **Examples:**
 - `succeeded()` - Run if previous stages succeeded
 - `and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))` - Conditional logic
-- `eq(dependencies.Terraform_Build.result, 'Succeeded')` - Explicit dependency check
+- `eq(dependencies.Build_Terraform.result, 'Succeeded')` - Explicit dependency check
 
 ---
 
@@ -76,7 +76,7 @@ parameters:
       # Development Environment
       - Name: dev
         Stage:
-          DependsOn: Terraform_Build
+          DependsOn: Build_Terraform
           Condition: succeeded()
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Dev
@@ -95,7 +95,7 @@ parameters:
       # Production Environment
       - Name: production
         Stage:
-          DependsOn: Deploy_dev_Infrastructure
+          DependsOn: Deploy_dev_Terraform
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Production
@@ -123,8 +123,16 @@ parameters:
             - app_service_url
 ```
 
+## Related Tests
+
+- **Pipeline (Windows)**: [`tests/pipelines/terraform_pipeline/windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml)
+- **Pipeline (Linux)**: [`tests/pipelines/terraform_pipeline/linux_test.yml`](../../../tests/pipelines/terraform_pipeline/linux_test.yml)
+- **Gated Deployment (PlanVerifyApply)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
+- **Gated Deployment (PlanOnly)**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml)
+
 ## See Also
 
-- [Infrastructure Config Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
-- [User Documentation](../../user-docs/terraform_pipeline.md) - End-user pipeline documentation
+- [TerraformDeploymentConfig Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
+- [Terraform Pipeline User Documentation](../../user-docs/pipelines/terraform_pipeline.md) - End-user pipeline documentation
+- [Terraform Gated Deployment Job](../../user-docs/jobs/terraform_gated_deployment.md) - Job that uses EnvironmentConfigs
 
