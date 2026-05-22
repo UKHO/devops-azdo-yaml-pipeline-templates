@@ -4,6 +4,15 @@ This repository is for centralised reusable Azure DevOps (AzDO) YAML pipeline te
 
 This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
 
+## Versioning scope
+
+Semantic Versioning guarantees in this repository apply to the templates in:
+
+- [pipelines](pipelines)
+- [jobs](jobs)
+
+Changes to those templates are versioned and released using SemVer expectations for breaking, feature, and patch updates.
+
 ## Using the templates
 
 To reference these templates in your repository, you will require a resource block:
