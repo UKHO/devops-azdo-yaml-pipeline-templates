@@ -12,11 +12,11 @@ parameters:
   - name: EnvironmentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Environment configuration object (see docs/definition_docs/infrastructure_pipeline/environment_config.md)'
+    displayName: 'Environment configuration object (see docs/definition_docs/terraform_pipeline/environment_config.md)'
 
 stages:
-  - stage: Deploy_${{ parameters.EnvironmentConfig.Name }}_Infrastructure
-    displayName: 'Deploy ${{ parameters.EnvironmentConfig.Name }}'
+  - stage: Deploy_${{ parameters.EnvironmentConfig.Name }}_Terraform
+    displayName: 'Deploy ${{ parameters.EnvironmentConfig.Name }} Terraform'
 
     ${{ if or(not(parameters.EnvironmentConfig.Stage.DependsOn), eq(parameters.EnvironmentConfig.Stage.DependsOn, '')) }}:
       "environment '${{ parameters.EnvironmentConfig.Name }}' DependsOn is not properly defined and is a required field.": "Error"
@@ -26,9 +26,9 @@ stages:
     condition: ${{ parameters.EnvironmentConfig.Stage.Condition }}
 
     jobs:
-      - template: /jobs/terraform_plan_verify_apply_jobList.yml
+      - template: /jobs/terraform_gated_deployment.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}
           TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
           EnvironmentName: ${{ parameters.EnvironmentConfig.Name }}
-          InfrastructureConfig: ${{ parameters.EnvironmentConfig.InfrastructureConfig }}
+          TerraformDeploymentConfig: ${{ parameters.EnvironmentConfig.TerraformDeploymentConfig }}

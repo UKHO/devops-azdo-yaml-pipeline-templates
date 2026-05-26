@@ -6,18 +6,24 @@ This directory contains comprehensive documentation for Azure DevOps YAML pipeli
 
 Complete end-to-end pipeline templates for specific use cases.
 
-- **[Infrastructure Pipeline](./infrastructure_pipeline.md)** – Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files
+### Available Pipelines
 
-## Getting Help
+| Pipeline                                                    | Purpose                                                                                                                                                                                       |
+|-------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **[Terraform Pipeline](./pipelines/terraform_pipeline.md)** | Complete infrastructure deployment pipeline using Terraform for building, validating, and packaging infrastructure-as-code files with multi-environment support and manual verification gates |
 
-- Check the **Important Notices** section in each pipeline template's documentation for critical implementation details
-- Review the **Basic Usage** section for quick implementation examples
-- Consult the **Full Parameter Table** for complete configuration options
-- Examine **Advanced Usage** examples for complex scenarios
+### Available Jobs
 
-## Template Self-Documentation
+| Job                                                                        | Purpose                                                                                                            |
+|----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| **[Manual Verification Job](./jobs/manual_verification.md)**               | Reusable approval gate for manual workflow validation with configurable timeouts and notifications                 |
+| **[Terraform Build Job](./jobs/terraform_build.md)**                       | Builds, validates, and packages Terraform files with support for additional files and custom injection steps       |
+| **[Terraform Deploy Job](./jobs/terraform_deploy.md)**                     | Handles individual Terraform deployment steps (plan or apply) with environment variables and Key Vault integration |
+| **[Terraform Gated Deployment Job](./jobs/terraform_gated_deployment.md)** | Orchestrates complete Terraform workflow (plan → verify → apply) with configurable run modes                       |
 
-Tasks, jobs, and stages templates in this repository are self-documenting through:
+## Self-Documentation
+
+All templates are self-documenting through:
 
 - Descriptive names and `displayName` properties
 - Comprehensive parameter metadata (types, defaults, descriptions)

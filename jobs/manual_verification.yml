@@ -4,15 +4,21 @@
     default: ManualVerification
     displayName: 'Name of the job'
 
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'Condition to run the job'
+
   - name: DependsOn
     type: object
     default: [ ]
     displayName: 'List of jobs this job depends on'
 
-  - name: Condition
+  - name: OnTimeoutBehaviour
     type: string
-    default: succeeded()
-    displayName: 'Condition to run the job'
+    default: 'reject'
+    values: [ reject, resume ]
+    displayName: 'Action to take when validation times out (reject or resume)'
 
   - name: TimeoutInMinutes
     type: number
@@ -26,8 +32,8 @@
 
 jobs:
   - job: ${{ parameters.JobName }}
-    dependsOn: ${{ parameters.DependsOn }}
     condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
     pool: server
     displayName: 'Manual Verification'
     steps:
@@ -35,5 +41,6 @@ jobs:
 
       - template: /tasks/manual_validation.yml
         parameters:
+          OnTimeoutBehaviour: ${{ parameters.OnTimeoutBehaviour }}
           TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
           Instructions: ${{ parameters.Instructions }}

@@ -1,0 +1,81 @@
+# AdditionalFilesToPackage
+
+A list object that specifies additional files to include in the terraform artifact during the build stage. Each item describes a set of files to copy from a source directory to a target subdirectory within the packaged artifact.
+
+## Definition
+
+```yaml
+AdditionalFilesToPackage:
+  - SourceDirectory: string         # REQUIRED - relative path from repo root
+    FilesPattern: string            # REQUIRED - glob pattern for files to copy
+    TargetSubdirectoryName: string  # REQUIRED - subdirectory in artifact
+```
+
+AdditionalFilesToPackage is a list of objects. Each object in the list represents one file copy operation.
+
+---
+
+## Required Properties
+
+### SourceDirectory
+
+**Type:** `string`
+
+**Description:** The relative path from the repository root to the directory containing the files to copy.
+
+**Example:** `'config/shared'`, `'scripts'`, `'terraform/modules'`
+
+---
+
+### FilesPattern
+
+**Type:** `string`
+
+**Description:** A glob pattern specifying which files to copy from the source directory. Supports standard glob patterns including `*`, `**`, and `?` for pattern matching.
+
+**Example:** `'*.tfvars'`, `'**/*.json'`, `'**/*.ps1'`
+
+---
+
+### TargetSubdirectoryName
+
+**Type:** `string`
+
+**Description:** The subdirectory name within the terraform artifact where the copied files will be placed. Can include multiple nesting levels.
+
+**Example:** `'shared-config'`, `'scripts'`, `'config/shared'`
+
+---
+
+## Complete Example
+
+```yaml
+AdditionalFilesToPackage:
+  - SourceDirectory: 'config/shared'
+    FilesPattern: '*.tfvars'
+    TargetSubdirectoryName: 'shared-config'
+
+  - SourceDirectory: 'scripts'
+    FilesPattern: '**/*.ps1'
+    TargetSubdirectoryName: 'scripts'
+
+  - SourceDirectory: 'terraform/modules'
+    FilesPattern: '**/*.tf'
+    TargetSubdirectoryName: 'modules'
+```
+
+---
+
+## Related Tests
+
+- **Additional Files Packaging**: [`tests/jobs/terraform_build/additional_files_test.yml`](../../../tests/jobs/terraform_build/additional_files_test.yml)
+- **Build Job Baseline**: [`tests/jobs/terraform_build/build_test.yml`](../../../tests/jobs/terraform_build/build_test.yml)
+- **Pipeline Integration**: [`tests/pipelines/terraform_pipeline/windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml)
+
+---
+
+## See Also
+
+- [Terraform Pipeline Documentation](../../user-docs/pipelines/terraform_pipeline.md) – User documentation with usage patterns and examples
+- [AdditionalFilesToPackage Detailed Guide](../../user-docs/pipelines/terraform_pipeline_additional_files_to_package.md) – Comprehensive guide on file patterns and usage
+- [Terraform Build Job Documentation](../../user-docs/jobs/terraform_build.md) – Job that uses AdditionalFilesToPackage

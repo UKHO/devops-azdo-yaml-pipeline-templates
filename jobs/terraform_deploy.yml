@@ -1,6 +1,3 @@
-# Job Template: Terraform deploy
-# Purpose: Runs Terraform deploy infrastructure, supporting variable injection and Azure Key Vault integration.
-
 parameters:
   # generic parameters
   - name: TerraformDeployMode
@@ -11,15 +8,28 @@ parameters:
       - Plan
     displayName: 'The terraform deploy mode: plan or apply'
 
-  - name: DependsOn
-    type: object
-    default: [ ]
-    displayName: 'List of jobs this job depends on'
+  - name: CheckoutAlias
+    type: string
+    default: AzDOPipelineTemplates
+    values:
+      - AzDOPipelineTemplates
+      - self
+    displayName: 'The checkout alias for the template repository (testing purposes)'
 
   - name: Condition
     type: string
     default: succeeded()
     displayName: 'The condition that will control whether this job runs or not'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool that this job will run on'
 
   - name: TerraformVersion
     type: string
@@ -36,38 +46,49 @@ parameters:
     # NO default - Consumer must provide this
     displayName: 'The environment name that the infrastructure is for'
 
-  - name: InfrastructureConfig
+  - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Infrastructure configuration object (see docs/definition_docs/infrastructure_pipeline/infrastructure_config.md)'
+    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_deployment_config.md)'
 
 jobs:
-  - template: /schemas/infrastructure_config.yml
+  - template: /schemas/terraform_deployment_config.yml
     parameters:
-      InfrastructureConfig: ${{ parameters.InfrastructureConfig }}
+      TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - deployment: TerraformDeploy_${{ parameters.TerraformDeployMode }}
-    displayName: 'Terraform ${{ parameters.TerraformDeployMode }}'
-    environment: ${{ parameters.InfrastructureConfig.AzDOEnvironmentName }}
+  - deployment: TerraformDeploy${{ parameters.TerraformDeployMode }}_${{ parameters.TerraformArtifactName }}
+    displayName: "${{ parameters.TerraformDeployMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
+
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+    workspace:
+      clean: all
+
+    environment: ${{ parameters.TerraformDeploymentConfig.AzDOEnvironmentName }}
+
     variables:
 
       # Terraform Plan Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
           - name: TerraformPlanFilePath
             value: $(TerraformWorkingDirectory)/tfplan
+          - name: TerraformPlannedChangesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-planned-changes.json
 
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
-            value: ${{ join(',', parameters.InfrastructureConfig.OutputVariables) }}
+            value: ${{ join(',', parameters.TerraformDeploymentConfig.OutputVariables) }}
+          - name: TerraformOutputVariablesFilePath
+            value: $(TerraformWorkingDirectory)/terraform-output-variables.json
 
       # Shared Variables
       - template: /utils/concat_wrap_list.yml
         parameters:
-          Items: ${{ parameters.InfrastructureConfig.VariableFiles }}
+          Items: ${{ parameters.TerraformDeploymentConfig.VariableFiles }}
           Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
           Suffix: '"'
           OutputVariableName: VariableFilesCommandOption
@@ -75,8 +96,8 @@ jobs:
       - template: /utils/concat_wrap_list.yml
         parameters:
           Items:
-            - ${{ each backendConfig in parameters.InfrastructureConfig.BackendConfig }}:
-               - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
+            - ${{ each backendConfig in parameters.TerraformDeploymentConfig.BackendConfig }}:
+                - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
           Prefix: ' -backend-config="'
           Suffix: '"'
           OutputVariableName: BackendConfigCommandOption
@@ -88,8 +109,8 @@ jobs:
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
 
-      - ${{ if parameters.InfrastructureConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
-          - ${{ each mapping in parameters.InfrastructureConfig.JobsVariableMappings }}:
+      - ${{ if parameters.TerraformDeploymentConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
+          - ${{ each mapping in parameters.TerraformDeploymentConfig.JobsVariableMappings }}:
               - ${{ if mapping.template }}:
                   - template: ${{ mapping.template }}@self
               - ${{ if or(mapping.name, mapping.group) }}:
@@ -98,53 +119,68 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: AzDOPipelineTemplates
+            - checkout: ${{ parameters.CheckoutAlias }}
               persistCredentials: true
               path: $(CheckoutPath)
+
+            - download: none
 
             - template: /tasks/download_pipeline_artifact.yml
               parameters:
                 ArtifactName: ${{ parameters.TerraformArtifactName }}
+                TargetPath: $(TerraformWorkingDirectory)
 
             - template: /tasks/terraform_installer.yml
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
-            - ${{ if and(parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection, parameters.InfrastructureConfig.KeyVaultConfig.Name, parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter) }}:
+            - ${{ if and(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}:
                 - template: /tasks/azure_key_vault.yml
                   parameters:
-                    KeyVaultServiceConnection: ${{ parameters.InfrastructureConfig.KeyVaultConfig.ServiceConnection }}
-                    KeyVaultName: ${{ parameters.InfrastructureConfig.KeyVaultConfig.Name }}
-                    SecretsFilter: ${{ parameters.InfrastructureConfig.KeyVaultConfig.SecretsFilter }}
+                    KeyVaultServiceConnection: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection }}
+                    KeyVaultName: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfig.Name }}
+                    SecretsFilter: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter }}
 
             - template: /tasks/terraform.yml
               parameters:
                 Command: init
-                CommandOptions: $(BackendConfigCommandOption) -upgrade
+                CommandOptions: $(BackendConfigCommandOption) ${{ iif(parameters.TerraformDeploymentConfig.AzureServiceConnection, '-backend-config="use_azuread_auth=true"', '') }}
                 WorkingDirectory: $(TerraformWorkingDirectory)
-                TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
-                  ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
+                TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                  ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
 
             - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: plan
-                    CommandOptions: '-out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false'
+                    CommandOptions: -out=$(TerraformPlanFilePath) $(VariableFilesCommandOption) -input=false
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
-                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
+                    TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                    ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
 
-                - ${{ if parameters.InfrastructureConfig.VerificationMode }}:
+                - ${{ if parameters.TerraformDeploymentConfig.VerificationMode }}:
+                    - template: /tasks/terraform.yml
+                      parameters:
+                        Command: custom
+                        CustomCommand: show
+                        CommandOptions: -json $(TerraformPlanFilePath)
+                        SaveCommandConsoleOutputToFile: true
+                        CommandConsoleOutputFileName: $(TerraformPlannedChangesFilePath)
+                        WorkingDirectory: $(TerraformWorkingDirectory)
+                        TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                        ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                          ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
+
                     - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformChangesCheck
-                        TargetType: 'filePath'
+                        TargetType: filePath
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_changes_check.ps1
                         ScriptFileArguments: >
-                          -VerificationMode ${{ parameters.InfrastructureConfig.VerificationMode }}
-                          -TerraformPlanFilePath "$(TerraformPlanFilePath)"
+                          -VerificationMode ${{ parameters.TerraformDeploymentConfig.VerificationMode }}
+                          -TerraformPlannedChangesFilePath $(TerraformPlannedChangesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true
 
@@ -152,30 +188,31 @@ jobs:
                 - template: /tasks/terraform.yml
                   parameters:
                     Command: apply
-                    CommandOptions: '$(VariableFilesCommandOption) -input=false -auto-approve'
+                    CommandOptions: $(VariableFilesCommandOption) -input=false -auto-approve
                     WorkingDirectory: $(TerraformWorkingDirectory)
-                    TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                    ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
-                      ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
+                    TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                    ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
 
-                - ${{ if parameters.InfrastructureConfig.OutputVariables }}:
+                - ${{ if parameters.TerraformDeploymentConfig.OutputVariables }}:
                     - template: /tasks/terraform.yml
                       parameters:
                         Command: output
-                        CommandOptions: '-json'
-                        SaveOutputsToFile: true
+                        CommandOptions: -json
+                        SaveCommandConsoleOutputToFile: true
+                        CommandConsoleOutputFileName: $(TerraformOutputVariablesFilePath)
                         WorkingDirectory: $(TerraformWorkingDirectory)
-                        TaskEnvironmentVariables: ${{ parameters.InfrastructureConfig.EnvironmentVariableMappings }}
-                        ${{ if parameters.InfrastructureConfig.AzureServiceConnection }}:
-                          ServiceConnection: ${{ parameters.InfrastructureConfig.AzureServiceConnection }}
+                        TaskEnvironmentVariables: ${{ parameters.TerraformDeploymentConfig.EnvironmentVariableMappings }}
+                        ${{ if parameters.TerraformDeploymentConfig.AzureServiceConnection }}:
+                          ServiceConnection: ${{ parameters.TerraformDeploymentConfig.AzureServiceConnection }}
 
                     - template: /tasks/powershell.yml
                       parameters:
                         TaskName: TerraformExportOutputsVariables
-                        TargetType: 'filePath'
+                        TargetType: filePath
                         ScriptFilePath: $(ScriptDirectory)/terraform/terraform_export_outputs.ps1
                         ScriptFileArguments: >
                           -OutputVariablesToExport $(TerraformOutputVariablesCommandOption)
-                          -OutputFileName $(TerraformWorkingDirectory)/terraform-output.json
+                          -OutputFileName $(TerraformOutputVariablesFilePath)
                         FailOnStandardError: true
                         UsePowerShellCoreOnWindows: true

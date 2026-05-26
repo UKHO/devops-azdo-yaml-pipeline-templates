@@ -1,0 +1,45 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+pr:
+  - main
+
+extends:
+  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
+  parameters:
+    RelativePathToTerraformFiles: tests/shared_resources/elastic_test_terraform
+    TerraformVersion: 1.14.0
+    EnvironmentConfigs:
+      - Name: dev
+        Stage:
+          DependsOn:
+            - build_terraform
+          Condition: succeeded('build_terraform')
+        TerraformDeploymentConfig:
+          AzureServiceConnection: DevOps Chapter Dev
+          AzDOEnvironmentName: Elastic
+          BackendConfig:
+            resource_group_name: $(TFStateResourceGroupName)
+            storage_account_name: $(TFStateStorageAccountName)
+            container_name: tfstate-devops-azdo-yaml-pipeline-templates
+            key: pipeline.elastic_test.tfstate
+          RunMode: 'PlanVerifyApply'
+          VerificationMode: 'VerifyOnDestroy'
+          EnvironmentVariableMappings:
+            TF_VAR_api_key: $(Elastic-ApiKey)
+            TF_VAR_elastic_endpoint: $(Elastic-Endpoint)
+            TF_VAR_kibana_endpoint: $(Kibana-Endpoint)
+          JobsVariableMappings:
+            - group: NonLive-Elastic
+            - group: DevOpsChapterAzureSubscription

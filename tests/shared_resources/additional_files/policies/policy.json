@@ -1,0 +1,9 @@
+{
+  "policies": [
+    {
+      "name": "SecurityPolicy",
+      "version": "1.0"
+    }
+  ]
+}
+

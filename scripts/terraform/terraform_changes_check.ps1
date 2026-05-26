@@ -1,20 +1,19 @@
 param (
-  [Parameter(Mandatory,
-    HelpMessage = "Specify the verification mode, whether to verify on destroy actions, any changes, or disable verification.")]
-  [ValidateSet("VerifyOnDestroy", "VerifyOnAny", "VerifyDisabled")]
-  [string] $VerificationMode,
+    [Parameter(Mandatory,
+            HelpMessage = "Specify the verification mode, whether to verify on destroy actions, any changes, or disable verification.")]
+    [ValidateSet("VerifyOnDestroy", "VerifyOnAny", "VerifyDisabled")]
+    [string] $VerificationMode,
 
-  [Parameter(Mandatory,
-    HelpMessage = "Path to the Terraform plan file to check for changes.")]
-  [ValidateScript(
-    { Test-Path -Path $_ -PathType Leaf },
-    ErrorMessage = '"{0}" cannot be found.'
-  )]
-  [string] $TerraformPlanFilePath
+    [Parameter(Mandatory,
+            HelpMessage = "Path to the Terraform plan file to check for changes.")]
+    [ValidateScript(
+            { Test-Path -Path $_ -PathType Leaf },
+            ErrorMessage = '"{0}" cannot be found.'
+    )]
+    [string] $TerraformPlannedChangesFilePath
 )
 
 $ErrorActionPreference = 'Stop'
-$numberOfDestroyWordsToIndicateDestructiveChange = 2
 
 Write-Host "Starting $($MyInvocation.MyCommand.Name) script"
 
@@ -23,91 +22,115 @@ $isDebugMode = $env:SYSTEM_DEBUG -eq 'true'
 
 # Helper function for debug logging
 function Write-DebugLog {
-  param([string]$Message)
-  if ($isDebugMode) {
-    Write-Host "##[debug]$Message"
-  }
+    param([string]$Message)
+    if ($isDebugMode) {
+        Write-Host "##[debug]$Message"
+    }
 }
 
 # Initialize output variables
-$changesNeedManualVerification = $true
+$changesNeedManualVerification = $false
 $changesNeedApplying = $false
 
 Write-DebugLog "Verification Mode: $VerificationMode"
-Write-DebugLog "Terraform Plan File: $TerraformPlanFilePath"
+Write-DebugLog "Terraform Planned Changes File: $TerraformPlannedChangesFilePath"
 
 # Read and validate the terraform plan file
-try
-{
-  $terraformPlan = Get-Content -Path $TerraformPlanFilePath -ErrorAction Stop
+try {
+    $terraformPlanJson = Get-Content -Path $TerraformPlannedChangesFilePath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
 
-  if ([string]::IsNullOrWhiteSpace($terraformPlan))
-  {
-    Write-Host "##[error]Terraform plan file is empty or contains only whitespace"
-    throw "Cannot process empty plan file"
-  }
+    if ($null -eq $terraformPlanJson) {
+        Write-Host "##[error]Terraform plan file is empty or invalid JSON"
+        throw "Cannot process empty or invalid plan file"
+    }
 
-  Write-DebugLog "Plan file read successfully"
+    Write-DebugLog "Plan file read and parsed successfully"
 }
-catch
-{
-  Write-Host "##[error]Failed to read Terraform plan file from '$TerraformPlanFilePath'"
-  Write-Host "##[error]Error: $($_.Exception.Message)"
-  throw
+catch {
+    Write-Host "##[error]Failed to read or parse Terraform plan file from '$TerraformPlannedChangesFilePath'"
+    Write-Host "##[error]Error: $($_.Exception.Message)"
+    throw
 }
 
 Write-Host "##[group]Analyzing Terraform plan for changes"
 
-# Check if plan has any changes
-if ($terraformPlan -match "no changes")
-{
-  Write-Host "✓ Terraform plan indicates no changes"
-  $changesNeedManualVerification = $false
-  $changesNeedApplying = $false
-  Write-Host "##[endgroup]"
-  Write-Host "##vso[task.setvariable variable=ChangesNeedManualVerification;isoutput=true]$changesNeedManualVerification"
-  Write-Host "##vso[task.setvariable variable=ChangesNeedApplying;isoutput=true]$changesNeedApplying"
-  Write-Host "Script completed successfully: no changes detected"
-  return
+# Extract resource changes
+$resourceChanges = $terraformPlanJson.resource_changes
+Write-DebugLog "Found $($resourceChanges.Count) resource(s) in plan"
+
+# Filter out no-op changes to find actual changes
+$actualChanges = @()
+$destroyActions = @()
+
+foreach ($change in $resourceChanges) {
+    $actions = $change.change.actions
+    Write-DebugLog "Resource '$($change.address)' actions: $($actions -join ', ')"
+
+    # Only consider non-no-op actions
+    if ($actions -notcontains "no-op" -or $actions.Count -gt 1) {
+        $actualChanges += $change
+
+        # Check for destroy actions
+        if ($actions -contains "delete") {
+            $destroyActions += $change.address
+        }
+    }
+}
+
+Write-DebugLog "Found $($actualChanges.Count) resource(s) with actual changes"
+
+# Check if plan has any changes (excluding no-ops)
+if ($actualChanges.Count -eq 0) {
+    Write-Host "✓ Terraform plan indicates no changes"
+    $changesNeedManualVerification = $false
+    $changesNeedApplying = $false
+    Write-Host "##[endgroup]"
+    Write-Host "##vso[task.setvariable variable=ChangesNeedManualVerification;isoutput=true]$changesNeedManualVerification"
+    Write-Host "##vso[task.setvariable variable=ChangesNeedApplying;isoutput=true]$changesNeedApplying"
+    Write-Host "Script completed successfully: no changes detected"
+    return
 }
 
 Write-Host "! Terraform plan indicates changes will be made"
 
+if ($destroyActions.Count -gt 0) {
+    Write-Host "##[group]Destroy actions detected"
+    Write-Host "The following resources will be destroyed:"
+    foreach ($resource in $destroyActions) {
+        Write-Host "  - $resource"
+    }
+    Write-Host "##[endgroup]"
+    Write-DebugLog "Found $($destroyActions.Count) destroy action(s)"
+}
+
 # Determine verification requirements based on mode
-switch ($VerificationMode)
-{
-  "VerifyOnDestroy" {
-    Write-DebugLog "Processing VerifyOnDestroy mode"
+switch ($VerificationMode) {
+    "VerifyOnDestroy" {
+        Write-DebugLog "Processing VerifyOnDestroy mode"
 
-    $destroyCount = ($terraformPlan | Select-String -Pattern "destroy" -CaseSensitive).Count
-
-    Write-DebugLog "Found $destroyCount lines with 'destroy' keyword"
-
-    if ($destroyCount -ge $numberOfDestroyWordsToIndicateDestructiveChange)
-    {
-      Write-Host "##[warning]Resources will be destroyed. Manual verification is REQUIRED."
-      $changesNeedManualVerification = $true
-      $changesNeedApplying = $true
+        if ($destroyActions.Count -gt 0) {
+            Write-Host "##[warning]Resources will be destroyed. Manual verification is REQUIRED."
+            $changesNeedManualVerification = $true
+            $changesNeedApplying = $true
+        }
+        else {
+            Write-Host "✓ No resources will be destroyed. Proceeding without manual verification."
+            $changesNeedManualVerification = $false
+            $changesNeedApplying = $true
+        }
     }
-    else
-    {
-      Write-Host "✓ No resources will be destroyed. Proceeding without manual verification."
-      $changesNeedManualVerification = $false
-      $changesNeedApplying = $true
+    "VerifyOnAny" {
+        Write-DebugLog "Processing VerifyOnAny mode"
+        Write-Host "##[warning]Resources will be added, removed, or changed. Manual verification is REQUIRED."
+        $changesNeedManualVerification = $true
+        $changesNeedApplying = $true
     }
-  }
-  "VerifyOnAny" {
-    Write-DebugLog "Processing VerifyOnAny mode"
-    Write-Host "##[warning]Resources will be added, removed, or changed. Manual verification is REQUIRED."
-    $changesNeedManualVerification = $true
-    $changesNeedApplying = $true
-  }
-  "VerifyDisabled" {
-    Write-DebugLog "Processing VerifyDisabled mode"
-    Write-Host "⊘ Manual verification is DISABLED. Changes will be applied automatically."
-    $changesNeedManualVerification = $false
-    $changesNeedApplying = $true
-  }
+    "VerifyDisabled" {
+        Write-DebugLog "Processing VerifyDisabled mode"
+        Write-Host "⊘ Manual verification is DISABLED. Changes will be applied automatically."
+        $changesNeedManualVerification = $false
+        $changesNeedApplying = $true
+    }
 }
 
 Write-Host "##[endgroup]"
