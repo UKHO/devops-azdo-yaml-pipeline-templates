@@ -83,7 +83,7 @@ resources:
       type: github
       endpoint: UKHO                                    # Your GitHub service connection name
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/v0.1.0                             # Always use a specific version tag - see https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases
+      ref: refs/tags/0.1.0                             # Always use a specific version tag - see https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases
 
 trigger:
   branches:
@@ -437,7 +437,7 @@ resources:
       type: github
       endpoint: UKHO                        # Service connection must exist
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/v0.1.0
+      ref: refs/tags/0.1.0
 ```
 
 ### Manual Verification Not Triggering
