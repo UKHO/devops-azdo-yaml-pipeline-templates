@@ -37,7 +37,7 @@ resources:
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/v0.1.0
+      ref: refs/tags/0.1.0
 ```
 
 Then reference templates using `@AzDOPipelineTemplates`.

@@ -5,7 +5,7 @@
 We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline template repositories.
 
 **Format:**
-`vMAJOR.MINOR.PATCH` (e.g., `v2.4.1`)
+`MAJOR.MINOR.PATCH` (e.g., `2.4.1`)
 
 ---
 
@@ -81,8 +81,8 @@ All the examples listed below are placed in the worst case scenario category. Fo
 All changes must be tagged using Git in the format:
 
 ```bash
-git tag -a v1.3.0 -m "Release v1.3.0 - Added support for dotnet 8"
-git push origin v1.3.0
+git tag -a 1.3.0 -m "Release 1.3.0 - Added support for dotnet 8"
+git push origin 1.3.0
 ```
 
 > Tags must be applied from the `main` branch only after validation.
