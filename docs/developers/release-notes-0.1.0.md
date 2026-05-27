@@ -1,4 +1,4 @@
-# Release Notes - v0.1.0
+# Release Notes - 0.1.0
 
 First public release of `devops-azdo-yaml-pipeline-templates`.
 
