@@ -8,7 +8,7 @@
 #   - KeyVaultServiceConnection (string, required): Name of the Azure Resource Manager service connection with access to the Key Vault.
 #   - KeyVaultName (string, required): Name of the Azure Key Vault to retrieve secrets from.
 #   - SecretsFilter (string, optional): Filter for which secrets to fetch (supports wildcards, comma-separated). Default: '*'
-#   - RunAsPreJob (boolean, optional): If true, runs the task as a pre-job to make secrets available to all jobs. Default: false
+#   - RunAsPreJob (boolean, optional): If true, runs the task as a pre-job before the other tasks in the same job. Default: false
 #
 # Example Usage:
 #   - template: tasks/azure_key_vault.yml
@@ -27,7 +27,7 @@
 #   - Secrets are mapped to pipeline variables with the same name as in the Key Vault.
 #   - Use secret variables in subsequent steps as $(secretName).
 #   - Requires the service connection to have at least "Get" permissions on secrets.
-#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-key-vault-v2
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-key-vault-v2?view=azure-pipelines
 
 parameters:
   - name: KeyVaultServiceConnection
