@@ -16,16 +16,22 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # DEFINE TEST CASES
 # ============================================================================
 
+# Parameters = @{
+#   AdditionalFilesToPackage = @"
+# - FilesPattern: '**'
+#   SourceDirectory: resources/keyvault
+#   TargetSubdirectoryName: keyvault
+# "@
+# }
+
 $validTestCases = @(
   @{
     Description = "with a single KeyVaultConfigs entry using defaults"
     Parameters = @{
-      KeyVaultConfigs = @(
-        @{
-          Name = "dev-vault"
-          ServiceConnection = "Azure-Dev-SC"
-        }
-      )
+      KeyVaultConfigs = @"
+ - Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+"@
     }
     ExpectedYaml = @(
       "AzureKeyVault@2"
@@ -39,14 +45,12 @@ $validTestCases = @(
   @{
     Description = "with a single KeyVaultConfigs entry using explicit values"
     Parameters = @{
-      KeyVaultConfigs = @(
-        @{
-          Name = "prod-vault"
-          ServiceConnection = "Azure-Prod-SC"
-          SecretsFilter = "app-*"
-          RunAsPreJob = $true
-        }
-      )
+      KeyVaultConfigs = @"
+ - Name: "prod-vault"
+   ServiceConnection: "Azure-Prod-SC"
+   SecretsFilter: "app-*"
+   RunAsPreJob: true
+"@
     }
     ExpectedYaml = @(
       "AzureKeyVault@2"
@@ -60,19 +64,15 @@ $validTestCases = @(
   @{
     Description = "with multiple KeyVaultConfigs entries preserving order"
     Parameters = @{
-      KeyVaultConfigs = @(
-        @{
-          Name = "shared-vault"
-          ServiceConnection = "Azure-Shared-SC"
-          SecretsFilter = "shared-*"
-        },
-        @{
-          Name = "app-vault"
-          ServiceConnection = "Azure-App-SC"
-          SecretsFilter = "app-*"
-          RunAsPreJob = $true
-        }
-      )
+      KeyVaultConfigs = @"
+ - Name: "shared-vault"
+   ServiceConnection: "Azure-Shared-SC"
+   SecretsFilter: "shared-*"
+ - Name: "app-vault"
+   ServiceConnection: "Azure-App-SC"
+   SecretsFilter: "app-*"
+   RunAsPreJob: true
+"@
     }
     ExpectedYaml = @(
       "Download secrets from Azure Key Vault: shared-vault"
@@ -91,7 +91,7 @@ $validTestCases = @(
 $invalidTestCases = @(
   @{
     Description = "missing KeyVaultConfigs parameter"
-    Parameters = @{}
+    Parameters = @{ }
     ErrorMessage = "A value for the 'KeyVaultConfigs' parameter must be provided."
   }
 )
