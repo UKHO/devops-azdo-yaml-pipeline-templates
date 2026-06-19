@@ -1,0 +1,19 @@
+# Schema Template: Key Vault Configs
+# Validates KeyVaultConfig and KeyVaultConfigs usage for terraform deployment jobs.
+# See: docs/definition_docs/terraform_pipeline/key_vault_configs.md
+
+parameters:
+  - name: KeyVaultConfigs
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Terraform deployment configuration object containing Key Vault settings (required)'
+
+steps:
+  - ${{ if eq(length(parameters.KeyVaultConfigs), 0) }}:
+      - "Invalid KeyVaultConfigs: array cannot be empty. If no Key Vaults are needed, omit the parameter entirely.": "Error"
+  - ${{ else }}:
+      - ${{ each kvConfig in parameters.KeyVaultConfigs }}:
+          - ${{ if or(not(kvConfig.Name), eq(kvConfig.Name, '')) }}:
+              - "Invalid KeyVaultConfigs: entry is missing required field 'Name'. See docs/definition_docs/terraform_pipeline/key_vault_configs.md": "Error"
+          - ${{ if or(not(kvConfig.ServiceConnection), eq(kvConfig.ServiceConnection, '')) }}:
+              - "Invalid KeyVaultConfigs: entry is missing required field 'ServiceConnection'. See docs/definition_docs/terraform_pipeline/key_vault_configs.md": "Error"
