@@ -134,6 +134,11 @@ jobs:
               parameters:
                 TerraformVersion: ${{ parameters.TerraformVersion }}
 
+            - ${{ if parameters.TerraformDeploymentConfig.KeyVaultConfigs }}:
+                - template: /utils/key_vault_configs_task_list.yml
+                  parameters:
+                    KeyVaultConfigs: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfigs }}
+
             - ${{ if and(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}:
                 - template: /tasks/azure_key_vault.yml
                   parameters:
