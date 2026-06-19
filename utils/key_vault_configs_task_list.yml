@@ -34,6 +34,10 @@ parameters:
     displayName: 'Array of Key Vault configuration objects (required)'
 
 steps:
+  - template: /schemas/key_vault_configs.yml
+    parameters:
+      KeyVaultConfigs: ${{ parameters.KeyVaultConfigs }}
+
   - ${{ each kvConfig in parameters.KeyVaultConfigs }}:
     - template: /tasks/azure_key_vault.yml
       parameters:
