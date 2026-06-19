@@ -389,6 +389,26 @@ $invalidTestCases = @(
     ErrorMessage = "'dev' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided."
   },
   @{
+    Description = "Mixing KeyVaultConfig and KeyVaultConfigs"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        KeyVaultConfig = @{
+          ServiceConnection = "vault-service-connection"
+          Name = "my-vault"
+          SecretsFilter = ""
+        }
+        KeyVaultConfigs = @"
+        - Name: second-vault
+          ServiceConnection: vault-service-connection
+"@
+      }
+    }
+    ErrorMessage = "'dev' environment error: use either KeyVaultConfig (legacy) or KeyVaultConfigs (new), not both. Both parameters cannot coexist in the same configuration. See migration guide: docs/user-docs/MIGRATION-keyvaultconfig-to-keyvaultconfigs.md"
+  },
+  @{
     Description = "BackendConfig with empty key value"
     Parameters = @{
       EnvironmentName = "dev"
