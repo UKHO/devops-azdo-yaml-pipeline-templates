@@ -17,8 +17,6 @@ All notable changes to this repository are documented in this file.
 ### Changed
 
 - `tasks/azure_key_vault.yml` - Updated task reference link and clarified `RunAsPreJob` behavior
-- `docs/definition_docs/shared/key_vault_configs.md` - Trimmed to exact parameter definitions, rules, and notes
-- `docs/user-docs/shared/key_vault_configs_task_list.md` - Trimmed to examples, variable access, and concise notes
 - `docs/definition_docs/terraform_pipeline/terraform_deployment_config.md` - Updated to reference the shared `KeyVaultConfigs` definition doc
 - `docs/user-docs/README.md` - Added an Upgrade Guides section for versioned upgrade paths
 
