@@ -7,12 +7,12 @@
   }
 }
 
-variable "Project" {
+variable "VariableToOutput1" {
   type    = string
-  default = "dev"
+  default = ""
 }
 
-variable "Tenant_Id" {
+variable "VariableToOutput2" {
   type    = string
   default = ""
 }
@@ -47,6 +47,10 @@ output "random_string" {
   value = var.Environment
 }
 
-output "tenant_id" {
-  value = var.Tenant_Id
+output "OutputVariable1" {
+  value = var.VariableToOutput1
+}
+
+output "OutputVariable2" {
+  value = var.VariableToOutput2
 }

@@ -43,9 +43,9 @@ jobs:
           key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'ApplyOnly'
         EnvironmentVariableMappings:
-          TF_VAR_Tenant_Id: $(PIPELINE-TENANT-ID)
+          TF_VAR_VariableToOutput1: $(PIPELINE-TENANT-ID)
         OutputVariables:
-          - tenant_id
+          - OutputVariable1
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
 
@@ -54,14 +54,14 @@ jobs:
     dependsOn: TerraformDeployApply_TerraformArtifact
     condition: succeeded('TerraformDeployApply_TerraformArtifact')
     variables:
-      tenant_id: $[dependencies.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.tenant_id']]
+      OutputVariable1: $[dependencies.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.OutputVariable1']]
     steps:
       - pwsh: |
           Write-Host "Validating output variables..."
-          Write-Host "tenant_id: $(tenant_id)"
+          Write-Host "OutputVariable1: $(OutputVariable1)"
 
-          if ([string]::IsNullOrWhiteSpace("$(tenant_id)")) {
-            Write-Host "##[error]Output variable 'tenant_id' is empty"
+          if ([string]::IsNullOrWhiteSpace("$(OutputVariable1)")) {
+            Write-Host "##[error]Output variable 'OutputVariable1' is empty"
             exit 1
           }
 
