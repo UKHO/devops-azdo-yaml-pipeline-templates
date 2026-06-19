@@ -35,7 +35,7 @@ $validTestCases = @(
     }
     ExpectedYaml = @(
       "AzureKeyVault@2"
-      "Download secrets from Azure Key Vault: dev-vault"
+      "Download secrets: dev-vault"
       "azureSubscription: Azure-Dev-SC"
       "KeyVaultName: dev-vault"
       "SecretsFilter: '*'"
@@ -54,7 +54,7 @@ $validTestCases = @(
     }
     ExpectedYaml = @(
       "AzureKeyVault@2"
-      "Download secrets from Azure Key Vault: prod-vault"
+      "Download secrets: prod-vault"
       "azureSubscription: Azure-Prod-SC"
       "KeyVaultName: prod-vault"
       "SecretsFilter: app-*"
@@ -75,11 +75,11 @@ $validTestCases = @(
 "@
     }
     ExpectedYaml = @(
-      "Download secrets from Azure Key Vault: shared-vault"
+      "Download secrets: shared-vault"
       "azureSubscription: Azure-Shared-SC"
       "KeyVaultName: shared-vault"
       "SecretsFilter: shared-*"
-      "Download secrets from Azure Key Vault: app-vault"
+      "Download secrets: app-vault"
       "azureSubscription: Azure-App-SC"
       "KeyVaultName: app-vault"
       "SecretsFilter: app-*"
