@@ -30,6 +30,9 @@ jobs:
     - ${{ if eq(length(parameters.TerraformDeploymentConfig.AzureServiceConnection), 0) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
 
+  - ${{ if and(contains(convertToJson(parameters.TerraformDeploymentConfig), 'KeyVaultConfigs'), or(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter)) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: use either KeyVaultConfig (legacy) or KeyVaultConfigs (new), not both. Both parameters cannot coexist in the same configuration. See migration guide: docs/user-docs/MIGRATION-keyvaultconfig-to-keyvaultconfigs.md": "Error"
+
   - ${{ if or(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}:
     # At least one property is set, so all three must be set
     - ${{ if or(not(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection), eq(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, '')) }}:
