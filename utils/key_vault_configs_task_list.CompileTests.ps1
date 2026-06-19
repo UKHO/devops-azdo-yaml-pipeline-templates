@@ -93,6 +93,15 @@ $invalidTestCases = @(
     Description = "missing KeyVaultConfigs parameter"
     Parameters = @{ }
     ErrorMessage = "A value for the 'KeyVaultConfigs' parameter must be provided."
+  },
+  @{
+    Description = "validation is triggered"
+    Parameters = @{
+      KeyVaultConfigs = @"
+[]
+"@
+    }
+    ErrorMessage = "Invalid KeyVaultConfigs: array cannot be empty. If no Key Vaults are needed, omit the parameter entirely."
   }
 )
 
