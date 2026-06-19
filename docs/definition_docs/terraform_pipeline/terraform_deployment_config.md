@@ -179,7 +179,7 @@ EnvironmentVariableMappings:
 
 ### KeyVaultConfigs
 
-**Type:** `object` (array)
+**Type:** `list` of `object`
 
 **Description:** Array-based configuration for retrieving secrets from multiple Azure Key Vaults. This is the modern approach that supports managing secrets from multiple vaults with ordered execution.
 
