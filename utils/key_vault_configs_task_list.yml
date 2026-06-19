@@ -7,7 +7,7 @@
 # Parameters:
 #   - KeyVaultConfigs (object array, required): Array of Key Vault configuration objects.
 #     Each object must contain: Name (string, required), ServiceConnection (string, required),
-#     SecretsFilter (string, optional, default: ''), RunAsPreJob (boolean, optional, default: false)
+#     SecretsFilter (string, optional, default: '*'), RunAsPreJob (boolean, optional, default: false)
 #
 # Example Usage:
 #   - template: utils/key_vault_configs_task_list.yml
