@@ -406,7 +406,7 @@ $invalidTestCases = @(
 "@
       }
     }
-    ErrorMessage = "'dev' environment error: use either KeyVaultConfig (legacy) or KeyVaultConfigs (new), not both. Both parameters cannot coexist in the same configuration. See migration guide: docs/user-docs/MIGRATION-keyvaultconfig-to-keyvaultconfigs.md"
+    ErrorMessage = "'dev' environment error: use either KeyVaultConfig (legacy) or KeyVaultConfigs (new), not both. Both parameters cannot coexist in the same configuration. See upgrade guide: docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-keyvaultconfigs.md"
   },
   @{
     Description = "BackendConfig with empty key value"
