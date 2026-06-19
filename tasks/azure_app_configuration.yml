@@ -1,0 +1,119 @@
+# Azure DevOps Task: AzureAppConfigurationExport@10
+#
+# Purpose:
+#   Provides a reusable wrapper for exporting key-values from Azure App Configuration in Azure DevOps pipelines.
+#   Supports default and snapshot selection modes, labels, key-prefix trimming, and warning controls.
+#
+# Parameters:
+#   - AppConfigServiceConnection (string, required): Azure Resource Manager service connection for the Azure App Configuration store.
+#   - AppConfigEndpoint (string, required): Azure App Configuration endpoint URL.
+#   - AppConfigName (string, optional): Friendly name used in the display name. Default: ''
+#   - SelectionMode (string, optional): Selection mode. Values: Default, Snapshot. Default: 'Default'
+#   - KeyFilter (string, optional): Key filter for entries to load when SelectionMode is Default. Default: '*'
+#   - Label (string, optional): Label to load when SelectionMode is Default. Default: ''
+#   - SnapshotName (string, optional): Snapshot name to export when SelectionMode is Snapshot. Default: ''
+#   - TrimKeyPrefix (string, optional): Key prefix to trim from variable names. Default: ''
+#   - SuppressWarningForOverriddenKeys (boolean, optional): Suppresses warnings for overridden keys. Default: false
+#   - TreatKeyVaultErrorsAsWarning (boolean, optional): Treats key vault resolution errors as warnings. Default: false
+#
+# Example Usage:
+#   - template: tasks/azure_app_configuration.yml
+#     parameters:
+#       AppConfigServiceConnection: 'MyAzureServiceConnection'
+#       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
+#
+#   - template: tasks/azure_app_configuration.yml
+#     parameters:
+#       AppConfigServiceConnection: 'MyAzureServiceConnection'
+#       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
+#       AppConfigName: 'appconfig-production'
+#       SelectionMode: 'Default'
+#       KeyFilter: 'app:*'
+#       Label: 'prod'
+#       TrimKeyPrefix: 'app:'
+#       SuppressWarningForOverriddenKeys: true
+#
+#   - template: tasks/azure_app_configuration.yml
+#     parameters:
+#       AppConfigServiceConnection: 'MyAzureServiceConnection'
+#       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
+#       SelectionMode: 'Snapshot'
+#       SnapshotName: 'release-2026-06-19'
+#
+# Notes:
+#   - Azure App Configuration values are exported as pipeline variables for downstream steps.
+#   - Use `TrimKeyPrefix` to simplify variable names when keys are namespaced.
+#   - When `SelectionMode` is `Snapshot`, `SnapshotName` must be provided.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-app-configuration-export-v10?view=azure-pipelines
+
+parameters:
+  - name: AppConfigServiceConnection
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Azure Resource Manager service connection (required)'
+
+  - name: AppConfigEndpoint
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Azure App Configuration endpoint (required)'
+
+  - name: AppConfigName
+    type: string
+    default: ''
+    displayName: 'Friendly name for the App Configuration store'
+
+  - name: SelectionMode
+    type: string
+    default: 'Default'
+    values:
+      - Default
+      - Snapshot
+    displayName: 'Selection mode for the App Configuration export'
+
+  - name: KeyFilter
+    type: string
+    default: '*'
+    displayName: 'Key filter for entries to load when SelectionMode is Default'
+
+  - name: Label
+    type: string
+    default: ''
+    displayName: 'Label to load when SelectionMode is Default'
+
+  - name: SnapshotName
+    type: string
+    default: ''
+    displayName: 'Snapshot name to export when SelectionMode is Snapshot'
+
+  - name: TrimKeyPrefix
+    type: string
+    default: ''
+    displayName: 'Key prefix to trim from variable names'
+
+  - name: SuppressWarningForOverriddenKeys
+    type: boolean
+    default: false
+    displayName: 'Suppress warnings for overridden keys'
+
+  - name: TreatKeyVaultErrorsAsWarning
+    type: boolean
+    default: false
+    displayName: 'Treat key vault resolution errors as warnings'
+
+steps:
+  - task: AzureAppConfigurationExport@10
+    displayName: 'Download config: ${{ coalesce(parameters.AppConfigName, parameters.AppConfigEndpoint) }}'
+    inputs:
+      azureSubscription: ${{ parameters.AppConfigServiceConnection }}
+      AppConfigurationEndpoint: ${{ parameters.AppConfigEndpoint }}
+      SelectionMode: ${{ parameters.SelectionMode }}
+      ${{ if eq(parameters.SelectionMode, 'Default') }}:
+        KeyFilter: ${{ parameters.KeyFilter }}
+        Label: ${{ parameters.Label }}
+      ${{ if eq(parameters.SelectionMode, 'Snapshot') }}:
+        SnapshotName: ${{ parameters.SnapshotName }}
+      TrimKeyPrefix: ${{ parameters.TrimKeyPrefix }}
+      SuppressWarningForOverriddenKeys: ${{ parameters.SuppressWarningForOverriddenKeys }}
+      TreatKeyVaultErrorsAsWarning: ${{ parameters.TreatKeyVaultErrorsAsWarning }}
+
+
