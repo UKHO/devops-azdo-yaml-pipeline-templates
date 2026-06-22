@@ -1,0 +1,88 @@
+# Schema Template: Config Sources
+# Validates `ConfigSources` entries for templates that support ordered configuration loading from Key Vault and Azure App Configuration.
+# See: docs/definition_docs/shared/config_sources.md
+
+parameters:
+  - name: ConfigSources
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'List of configuration-source objects (required)'
+
+steps:
+  - ${{ if eq(length(parameters.ConfigSources), 0) }}:
+      - "Invalid ConfigSources: list cannot be empty. If no configuration sources are needed, omit the parameter entirely.": "Error"
+  - ${{ else }}:
+      - ${{ each source in parameters.ConfigSources }}:
+          # Required/type/value checks for entry discriminator.
+          - ${{ if or(or(not(source.Type), eq(source.Type, '')), or(contains(convertToJson(source.Type), '{'), contains(convertToJson(source.Type), '[')), notIn(source.Type, 'KeyVault', 'AppConfiguration')) }}:
+              - "Invalid ConfigSources: entry field 'Type' is required, must be a non-empty string, and must be one of 'KeyVault' or 'AppConfiguration'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+          # Required field checks shared by all source types.
+          - ${{ if or(not(source.ServiceConnection), eq(source.ServiceConnection, '')) }}:
+              - "Invalid ConfigSources: entry is missing required field 'ServiceConnection'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+          # Type checks shared by all source types.
+          - ${{ if or(contains(convertToJson(source.ServiceConnection), '{'), contains(convertToJson(source.ServiceConnection), '[')) }}:
+              - "Invalid ConfigSources: entry field 'ServiceConnection' must be a string. See docs/definition_docs/shared/config_sources.md": "Error"
+
+          - ${{ if eq(source.Type, 'KeyVault') }}:
+              # KeyVault required field checks.
+              - ${{ if or(not(source.Name), eq(source.Name, '')) }}:
+                  - "Invalid ConfigSources: KeyVault entry is missing required field 'Name'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              # KeyVault type checks.
+              - ${{ if or(contains(convertToJson(source.Name), '{'), contains(convertToJson(source.Name), '[')) }}:
+                  - "Invalid ConfigSources: KeyVault entry field 'Name' must be a string. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              # KeyVault optional field checks (when provided).
+              - ${{ if and(contains(convertToJson(source), '"SecretsFilter"'), eq(source.SecretsFilter, '')) }}:
+                  - "Invalid ConfigSources: KeyVault entry field 'SecretsFilter' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"SecretsFilter"'), or(contains(convertToJson(source.SecretsFilter), '{'), contains(convertToJson(source.SecretsFilter), '['))) }}:
+                  - "Invalid ConfigSources: KeyVault entry field 'SecretsFilter' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"RunAsPreJob"'), notIn(source.RunAsPreJob, true, false)) }}:
+                  - "Invalid ConfigSources: KeyVault entry field 'RunAsPreJob' must be a boolean when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+          - ${{ if eq(source.Type, 'AppConfiguration') }}:
+              # AppConfiguration required field checks.
+              - ${{ if or(not(source.Endpoint), eq(source.Endpoint, '')) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry is missing required field 'Endpoint'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              # AppConfiguration type checks and allowed values.
+              - ${{ if or(contains(convertToJson(source.Endpoint), '{'), contains(convertToJson(source.Endpoint), '[')) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'Endpoint' must be a string. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"SelectionMode"'), notIn(source.SelectionMode, 'Default', 'Snapshot')) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'SelectionMode' must be one of 'Default' or 'Snapshot'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"SelectionMode"'), or(contains(convertToJson(source.SelectionMode), '{'), contains(convertToJson(source.SelectionMode), '[')) ) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'SelectionMode' must be a string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(eq(source.SelectionMode, 'Snapshot'), or(not(source.SnapshotName), eq(source.SnapshotName, ''))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry requires 'SnapshotName' when SelectionMode is 'Snapshot'. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              # AppConfiguration optional field type checks (when provided).
+              - ${{ if and(contains(convertToJson(source), '"SnapshotName"'), or(eq(source.SnapshotName, ''), contains(convertToJson(source.SnapshotName), '{'), contains(convertToJson(source.SnapshotName), '['))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'SnapshotName' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"Name"'), or(eq(source.Name, ''), contains(convertToJson(source.Name), '{'), contains(convertToJson(source.Name), '['))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'Name' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"KeyFilter"'), or(eq(source.KeyFilter, ''), contains(convertToJson(source.KeyFilter), '{'), contains(convertToJson(source.KeyFilter), '['))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'KeyFilter' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"Label"'), or(eq(source.Label, ''), contains(convertToJson(source.Label), '{'), contains(convertToJson(source.Label), '['))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'Label' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"TrimKeyPrefix"'), or(eq(source.TrimKeyPrefix, ''), contains(convertToJson(source.TrimKeyPrefix), '{'), contains(convertToJson(source.TrimKeyPrefix), '['))) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'TrimKeyPrefix' must be a non-empty string when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"SuppressWarningForOverriddenKeys"'), notIn(source.SuppressWarningForOverriddenKeys, true, false)) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'SuppressWarningForOverriddenKeys' must be a boolean when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+              - ${{ if and(contains(convertToJson(source), '"TreatKeyVaultErrorsAsWarning"'), notIn(source.TreatKeyVaultErrorsAsWarning, true, false)) }}:
+                  - "Invalid ConfigSources: AppConfiguration entry field 'TreatKeyVaultErrorsAsWarning' must be a boolean when provided. See docs/definition_docs/shared/config_sources.md": "Error"
+
+
+
