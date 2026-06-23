@@ -1,5 +1,5 @@
 # Schema Template: Config Sources
-# Validates `ConfigSources` entries for templates that support ordered configuration loading from Key Vault and Azure App Configuration.
+# Validates `ConfigSources` entries for templates that support ordered configuration loading from Key Vault and an App Configuration store.
 # See: docs/definition_docs/shared/config_sources.md
 
 parameters:
