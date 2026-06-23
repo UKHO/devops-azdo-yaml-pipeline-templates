@@ -2,7 +2,7 @@
 #
 # Purpose:
 #   Generates reusable configuration-source task invocations from a ConfigSources array,
-#   enabling ordered loading of secrets and settings from Azure Key Vault and Azure App Configuration.
+#   enabling ordered loading of secrets and settings from Azure Key Vault and an App Configuration store.
 #
 # Parameters:
 #   - ConfigSources (object array, required): Array of configuration-source objects.
@@ -61,7 +61,7 @@ steps:
             RunAsPreJob: ${{ source.RunAsPreJob }}
 
     - ${{ if eq(source.Type, 'AppConfiguration') }}:
-      - template: /tasks/azure_app_configuration.yml
+      - template: /tasks/azure_app_configuration_export.yml
         parameters:
           AppConfigServiceConnection: ${{ source.ServiceConnection }}
           AppConfigEndpoint: ${{ source.Endpoint }}
