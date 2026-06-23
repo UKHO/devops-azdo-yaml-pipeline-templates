@@ -28,8 +28,6 @@ $validTestCases = @(
       "AppConfigurationEndpoint: https://my-appconfig.azconfig.io"
       "SelectionMode: Default"
       "KeyFilter: '*'"
-      "Label: ''"
-      "TrimKeyPrefix: ''"
       "SuppressWarningForOverriddenKeys: False"
       "TreatKeyVaultErrorsAsWarning: False"
     )
@@ -66,6 +64,32 @@ $validTestCases = @(
     ExpectedYaml = @(
       "SelectionMode: Snapshot"
       "SnapshotName: release-2026-06-19"
+    )
+  },
+  @{
+    Description = "with snapshot mode and TrimKeyPrefix"
+    Parameters = @{
+      AppConfigServiceConnection = "MyAzureServiceConnection"
+      AppConfigEndpoint = "https://my-appconfig.azconfig.io"
+      SelectionMode = "Snapshot"
+      SnapshotName = "release-2026-06-19"
+      TrimKeyPrefix = "app:"
+    }
+    ExpectedYaml = @(
+      "SelectionMode: Snapshot"
+      "SnapshotName: release-2026-06-19"
+      "TrimKeyPrefix: 'app:'"
+    )
+  },
+  @{
+    Description = "with TreatKeyVaultErrorsAsWarning enabled"
+    Parameters = @{
+      AppConfigServiceConnection = "MyAzureServiceConnection"
+      AppConfigEndpoint = "https://my-appconfig.azconfig.io"
+      TreatKeyVaultErrorsAsWarning = $true
+    }
+    ExpectedYaml = @(
+      "TreatKeyVaultErrorsAsWarning: True"
     )
   }
 )

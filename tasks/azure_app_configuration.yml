@@ -44,6 +44,7 @@
 #   - Azure App Configuration values are exported as pipeline variables for downstream steps.
 #   - Use `TrimKeyPrefix` to simplify variable names when keys are namespaced.
 #   - When `SelectionMode` is `Snapshot`, `SnapshotName` must be provided.
+#   - Optional string inputs are omitted when empty.
 #   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-app-configuration-export-v10?view=azure-pipelines
 
 parameters:
@@ -107,12 +108,14 @@ steps:
       azureSubscription: ${{ parameters.AppConfigServiceConnection }}
       AppConfigurationEndpoint: ${{ parameters.AppConfigEndpoint }}
       SelectionMode: ${{ parameters.SelectionMode }}
-      ${{ if eq(parameters.SelectionMode, 'Default') }}:
+      ${{ if and(eq(parameters.SelectionMode, 'Default'), ne(parameters.KeyFilter, '')) }}:
         KeyFilter: ${{ parameters.KeyFilter }}
+      ${{ if and(eq(parameters.SelectionMode, 'Default'), ne(parameters.Label, '')) }}:
         Label: ${{ parameters.Label }}
-      ${{ if eq(parameters.SelectionMode, 'Snapshot') }}:
+      ${{ if and(eq(parameters.SelectionMode, 'Snapshot'), ne(parameters.SnapshotName, '')) }}:
         SnapshotName: ${{ parameters.SnapshotName }}
-      TrimKeyPrefix: ${{ parameters.TrimKeyPrefix }}
+      ${{ if ne(parameters.TrimKeyPrefix, '') }}:
+        TrimKeyPrefix: ${{ parameters.TrimKeyPrefix }}
       SuppressWarningForOverriddenKeys: ${{ parameters.SuppressWarningForOverriddenKeys }}
       TreatKeyVaultErrorsAsWarning: ${{ parameters.TreatKeyVaultErrorsAsWarning }}
 
