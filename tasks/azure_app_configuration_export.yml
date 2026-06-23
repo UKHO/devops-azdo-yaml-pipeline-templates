@@ -1,13 +1,13 @@
 # Azure DevOps Task: AzureAppConfigurationExport@10
 #
 # Purpose:
-#   Provides a reusable wrapper for exporting key-values from Azure App Configuration in Azure DevOps pipelines.
+#   Provides a reusable wrapper for exporting key-values from an App Configuration store in Azure DevOps pipelines.
 #   Supports default and snapshot selection modes, labels, key-prefix trimming, and warning controls.
 #
 # Parameters:
-#   - AppConfigServiceConnection (string, required): Azure Resource Manager service connection for the Azure App Configuration store.
-#   - AppConfigEndpoint (string, required): Azure App Configuration endpoint URL.
-#   - AppConfigName (string, optional): Friendly name used in the display name. Default: ''
+#   - AppConfigServiceConnection (string, required): Azure Resource Manager service connection for the App Configuration store.
+#   - AppConfigEndpoint (string, required): App Configuration store endpoint URL.
+#   - AppConfigName (string, optional): Friendly name used in the display name for the store. Default: ''
 #   - SelectionMode (string, optional): Selection mode. Values: Default, Snapshot. Default: 'Default'
 #   - KeyFilter (string, optional): Key filter for entries to load when SelectionMode is Default. Default: '*'
 #   - Label (string, optional): Label to load when SelectionMode is Default. Default: ''
@@ -17,12 +17,12 @@
 #   - TreatKeyVaultErrorsAsWarning (boolean, optional): Treats key vault resolution errors as warnings. Default: false
 #
 # Example Usage:
-#   - template: tasks/azure_app_configuration.yml
+#   - template: tasks/azure_app_configuration_export.yml
 #     parameters:
 #       AppConfigServiceConnection: 'MyAzureServiceConnection'
 #       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
 #
-#   - template: tasks/azure_app_configuration.yml
+#   - template: tasks/azure_app_configuration_export.yml
 #     parameters:
 #       AppConfigServiceConnection: 'MyAzureServiceConnection'
 #       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
@@ -33,7 +33,7 @@
 #       TrimKeyPrefix: 'app:'
 #       SuppressWarningForOverriddenKeys: true
 #
-#   - template: tasks/azure_app_configuration.yml
+#   - template: tasks/azure_app_configuration_export.yml
 #     parameters:
 #       AppConfigServiceConnection: 'MyAzureServiceConnection'
 #       AppConfigEndpoint: 'https://my-appconfig.azconfig.io'
@@ -41,7 +41,7 @@
 #       SnapshotName: 'release-2026-06-19'
 #
 # Notes:
-#   - Azure App Configuration values are exported as pipeline variables for downstream steps.
+#   - App Configuration store values are exported as pipeline variables for downstream steps.
 #   - Use `TrimKeyPrefix` to simplify variable names when keys are namespaced.
 #   - When `SelectionMode` is `Snapshot`, `SnapshotName` must be provided.
 #   - Optional string inputs are omitted when empty.
@@ -56,7 +56,7 @@ parameters:
   - name: AppConfigEndpoint
     type: string
     # NO default - Consumer must provide this
-    displayName: 'Azure App Configuration endpoint (required)'
+    displayName: 'App Configuration store endpoint (required)'
 
   - name: AppConfigName
     type: string
@@ -69,7 +69,7 @@ parameters:
     values:
       - Default
       - Snapshot
-    displayName: 'Selection mode for the App Configuration export'
+    displayName: 'Selection mode for the App Configuration store export'
 
   - name: KeyFilter
     type: string
@@ -118,5 +118,7 @@ steps:
         TrimKeyPrefix: ${{ parameters.TrimKeyPrefix }}
       SuppressWarningForOverriddenKeys: ${{ parameters.SuppressWarningForOverriddenKeys }}
       TreatKeyVaultErrorsAsWarning: ${{ parameters.TreatKeyVaultErrorsAsWarning }}
+
+
 
 

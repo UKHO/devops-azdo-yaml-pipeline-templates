@@ -1,7 +1,7 @@
 # ============================================================================
-# TEST: Azure App Configuration Task Template
+# TEST: App Configuration Store Export Task Template
 # ============================================================================
-# Tests for the azure_app_configuration.yml task wrapper.
+# Tests for the azure_app_configuration_export.yml task wrapper.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -116,7 +116,10 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tasks/azure_app_configuration.yml" `
+  -YamlPath "tasks/azure_app_configuration_export.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
+
+
+
 
