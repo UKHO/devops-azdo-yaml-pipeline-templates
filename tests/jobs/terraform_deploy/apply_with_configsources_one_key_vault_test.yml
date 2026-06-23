@@ -29,8 +29,9 @@ jobs:
       TerraformDeploymentConfig:
         AzureServiceConnection: DevOps Chapter Dev
         AzDOEnvironmentName: Discovery
-        KeyVaultConfigs:
-          - Name: devopschapdev09-kv
+        ConfigSources:
+          - Type: KeyVault
+            Name: devopschapdev09-kv
             ServiceConnection: DevOps Chapter Dev
             SecretsFilter: PIPELINE-TENANT-ID
         BackendConfig:
@@ -64,4 +65,5 @@ jobs:
 
           Write-Host "##[section]All output variables are populated successfully"
         displayName: 'Check Output Variables Are Not Empty'
+
 
