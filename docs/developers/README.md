@@ -26,5 +26,6 @@ Welcome to the developer documentation for the Azure DevOps YAML Pipeline Templa
 - [Anti-Pattern: Double Wrapping](anti-pattern-double-wrapping.md)
 - [Double Checkout Pathing Problems](quark-double-checkouts-pathing-problems.md)
 - [How to Version Templates](how-to-version.md)
+- [How to Update the Changelog](changelog-guidelines.md)
 - [Repository Structure Reference](repository-structure.md)
 

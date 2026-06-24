@@ -2,82 +2,40 @@
 
 All notable changes to this repository are documented in this file.
 
-
 ## [Unreleased]
+
+## [0.2.0] - 2026-06-24
 
 ### Added
 
-- `utils/key_vault_configs_task_list.yml` - New reusable utility template for managing multiple Key Vaults in a single deployment
-- `schemas/key_vault_configs.yml` - Schema validation template for `KeyVaultConfigs` entries
-- Documentation:
-   - `docs/definition_docs/shared/key_vault_configs.md` - Detailed `KeyVaultConfigs` definitions and rules
-   - `docs/user-docs/shared/key_vault_configs_task_list.md` - Examples and variable access guidance
-   - `docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-keyvaultconfigs.md` - Upgrade guide from legacy KeyVaultConfig to new KeyVaultConfigs
+- Added reusable configuration source composition for deployments that need one or more secret providers.
+- Added centralised definition documentation for configuration source objects and validation expectations.
+- Added an upgrade guide to help users migrate from legacy single Key Vault configuration to configuration source arrays.
 
 ### Changed
 
-- `tasks/azure_key_vault.yml` - Updated task reference link and clarified `RunAsPreJob` behavior
-- `docs/definition_docs/terraform_pipeline/terraform_deployment_config.md` - Updated to reference the shared `KeyVaultConfigs` definition doc
-- `docs/user-docs/README.md` - Added an Upgrade Guides section for versioned upgrade paths
-- `schemas/config_sources.yml` - Consolidated `Type` validation into a single check and simplified associated compile tests in `schemas/config_sources.CompileTests.ps1`
-- `schemas/config_sources.yml` - Added validation to reject empty `SecretsFilter` values when the field is provided for `KeyVault` entries
-- `schemas/config_sources.yml` - Normalized validation error message wording for consistency across optional string and enum checks
-- `tests/jobs/terraform_deploy/apply_with_configsources_one_key_vault_test.yml` and `tests/jobs/terraform_deploy/apply_with_configsources_two_key_vault_test.yml` - Migrated `TerraformDeploymentConfig` from `KeyVaultConfigs` to `ConfigSources`
+- Clarified Key Vault task behaviour and reference guidance for pre-job secret loading scenarios.
+- Improved configuration source validation rules and error consistency to make invalid input easier to diagnose.
+- Expanded deployment test coverage for configuration source scenarios, including one and multiple Key Vault mappings.
+- Improved public docs navigation by adding an upgrade guides entry and aligning deployment configuration docs with shared definitions.
 
 ### Deprecated
 
-- `KeyVaultConfig` parameter - Legacy option retained for existing deployments. `KeyVaultConfigs` is the preferred format for new deployments.
+- Deprecated legacy `KeyVaultConfig`; use `ConfigSources` for new and updated deployments. See the [0.1.0 to 0.2.0 upgrade guide](docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md).
 
+### Fixed
+
+- Updated test pipeline pull request triggers so draft pull requests targeting `main` no longer start runs.
 
 ## [0.1.0] - 2026-05-22
 
-Initial public release of reusable Azure DevOps YAML templates for Terraform
-build and deployment workflows.
+Initial public release of reusable Azure DevOps YAML templates for Terraform build and deployment workflows.
 
 ### Added
 
-- Pipeline template:
-  - `pipelines/terraform_pipeline.yml`
-
-- Job templates:
-  - `jobs/terraform_build.yml`
-  - `jobs/terraform_deploy.yml`
-  - `jobs/terraform_gated_deployment.yml`
-  - `jobs/manual_verification.yml`
-
-- Task templates:
-  - `tasks/azure_key_vault.yml`
-  - `tasks/azure_web_app.yml`
-  - `tasks/copy_files.yml`
-  - `tasks/delay.yml`
-  - `tasks/download_pipeline_artifact.yml`
-  - `tasks/file_transform.yml`
-  - `tasks/manual_validation.yml`
-  - `tasks/powershell.yml`
-  - `tasks/publish_pipeline_artifact.yml`
-  - `tasks/terraform.yml`
-  - `tasks/terraform_installer.yml`
-
-- Supporting stage templates:
-  - `stages/terraform_build.yml`
-  - `stages/terraform_deploy.yml`
-
-- PowerShell-based test framework and runners:
-  - `tests/framework/Core.ps1`
-  - `tests/framework/Core.CompileYaml.ps1`
-  - `tests/framework/Core.DirectoryTestRunner.ps1`
-  - `tests/framework/Core.ParameterisedTestRunner.ps1`
-  - `tests/framework/Core.PreFlightValidation.ps1`
-  - `tests/framework/Core.Authentication.ps1`
-  - `tests/framework/Core.SaveYaml.ps1`
-  - `tests/framework/Config.ps1`
-  - `tests/jobs/jobs.CompileTests.ps1`
-  - `tests/pipelines/pipelines.CompileTests.ps1`
-
-- YAML test templates under `tests/` covering framework, pipeline, and jobs:
-  - `tests/framework/`
-  - `tests/pipelines/terraform_pipeline/`
-  - `tests/jobs/manual_verification/`
-  - `tests/jobs/terraform_build/`
-  - `tests/jobs/terraform_deploy/`
-  - `tests/jobs/terraform_gated_deployment/`
+- Added a complete Terraform pipeline template for reusable build and deployment workflows.
+- Added reusable job templates for Terraform build, deployment, gated deployment, and manual verification scenarios.
+- Added reusable task templates for common pipeline operations including Terraform execution, artifact handling, file transforms, and manual validation.
+- Added supporting stage templates for standard Terraform build and deploy orchestration.
+- Added a PowerShell-based compile and validation test framework for template quality checks.
+- Added baseline YAML test suites covering framework, pipeline, and job template scenarios.
