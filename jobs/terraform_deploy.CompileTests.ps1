@@ -426,13 +426,15 @@ $validTestCases = @(
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "ApplyOnly"
-        KeyVaultConfigs = @(
+        ConfigSources = @(
           @{
+            Type = "KeyVault"
             Name = "dev-vault-1"
             ServiceConnection = "Azure-Dev-SC"
             SecretsFilter = "terraform-*"
           }
           @{
+            Type = "KeyVault"
             Name = "dev-vault-2"
             ServiceConnection = "Azure-Dev-SC"
             SecretsFilter = "pipeline-*"
