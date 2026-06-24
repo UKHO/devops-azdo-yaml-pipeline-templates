@@ -30,8 +30,8 @@ jobs:
       - ${{ if eq(length(parameters.TerraformDeploymentConfig.AzureServiceConnection), 0) }}:
           - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
 
-  - ${{ if and(contains(convertToJson(parameters.TerraformDeploymentConfig), 'KeyVaultConfigs'), or(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter)) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: use either KeyVaultConfig (legacy) or KeyVaultConfigs (new), not both. Both parameters cannot coexist in the same configuration. See upgrade guide: docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-keyvaultconfigs.md": "Error"
+  - ${{ if and(contains(convertToJson(parameters.TerraformDeploymentConfig), 'ConfigSources'), or(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter)) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: use either KeyVaultConfig (legacy) or ConfigSources (new), not both. Both parameters cannot coexist in the same configuration. See upgrade guide: docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md": "Error"
 
   - ${{ if or(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}:
       # At least one property is set, so all three must be set
