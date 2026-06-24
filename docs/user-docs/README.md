@@ -25,9 +25,9 @@ Complete end-to-end pipeline templates for specific use cases.
 
 Guides for upgrading between versions of this repository.
 
-| Upgrade Path                                                                        | Changes                                                                  |
-|-------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-keyvaultconfigs.md)** | Migrate from `KeyVaultConfig` to `KeyVaultConfigs` (multi-vault support) |
+| Upgrade Path                                                                      | Changes                                                                |
+|-----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md)** | Migrate from `KeyVaultConfig` to `ConfigSources` (multi-vault support) |
 
 ## Self-Documentation
 
