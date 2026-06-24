@@ -45,8 +45,12 @@ parameters:
     displayName: 'The name of the variable where the concatenated result will be stored.'
 
 variables:
+  - ${{ if and(contains(convertToJson(parameters.Items), '['), eq(length(parameters.Items), 0)) }}:
+      - "Invalid Parameter: Items cannot be empty. If no concat wrapped list is needed, omit this template entirely.": "Error"
+
+  - ${{ if or(contains(convertToJson(parameters.OutputVariableName), '{'), contains(convertToJson(parameters.OutputVariableName), '[')) }}:
+      - "Invalid Parameter: Field 'OutputVariableName' must be a string when provided.": "Error"
+
   - name: ${{ parameters.OutputVariableName }}
-    ${{ if and(parameters.Items, gt(length(parameters.Items), 0)) }}:
-      value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}
-    ${{ else }}:
-      value: ''
+    value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}
+    readonly: true
