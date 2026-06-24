@@ -1,4 +1,4 @@
-resources:
+﻿resources:
   repositories:
     - repository: AzDOPipelineTemplates
       type: github
@@ -20,7 +20,10 @@ variables:
     value: tests/shared_resources/basic_terraform
 
 pr:
-  - main
+  branches:
+    include:
+      - main
+  drafts: false
 
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates

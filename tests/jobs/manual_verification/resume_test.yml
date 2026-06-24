@@ -1,4 +1,4 @@
-resources:
+﻿resources:
   repositories:
     - repository: AzDOPipelineTemplates
       type: github
@@ -12,7 +12,10 @@ pool:
 trigger: none
 
 pr:
-  - main
+  branches:
+    include:
+      - main
+  drafts: false
 
 jobs:
   - template: jobs/manual_verification.yml@AzDOPipelineTemplates
