@@ -50,7 +50,7 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "with a KeyVault entry SecretFilter"
+    Description = "with a KeyVault entry SecretsFilter"
     Parameters = @{
       ConfigSources = @"
  - Type: KeyVault
