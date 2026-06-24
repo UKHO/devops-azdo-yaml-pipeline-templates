@@ -19,6 +19,10 @@ All notable changes to this repository are documented in this file.
 - `tasks/azure_key_vault.yml` - Updated task reference link and clarified `RunAsPreJob` behavior
 - `docs/definition_docs/terraform_pipeline/terraform_deployment_config.md` - Updated to reference the shared `KeyVaultConfigs` definition doc
 - `docs/user-docs/README.md` - Added an Upgrade Guides section for versioned upgrade paths
+- `schemas/config_sources.yml` - Consolidated `Type` validation into a single check and simplified associated compile tests in `schemas/config_sources.CompileTests.ps1`
+- `schemas/config_sources.yml` - Added validation to reject empty `SecretsFilter` values when the field is provided for `KeyVault` entries
+- `schemas/config_sources.yml` - Normalized validation error message wording for consistency across optional string and enum checks
+- `tests/jobs/terraform_deploy/apply_with_configsources_one_key_vault_test.yml` and `tests/jobs/terraform_deploy/apply_with_configsources_two_key_vault_test.yml` - Migrated `TerraformDeploymentConfig` from `KeyVaultConfigs` to `ConfigSources`
 
 ### Deprecated
 
