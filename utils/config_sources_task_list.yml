@@ -2,19 +2,13 @@
 #
 # Purpose:
 #   Generates reusable configuration-source task invocations from a ConfigSources array,
-#   enabling ordered loading of secrets and settings from Azure Key Vault and an App Configuration store.
+#   enabling ordered loading of secrets from Azure Key Vault.
 #
 # Parameters:
 #   - ConfigSources (object array, required): Array of configuration-source objects.
 #     Each object must contain: Type (string, required), ServiceConnection (string, required).
 #     KeyVault entries also require Name (string, required) and allow SecretsFilter (string, optional, default: '*')
 #     and RunAsPreJob (boolean, optional, default: false).
-#     AppConfiguration entries require Endpoint (string, required) and allow Name (string, optional),
-#     SelectionMode (string, optional, values: Default | Snapshot, default: 'Default'),
-#     KeyFilter (string, optional, default: '*'), Label (string, optional, default: ''),
-#     SnapshotName (string, optional, default: ''), TrimKeyPrefix (string, optional, default: ''),
-#     SuppressWarningForOverriddenKeys (boolean, optional, default: false),
-#     and TreatKeyVaultErrorsAsWarning (boolean, optional, default: false).
 #
 # Example Usage:
 #   - template: utils/config_sources_task_list.yml
@@ -24,20 +18,11 @@
 #           Name: 'prod-vault'
 #           ServiceConnection: 'Azure-Prod-SC'
 #           SecretsFilter: 'app-*'
-#         - Type: AppConfiguration
-#           Endpoint: 'https://prod-appconfig.azconfig.io'
-#           Name: 'appconfig-prod'
-#           ServiceConnection: 'Azure-Prod-SC'
-#           SelectionMode: 'Default'
-#           KeyFilter: 'app:*'
-#           TrimKeyPrefix: 'app:'
-#           SuppressWarningForOverriddenKeys: true
 #
 # Notes:
 #   - Entries execute in the order listed in the array.
 #   - Later sources can override pipeline variables created by earlier sources.
 #   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-key-vault-v2
-#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-app-configuration-export-v10?view=azure-pipelines
 
 parameters:
   - name: ConfigSources
@@ -60,21 +45,5 @@ steps:
           ${{ if contains(convertToJson(source), '"RunAsPreJob"') }}:
             RunAsPreJob: ${{ source.RunAsPreJob }}
 
-    - ${{ if eq(source.Type, 'AppConfiguration') }}:
-      - template: /tasks/azure_app_configuration_export.yml
-        parameters:
-          AppConfigServiceConnection: ${{ source.ServiceConnection }}
-          AppConfigEndpoint: ${{ source.Endpoint }}
-          AppConfigName: ${{ source.Name }}
-          ${{ if contains(convertToJson(source), '"SelectionMode"') }}:
-            SelectionMode: ${{ source.SelectionMode }}
-          KeyFilter: ${{ source.KeyFilter }}
-          Label: ${{ source.Label }}
-          SnapshotName: ${{ source.SnapshotName }}
-          TrimKeyPrefix: ${{ source.TrimKeyPrefix }}
-          ${{ if contains(convertToJson(source), '"SuppressWarningForOverriddenKeys"') }}:
-            SuppressWarningForOverriddenKeys: ${{ source.SuppressWarningForOverriddenKeys }}
-          ${{ if contains(convertToJson(source), '"TreatKeyVaultErrorsAsWarning"') }}:
-            TreatKeyVaultErrorsAsWarning: ${{ source.TreatKeyVaultErrorsAsWarning }}
 
 

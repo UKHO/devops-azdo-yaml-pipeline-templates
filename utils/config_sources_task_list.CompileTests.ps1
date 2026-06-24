@@ -35,24 +35,6 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "with a single AppConfiguration entry using defaults"
-    Parameters = @{
-      ConfigSources = @"
- - Type: AppConfiguration
-   Endpoint: "https://dev-appconfig.azconfig.io"
-   ServiceConnection: "Azure-Dev-SC"
-"@
-    }
-    ExpectedYaml = @(
-      "task: AzureAppConfigurationExport@10"
-      "azureSubscription: Azure-Dev-SC"
-      "AppConfigurationEndpoint: https://dev-appconfig.azconfig.io"
-      "SelectionMode: Default"
-      "SuppressWarningForOverriddenKeys: False"
-      "TreatKeyVaultErrorsAsWarning: False"
-    )
-  },
-  @{
     Description = "with a KeyVault entry enabling RunAsPreJob"
     Parameters = @{
       ConfigSources = @"
@@ -68,68 +50,26 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "with AppConfiguration default mode filters"
-    Parameters = @{
-      ConfigSources = @"
- - Type: AppConfiguration
-   Endpoint: "https://dev-appconfig.azconfig.io"
-   ServiceConnection: "Azure-Dev-SC"
-   SelectionMode: "Default"
-   KeyFilter: "app:*"
-   Label: "prod"
-"@
-    }
-    ExpectedYaml = @(
-      "task: AzureAppConfigurationExport@10"
-      "SelectionMode: Default"
-      "KeyFilter: app:*"
-      "Label: prod"
-    )
-  },
-  @{
-    Description = "with AppConfiguration boolean flags enabled"
-    Parameters = @{
-      ConfigSources = @"
- - Type: AppConfiguration
-   Endpoint: "https://dev-appconfig.azconfig.io"
-   ServiceConnection: "Azure-Dev-SC"
-   SuppressWarningForOverriddenKeys: true
-   TreatKeyVaultErrorsAsWarning: true
-"@
-    }
-    ExpectedYaml = @(
-      "task: AzureAppConfigurationExport@10"
-      "SuppressWarningForOverriddenKeys: True"
-      "TreatKeyVaultErrorsAsWarning: True"
-    )
-  },
-  @{
-    Description = "with mixed entries preserving order"
+    Description = "with multiple KeyVault entries preserving order"
     Parameters = @{
       ConfigSources = @"
  - Type: KeyVault
    Name: "shared-vault"
    ServiceConnection: "Azure-Shared-SC"
    SecretsFilter: "shared-*"
- - Type: AppConfiguration
-   Endpoint: "https://appconfig-discovery.azconfig.io"
-   Name: "appconfig-discovery"
-   ServiceConnection: "Azure-App-SC"
-   SelectionMode: "Snapshot"
-   SnapshotName: "release-2026-06-19"
-   KeyFilter: "app:*"
-   TrimKeyPrefix: "app:"
+ - Type: KeyVault
+   Name: "tenant-vault"
+   ServiceConnection: "Azure-Tenant-SC"
+   SecretsFilter: "tenant-*"
 "@
     }
     ExpectedYaml = @(
       "task: AzureKeyVault@2"
       "KeyVaultName: shared-vault"
       "SecretsFilter: shared-*"
-      "task: AzureAppConfigurationExport@10"
-      "Download config: appconfig-discovery"
-      "SelectionMode: Snapshot"
-      "SnapshotName: release-2026-06-19"
-      "TrimKeyPrefix: 'app:'"
+      "task: AzureKeyVault@2"
+      "KeyVaultName: tenant-vault"
+      "SecretsFilter: tenant-*"
     )
   }
 )
@@ -158,7 +98,7 @@ $invalidTestCases = @(
    ServiceConnection: "Azure-Dev-SC"
 "@
     }
-    ErrorMessage = "Invalid ConfigSources: entry field 'Type' is required, must be a non-empty string, and must be one of 'KeyVault' or 'AppConfiguration'."
+    ErrorMessage = "Invalid ConfigSources: entry field 'Type' is required, must be a non-empty string, and must be 'KeyVault'."
   },
   @{
     Description = "validation is triggered for missing ServiceConnection"
