@@ -101,8 +101,8 @@ stages:
 | `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform                                         |
 | `VariableFiles`               | list   | Optional                          | List of `.tfvars` files (relative to artifact)                              |
 | `OutputVariables`             | list   | Optional                          | Terraform outputs to export as variables                                    |
-| `KeyVaultConfigs`             | array  | Optional                          | Key Vault configurations (preferred, array-based)                           |
-| `KeyVaultConfig`              | object | Optional                          | Key Vault configuration (legacy, use `KeyVaultConfigs` for new deployments) |
+| `ConfigSources`               | array  | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred, array-based)  |
+| `KeyVaultConfig`              | object | Optional                          | Key Vault configuration (legacy, use `ConfigSources` for new deployments)   |
 | `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables                                         |
 
 ---
@@ -198,8 +198,9 @@ jobs:
           storage_account_name: tfstateprod
           container_name: tfstate
           key: prod.tfstate
-        KeyVaultConfigs:
-          - Name: kv-prod
+        ConfigSources:
+          - Type: KeyVault
+            Name: kv-prod
             ServiceConnection: AzureServiceConnection-Prod
             SecretsFilter: '*'
         JobsVariableMappings:
