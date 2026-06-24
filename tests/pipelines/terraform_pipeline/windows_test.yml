@@ -13,7 +13,10 @@ pool:
 trigger: none
 
 pr:
-  - main
+  branches:
+    include:
+      - main
+  drafts: false
 
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
