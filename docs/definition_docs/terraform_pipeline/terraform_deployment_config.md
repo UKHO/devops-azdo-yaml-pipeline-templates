@@ -11,14 +11,15 @@ TerraformDeploymentConfig:
   VerificationMode: string                      # REQUIRED when RunMode is PlanVerifyApply
   BackendConfig: object                         # OPTIONAL - Key/value pairs for terraform backend-config (if not provided, hardcode in Terraform files)
   AzureServiceConnection: string                # OPTIONAL - Service connection (if not provided, use client credentials)
-  KeyVaultConfig:                               # OPTIONAL (legacy, all-or-nothing) - use KeyVaultConfigs instead
+  KeyVaultConfig:                               # OPTIONAL (legacy, all-or-nothing) - use ConfigSources instead
     ServiceConnection: string
     Name: string
     SecretsFilter: string
-  KeyVaultConfigs:                              # OPTIONAL (new, array-based) - cannot use with KeyVaultConfig
-    - Name: string
+  ConfigSources:                                # OPTIONAL (new, array-based) - cannot use with KeyVaultConfig
+    - Type: string                              # REQUIRED ('KeyVault')
       ServiceConnection: string
       SecretsFilter: string
+      Name: string
       RunAsPreJob: boolean
   JobsVariableMappings: object                  # OPTIONAL
   EnvironmentVariableMappings: object           # OPTIONAL
@@ -177,33 +178,39 @@ EnvironmentVariableMappings:
 
 ---
 
-### KeyVaultConfigs
+### ConfigSources
 
 **Type:** `list` of `object`
 
-**Description:** Array-based configuration for retrieving secrets from multiple Azure Key Vaults. This is the modern approach that supports managing secrets from multiple vaults with ordered execution.
+**Description:** Array-based configuration for retrieving secrets from one or more Azure Key Vaults with ordered execution.
+
+**Current Scope:** `ConfigSources` currently supports `Type: KeyVault` entries.
 
 **Note:**
-- You **cannot** use both `KeyVaultConfig` and `KeyVaultConfigs` in the same configuration. Choose one approach.
-- Each array entry must have both `Name` and `ServiceConnection` (required); `SecretsFilter` and `RunAsPreJob` are optional.
+- You **cannot** use both `KeyVaultConfig` and `ConfigSources` in the same configuration. Choose one approach.
+- Each entry must include `Type`, `Name`, and `ServiceConnection`.
+- `Type` must be `'KeyVault'`.
+- `SecretsFilter` and `RunAsPreJob` are optional.
 - Entries execute in the order specified.
 
-**Migration:** If currently using `KeyVaultConfig` (legacy), see [Upgrade Guide: 0.1.0 → 0.2.0](../../user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-keyvaultconfigs.md).
+**Migration:** If currently using `KeyVaultConfig` (legacy), see [Upgrade Guide: 0.1.0 -> 0.2.0](../../user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md).
 
 **Example:**
 ```yaml
-KeyVaultConfigs:
-  - Name: 'shared-secrets-vault'
+ConfigSources:
+  - Type: KeyVault
+    Name: 'shared-secrets-vault'
     ServiceConnection: 'Azure-Prod-SC'
     SecretsFilter: 'shared-*'
     RunAsPreJob: false
-  - Name: 'app-secrets-vault'
+  - Type: KeyVault
+    Name: 'app-secrets-vault'
     ServiceConnection: 'Azure-Prod-SC'
     SecretsFilter: 'app-*'
     RunAsPreJob: false
 ```
 
-For detailed field documentation, see [KeyVaultConfigs Definition](../../definition_docs/shared/key_vault_configs.md).
+For detailed field documentation, see [ConfigSources Definition](../../definition_docs/shared/config_sources.md).
 
 ### JobsVariableMappings
 

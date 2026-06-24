@@ -1,5 +1,7 @@
 # ConfigSources
 
+> `KeyVaultConfig` and `ConfigSources` are mutually exclusive in `TerraformDeploymentConfig`. Do not use both in the same configuration.
+
 ## Definition
 
 ```yaml
@@ -75,21 +77,28 @@ secrets or a comma-separated list to target specific secrets.
 
 ---
 
-## Rules
+## Implemented Example
 
-- `ConfigSources` cannot be empty when provided.
-- Each entry must be an object with a `Type` discriminator and a `ServiceConnection` value.
-- `ConfigSources` entries execute in the order listed.
-- Later sources can override pipeline variables set by earlier sources.
-- `KeyVault` entries require `Name` and allow `SecretsFilter` and `RunAsPreJob`.
-- `KeyVault.SecretsFilter`, when provided, must be a non-empty string.
-- Optional fields are validated for expected type when present.
-- `KeyVaultConfig` and `ConfigSources` cannot be used together in the same `TerraformDeploymentConfig`.
+```yaml
+TerraformDeploymentConfig:
+  AzDOEnvironmentName: production-environment
+  RunMode: ApplyOnly
+  AzureServiceConnection: AzureServiceConnection-Production
+  ConfigSources:
+    - Type: KeyVault
+      Name: kv-shared-secrets
+      ServiceConnection: AzureServiceConnection-Shared
+      SecretsFilter: 'shared-*'
+      RunAsPreJob: true
+    - Type: KeyVault
+      Name: kv-app-secrets
+      ServiceConnection: AzureServiceConnection-Production
+      SecretsFilter: 'app-*'
+```
 
 ---
 
 ## See Also
 
 - [TerraformDeploymentConfig](../terraform_pipeline/terraform_deployment_config.md)
-
 
