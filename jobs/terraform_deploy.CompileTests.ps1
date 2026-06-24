@@ -419,7 +419,7 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "Apply with Double KeyVaultConfigs Entries"
+    Description = "Apply with Double ConfigSources entries"
     Parameters = @{
       TerraformDeployMode = "Apply"
       EnvironmentName = "dev"

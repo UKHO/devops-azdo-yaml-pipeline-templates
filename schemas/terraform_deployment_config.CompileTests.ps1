@@ -405,7 +405,7 @@ $invalidTestCases = @(
     ErrorMessage = "'dev' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided."
   },
   @{
-    Description = "Mixing KeyVaultConfig and KeyVaultConfigs"
+    Description = "Mixing KeyVaultConfig and ConfigSources"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
