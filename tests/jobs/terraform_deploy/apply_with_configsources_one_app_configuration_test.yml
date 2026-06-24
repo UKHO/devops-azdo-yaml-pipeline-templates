@@ -1,0 +1,70 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+pr:
+  - main
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        ConfigSources:
+          - Type: AppConfiguration
+            Endpoint: https://devops-azdo-yaml-pipeline-templates-appcs.azconfig.io
+            ServiceConnection: DevOps Chapter Dev
+            SelectionMode: Default
+            KeyFilter: TestValue1
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        EnvironmentVariableMappings:
+          TF_VAR_VariableToOutput2: $(TestValue1)
+        OutputVariables:
+          - OutputVariable1
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - job: ValidateOutputVariables
+    displayName: 'Validate Output Variables'
+    dependsOn: TerraformDeployApply_TerraformArtifact
+    condition: succeeded('TerraformDeployApply_TerraformArtifact')
+    variables:
+      OutputVariable1: $[dependencies.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.OutputVariable1']]
+    steps:
+      - pwsh: |
+          Write-Host "Validating output variables..."
+          Write-Host "OutputVariable1: $(OutputVariable1)"
+
+          if ([string]::IsNullOrWhiteSpace("$(OutputVariable1)")) {
+            Write-Host "##[error]Output variable 'OutputVariable1' is empty"
+            exit 1
+          }
+
+          Write-Host "##[section]All output variables are populated successfully"
+        displayName: 'Check Output Variables Are Not Empty'
+
+
