@@ -41,7 +41,8 @@ steps:
         parameters:
           KeyVaultServiceConnection: ${{ source.ServiceConnection }}
           KeyVaultName: ${{ source.Name }}
-          SecretsFilter: ${{ source.SecretsFilter }}
+          ${{ if contains(convertToJson(source), '"SecretsFilter"') }}:
+            SecretsFilter: ${{ source.SecretsFilter }}
           ${{ if contains(convertToJson(source), '"RunAsPreJob"') }}:
             RunAsPreJob: ${{ source.RunAsPreJob }}
 

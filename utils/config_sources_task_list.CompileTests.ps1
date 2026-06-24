@@ -50,6 +50,21 @@ $validTestCases = @(
     )
   },
   @{
+    Description = "with a KeyVault entry SecretFilter"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+   SecretsFilter: 'SERVICE-PRINCIPAL-ID'
+"@
+    }
+    ExpectedYaml = @(
+      "task: AzureKeyVault@2"
+      "SecretsFilter: SERVICE-PRINCIPAL-ID"
+    )
+  },
+  @{
     Description = "with multiple KeyVault entries preserving order"
     Parameters = @{
       ConfigSources = @"
