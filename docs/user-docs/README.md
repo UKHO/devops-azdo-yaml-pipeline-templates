@@ -21,6 +21,14 @@ Complete end-to-end pipeline templates for specific use cases.
 | **[Terraform Deploy Job](./jobs/terraform_deploy.md)**                     | Handles individual Terraform deployment steps (plan or apply) with environment variables and Key Vault integration |
 | **[Terraform Gated Deployment Job](./jobs/terraform_gated_deployment.md)** | Orchestrates complete Terraform workflow (plan → verify → apply) with configurable run modes                       |
 
+## 📦 Upgrade Guides
+
+Guides for upgrading between versions of this repository.
+
+| Upgrade Path                                                                      | Changes                                                                |
+|-----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md)** | Migrate from `KeyVaultConfig` to `ConfigSources` (multi-vault support) |
+
 ## Self-Documentation
 
 All templates are self-documenting through:

@@ -206,10 +206,11 @@ extends:
             key: production.terraform.tfstate
           RunMode: PlanVerifyApply
           VerificationMode: VerifyOnAny
-          KeyVaultConfig:
-            ServiceConnection: AzureServiceConnection-Production
-            Name: kv-production-secrets
-            SecretsFilter: '*'
+          ConfigSources:
+            - Type: KeyVault
+              Name: kv-production-secrets
+              ServiceConnection: AzureServiceConnection-Production
+              SecretsFilter: '*'
           JobsVariableMappings:
             - group: ProductionVariableGroup
           EnvironmentVariableMappings:
@@ -395,10 +396,11 @@ extends:
           RunMode: PlanVerifyApply
           VerificationMode: VerifyOnAny
           # Retrieve secrets from Key Vault
-          KeyVaultConfig:
-            ServiceConnection: AzureServiceConnection-Prod
-            Name: kv-prod-secrets
-            SecretsFilter: '*'
+          ConfigSources:
+            - Type: KeyVault
+              Name: kv-prod-secrets
+              ServiceConnection: AzureServiceConnection-Prod
+              SecretsFilter: '*'
           # Environment variables for Terraform
           EnvironmentVariableMappings:
             TF_LOG: INFO                            # Enable debug logging

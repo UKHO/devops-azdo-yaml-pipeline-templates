@@ -91,18 +91,19 @@ stages:
 
 ### TerraformDeploymentConfig (Required)
 
-| Property                      | Type   | Required                          | Description                                                |
-|-------------------------------|--------|-----------------------------------|------------------------------------------------------------|
-| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`         |
-| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approvals                     |
-| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled` |
-| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)          |
-| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                |
-| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform                        |
-| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files (relative to artifact)             |
-| `OutputVariables`             | list   | Optional                          | Terraform outputs to export as variables                   |
-| `KeyVaultConfig`              | object | Optional                          | Key Vault configuration                                    |
-| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables                        |
+| Property                      | Type   | Required                          | Description                                                                 |
+|-------------------------------|--------|-----------------------------------|-----------------------------------------------------------------------------|
+| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`                          |
+| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approvals                                      |
+| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`                  |
+| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)                           |
+| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                                 |
+| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform                                         |
+| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files (relative to artifact)                              |
+| `OutputVariables`             | list   | Optional                          | Terraform outputs to export as variables                                    |
+| `ConfigSources`               | array  | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred, array-based)  |
+| `KeyVaultConfig`              | object | Optional                          | Key Vault configuration (legacy, use `ConfigSources` for new deployments)   |
+| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables                                         |
 
 ---
 
@@ -197,10 +198,11 @@ jobs:
           storage_account_name: tfstateprod
           container_name: tfstate
           key: prod.tfstate
-        KeyVaultConfig:
-          ServiceConnection: AzureServiceConnection-Prod
-          Name: kv-prod
-          SecretsFilter: '*'
+        ConfigSources:
+          - Type: KeyVault
+            Name: kv-prod
+            ServiceConnection: AzureServiceConnection-Prod
+            SecretsFilter: '*'
         JobsVariableMappings:
           - group: ProductionSecrets
         VariableFiles:

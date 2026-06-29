@@ -1,0 +1,50 @@
+# Azure DevOps Task List: Config Sources Task List
+#
+# Purpose:
+#   Generates reusable configuration-source task invocations from a ConfigSources array,
+#   enabling ordered loading of secrets from Azure Key Vault.
+#
+# Parameters:
+#   - ConfigSources (object array, required): Array of configuration-source objects.
+#     Each object must contain: Type (string, required), ServiceConnection (string, required).
+#     KeyVault entries also require Name (string, required) and allow SecretsFilter (string, optional, default: '*')
+#     and RunAsPreJob (boolean, optional, default: false).
+#
+# Example Usage:
+#   - template: utils/config_sources_task_list.yml
+#     parameters:
+#       ConfigSources:
+#         - Type: KeyVault
+#           Name: 'prod-vault'
+#           ServiceConnection: 'Azure-Prod-SC'
+#           SecretsFilter: 'app-*'
+#
+# Notes:
+#   - Entries execute in the order listed in the array.
+#   - Later sources can override pipeline variables created by earlier sources.
+#   - See: https://learn.microsoft.com/en-us/azure/devops/pipelines/tasks/reference/azure-key-vault-v2
+
+parameters:
+  - name: ConfigSources
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Array of configuration-source objects (required)'
+
+steps:
+  - template: /schemas/config_sources.yml
+    parameters:
+      ConfigSources: ${{ parameters.ConfigSources }}
+
+  - ${{ each source in parameters.ConfigSources }}:
+    - ${{ if eq(source.Type, 'KeyVault') }}:
+      - template: /tasks/azure_key_vault.yml
+        parameters:
+          KeyVaultServiceConnection: ${{ source.ServiceConnection }}
+          KeyVaultName: ${{ source.Name }}
+          ${{ if contains(convertToJson(source), '"SecretsFilter"') }}:
+            SecretsFilter: ${{ source.SecretsFilter }}
+          ${{ if contains(convertToJson(source), '"RunAsPreJob"') }}:
+            RunAsPreJob: ${{ source.RunAsPreJob }}
+
+
+

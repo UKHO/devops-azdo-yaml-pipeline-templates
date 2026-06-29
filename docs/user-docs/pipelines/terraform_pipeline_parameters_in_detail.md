@@ -221,54 +221,55 @@ EnvironmentConfigs:
 
 ```yaml
 EnvironmentConfigs:
-   # Development
-   - Name: dev
-     Stage:
-       DependsOn: Build_Terraform
-       Condition: succeeded()
-     TerraformDeploymentConfig:
-       AzureServiceConnection: AzureServiceConnection-Dev
-       AzDOEnvironmentName: development-environment
-       BackendConfig:
-         resource_group_name: rg-terraform-state-dev
-         storage_account_name: sttfstatedev
-         container_name: tfstate
-         key: dev.terraform.tfstate
-       RunMode: PlanVerifyApply
-       VerificationMode: VerifyOnDestroy
-       VariableFiles:
-         - config/common.tfvars
-         - config/dev.tfvars
+  # Development
+  - Name: dev
+    Stage:
+      DependsOn: Build_Terraform
+      Condition: succeeded()
+    TerraformDeploymentConfig:
+      AzureServiceConnection: AzureServiceConnection-Dev
+      AzDOEnvironmentName: development-environment
+      BackendConfig:
+        resource_group_name: rg-terraform-state-dev
+        storage_account_name: sttfstatedev
+        container_name: tfstate
+        key: dev.terraform.tfstate
+      RunMode: PlanVerifyApply
+      VerificationMode: VerifyOnDestroy
+      VariableFiles:
+        - config/common.tfvars
+        - config/dev.tfvars
 
-   # Production (depends on dev, only on main branch)
-   - Name: production
-     Stage:
-       DependsOn: Deploy_dev_Terraform
-       Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-     TerraformDeploymentConfig:
-       AzureServiceConnection: AzureServiceConnection-Production
-       AzDOEnvironmentName: production-environment
-       BackendConfig:
-         resource_group_name: rg-terraform-state-prod
-         storage_account_name: sttfstateprod
-         container_name: tfstate
-         key: production.terraform.tfstate
-       RunMode: PlanVerifyApply
-       VerificationMode: VerifyOnAny
-       KeyVaultConfig:
-         ServiceConnection: AzureServiceConnection-Production
-         Name: kv-production-secrets
-         SecretsFilter: '*'
-       JobsVariableMappings:
-         - group: ProductionVariableGroup
-       EnvironmentVariableMappings:
-         TF_LOG: INFO
-       VariableFiles:
-         - config/common.tfvars
-         - config/production.tfvars
-       OutputVariables:
-         - resource_group_name
-         - app_service_url
+  # Production (depends on dev, only on main branch)
+  - Name: production
+    Stage:
+      DependsOn: Deploy_dev_Terraform
+      Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    TerraformDeploymentConfig:
+      AzureServiceConnection: AzureServiceConnection-Production
+      AzDOEnvironmentName: production-environment
+      BackendConfig:
+        resource_group_name: rg-terraform-state-prod
+        storage_account_name: sttfstateprod
+        container_name: tfstate
+        key: production.terraform.tfstate
+      RunMode: PlanVerifyApply
+      VerificationMode: VerifyOnAny
+      ConfigSources:
+        - Type: KeyVault
+          Name: kv-production-secrets
+          ServiceConnection: AzureServiceConnection-Production
+          SecretsFilter: '*'
+      JobsVariableMappings:
+        - group: ProductionVariableGroup
+      EnvironmentVariableMappings:
+        TF_LOG: INFO
+      VariableFiles:
+        - config/common.tfvars
+        - config/production.tfvars
+      OutputVariables:
+        - resource_group_name
+        - app_service_url
 ```
 
 ## TerraformDeploymentConfig Properties
@@ -330,16 +331,33 @@ TerraformDeploymentConfig:
 
 See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md#backendconfig) for details.
 
-### Key Vault Configuration
+### Configuration Sources and Key Vault
 
-Define optional values for accessing secrets from Azure Key Vault during deployment.
+Define optional values for loading configuration during deployment.
 
-**Within `TerraformDeploymentConfig.KeyVaultConfig`:**
+**Preferred: `TerraformDeploymentConfig.ConfigSources` (KeyVault entries)**
+- `Type`: Must be `KeyVault`
+- `Name`: Key Vault name
+- `ServiceConnection`: Service connection for Key Vault access
+- `SecretsFilter`: Optional filter for secrets (e.g., `'*'` for all)
+
+Example:
+```yaml
+ConfigSources:
+  - Type: KeyVault
+    Name: my-key-vault
+    ServiceConnection: MyAzureServiceConnection
+    SecretsFilter: '*'
+```
+
+**Legacy: `TerraformDeploymentConfig.KeyVaultConfig`:**
 - `ServiceConnection`: Service connection for Key Vault access
 - `Name`: Key Vault name
 - `SecretsFilter`: Filter for secrets (e.g., `'*'` for all)
 
-**Note**: Key Vault secrets are only accessed during the **Deploy stage**, not during the Build stage. All three parameters must be provided for Key Vault integration to be enabled.
+**Note**: `KeyVaultConfig` and `ConfigSources` are mutually exclusive. Use `ConfigSources` for new configurations.
+
+**Note**: Key Vault secrets are only accessed during the **Deploy stage**, not during the Build stage.
 
 Example:
 ```yaml
@@ -349,7 +367,7 @@ KeyVaultConfig:
   SecretsFilter: "*"
 ```
 
-See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md#keyvaultconfig) for details.
+See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md#configsources) for details.
 
 ### Verification Mode
 

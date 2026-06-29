@@ -100,18 +100,21 @@ jobs:
 
 Complex object with deployment configuration:
 
-| Property                      | Type   | Required                          | Description                                                 |
-|-------------------------------|--------|-----------------------------------|-------------------------------------------------------------|
-| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approval gates                 |
-| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`          |
-| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`  |
-| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)           |
-| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                 |
-| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform (e.g., `TF_LOG`)        |
-| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files to use (paths relative to artifact) |
-| `OutputVariables`             | list   | Optional                          | Terraform output names to export as pipeline variables      |
-| `KeyVaultConfig`              | object | Optional                          | Azure Key Vault configuration for retrieving secrets        |
-| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables to inject               |
+| Property                      | Type   | Required                          | Description                                                   |
+|-------------------------------|--------|-----------------------------------|---------------------------------------------------------------|
+| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approval gates                   |
+| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`            |
+| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`    |
+| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)             |
+| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                   |
+| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform (e.g., `TF_LOG`)          |
+| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files to use (paths relative to artifact)   |
+| `OutputVariables`             | list   | Optional                          | Terraform output names to export as pipeline variables        |
+| `ConfigSources`               | list   | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred) |
+| `KeyVaultConfig`              | object | Optional                          | Azure Key Vault configuration for retrieving secrets          |
+| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables to inject                 |
+
+`KeyVaultConfig` and `ConfigSources` are mutually exclusive. Use `ConfigSources` for new configurations.
 
 ---
 
@@ -173,7 +176,35 @@ jobs:
           - app_service_url
 ```
 
-### Apply with Key Vault
+### Apply with Key Vault (ConfigSources)
+
+```yaml
+jobs:
+  - template: jobs/terraform_deploy.yml
+    parameters:
+      TerraformDeployMode: Apply
+      EnvironmentName: prod
+      TerraformDeploymentConfig:
+        AzDOEnvironmentName: production-environment
+        RunMode: ApplyOnly
+        AzureServiceConnection: AzureServiceConnection-Prod
+        ConfigSources:
+          - Type: KeyVault
+            Name: kv-prod-secrets
+            ServiceConnection: AzureServiceConnection-Prod
+            SecretsFilter: '*'
+        BackendConfig:
+          resource_group_name: rg-state-prod
+          storage_account_name: ststateprod
+          container_name: tfstate
+          key: prod.tfstate
+        VariableFiles:
+          - config/prod.tfvars
+        OutputVariables:
+          - app_service_hostname
+```
+
+### Apply with Key Vault (Legacy)
 
 ```yaml
 jobs:
@@ -284,7 +315,9 @@ View working test examples in the repository:
 - **Plan with Multiple Mappings**: [`tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/plan_with_multiple_mappings_test.yml)
 - **Plan + Apply Sequence**: [`tests/jobs/terraform_deploy/plan_apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/plan_apply_basic_test.yml)
 - **Apply Mode**: [`tests/jobs/terraform_deploy/apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/apply_basic_test.yml)
-- **Apply with Key Vault**: [`tests/jobs/terraform_deploy/apply_with_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_key_vault_test.yml)
+- **Apply with Legacy Key Vault (KeyVaultConfig)**: [`tests/jobs/terraform_deploy/apply_with_legacy_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_legacy_key_vault_test.yml)
+- **Apply with One Key Vault (ConfigSources)**: [`tests/jobs/terraform_deploy/apply_with_configsources_one_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_configsources_one_key_vault_test.yml)
+- **Apply with Two Key Vaults (ConfigSources)**: [`tests/jobs/terraform_deploy/apply_with_configsources_two_key_vault_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_configsources_two_key_vault_test.yml)
 - **Apply with Multiple Mappings**: [`tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_multiple_mappings_test.yml)
 - **Apply with Outputs (Same Stage)**: [`tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_same_stage_test.yml)
 - **Apply with Outputs (Future Stage)**: [`tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml`](../../../tests/jobs/terraform_deploy/apply_with_outputs_future_stage_test.yml)

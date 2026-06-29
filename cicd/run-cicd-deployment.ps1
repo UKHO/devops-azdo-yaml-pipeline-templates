@@ -14,41 +14,31 @@
 .PARAMETER TenantId
     The Azure tenant ID to authenticate against.
 
-.PARAMETER SkipValidation
-    If specified, skips the terraform validate step.
-
-.PARAMETER SkipPlan
-    If specified, skips the terraform plan step and goes directly to apply (requires existing tfplan file).
-
 .EXAMPLE
     .\run-cicd-deployment.ps1
-
-.EXAMPLE
-    .\run-cicd-deployment.ps1 -SkipValidation
 
 #>
 
 param(
-[Parameter(Mandatory = $true)]
-[ValidateScript({
-    if ([guid]::TryParse($_, [ref][guid]::Empty)) {
-        return $true
+  [Parameter(Mandatory = $true)]
+  [ValidateScript({
+    if ( [guid]::TryParse($_, [ref][guid]::Empty))
+    {
+      return $true
     }
     throw "TenantId must be a valid GUID"
-})]
-[string]$TenantId,
+  })]
+  [string]$TenantId,
 
-[Parameter(Mandatory = $true)]
-[ValidateScript({
-    if ([guid]::TryParse($_, [ref][guid]::Empty)) {
-        return $true
+  [Parameter(Mandatory = $true)]
+  [ValidateScript({
+    if ( [guid]::TryParse($_, [ref][guid]::Empty))
+    {
+      return $true
     }
     throw "SubscriptionId must be a valid GUID"
-})]
-[string]$SubscriptionId,
-
-[switch]$SkipValidation,
-[switch]$SkipPlan
+  })]
+  [string]$SubscriptionId
 )
 
 # Set strict error handling
@@ -59,7 +49,7 @@ $VerbosePreference = "Continue"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $scriptDir
 Write-Host "======================================" -ForegroundColor Cyan
-Write-Host "Current Directory: $(Get-Location)" -ForegroundColor Cyan
+Write-Host "Current Directory: $( Get-Location )" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "CI/CD Deployment Script" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
@@ -71,7 +61,7 @@ $existingToken = $null
 try
 {
   # Try to get an existing token without logging in
-  $existingToken = az account get-access-token --resource "https://storage.azure.com/" 2>$null
+  $existingToken = az account get-access-token --resource "https://storage.azure.com/" 2> $null
 }
 catch
 {
@@ -113,44 +103,28 @@ Write-Host "[OK] Terraform initialization successful" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Validation and Formatting
-if (-not $SkipValidation)
-{
-  Write-Host "[3/6] Validating and formatting Terraform code..." -ForegroundColor Green
 
-  Write-Host "Running terraform validate..."
-  terraform validate
+Write-Host "[3/6] Validating and formatting Terraform code..." -ForegroundColor Green
 
-  Write-Host "Running terraform fmt..."
-  terraform fmt
+Write-Host "Running terraform validate..."
+terraform validate
 
-  Write-Host "[OK] Validation and formatting successful" -ForegroundColor Green
-  Write-Host ""
-}
-else
-{
-  Write-Host "[3/6] Skipping validation and formatting (--SkipValidation specified)" -ForegroundColor Yellow
-  Write-Host ""
-}
+Write-Host "Running terraform fmt..."
+terraform fmt
+
+Write-Host "[OK] Validation and formatting successful" -ForegroundColor Green
+Write-Host ""
 
 # Step 4: Terraform Plan
-if (-not $SkipPlan)
-{
-  Write-Host "[4/6] Planning Terraform deployment..." -ForegroundColor Green
+Write-Host "[4/6] Planning Terraform deployment..." -ForegroundColor Green
 
-  Write-Host "Running terraform plan..." -ForegroundColor Green
-  Write-Host "Current Location: $(Get-Location)"
-  Get-ChildItem | Write-Host
-  Write-Host "terraform plan -var-file=`"$scriptDir\ukho.tfvars`" -out tfplan"
-  terraform plan -var-file="$scriptDir\ukho.tfvars" -out tfplan
-  Write-Host "[OK] Terraform plan successful" -ForegroundColor Green
-  Write-Host ""
-}
-else
-{
-  Write-Host "[4/6] Skipping terraform plan (--SkipPlan specified)" -ForegroundColor Yellow
-  Write-Host ""
-}
-
+Write-Host "Running terraform plan..." -ForegroundColor Green
+Write-Host "Current Location: $( Get-Location )"
+Get-ChildItem | Write-Host
+Write-Host "terraform plan -var-file=`"$scriptDir\ukho.tfvars`" -out tfplan"
+terraform plan -var-file="$scriptDir\ukho.tfvars" -out tfplan
+Write-Host "[OK] Terraform plan successful" -ForegroundColor Green
+Write-Host ""
 
 # Step 5: Validation of Plan
 
@@ -174,7 +148,7 @@ if (Test-Path -Path 'tfplan')
 else
 {
   Write-Host "[ERROR] Terraform plan file 'tfplan' not found." -ForegroundColor Red
-  Write-Host "    Ensure a plan has been created (e.g., run without --SkipPlan) or provide the correct plan file." -ForegroundColor Red
+  Write-Host "    Ensure a plan has been created." -ForegroundColor Red
   exit 1
 }
 Write-Host "======================================" -ForegroundColor Cyan

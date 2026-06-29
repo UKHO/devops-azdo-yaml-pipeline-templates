@@ -96,6 +96,22 @@ $validTestCases = @(
     }
   },
   @{
+    Description = "with complete ConfigSources for KeyVault"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        ConfigSources = @{
+          Type = "KeyVault"
+          ServiceConnection = "vault-service-connection"
+          Name = "my-vault"
+          SecretsFilter = "secret*"
+        }
+      }
+    }
+  },
+  @{
     Description = "with BackendConfig as key/value pairs"
     Parameters = @{
       EnvironmentName = "dev"
@@ -387,6 +403,27 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "'dev' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided."
+  },
+  @{
+    Description = "Mixing KeyVaultConfig and ConfigSources"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        KeyVaultConfig = @{
+          ServiceConnection = "vault-service-connection"
+          Name = "my-vault"
+          SecretsFilter = ""
+        }
+        ConfigSources = @"
+        - Type: KeyVault
+          Name: second-vault
+          ServiceConnection: vault-service-connection
+"@
+      }
+    }
+    ErrorMessage = "'dev' environment error: use either KeyVaultConfig (legacy) or ConfigSources (new), not both. Both parameters cannot coexist in the same configuration. See upgrade guide: docs/user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md"
   },
   @{
     Description = "BackendConfig with empty key value"
