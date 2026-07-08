@@ -1,0 +1,58 @@
+# Schema Template: Terraform Destroy Config
+# Validates terraform destroy configuration objects used by destroy jobs.
+# See: docs/definition_docs/terraform_pipeline/terraform_destroy_config.md
+
+parameters:
+  - name: TerraformDestroyConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Terraform destroy configuration object (see docs/definition_docs/terraform_pipeline/terraform_destroy_config.md)'
+
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
+jobs:
+  - ${{ if or(not(parameters.TerraformDestroyConfig.AzDOEnvironmentName), eq(parameters.TerraformDestroyConfig.AzDOEnvironmentName, '')) }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+
+  - ${{ if notIn(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'PlanOnly', 'DestroyOnly') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid RunMode option (PlanVerifyDestroy, PlanOnly, DestroyOnly).": "Error"
+
+  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"KeyVaultConfig"') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: KeyVaultConfig is deprecated and not supported for destroy workflows. Use ConfigSources instead.": "Error"
+
+  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationMode"') }}:
+      - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not supported for destroy workflows. Use RunMode 'PlanVerifyDestroy' for gated destroy.": "Error"
+
+  # OPTIONAL PARAMETERS
+
+  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), 'AzureServiceConnection') }}:
+      - ${{ if eq(length(parameters.TerraformDestroyConfig.AzureServiceConnection), 0) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
+
+  - ${{ if parameters.TerraformDestroyConfig.BackendConfig }}:
+      - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.BackendConfig), '{')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+      - ${{ else }}:
+          - ${{ each mapping in parameters.TerraformDestroyConfig.BackendConfig }}:
+              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                  - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
+
+  - ${{ if parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}:
+      - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.EnvironmentVariableMappings), '{')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs.": "Error"
+      - ${{ else }}:
+          - ${{ each mapping in parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}:
+              - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
+                  - "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Key: '${{ mapping.Key }}'. Value: '${{ mapping.Value }}'. Must be an object of key/value pairs.": "Error"
+
+  - ${{ if parameters.TerraformDestroyConfig.VariableFiles }}:
+      - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.VariableFiles), '[')) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles is not correct. Must be a list of string values.": "Error"
+      - ${{ else }}:
+          - ${{ each variable in parameters.TerraformDestroyConfig.VariableFiles }}:
+              - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}:
+                  - "'${{ parameters.EnvironmentName }}' environment error: VariableFiles item '${{ replace(convertToJson(variable), '\n', ' ') }}' is not a string. This parameter must be a list of string values.": "Error"
+
