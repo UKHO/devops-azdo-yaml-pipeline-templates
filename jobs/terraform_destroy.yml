@@ -1,0 +1,140 @@
+parameters:
+  # generic parameters
+  - name: TerraformDestroyMode
+    type: string
+    default: Plan
+    values:
+      - Destroy
+      - Plan
+    displayName: 'The terraform destroy mode: plan or destroy'
+
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
+  - name: DependsOn
+    type: object
+    default: [ ]
+    displayName: 'List of jobs this job depends on'
+
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool that this job will run on'
+
+  - name: TerraformVersion
+    type: string
+    default: '1.14.0'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for destroy'
+
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
+  - name: TerraformDestroyConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Terraform destroy configuration object (see docs/definition_docs/terraform_pipeline/terraform_destroy_config.md)'
+
+jobs:
+  - template: /schemas/terraform_destroy_config.yml
+    parameters:
+      TerraformDestroyConfig: ${{ parameters.TerraformDestroyConfig }}
+      EnvironmentName: ${{ parameters.EnvironmentName }}
+
+  - deployment: TerraformDestroy${{ parameters.TerraformDestroyMode }}_${{ parameters.TerraformArtifactName }}
+    displayName: "${{ parameters.TerraformDestroyMode }} '${{ parameters.TerraformArtifactName }}' Terraform Artifact"
+
+    condition: ${{ parameters.Condition }}
+    dependsOn: ${{ parameters.DependsOn }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+    workspace:
+      clean: all
+
+    environment: ${{ parameters.TerraformDestroyConfig.AzDOEnvironmentName }}
+
+    variables:
+      # Shared variables
+      - template: /utils/concat_wrap_list.yml
+        parameters:
+          Items: ${{ parameters.TerraformDestroyConfig.VariableFiles }}
+          Prefix: ' -var-file="$(TerraformWorkingDirectory)/'
+          Suffix: '"'
+          OutputVariableName: VariableFilesCommandOption
+
+      - template: /utils/concat_wrap_list.yml
+        parameters:
+          Items:
+            - ${{ each backendConfig in parameters.TerraformDestroyConfig.BackendConfig }}:
+                - "${{ backendConfig.Key }}=${{ backendConfig.Value }}"
+          Prefix: ' -backend-config="'
+          Suffix: '"'
+          OutputVariableName: BackendConfigCommandOption
+
+      - name: TerraformWorkingDirectory
+        value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+        readonly: true
+
+      - ${{ if parameters.TerraformDestroyConfig.JobsVariableMappings }}:
+          - ${{ each mapping in parameters.TerraformDestroyConfig.JobsVariableMappings }}:
+              - ${{ if mapping.template }}:
+                  - template: ${{ mapping.template }}@self
+              - ${{ if or(mapping.name, mapping.group) }}:
+                  - ${{ mapping }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: none
+
+            - template: /tasks/download_pipeline_artifact.yml
+              parameters:
+                ArtifactName: ${{ parameters.TerraformArtifactName }}
+                TargetPath: $(TerraformWorkingDirectory)
+
+            - template: /tasks/terraform_installer.yml
+              parameters:
+                TerraformVersion: ${{ parameters.TerraformVersion }}
+
+            - ${{ if parameters.TerraformDestroyConfig.ConfigSources }}:
+                - template: /utils/config_sources_task_list.yml
+                  parameters:
+                    ConfigSources: ${{ parameters.TerraformDestroyConfig.ConfigSources }}
+
+            - template: /tasks/terraform.yml
+              parameters:
+                Command: init
+                CommandOptions: $(BackendConfigCommandOption) ${{ iif(parameters.TerraformDestroyConfig.AzureServiceConnection, '-backend-config="use_azuread_auth=true"', '') }}
+                WorkingDirectory: $(TerraformWorkingDirectory)
+                TaskEnvironmentVariables: ${{ parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}
+                ${{ if parameters.TerraformDestroyConfig.AzureServiceConnection }}:
+                  ServiceConnection: ${{ parameters.TerraformDestroyConfig.AzureServiceConnection }}
+
+            - ${{ if eq(parameters.TerraformDestroyMode, 'Plan') }}:
+                - template: /tasks/terraform.yml
+                  parameters:
+                    Command: plan
+                    CommandOptions: -destroy $(VariableFilesCommandOption) -input=false
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    TaskEnvironmentVariables: ${{ parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}
+                    ${{ if parameters.TerraformDestroyConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.TerraformDestroyConfig.AzureServiceConnection }}
+
+            - ${{ if eq(parameters.TerraformDestroyMode, 'Destroy') }}:
+                - template: /tasks/terraform.yml
+                  parameters:
+                    Command: apply
+                    CommandOptions: -destroy $(VariableFilesCommandOption) -input=false -auto-approve
+                    WorkingDirectory: $(TerraformWorkingDirectory)
+                    TaskEnvironmentVariables: ${{ parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}
+                    ${{ if parameters.TerraformDestroyConfig.AzureServiceConnection }}:
+                      ServiceConnection: ${{ parameters.TerraformDestroyConfig.AzureServiceConnection }}
+
