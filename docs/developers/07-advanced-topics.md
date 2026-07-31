@@ -23,8 +23,3 @@ The repository was designed to be both **flexible** and **reusable**:
 - Add usage examples and troubleshooting tips as patterns emerge.
 
 See also: [Double Checkout Pathing Problems](quark-double-checkouts-pathing-problems.md).
-
----
-
-[← Back to Developer Documentation](README.md)
-

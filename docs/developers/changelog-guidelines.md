@@ -11,7 +11,7 @@ Write entries for template consumers, not for maintainers.
 
 Follow Keep a Changelog:
 
-- https://keepachangelog.com
+- [Keep a change log](https://keepachangelog.com)
 
 Each release section uses this heading:
 
@@ -104,4 +104,3 @@ Avoid disclosing sensitive exploit details.
 - [ ] Deprecations include replacement guidance
 - [ ] No broken markdown formatting
 - [ ] Wording is concise and consistent
-

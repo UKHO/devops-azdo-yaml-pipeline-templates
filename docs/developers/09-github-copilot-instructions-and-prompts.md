@@ -211,8 +211,3 @@ It produces a summary table of all issues found with severity levels, then appli
 | Syncing all docs after a batch of changes  | Run `refresh-documentation` prompt                    |
 | Full repository health check               | Run `full-repo-audit` prompt                          |
 | Updating documentation alongside code      | Instructions handle this automatically                |
-
----
-
-[← Back to Developer Documentation](README.md)
-
