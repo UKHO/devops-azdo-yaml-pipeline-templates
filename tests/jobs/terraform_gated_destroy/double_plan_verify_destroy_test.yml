@@ -1,0 +1,114 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+variables:
+  - template: tests/jobs/terraform_destroy/shared_vars.yml@AzDOPipelineTemplates
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+      ArtifactName: infra_one
+
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+      ArtifactName: infra_two
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_infra_one
+      Condition: succeeded('TerraformBuild_infra_one')
+      TerraformArtifactName: infra_one
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.infra_one.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_infra_two
+      Condition: succeeded('TerraformBuild_infra_two')
+      TerraformArtifactName: infra_two
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.infra_two.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_gated_destroy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformArtifactName: infra_one
+      DependsOn: TerraformDeployApply_infra_one
+      Condition: succeeded('TerraformDeployApply_infra_one')
+      EnvironmentName: Discovery
+      TerraformDestroyConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.infra_one.$(Build.DefinitionName).tfstate
+        RunMode: 'PlanVerifyDestroy'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+        ManualVerificationConfig:
+          TimeoutInMinutes: 1
+          OnTimeoutBehaviour: resume
+
+  - template: jobs/terraform_gated_destroy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformArtifactName: infra_two
+      DependsOn: TerraformDeployApply_infra_two
+      Condition: succeeded('TerraformDeployApply_infra_two')
+      EnvironmentName: Discovery
+      TerraformDestroyConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.infra_two.$(Build.DefinitionName).tfstate
+        RunMode: 'PlanVerifyDestroy'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+        ManualVerificationConfig:
+          TimeoutInMinutes: 1
+          OnTimeoutBehaviour: resume
+
