@@ -4,6 +4,24 @@ All notable changes to this repository are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-08
+
+### Added
+
+- Added a reusable `terraform_destroy` job template for artifact-based Terraform destroy plan and destroy execution.
+- Added a reusable `terraform_gated_destroy` job template with `PlanOnly`, `DestroyOnly`, and `PlanVerifyDestroy` run modes for gated infrastructure teardown.
+- Added `TerraformDestroyConfig` schema validation and definition documentation for destroy workflows.
+- Added user documentation for the new destroy job templates, including end-to-end destroy examples.
+- Added optional `VerificationTimeoutInMinutes` and `VerificationTimeoutBehaviour` fields to `TerraformDestroyConfig` and `TerraformDeploymentConfig`, allowing the manual verification gate's timeout duration and timeout behaviour to be configured per environment.
+
+### Changed
+
+- Updated user documentation index to include the new destroy and gated destroy job templates.
+
+### Fixed
+
+- Fixed gated deployment test scenarios that used `VerifyOnDestroy` verification mode against apply-only test infrastructure, which meant the manual verification gate was never actually triggered; scenarios now use `VerifyOnAny` with a short timeout so the gate reliably engages and resumes automatically.
+
 ## [0.2.0] - 2026-06-24
 
 ### Added
