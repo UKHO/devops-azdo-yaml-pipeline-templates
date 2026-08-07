@@ -81,6 +81,43 @@ $validTestCases = @(
     ExpectedYAML = @(
       "pool:*name: Premium-Agent-Pool"
     )
+  },
+  @{
+    Description = "PlanVerifyDestroy with ManualVerificationConfig overrides timeout and behaviour"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyDestroy"
+        ManualVerificationConfig = @{
+          TimeoutInMinutes = 1
+          OnTimeoutBehaviour = "resume"
+        }
+      }
+    }
+    ExpectedYAML = @(
+      "timeoutInMinutes: 1"
+      "onTimeout: resume"
+      "instructions:*Please validate the terraform destroy plan is acceptable to execute"
+    )
+  },
+  @{
+    Description = "PlanVerifyDestroy with ManualVerificationConfig custom Instructions"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyDestroy"
+        ManualVerificationConfig = @{
+          TimeoutInMinutes = 30
+          Instructions = "Custom destroy verification instructions"
+        }
+      }
+    }
+    ExpectedYAML = @(
+      "timeoutInMinutes: 30"
+      "instructions:*Custom destroy verification instructions"
+    )
   }
 )
 
@@ -118,6 +155,33 @@ $invalidTestCases = @(
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanVerifyDestroy"
         VerificationMode = "VerifyOnAny"
+      }
+    }
+  },
+  @{
+    Description = "ManualVerificationConfig provided without required TimeoutInMinutes"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyDestroy"
+        ManualVerificationConfig = @{
+          OnTimeoutBehaviour = "resume"
+        }
+      }
+    }
+  },
+  @{
+    Description = "ManualVerificationConfig with invalid OnTimeoutBehaviour"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyDestroy"
+        ManualVerificationConfig = @{
+          TimeoutInMinutes = 1
+          OnTimeoutBehaviour = "invalid"
+        }
       }
     }
   }
