@@ -80,6 +80,40 @@ $validTestCases = @(
     ExpectedYaml = @(
       "condition: and(succeeded(), eq('refs/heads/main', 'refs/heads/main'))"
     )
+  },
+  @{
+    Description = "ManualVerificationConfig overrides flat parameters"
+    Parameters = @{
+      JobName = "ManualVerification"
+      Condition = "succeeded()"
+      OnTimeoutBehaviour = "reject"
+      TimeoutInMinutes = 60
+      Instructions = "Flat instructions"
+      ManualVerificationConfig = @{
+        TimeoutInMinutes = 1
+        OnTimeoutBehaviour = "resume"
+        Instructions = "Config object instructions"
+      }
+    }
+    ExpectedYaml = @(
+      'timeoutInMinutes: 1',
+      'onTimeout: resume',
+      'instructions:*Config object instructions'
+    )
+  },
+  @{
+    Description = "ManualVerificationConfig with only TimeoutInMinutes falls back to flat defaults for the rest"
+    Parameters = @{
+      JobName = "ManualVerification"
+      Condition = "succeeded()"
+      ManualVerificationConfig = @{
+        TimeoutInMinutes = 1
+      }
+    }
+    ExpectedYaml = @(
+      'timeoutInMinutes: 1',
+      'onTimeout: reject'
+    )
   }
 )
 
@@ -93,6 +127,37 @@ $invalidTestCases = @(
       JobName = '""'
     }
     ErrorMessage = "Job `"`" has an invalid name. Valid names may only contain alphanumeric characters and '_' and may not start with a number."
+  },
+  @{
+    Description = "ManualVerificationConfig provided without required TimeoutInMinutes"
+    Parameters = @{
+      JobName = "ManualVerification"
+      ManualVerificationConfig = @{
+        OnTimeoutBehaviour = "resume"
+      }
+    }
+    ErrorMessage = "ManualVerificationConfig.TimeoutInMinutes is required when ManualVerificationConfig is provided."
+  },
+  @{
+    Description = "ManualVerificationConfig with invalid OnTimeoutBehaviour"
+    Parameters = @{
+      JobName = "ManualVerification"
+      ManualVerificationConfig = @{
+        TimeoutInMinutes = 1
+        OnTimeoutBehaviour = "invalid"
+      }
+    }
+    ErrorMessage = "ManualVerificationConfig.OnTimeoutBehaviour must be either 'reject' or 'resume'."
+  },
+  @{
+    Description = "ManualVerificationConfig with out-of-range TimeoutInMinutes"
+    Parameters = @{
+      JobName = "ManualVerification"
+      ManualVerificationConfig = @{
+        TimeoutInMinutes = 0
+      }
+    }
+    ErrorMessage = "ManualVerificationConfig.TimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 
