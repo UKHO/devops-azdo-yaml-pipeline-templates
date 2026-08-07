@@ -1,0 +1,52 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+variables:
+  - template: tests/jobs/terraform_destroy/shared_vars.yml@AzDOPipelineTemplates
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+
+  - template: jobs/terraform_destroy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDestroyMode: Plan
+      DependsOn: TerraformBuild_TerraformArtifact
+      Condition: succeeded('TerraformBuild_TerraformArtifact')
+      EnvironmentName: Discovery
+      TerraformDestroyConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.$(Build.DefinitionName).tfstate
+        RunMode: 'PlanOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+          - group: ExampleVG1
+          - group: ExampleVG2
+          - name: Example
+            value: ExampleValue
+        EnvironmentVariableMappings:
+          TF_VAR_MinRandom: 1000
+          TF_VAR_MaxRandom: 100000
