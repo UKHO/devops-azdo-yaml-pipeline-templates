@@ -16,18 +16,24 @@ parameters:
 
 jobs:
   # REQUIRED PROPERTIES (when ManualVerificationConfig is provided at all)
+  # NOTE: an empty object ({}) is the default/"not provided" state, so we detect "provided" by
+  # checking whether the object has any keys at all (via convertToJson), rather than relying on
+  # truthiness of the object itself (an empty object is truthy in template expressions).
 
-  - ${{ if parameters.ManualVerificationConfig }}:
+  - ${{ if ne(convertToJson(parameters.ManualVerificationConfig), '{}') }}:
       - ${{ if not(contains(convertToJson(parameters.ManualVerificationConfig), '"TimeoutInMinutes"')) }}:
           - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.TimeoutInMinutes is required when ManualVerificationConfig is provided.": "Error"
 
   # OPTIONAL PROPERTIES - Instructions/OnTimeoutBehaviour fall back to the calling job's defaults when omitted.
+  # NOTE: presence is detected via convertToJson key-checks rather than truthiness, since falsy-but-valid
+  # values (e.g. TimeoutInMinutes: 0, which is invalid but must still reach the range check below) would
+  # otherwise be skipped by a truthy check.
 
-  - ${{ if parameters.ManualVerificationConfig.OnTimeoutBehaviour }}:
+  - ${{ if contains(convertToJson(parameters.ManualVerificationConfig), '"OnTimeoutBehaviour"') }}:
       - ${{ if notIn(parameters.ManualVerificationConfig.OnTimeoutBehaviour, 'reject', 'resume') }}:
           - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.OnTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
 
-  - ${{ if parameters.ManualVerificationConfig.TimeoutInMinutes }}:
+  - ${{ if contains(convertToJson(parameters.ManualVerificationConfig), '"TimeoutInMinutes"') }}:
       - ${{ if or(contains(convertToJson(parameters.ManualVerificationConfig.TimeoutInMinutes), '"'), or(lt(parameters.ManualVerificationConfig.TimeoutInMinutes, 1), gt(parameters.ManualVerificationConfig.TimeoutInMinutes, 43200))) }}:
           - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.TimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
 
