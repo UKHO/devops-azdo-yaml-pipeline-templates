@@ -61,8 +61,8 @@ jobs:
         RunMode: 'DestroyOnly'
         ConfigSources:
           - Type: KeyVault
-            Name: kv-devops-chapter-dev
+            Name: devopschapdev09-kv
             ServiceConnection: DevOps Chapter Dev
-            SecretsFilter: '*'
+            SecretsFilter: PIPELINE-TENANT-ID
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
