@@ -29,6 +29,7 @@ Guides for upgrading between versions of this repository.
 
 | Upgrade Path                                                                      | Changes                                                                |
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| **0.2.0 → 0.3.0**                                                                 | No breaking changes. All new fields (`VerificationTimeoutInMinutes`, `VerificationTimeoutBehaviour`, `TerraformDestroyConfig`) are additive and optional; existing configurations continue to work without modification. |
 | **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md)** | Migrate from `KeyVaultConfig` to `ConfigSources` (multi-vault support) |
 
 ## Self-Documentation
