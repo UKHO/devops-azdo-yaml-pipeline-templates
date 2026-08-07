@@ -159,19 +159,6 @@ $invalidTestCases = @(
     }
   },
   @{
-    Description = "ManualVerificationConfig provided without required TimeoutInMinutes"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyDestroy"
-        ManualVerificationConfig = @{
-          OnTimeoutBehaviour = "resume"
-        }
-      }
-    }
-  },
-  @{
     Description = "ManualVerificationConfig with invalid OnTimeoutBehaviour"
     Parameters = @{
       EnvironmentName = "dev"

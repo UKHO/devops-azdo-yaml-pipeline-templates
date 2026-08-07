@@ -6,7 +6,7 @@ parameters:
 
   - name: DependsOn
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of jobs this job depends on'
 
   - name: Pool
@@ -54,8 +54,8 @@ jobs:
           Condition: succeeded('TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}')
           DependsOn: TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}
           ManualVerificationConfig:
-            OnTimeoutBehaviour: ${{ parameters.TerraformDestroyConfig.ManualVerificationConfig.OnTimeoutBehaviour }}
-            TimeoutInMinutes: ${{ parameters.TerraformDestroyConfig.ManualVerificationConfig.TimeoutInMinutes }}
+            OnTimeoutBehaviour: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.OnTimeoutBehaviour, 'reject') }}
+            TimeoutInMinutes: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.TimeoutInMinutes, 60) }}
             Instructions: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.Instructions, 'Please validate the terraform destroy plan is acceptable to execute') }}
 
   - ${{ if in(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'DestroyOnly') }}:
