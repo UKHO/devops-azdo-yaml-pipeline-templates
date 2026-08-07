@@ -1,0 +1,37 @@
+# Schema Template: Manual Verification Config
+# Validates ManualVerificationConfig objects used by orchestrator jobs that embed a
+# manual verification gate (e.g. terraform_gated_destroy.yml, terraform_gated_deployment.yml).
+# See: docs/definition_docs/terraform_pipeline/manual_verification_config.md
+
+parameters:
+  - name: ManualVerificationConfig
+    type: object
+    default: { }
+    displayName: 'Manual verification configuration object (see docs/definition_docs/terraform_pipeline/manual_verification_config.md)'
+
+  - name: ContextName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Identifier (e.g. job name or environment name) used to prefix validation error messages'
+
+jobs:
+  # REQUIRED PROPERTIES (when ManualVerificationConfig is provided at all)
+
+  - ${{ if parameters.ManualVerificationConfig }}:
+      - ${{ if not(contains(convertToJson(parameters.ManualVerificationConfig), '"TimeoutInMinutes"')) }}:
+          - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.TimeoutInMinutes is required when ManualVerificationConfig is provided.": "Error"
+
+  # OPTIONAL PROPERTIES - Instructions/OnTimeoutBehaviour fall back to the calling job's defaults when omitted.
+
+  - ${{ if parameters.ManualVerificationConfig.OnTimeoutBehaviour }}:
+      - ${{ if notIn(parameters.ManualVerificationConfig.OnTimeoutBehaviour, 'reject', 'resume') }}:
+          - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.OnTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
+
+  - ${{ if parameters.ManualVerificationConfig.TimeoutInMinutes }}:
+      - ${{ if or(contains(convertToJson(parameters.ManualVerificationConfig.TimeoutInMinutes), '"'), or(lt(parameters.ManualVerificationConfig.TimeoutInMinutes, 1), gt(parameters.ManualVerificationConfig.TimeoutInMinutes, 43200))) }}:
+          - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.TimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
+
+  - ${{ if contains(convertToJson(parameters.ManualVerificationConfig), '"Instructions"') }}:
+      - ${{ if or(eq(parameters.ManualVerificationConfig.Instructions, ''), or(contains(convertToJson(parameters.ManualVerificationConfig.Instructions), '{'), contains(convertToJson(parameters.ManualVerificationConfig.Instructions), '['))) }}:
+          - "'${{ parameters.ContextName }}' error: ManualVerificationConfig.Instructions must be a non-empty string when provided.": "Error"
+
