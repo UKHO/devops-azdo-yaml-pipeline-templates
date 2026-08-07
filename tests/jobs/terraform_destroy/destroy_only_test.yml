@@ -19,7 +19,7 @@ pr:
   drafts: false
 
 variables:
-  - template: shared_vars.yml
+  - template: tests/jobs/terraform_destroy/shared_vars.yml@AzDOPipelineTemplates
 
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
