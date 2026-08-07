@@ -87,7 +87,7 @@ jobs:
         RunMode: 'PlanVerifyDestroy'
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
-        VerificationTimeoutInMinutes: 1
+        VerificationTimeoutInMinutes: 5
         VerificationTimeoutBehaviour: resume
 
   - template: jobs/terraform_gated_destroy.yml@AzDOPipelineTemplates
@@ -107,6 +107,6 @@ jobs:
         RunMode: 'PlanVerifyDestroy'
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
-        VerificationTimeoutInMinutes: 1
+        VerificationTimeoutInMinutes: 5
         VerificationTimeoutBehaviour: resume
 
