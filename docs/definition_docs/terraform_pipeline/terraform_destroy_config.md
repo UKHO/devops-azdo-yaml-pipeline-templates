@@ -11,7 +11,7 @@ TerraformDestroyConfig:
   BackendConfig: object                         # OPTIONAL
   AzureServiceConnection: string                # OPTIONAL
   ConfigSources:                                # OPTIONAL (array-based)
-    - Type: string                              # REQUIRED ('KeyVault')
+    - Type: string                              # OPTIONAL ('KeyVault')
       ServiceConnection: string
       Name: string
       SecretsFilter: string
