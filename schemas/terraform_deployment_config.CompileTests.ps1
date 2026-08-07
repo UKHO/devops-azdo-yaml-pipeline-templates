@@ -192,6 +192,19 @@ $validTestCases = @(
         OutputVariables = @("resource_id", "storage_id", "database_connection_string")
       }
     }
+  },
+  @{
+    Description = "with valid VerificationTimeoutInMinutes and VerificationTimeoutBehaviour"
+    Parameters = @{
+      EnvironmentName = "prod"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "prod-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        VerificationTimeoutInMinutes = 120
+        VerificationTimeoutBehaviour = "resume"
+      }
+    }
   }
 )
 
@@ -301,6 +314,42 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "'prod' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
+  },
+  @{
+    Description = "invalid VerificationTimeoutBehaviour value"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        VerificationTimeoutBehaviour = "invalid"
+      }
+    }
+    ErrorMessage = "'dev' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes below minimum range"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        VerificationTimeoutInMinutes = 0
+      }
+    }
+    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes above maximum range"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        VerificationTimeoutInMinutes = 43201
+      }
+    }
+    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   },
   @{
     Description = "empty AzureServiceConnection value"

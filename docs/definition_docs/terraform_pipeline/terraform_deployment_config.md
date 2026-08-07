@@ -25,6 +25,8 @@ TerraformDeploymentConfig:
   EnvironmentVariableMappings: object           # OPTIONAL
   VariableFiles: list                           # OPTIONAL
   OutputVariables: list                         # OPTIONAL
+  VerificationTimeoutInMinutes: number          # OPTIONAL (only used when RunMode is PlanVerifyApply)
+  VerificationTimeoutBehaviour: string          # OPTIONAL ('reject' | 'resume', only used when RunMode is PlanVerifyApply)
 ```
 
 ---
@@ -76,6 +78,27 @@ TerraformDeploymentConfig:
 ---
 
 ## Optional Properties
+
+### VerificationTimeoutInMinutes
+
+**Type:** `number`
+
+**Allowed Range:** `1` - `43200` (30 days)
+
+**Description:** How long to wait for manual approval before applying `VerificationTimeoutBehaviour`. Only
+applicable when `RunMode` is `PlanVerifyApply`. Defaults to `60` when omitted.
+
+### VerificationTimeoutBehaviour
+
+**Type:** `string`
+
+**Allowed Values:** `'reject'` | `'resume'`
+
+**Description:** Action to take if the manual verification is not actioned within `VerificationTimeoutInMinutes`.
+Only applicable when `RunMode` is `PlanVerifyApply`. Defaults to `'reject'` when omitted.
+
+- `'reject'` - The job fails, halting the pipeline (default behaviour).
+- `'resume'` - The job automatically succeeds as if approved, and the pipeline continues.
 
 ### BackendConfig
 

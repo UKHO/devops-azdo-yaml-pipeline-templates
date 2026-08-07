@@ -47,7 +47,6 @@ None – all parameters have sensible defaults.
 | `OnTimeoutBehaviour` | string | `reject`             | Action on timeout: `reject` (fail) or `resume` (auto-approve)                          |
 | `TimeoutInMinutes`   | number | `60`                 | Timeout duration in minutes (max 30 days = 43200 minutes)                              |
 | `Instructions`       | string | `''`                 | Instructions displayed to approvers explaining what they're approving                  |
-| `ManualVerificationConfig` | object | `{ }`          | Optional object whose fields (`TimeoutInMinutes`, `OnTimeoutBehaviour`, `Instructions`) take precedence over the individual parameters above. See [ManualVerificationConfig](../../definition_docs/terraform_pipeline/manual_verification_config.md). If provided, `TimeoutInMinutes` is required. |
 
 ---
 

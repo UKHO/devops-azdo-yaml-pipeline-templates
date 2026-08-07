@@ -57,6 +57,18 @@ $validTestCases = @(
         )
       }
     }
+  },
+  @{
+    Description = "with valid VerificationTimeoutInMinutes and VerificationTimeoutBehaviour"
+    Parameters = @{
+      EnvironmentName = "prod"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "prod-environment"
+        RunMode = "PlanVerifyDestroy"
+        VerificationTimeoutInMinutes = 120
+        VerificationTimeoutBehaviour = "resume"
+      }
+    }
   }
 )
 
@@ -116,6 +128,42 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "VerificationMode is not supported for destroy workflows. Use RunMode 'PlanVerifyDestroy' for gated destroy."
+  },
+  @{
+    Description = "invalid VerificationTimeoutBehaviour value"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyDestroy"
+        VerificationTimeoutBehaviour = "invalid"
+      }
+    }
+    ErrorMessage = "VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes below minimum range"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyDestroy"
+        VerificationTimeoutInMinutes = 0
+      }
+    }
+    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes above maximum range"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyDestroy"
+        VerificationTimeoutInMinutes = 43201
+      }
+    }
+    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 

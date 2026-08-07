@@ -83,16 +83,14 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "PlanVerifyDestroy with ManualVerificationConfig overrides timeout and behaviour"
+    Description = "PlanVerifyDestroy with VerificationTimeoutInMinutes/VerificationTimeoutBehaviour overrides timeout and behaviour"
     Parameters = @{
       EnvironmentName = "staging"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanVerifyDestroy"
-        ManualVerificationConfig = @{
-          TimeoutInMinutes = 1
-          OnTimeoutBehaviour = "resume"
-        }
+        VerificationTimeoutInMinutes = 1
+        VerificationTimeoutBehaviour = "resume"
       }
     }
     ExpectedYAML = @(
@@ -102,21 +100,18 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "PlanVerifyDestroy with ManualVerificationConfig custom Instructions"
+    Description = "PlanVerifyDestroy without verification overrides falls back to manual_verification.yml defaults"
     Parameters = @{
       EnvironmentName = "staging"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanVerifyDestroy"
-        ManualVerificationConfig = @{
-          TimeoutInMinutes = 30
-          Instructions = "Custom destroy verification instructions"
-        }
       }
     }
     ExpectedYAML = @(
-      "timeoutInMinutes: 30"
-      "instructions:*Custom destroy verification instructions"
+      "timeoutInMinutes: 60"
+      "onTimeout: reject"
+      "instructions:*Please validate the terraform destroy plan is acceptable to execute"
     )
   }
 )
@@ -159,16 +154,13 @@ $invalidTestCases = @(
     }
   },
   @{
-    Description = "ManualVerificationConfig with invalid OnTimeoutBehaviour"
+    Description = "invalid VerificationTimeoutBehaviour"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanVerifyDestroy"
-        ManualVerificationConfig = @{
-          TimeoutInMinutes = 1
-          OnTimeoutBehaviour = "invalid"
-        }
+        VerificationTimeoutBehaviour = "invalid"
       }
     }
   }

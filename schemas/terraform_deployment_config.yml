@@ -24,6 +24,14 @@ jobs:
       - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
 
+  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutBehaviour"') }}:
+      - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
+
+  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutInMinutes"') }}:
+      - ${{ if or(lt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 43200)) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
+
   # OPTIONAL PARAMETERS
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), 'AzureServiceConnection') }}:

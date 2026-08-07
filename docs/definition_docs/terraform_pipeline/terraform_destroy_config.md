@@ -19,7 +19,8 @@ TerraformDestroyConfig:
   JobsVariableMappings: object                  # OPTIONAL
   EnvironmentVariableMappings: object           # OPTIONAL
   VariableFiles: list                           # OPTIONAL
-  ManualVerificationConfig: object              # OPTIONAL (only used when RunMode is PlanVerifyDestroy)
+  VerificationTimeoutInMinutes: number          # OPTIONAL (only used when RunMode is PlanVerifyDestroy)
+  VerificationTimeoutBehaviour: string          # OPTIONAL ('reject' | 'resume', only used when RunMode is PlanVerifyDestroy)
 ```
 
 ## Required Properties
@@ -78,17 +79,26 @@ TerraformDestroyConfig:
 
 **Description:** List of `.tfvars` files relative to the artifact root.
 
-### ManualVerificationConfig
+### VerificationTimeoutInMinutes
 
-**Type:** `object`
+**Type:** `number`
 
-**Description:** Optional configuration for the manual verification gate inserted when `RunMode` is
-`PlanVerifyDestroy`. If provided, `TimeoutInMinutes` is required. `Instructions` defaults to a destroy-specific
-message and `OnTimeoutBehaviour` defaults to `reject` when omitted. See
-[ManualVerificationConfig](./manual_verification_config.md) for full details.
+**Allowed Range:** `1` - `43200` (30 days)
 
-Has no effect for `PlanOnly` or `DestroyOnly` run modes, since no manual verification job is inserted in those
-modes.
+**Description:** How long to wait for manual approval before applying `VerificationTimeoutBehaviour`. Only
+applicable when `RunMode` is `PlanVerifyDestroy`. Defaults to `60` when omitted.
+
+### VerificationTimeoutBehaviour
+
+**Type:** `string`
+
+**Allowed Values:** `'reject'` | `'resume'`
+
+**Description:** Action to take if the manual verification is not actioned within `VerificationTimeoutInMinutes`.
+Only applicable when `RunMode` is `PlanVerifyDestroy`. Defaults to `'reject'` when omitted.
+
+- `'reject'` - The job fails, halting the pipeline (default behaviour).
+- `'resume'` - The job automatically succeeds as if approved, and the pipeline continues.
 
 ## Not Supported in Destroy Config
 

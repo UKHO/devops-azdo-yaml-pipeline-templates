@@ -72,7 +72,6 @@ jobs:
         VariableFiles:
           - config/common.tfvars
           - config/discovery.tfvars
-        ManualVerificationConfig:
-          TimeoutInMinutes: 1
-          OnTimeoutBehaviour: resume
+        VerificationTimeoutInMinutes: 1
+        VerificationTimeoutBehaviour: resume
 

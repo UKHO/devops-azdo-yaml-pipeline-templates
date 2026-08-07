@@ -53,10 +53,11 @@ jobs:
           JobName: ManualVerification_${{ parameters.TerraformArtifactName }}
           Condition: succeeded('TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}')
           DependsOn: TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}
-          ManualVerificationConfig:
-            OnTimeoutBehaviour: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.OnTimeoutBehaviour, 'reject') }}
-            TimeoutInMinutes: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.TimeoutInMinutes, 60) }}
-            Instructions: ${{ coalesce(parameters.TerraformDestroyConfig.ManualVerificationConfig.Instructions, 'Please validate the terraform destroy plan is acceptable to execute') }}
+          Instructions: 'Please validate the terraform destroy plan is acceptable to execute'
+          ${{ if parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour }}:
+            OnTimeoutBehaviour: ${{ parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour }}
+          ${{ if parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes }}:
+            TimeoutInMinutes: ${{ parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes }}
 
   - ${{ if in(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'DestroyOnly') }}:
       - template: /jobs/terraform_destroy.yml

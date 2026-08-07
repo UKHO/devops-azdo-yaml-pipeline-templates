@@ -26,6 +26,14 @@ jobs:
   - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationMode"') }}:
       - "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not supported for destroy workflows. Use RunMode 'PlanVerifyDestroy' for gated destroy.": "Error"
 
+  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationTimeoutBehaviour"') }}:
+      - ${{ if notIn(parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
+
+  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationTimeoutInMinutes"') }}:
+      - ${{ if or(lt(parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes, 43200)) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
+
   # OPTIONAL PARAMETERS
 
   - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), 'AzureServiceConnection') }}:

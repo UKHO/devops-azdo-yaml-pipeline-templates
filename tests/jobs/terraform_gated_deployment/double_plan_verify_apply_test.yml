@@ -47,7 +47,9 @@ jobs:
           container_name: tfstate-devops-azdo-yaml-pipeline-templates
           key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'PlanVerifyApply'
-        VerificationMode: 'VerifyOnDestroy'
+        VerificationMode: 'VerifyOnAny'
+        VerificationTimeoutInMinutes: 1
+        VerificationTimeoutBehaviour: resume
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
         EnvironmentVariableMappings:
@@ -80,7 +82,9 @@ jobs:
           container_name: tfstate-devops-azdo-yaml-pipeline-templates
           key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'PlanVerifyApply'
-        VerificationMode: 'VerifyOnDestroy'
+        VerificationMode: 'VerifyOnAny'
+        VerificationTimeoutInMinutes: 1
+        VerificationTimeoutBehaviour: resume
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
         EnvironmentVariableMappings:

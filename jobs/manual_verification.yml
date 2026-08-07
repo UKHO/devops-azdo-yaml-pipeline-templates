@@ -30,20 +30,7 @@
     default: ''
     displayName: 'Instructions shown to users for manual validation decision'
 
-  - name: ManualVerificationConfig
-    type: object
-    default: { }
-    displayName: 'Optional manual verification configuration object. Fields provided here take precedence over the individual OnTimeoutBehaviour/TimeoutInMinutes/Instructions parameters above (see docs/definition_docs/terraform_pipeline/manual_verification_config.md)'
-
 jobs:
-  # NOTE: this validation call is unconditional - an empty object ({}) is a valid "not configured"
-  # state and is a no-op inside the schema; wrapping this in a truthy-check on the object itself would
-  # be misleading here since an empty object is truthy in template expressions.
-  - template: /schemas/manual_verification_config.yml
-    parameters:
-      ManualVerificationConfig: ${{ parameters.ManualVerificationConfig }}
-      ContextName: ${{ parameters.JobName }}
-
   - job: ${{ parameters.JobName }}
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
@@ -54,6 +41,6 @@ jobs:
 
       - template: /tasks/manual_validation.yml
         parameters:
-          OnTimeoutBehaviour: ${{ coalesce(parameters.ManualVerificationConfig.OnTimeoutBehaviour, parameters.OnTimeoutBehaviour) }}
-          TimeoutInMinutes: ${{ coalesce(parameters.ManualVerificationConfig.TimeoutInMinutes, parameters.TimeoutInMinutes) }}
-          Instructions: ${{ coalesce(parameters.ManualVerificationConfig.Instructions, parameters.Instructions) }}
+          OnTimeoutBehaviour: ${{ parameters.OnTimeoutBehaviour }}
+          TimeoutInMinutes: ${{ parameters.TimeoutInMinutes }}
+          Instructions: ${{ parameters.Instructions }}
