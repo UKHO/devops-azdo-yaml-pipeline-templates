@@ -77,6 +77,24 @@ jobs:
 
 - Manual verification behavior is driven by `RunMode`; there is no `VerificationMode` option for destroy.
 - Workflow is artifact-based and does not checkout repositories.
+- An optional `ManualVerificationConfig` object can be provided on `TerraformDestroyConfig` to control the
+  manual verification gate's timeout, timeout behaviour, and instructions text when `RunMode` is
+  `PlanVerifyDestroy`. If provided, `TimeoutInMinutes` is required. See
+  [ManualVerificationConfig](../../definition_docs/terraform_pipeline/manual_verification_config.md).
+
+### Overriding the Manual Verification Timeout
+
+```yaml
+jobs:
+  - template: jobs/terraform_gated_destroy.yml
+    parameters:
+      EnvironmentName: prod
+      TerraformDestroyConfig:
+        AzDOEnvironmentName: production-environment
+        RunMode: PlanVerifyDestroy
+        ManualVerificationConfig:
+          TimeoutInMinutes: 240
+```
 
 ## Live Examples
 
