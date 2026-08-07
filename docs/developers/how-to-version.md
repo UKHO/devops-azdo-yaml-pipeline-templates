@@ -2,7 +2,7 @@
 
 ## Versioning Strategy
 
-We use [Semantic Versioning 2.0.0](https: //semver.org/) for all pipeline template repositories.
+We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline template repositories.
 
 **Format:**
 `MAJOR.MINOR.PATCH` (e.g., `2.4.1`)
