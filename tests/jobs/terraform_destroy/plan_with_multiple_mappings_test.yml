@@ -4,16 +4,13 @@ resources:
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+      ref: ${{ variables['Build.SourceBranch'] }}
 
 pool:
-  name: 'Mare Nectaris'
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
 
 trigger: none
-
-variables:
-  - name: artifact_name
-    value: terraform_build
 
 pr:
   branches:
@@ -21,17 +18,21 @@ pr:
       - main
   drafts: false
 
+variables:
+  - template: tests/jobs/terraform_destroy/shared_vars.yml@AzDOPipelineTemplates
+
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
 
-  - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
+  - template: jobs/terraform_destroy.yml@AzDOPipelineTemplates
     parameters:
+      TerraformDestroyMode: Plan
       DependsOn: TerraformBuild_TerraformArtifact
       Condition: succeeded('TerraformBuild_TerraformArtifact')
       EnvironmentName: Discovery
-      TerraformDeploymentConfig:
+      TerraformDestroyConfig:
         AzureServiceConnection: DevOps Chapter Dev
         AzDOEnvironmentName: Discovery
         BackendConfig:
@@ -39,18 +40,13 @@ jobs:
           storage_account_name: $(TFStateStorageAccountName)
           container_name: tfstate-devops-azdo-yaml-pipeline-templates
           key: template_test.$(Build.DefinitionName).tfstate
-        RunMode: 'PlanVerifyApply'
-        VerificationMode: 'VerifyOnAny'
-        VerificationTimeoutInMinutes: 1
-        VerificationTimeoutBehaviour: resume
+        RunMode: 'PlanOnly'
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
+          - group: ExampleVG1
+          - group: ExampleVG2
+          - name: Example
+            value: ExampleValue
         EnvironmentVariableMappings:
           TF_VAR_MinRandom: 1000
           TF_VAR_MaxRandom: 100000
-        OutputVariables:
-          - random_number
-          - random_string
-        VariableFiles:
-          - config/common.tfvars
-          - config/discovery.tfvars

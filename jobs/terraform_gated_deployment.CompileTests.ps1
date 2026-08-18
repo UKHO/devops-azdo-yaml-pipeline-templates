@@ -265,6 +265,45 @@ $validTestCases = @(
     ExpectedYAML = @(
       "TerraformDeployApply_TerraformArtifact"
     )
+  },
+
+  # ========================================================================
+  # VERIFICATION TIMEOUT TESTS
+  # ========================================================================
+
+  @{
+    Description = "PlanVerifyApply with VerificationTimeoutInMinutes/VerificationTimeoutBehaviour overrides timeout and behaviour"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        VerificationTimeoutInMinutes = 1
+        VerificationTimeoutBehaviour = "resume"
+      }
+    }
+    ExpectedYAML = @(
+      "timeoutInMinutes: 1"
+      "onTimeout: resume"
+      "instructions:*Please validate the terraform plan is acceptable to apply"
+    )
+  },
+  @{
+    Description = "PlanVerifyApply without verification overrides falls back to manual_verification.yml defaults"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+      }
+    }
+    ExpectedYAML = @(
+      "timeoutInMinutes: 60"
+      "onTimeout: reject"
+      "instructions:*Please validate the terraform plan is acceptable to apply"
+    )
   }
 )
 
@@ -337,6 +376,18 @@ $invalidTestCases = @(
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
         RunMode = "PlanOnly"
+      }
+    }
+  },
+  @{
+    Description = "invalid VerificationTimeoutBehaviour value"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        VerificationTimeoutBehaviour = "invalid"
       }
     }
   }

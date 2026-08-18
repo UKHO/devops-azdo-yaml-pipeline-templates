@@ -25,8 +25,3 @@ These may look minor but **are breaking**:
 5. Provide a migration guide explaining how to upgrade.
 
 For the full versioning guide, see [How to Version Templates](how-to-version.md).
-
----
-
-[← Back to Developer Documentation](README.md)
-

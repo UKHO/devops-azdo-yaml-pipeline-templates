@@ -30,8 +30,3 @@ The repository groups templates and scripts by function and level:
 
 - Root pipeline elements (`trigger`, `pr`) cannot be templated.
 - Only template logic that benefits from abstraction, reuse, or validation.
-
----
-
-[← Back to Developer Documentation](README.md)
-

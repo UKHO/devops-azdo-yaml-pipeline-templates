@@ -20,6 +20,8 @@ Complete end-to-end pipeline templates for specific use cases.
 | **[Terraform Build Job](./jobs/terraform_build.md)**                       | Builds, validates, and packages Terraform files with support for additional files and custom injection steps       |
 | **[Terraform Deploy Job](./jobs/terraform_deploy.md)**                     | Handles individual Terraform deployment steps (plan or apply) with environment variables and Key Vault integration |
 | **[Terraform Gated Deployment Job](./jobs/terraform_gated_deployment.md)** | Orchestrates complete Terraform workflow (plan → verify → apply) with configurable run modes                       |
+| **[Terraform Destroy Job](./jobs/terraform_destroy.md)**                   | Handles individual Terraform destroy steps (plan-destroy or destroy) using packaged Terraform artifacts            |
+| **[Terraform Gated Destroy Job](./jobs/terraform_gated_destroy.md)**       | Orchestrates complete Terraform destroy workflow (plan-destroy → verify → destroy) with destroy run modes          |
 
 ## 📦 Upgrade Guides
 
@@ -27,6 +29,7 @@ Guides for upgrading between versions of this repository.
 
 | Upgrade Path                                                                      | Changes                                                                |
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| **0.2.0 → 0.3.0**                                                                 | No breaking changes. All new fields (`VerificationTimeoutInMinutes`, `VerificationTimeoutBehaviour`, `TerraformDestroyConfig`) are additive and optional; existing configurations continue to work without modification. |
 | **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md)** | Migrate from `KeyVaultConfig` to `ConfigSources` (multi-vault support) |
 
 ## Self-Documentation

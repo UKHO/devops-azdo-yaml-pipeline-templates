@@ -1,0 +1,4 @@
+variables:
+  - name: TerraformPath
+    value: tests/shared_resources/resource_group_terraform
+    readonly: true

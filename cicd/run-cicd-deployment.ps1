@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Runs the complete CI/CD deployment pipeline for the devops-alz-compliant-modules CICD folder.
+    Runs the complete CI/CD deployment pipeline for the CICD folder.
 
 .DESCRIPTION
     This script performs the following operations:
@@ -14,6 +14,9 @@
 .PARAMETER TenantId
     The Azure tenant ID to authenticate against.
 
+.PARAMETER SubscriptionId
+    The Azure Subscription ID to find the backend state file.
+
 .EXAMPLE
     .\run-cicd-deployment.ps1
 
@@ -21,24 +24,10 @@
 
 param(
   [Parameter(Mandatory = $true)]
-  [ValidateScript({
-    if ( [guid]::TryParse($_, [ref][guid]::Empty))
-    {
-      return $true
-    }
-    throw "TenantId must be a valid GUID"
-  })]
-  [string]$TenantId,
+  [guid]$TenantId,
 
   [Parameter(Mandatory = $true)]
-  [ValidateScript({
-    if ( [guid]::TryParse($_, [ref][guid]::Empty))
-    {
-      return $true
-    }
-    throw "SubscriptionId must be a valid GUID"
-  })]
-  [string]$SubscriptionId
+  [guid]$SubscriptionId
 )
 
 # Set strict error handling
@@ -72,7 +61,7 @@ catch
 if (-not $existingToken)
 {
   Write-Host "No valid token found. Logging in to tenant: $TenantId"
-  az login --tenant $TenantId --use-device-code
+  az login --tenant $TenantId
 }
 else
 {

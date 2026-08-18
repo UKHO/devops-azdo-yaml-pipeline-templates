@@ -22,18 +22,21 @@ Use this job template when you need to:
 Based on the `RunMode` configuration, this job creates one to three sub-jobs:
 
 ### PlanOnly Mode
+
 - Creates **Plan job** that shows infrastructure changes
 - Skips manual verification
 - Skips apply job
 - Useful for dry-run validation on feature branches
 
 ### ApplyOnly Mode
+
 - Skips plan phase
 - Creates **Apply job** that directly provisions infrastructure
 - No manual verification
 - Useful for environments with automated trust (e.g., dev)
 
 ### PlanVerifyApply Mode (Default)
+
 - Creates **Plan job** to show infrastructure changes
 - Creates **Manual Verification job** (conditional based on changes detected)
 - Creates **Apply job** to provision infrastructure
@@ -242,7 +245,7 @@ jobs:
 
 Manual approval is triggered **only if** Terraform plan shows resources being destroyed:
 
-```
+```text
 Plan → Analyze (detect destroys?) → Manual Approval → Apply
            ↓ (no destroys)
            → Apply (no approval needed)
@@ -254,7 +257,7 @@ Plan → Analyze (detect destroys?) → Manual Approval → Apply
 
 Manual approval is triggered if **any** infrastructure changes are detected:
 
-```
+```text
 Plan → Analyze (any changes?) → Manual Approval → Apply
            ↓ (no changes)
            → Success (nothing to apply)
@@ -266,7 +269,7 @@ Plan → Analyze (any changes?) → Manual Approval → Apply
 
 No approval gate – apply automatically:
 
-```
+```text
 Plan → Analyze → Apply
     (approval disabled)
 ```
@@ -279,7 +282,7 @@ Plan → Analyze → Apply
 
 The orchestrator automatically manages dependencies between generated jobs:
 
-```
+```text
 Plan Job
    ↓
 Manual Verification Job (conditional)
@@ -288,10 +291,12 @@ Apply Job
 ```
 
 Manual verification job only runs if:
+
 - Changes detected in plan
 - `VerificationMode` determines it needs approval
 
 Apply job runs only if:
+
 - No changes + no verification needed
 - OR approval was granted
 
@@ -302,6 +307,7 @@ Apply job runs only if:
 ### Manual Verification Not Appearing
 
 **Check**:
+
 - ✓ Verify `RunMode` is `PlanVerifyApply` (not `PlanOnly` or `ApplyOnly`)
 - ✓ Verify `VerificationMode` is set correctly
 - ✓ Check that plan detected changes
@@ -310,11 +316,13 @@ Apply job runs only if:
 ### Apply Never Runs
 
 **Possible causes**:
+
 - Approval was rejected → Expected, pipeline stops
 - Timeout occurred → Check timeout setting
 - No terraform changes detected → Expected, nothing to apply
 
 **Check**:
+
 - ✓ Review manual verification approval status
 - ✓ Check plan job output for detected changes
 - ✓ Verify approval was actually granted
@@ -324,6 +332,7 @@ Apply job runs only if:
 **Cause**: Variables only available after successful apply.
 
 **Check**:
+
 - ✓ Ensure `RunMode` includes apply operation
 - ✓ Verify `OutputVariables` are defined in config
 - ✓ Use correct variable reference syntax
@@ -371,5 +380,3 @@ View working test examples in the repository:
 - [Manual Verification Job](./manual_verification.md) – Approval gate details
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
 - [Terraform Verification Modes](../pipelines/terraform_pipeline_manual_verification.md) – Detailed verification flow diagrams
-
-

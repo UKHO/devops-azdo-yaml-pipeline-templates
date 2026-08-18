@@ -21,8 +21,6 @@ main ─────────────────────────
 | `feature/<name>`                          | The **feature main** — groups all development for a single feature or piece of work. | Lives until merged to `main`           |
 | Development branches off the feature main | Individual units of work (tasks, spikes, fixes) that feed into the feature main.     | Lives until merged to the feature main |
 
----
-
 ## Step-by-Step Workflow
 
 ### 1. Create a Feature Main Branch
@@ -132,8 +130,3 @@ For now:
 - There are no local testing tools; validation is done by running pipelines in Azure DevOps.
 
 See [Development Workflow & Testing](06-workflow-and-testing.md) for more detail.
-
----
-
-[← Back to Developer Documentation](README.md)
-

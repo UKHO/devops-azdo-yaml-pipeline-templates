@@ -64,6 +64,10 @@ jobs:
           Condition: and(succeeded(), eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           DependsOn: TerraformDeployPlan_${{ parameters.TerraformArtifactName }}
           Instructions: 'Please validate the terraform plan is acceptable to apply'
+          ${{ if parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour }}:
+            OnTimeoutBehaviour: ${{ parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour }}
+          ${{ if parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes }}:
+            TimeoutInMinutes: ${{ parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes }}
 
   - ${{ if in(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'ApplyOnly') }}:
       - template: /jobs/terraform_deploy.yml

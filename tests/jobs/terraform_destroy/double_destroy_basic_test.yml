@@ -1,0 +1,113 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+pool:
+  name: Azure-UKHO-Engineering
+  demands: ImageOverride -equals ubuntu-latest
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+variables:
+  - template: tests/jobs/terraform_destroy/shared_vars.yml@AzDOPipelineTemplates
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+      ArtifactName: artifact1
+
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+      ArtifactName: artifact2
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_artifact1
+      Condition: succeeded('TerraformBuild_artifact1')
+      TerraformArtifactName: artifact1
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact1.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDeployMode: Apply
+      DependsOn: TerraformBuild_artifact2
+      Condition: succeeded('TerraformBuild_artifact2')
+      TerraformArtifactName: artifact2
+      EnvironmentName: Discovery
+      TerraformDeploymentConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact2.$(Build.DefinitionName).tfstate
+        RunMode: 'ApplyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_destroy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDestroyMode: Destroy
+      DependsOn:
+        - TerraformDeployApply_artifact1
+        - TerraformDeployApply_artifact2
+      Condition: succeeded()
+      TerraformArtifactName: artifact1
+      EnvironmentName: Discovery
+      TerraformDestroyConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact1.$(Build.DefinitionName).tfstate
+        RunMode: 'DestroyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription
+
+  - template: jobs/terraform_destroy.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformDestroyMode: Destroy
+      DependsOn:
+        - TerraformDeployApply_artifact1
+        - TerraformDeployApply_artifact2
+      Condition: succeeded()
+      TerraformArtifactName: artifact2
+      EnvironmentName: Discovery
+      TerraformDestroyConfig:
+        AzureServiceConnection: DevOps Chapter Dev
+        AzDOEnvironmentName: Discovery
+        BackendConfig:
+          resource_group_name: $(TFStateResourceGroupName)
+          storage_account_name: $(TFStateStorageAccountName)
+          container_name: tfstate-devops-azdo-yaml-pipeline-templates
+          key: template_test.artifact2.$(Build.DefinitionName).tfstate
+        RunMode: 'DestroyOnly'
+        JobsVariableMappings:
+          - group: DevOpsChapterAzureSubscription

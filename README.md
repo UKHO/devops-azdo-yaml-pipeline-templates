@@ -1,4 +1,4 @@
-﻿# Azure DevOps YAML Pipeline Templates
+ # Azure DevOps YAML Pipeline Templates
 
 This repository provides reusable Azure DevOps YAML templates for Terraform
 infrastructure delivery on Azure.

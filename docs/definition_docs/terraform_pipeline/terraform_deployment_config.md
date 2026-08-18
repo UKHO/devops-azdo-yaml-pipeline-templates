@@ -25,6 +25,8 @@ TerraformDeploymentConfig:
   EnvironmentVariableMappings: object           # OPTIONAL
   VariableFiles: list                           # OPTIONAL
   OutputVariables: list                         # OPTIONAL
+  VerificationTimeoutInMinutes: number          # OPTIONAL (only used when RunMode is PlanVerifyApply)
+  VerificationTimeoutBehaviour: string          # OPTIONAL ('reject' | 'resume', only used when RunMode is PlanVerifyApply)
 ```
 
 ---
@@ -41,7 +43,6 @@ TerraformDeploymentConfig:
 
 ---
 
-
 ### RunMode
 
 **Type:** `string`
@@ -49,6 +50,7 @@ TerraformDeploymentConfig:
 **Description:** Controls which deployment jobs are run.
 
 **Allowed Values:**
+
 - `'PlanVerifyApply'` - Creates a plan, allows for manual verification (requires VerificationMode), then applies the plan
 - `'PlanOnly'` - Creates and reviews a plan only, does not apply
 - `'ApplyOnly'` - Skips planning and applies Terraform changes directly
@@ -64,6 +66,7 @@ TerraformDeploymentConfig:
 **Description:** Controls when manual verification is required. Only applicable when `RunMode` is `PlanVerifyApply`; ignored for other RunModes.
 
 **Allowed Values:**
+
 - `'VerifyOnDestroy'` - Manual verification only when resources will be destroyed
 - `'VerifyOnAny'` - Manual verification for any infrastructure changes
 - `'VerifyDisabled'` - No manual verification (auto-apply if changes detected)
@@ -76,6 +79,27 @@ TerraformDeploymentConfig:
 
 ## Optional Properties
 
+### VerificationTimeoutInMinutes
+
+**Type:** `number`
+
+**Allowed Range:** `1` - `43200` (30 days)
+
+**Description:** How long to wait for manual approval before applying `VerificationTimeoutBehaviour`. Only
+applicable when `RunMode` is `PlanVerifyApply`. Defaults to `60` when omitted.
+
+### VerificationTimeoutBehaviour
+
+**Type:** `string`
+
+**Allowed Values:** `'reject'` | `'resume'`
+
+**Description:** Action to take if the manual verification is not actioned within `VerificationTimeoutInMinutes`.
+Only applicable when `RunMode` is `PlanVerifyApply`. Defaults to `'reject'` when omitted.
+
+- `'reject'` - The job fails, halting the pipeline (default behaviour).
+- `'resume'` - The job automatically succeeds as if approved, and the pipeline continues.
+
 ### BackendConfig
 
 **Type:** `object`
@@ -84,6 +108,7 @@ TerraformDeploymentConfig:
 
 **Option 1: Pipeline Parameter (Flexible)**
 Define backend config via pipeline for environment-specific configuration:
+
 ```yaml
 BackendConfig:
   resource_group_name: 'rg-terraform-state-prod'
@@ -94,6 +119,7 @@ BackendConfig:
 
 **Option 2: Hardcoded in Terraform (Simple)**
 Define backend directly in your Terraform configuration file:
+
 ```hcl
 # main.tf or terraform.tf
 terraform {
@@ -109,6 +135,7 @@ terraform {
 When using Option 2, omit `BackendConfig` from the pipeline entirely.
 
 **Common Azure Backend Keys:**
+
 - `resource_group_name` - Resource group containing the storage account for Terraform state
 - `storage_account_name` - Storage account name for Terraform state
 - `container_name` - Container name within the storage account
@@ -128,6 +155,7 @@ See [Terraform Backend Configuration Documentation](https://www.terraform.io/lan
 
 **Alternative (without service connection):**
 When `AzureServiceConnection` is not provided, supply credentials via environment variables:
+
 ```yaml
 EnvironmentVariableMappings:
   ARM_CLIENT_ID: 'your-client-id'
@@ -187,6 +215,7 @@ EnvironmentVariableMappings:
 **Current Scope:** `ConfigSources` currently supports `Type: KeyVault` entries.
 
 **Note:**
+
 - You **cannot** use both `KeyVaultConfig` and `ConfigSources` in the same configuration. Choose one approach.
 - Each entry must include `Type`, `Name`, and `ServiceConnection`.
 - `Type` must be `'KeyVault'`.
@@ -196,6 +225,7 @@ EnvironmentVariableMappings:
 **Migration:** If currently using `KeyVaultConfig` (legacy), see [Upgrade Guide: 0.1.0 -> 0.2.0](../../user-docs/upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md).
 
 **Example:**
+
 ```yaml
 ConfigSources:
   - Type: KeyVault
@@ -219,6 +249,7 @@ For detailed field documentation, see [ConfigSources Definition](../../definitio
 **Description:** List of variable mappings (variable groups, templates, or inline variables) to be added to the deployment job's variables block. Supports variable groups, template references, and inline name/value pairs.
 
 **Example:**
+
 ```yaml
 JobsVariableMappings:
   - group: ProductionVariableGroup
@@ -239,6 +270,7 @@ JobsVariableMappings:
 **Description:** Key-value pairs of environment variables to set for Terraform execution. These are passed to all Terraform tasks (init, plan, apply).
 
 **Example:**
+
 ```yaml
 EnvironmentVariableMappings:
   TF_LOG: INFO
@@ -255,6 +287,7 @@ EnvironmentVariableMappings:
 **Description:** List of Terraform variable file paths (`.tfvars`) relative to the Terraform working directory. These files must be included in the Terraform artifact created during the build stage.
 
 **Example:**
+
 ```yaml
 VariableFiles:
   - config/common.tfvars
@@ -270,6 +303,7 @@ VariableFiles:
 **Description:** List of Terraform output variable names to export as pipeline variables after a successful apply. These can be referenced by later jobs in the same stage, or by jobs in later stages.
 
 **Example:**
+
 ```yaml
 OutputVariables:
   - resource_group_name
@@ -280,11 +314,13 @@ OutputVariables:
 **Accessing Output Variables:**
 
 - Same stage (later job):
+
   ```text
   dependencies.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
   ```
 
 - Later stage:
+
   ```text
   stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
   ```

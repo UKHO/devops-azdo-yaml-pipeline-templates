@@ -1,0 +1,79 @@
+parameters:
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: 'The condition that will control whether this job runs or not'
+
+  - name: DependsOn
+    type: object
+    default: []
+    displayName: 'List of jobs this job depends on'
+
+  - name: Pool
+    type: string
+    default: ''
+    displayName: 'The pool that this job will run on'
+
+  - name: TerraformVersion
+    type: string
+    default: '1.14.0'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+
+  - name: TerraformArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'Name for the artifact containing the terraform files for destroy'
+
+  - name: EnvironmentName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The environment name that the infrastructure is for'
+
+  - name: TerraformDestroyConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'Terraform destroy configuration object (see docs/definition_docs/terraform_pipeline/terraform_destroy_config.md)'
+
+jobs:
+  - ${{ if in(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'PlanOnly') }}:
+      - template: /jobs/terraform_destroy.yml
+        parameters:
+          TerraformDestroyMode: Plan
+          Condition: ${{ parameters.Condition }}
+          DependsOn: ${{ parameters.DependsOn }}
+          Pool: ${{ parameters.Pool }}
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          TerraformDestroyConfig: ${{ parameters.TerraformDestroyConfig }}
+          EnvironmentName: ${{ parameters.EnvironmentName }}
+
+  - ${{ if eq(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy') }}:
+      - template: /jobs/manual_verification.yml
+        parameters:
+          JobName: ManualVerification_${{ parameters.TerraformArtifactName }}
+          Condition: succeeded('TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}')
+          DependsOn: TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}
+          Instructions: 'Please validate the terraform destroy plan is acceptable to execute'
+          ${{ if parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour }}:
+            OnTimeoutBehaviour: ${{ parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour }}
+          ${{ if parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes }}:
+            TimeoutInMinutes: ${{ parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes }}
+
+  - ${{ if in(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'DestroyOnly') }}:
+      - template: /jobs/terraform_destroy.yml
+        parameters:
+          TerraformDestroyMode: Destroy
+          ${{ if eq(parameters.TerraformDestroyConfig.RunMode, 'DestroyOnly') }}:
+            DependsOn: ${{ parameters.DependsOn }}
+            Condition: ${{ parameters.Condition }}
+          ${{ if eq(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy') }}:
+            Condition: succeeded('ManualVerification_${{ parameters.TerraformArtifactName }}')
+            DependsOn:
+              - ManualVerification_${{ parameters.TerraformArtifactName }}
+              - TerraformDestroyPlan_${{ parameters.TerraformArtifactName }}
+          Pool: ${{ parameters.Pool }}
+          TerraformArtifactName: ${{ parameters.TerraformArtifactName }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          TerraformDestroyConfig: ${{ parameters.TerraformDestroyConfig }}
+          EnvironmentName: ${{ parameters.EnvironmentName }}
+

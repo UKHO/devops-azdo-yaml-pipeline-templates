@@ -34,8 +34,3 @@ See `tasks/terraform.yml` for a well-documented example.
 - **Double-wrapping**: Do not wrap a template inside another template just to provide preset defaults. This increases complexity and makes debugging harder. Prefer direct inclusion. See [Anti-Pattern: Double Wrapping](anti-pattern-double-wrapping.md).
 - **Excessive parameterisation**: Do not force consumers to pass unnecessary parameters.
 - **Inconsistent naming**: Follow the repository's naming conventions strictly.
-
----
-
-[← Back to Developer Documentation](README.md)
-

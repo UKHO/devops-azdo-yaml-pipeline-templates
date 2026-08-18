@@ -27,8 +27,3 @@ Standard YAML features that **do not work** in Azure DevOps:
 - **Conditions** are not validated at compile time — errors surface only at runtime. Test thoroughly.
 - **Parameter passing** with complex objects can be tricky. Use compile-time expressions carefully.
 - **Indentation errors** cause silent failures. Rely on your IDE and `.editorconfig`.
-
----
-
-[← Back to Developer Documentation](README.md)
-

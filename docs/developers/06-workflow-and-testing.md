@@ -40,8 +40,3 @@ For the full guide — including diagrams, naming conventions, and rebase instru
 - For Terraform templates, use mock providers where available.
 - Document any testing limitations or manual verification steps in the PR.
 - There are no local testing tools; all validation is done by running pipelines in Azure DevOps.
-
----
-
-[← Back to Developer Documentation](README.md)
-
