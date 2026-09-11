@@ -60,10 +60,6 @@ jobs:
       - name: TerraformWorkingDirectory
         value: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
         readonly: true
-      - name: TFVersion
-        value: ${{ coalesce(variables.TerraformVersion, parameters.TerraformVersion) }}
-        readonly: true
-
 
     steps:
       - checkout: self
@@ -85,7 +81,7 @@ jobs:
 
       - template: /tasks/terraform_installer.yml
         parameters:
-          TerraformVersion: ${{ variables.TFVersion }}
+          TerraformVersion: ${{ coalesce(variables.TerraformVersion, parameters.TerraformVersion) }}
 
       - template: /tasks/terraform.yml
         parameters:
