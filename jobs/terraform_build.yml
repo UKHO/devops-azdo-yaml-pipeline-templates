@@ -69,9 +69,7 @@ jobs:
 
       - download: none
 
-
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
+      - ${{ parameters.TerraformBuildInjectionSteps }}
 
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
           - template: /tasks/copy_files.yml
