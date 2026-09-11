@@ -11,7 +11,7 @@ parameters:
 
   - name: DependsOn
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of jobs this job depends on'
 
   - name: Pool
@@ -26,7 +26,7 @@ parameters:
 
   - name: AdditionalFilesToPackage
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
 
   - name: TerraformVersion
@@ -36,7 +36,7 @@ parameters:
 
   - name: TerraformBuildInjectionSteps
     type: stepList
-    default: [ ]
+    default: []
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 jobs:
@@ -60,6 +60,10 @@ jobs:
       - name: TerraformWorkingDirectory
         value: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
         readonly: true
+      - name: TerraformVersion
+        value: ${{ coalesce(variables.TerraformVersion, parameters.TerraformVersion) }}
+        readonly: true
+
 
     steps:
       - checkout: self
@@ -81,7 +85,7 @@ jobs:
 
       - template: /tasks/terraform_installer.yml
         parameters:
-          TerraformVersion: ${{ parameters.TerraformVersion }}
+          TerraformVersion: ${{ variables.TerraformVersion }}
 
       - template: /tasks/terraform.yml
         parameters:
