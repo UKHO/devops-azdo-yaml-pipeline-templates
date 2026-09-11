@@ -38,9 +38,23 @@ stages:
     jobs:
       - template: jobs/terraform_build.yml
         parameters:
-          RelativePathToTerraformFiles: infra/terraform
-          TerraformVersion: '1.5.0'
+          RelativePathToTerraformFiles: infra/terraform # Required. Relative path from repo root to your terraform files.
+
+          TerraformVersion: '1.5.0' # Optional. Exact terraform version (default '1.14.0') or 'latest'; wildcards like '1.5.x' are not allowed.
+          # ArtifactName: TerraformArtifact # Optional. Name of the published artifact; override if running multiple builds in one pipeline.
+          # Pool: 'Linux Self-Hosted' # Optional. Agent pool to run this job on; empty uses the pipeline/job default pool.
+
+          # AdditionalFilesToPackage: # Optional. Extra files/folders to bundle into the artifact alongside the terraform files.
+          #   - SourceDirectory: 'config/shared' # Required (per item). Relative path from repo root to source directory.
+          #     FilesPattern: '*.tfvars' # Required (per item). Glob pattern for files to copy.
+          #     TargetSubdirectoryName: 'shared-config' # Required (per item). Subdirectory name inside the artifact.
+
+          # TerraformBuildInjectionSteps: # Optional. Custom steps to run once, before terraform init/validate (e.g. inject required_version).
+          #   - pwsh: |
+          #       Write-Host "Custom preprocessing..."
 ```
+
+> All parameters are shown above; uncomment the ones you need. See [Parameters](#parameters) below for full details, and [Examples](#examples) for scenario-specific walkthroughs.
 
 ---
 
