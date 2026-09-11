@@ -67,10 +67,8 @@ jobs:
         clean: true
         path: $(RepositoryCheckoutFolderName)
 
-      - script: echo '${{ convertToJson(variables) }}'
-        displayName: 'DEBUG compile-time variables'
-
       - download: none
+
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
           - ${{ step }}
@@ -84,7 +82,7 @@ jobs:
 
       - template: /tasks/terraform_installer.yml
         parameters:
-          TerraformVersion: ${{ coalesce(variables.TerraformVersion, parameters.TerraformVersion) }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
 
       - template: /tasks/terraform.yml
         parameters:
