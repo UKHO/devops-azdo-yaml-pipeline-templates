@@ -52,8 +52,8 @@ function Invoke-AutoSignIn
       if ($null -eq $currentUser)
       {
           Write-Host "  ↳ Not signed in, launching browser for authentication..." -ForegroundColor Cyan
-          Write-Verbose "User not signed in, initiating interactive sign-in with device code..."
-          az login --use-device-code | Out-Null
+          Write-Verbose "User not signed in, initiating interactive sign-in..."
+          az login | Out-Null
           Write-Verbose "Successfully signed in to Azure"
           Write-Host "  ✓ Signed in successfully" -ForegroundColor Green
       }
