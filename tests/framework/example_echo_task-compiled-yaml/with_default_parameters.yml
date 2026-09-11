@@ -1,0 +1,28 @@
+parameters:
+- name: message
+  type: string
+  default: "Hello, World!"
+  displayName: "Message to echo"
+- name: verbosityLevel
+  type: string
+  default: "info"
+  values:
+  - debug
+  - info
+  - warn
+  - error
+  displayName: "Verbosity level"
+stages:
+- stage: __default
+  jobs:
+  - job: Job
+    steps:
+    - task: CmdLine@2
+      displayName: 'Echo: Hello, World!'
+      inputs:
+        script: >
+          echo "[Verbosity: info]"
+
+          echo "Hello, World!"
+
+

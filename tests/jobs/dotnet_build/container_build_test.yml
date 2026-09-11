@@ -1,0 +1,31 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+jobs:
+  - template: jobs/dotnet_build.yml@AzDOPipelineTemplates
+    parameters:
+      ArtifactName: DotNetContainerImage
+      DotNetBuildConfig:
+        RelativePathToProject: tests/shared_resources/basic_dotnet/BasicDotNet.csproj
+        RunTests: false
+        BuildOutputType: Container
+        ContainerRegistryServiceConnection: DotNetContainerRegistryServiceConnection
+        ContainerRepository: dotnetbuildtests/basic-dotnet
+        Dockerfile: tests/shared_resources/basic_dotnet/Dockerfile
+        BuildContext: tests/shared_resources/basic_dotnet
