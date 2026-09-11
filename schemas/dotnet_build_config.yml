@@ -1,0 +1,37 @@
+# Schema Template: .NET Build Config
+# Validates .NET build configuration objects used by the dotnet_build job.
+# See: docs/definition_docs/dotnet_pipeline/dotnet_build_config.md
+
+parameters:
+  - name: DotNetBuildConfig
+    type: object
+    # NO default - Consumer must provide this
+    displayName: '.NET build configuration object (see docs/definition_docs/dotnet_pipeline/dotnet_build_config.md)'
+
+  - name: ArtifactName
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'The artifact name that the .NET build is for'
+
+jobs:
+  - ${{ if or(not(parameters.DotNetBuildConfig.RelativePathToProject), eq(parameters.DotNetBuildConfig.RelativePathToProject, '')) }}:
+      - "'${{ parameters.ArtifactName }}' artifact error: RelativePathToProject is not properly defined and is a required field.": "Error"
+
+  - ${{ if notIn(parameters.DotNetBuildConfig.BuildOutputType, 'Zip', 'Container') }}:
+      - "'${{ parameters.ArtifactName }}' artifact error: Must provide a valid BuildOutputType option (Zip, Container).": "Error"
+
+  - ${{ if eq(parameters.DotNetBuildConfig.BuildOutputType, 'Container') }}:
+      - ${{ if or(not(parameters.DotNetBuildConfig.ContainerRegistryServiceConnection), eq(parameters.DotNetBuildConfig.ContainerRegistryServiceConnection, '')) }}:
+          - "'${{ parameters.ArtifactName }}' artifact error: ContainerRegistryServiceConnection is required when BuildOutputType is 'Container'.": "Error"
+      - ${{ if or(not(parameters.DotNetBuildConfig.ContainerRepository), eq(parameters.DotNetBuildConfig.ContainerRepository, '')) }}:
+          - "'${{ parameters.ArtifactName }}' artifact error: ContainerRepository is required when BuildOutputType is 'Container'.": "Error"
+
+  # OPTIONAL PARAMETERS
+
+  - ${{ if contains(convertToJson(parameters.DotNetBuildConfig), '"RunTests"') }}:
+      - ${{ if notIn(string(parameters.DotNetBuildConfig.RunTests), 'True', 'False') }}:
+          - "'${{ parameters.ArtifactName }}' artifact error: RunTests must be a boolean value (true or false).": "Error"
+
+  - ${{ if contains(convertToJson(parameters.DotNetBuildConfig), '"PublishTestResults"') }}:
+      - ${{ if notIn(string(parameters.DotNetBuildConfig.PublishTestResults), 'True', 'False') }}:
+          - "'${{ parameters.ArtifactName }}' artifact error: PublishTestResults must be a boolean value (true or false).": "Error"
