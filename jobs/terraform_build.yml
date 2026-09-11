@@ -67,6 +67,9 @@ jobs:
         clean: true
         path: $(RepositoryCheckoutFolderName)
 
+      - script: echo '${{ convertToJson(variables) }}'
+        displayName: 'DEBUG compile-time variables'
+
       - download: none
 
       - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
