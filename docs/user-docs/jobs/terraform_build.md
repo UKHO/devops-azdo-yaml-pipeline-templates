@@ -2,10 +2,6 @@
 
 A specialized job template that builds, validates, and packages Terraform files for deployment.
 
----
-
-## Basic Usage
-
 ```yaml
 jobs:
   - template: jobs/terraform_build.yml
