@@ -53,6 +53,10 @@ stages:
           # TerraformBuildInjectionSteps: # Optional. Custom steps to run once, before terraform init/validate (e.g. inject required_version).
           #   - pwsh: |
           #       Write-Host "Custom preprocessing..."
+
+          # DependsOn: # Optional. List of jobs this job depends on. Default [ ] (no dependencies).
+          #   - SomeOtherJobName
+          # Condition: succeeded() # Optional. Condition controlling whether this job runs. Default succeeded().
 ```
 
 > All parameters are shown above; uncomment the ones you need. See [Parameters](#parameters) below for full details, and [Examples](#examples) for scenario-specific walkthroughs.
@@ -74,6 +78,8 @@ None - all parameters have defaults.
 | `ArtifactName`                 | string   | `TerraformArtifact` | Name of the published artifact for later retrieval          |
 | `Pool`                         | string   | `''`                | Agent pool to run job on. Empty uses default pool.          |
 | `AdditionalFilesToPackage`     | object   | `[ ]`               | List of additional files to include in artifact (see below) |
+| `DependsOn`                    | object   | `[ ]`               | List of jobs this job depends on                             |
+| `Condition`                    | string   | `succeeded()`       | Condition controlling whether this job runs                 |
 | `TerraformBuildInjectionSteps` | stepList | `[ ]`               | Custom steps to run before terraform validation             |
 
 ---
