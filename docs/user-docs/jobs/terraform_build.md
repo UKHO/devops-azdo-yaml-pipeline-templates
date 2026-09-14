@@ -1,32 +1,6 @@
 # Terraform Build Job
 
-A specialized job template that builds, validates, and packages Terraform files for deployment. This job handles the initial phase of infrastructure-as-code workflows by preparing artifacts for deployment stages.
-
----
-
-## When to Use
-
-Use this job template when you need to:
-
-- **Validate Terraform configuration** – Check syntax and structure
-- **Package infrastructure code** – Create deployable artifacts
-- **Run pre-deployment steps** – Execute custom validation or transformation logic
-- **Support infrastructure workflows** – Single standardized build for all Terraform deployments
-
-This job is the foundation of the Terraform Pipeline and is used in the Build stage automatically.
-
----
-
-## What This Job Does
-
-1. **Checks out** your repository containing Terraform files
-2. **Executes injection steps** (if provided) for custom preprocessing
-3. **Packages additional files** (if specified) alongside Terraform files
-4. **Installs Terraform CLI** of the specified version
-5. **Runs `terraform init`** without backend configuration for validation
-6. **Runs `terraform validate`** to check configuration syntax
-7. **Cleans up** temporary files (`.terraform` directory)
-8. **Publishes artifact** containing all packaged files for deployment stages
+A specialized job template that builds, validates, and packages Terraform files for deployment.
 
 ---
 
@@ -69,16 +43,6 @@ stages:
 None - all parameters have defaults.
 
 ### Optional Parameters
-
-| Parameter                      | Type     | Default             | Description                                                 |
-|--------------------------------|----------|---------------------|-------------------------------------------------------------|
-| `RelativePathToTerraformFiles` | string   | `''`                | Relative path from repository root to Terraform files; empty defaults to repo root. |
-| `TerraformVersion`             | string   | `'1.14.0'`          | Terraform CLI version (`latest` or exact semantic version such as `'1.5.0'`; wildcards like `'1.5.x'` are not allowed). |
-| `ArtifactName`                 | string   | `TerraformArtifact` | Name of the published artifact for later retrieval          |
-| `Pool`                         | string   | `''`                | Agent pool to run job on. Empty uses default pool.          |
-| `AdditionalFilesToPackage`     | object   | `[ ]`               | List of additional files to include in artifact (see below) |
-| `DependsOn`                    | object   | `[ ]`               | List of jobs this job depends on                             |
-| `Condition`                    | string   | `succeeded()`       | Condition controlling whether this job runs                 |
 | Parameter                      | Type     | Default             | Description                                                 |
 |--------------------------------|----------|---------------------|-------------------------------------------------------------|
 | `RelativePathToTerraformFiles` | string   | `''`                | Relative path from repository root to Terraform files; empty defaults to repo root. |
@@ -89,7 +53,6 @@ None - all parameters have defaults.
 | `Pool`                         | string   | `''`                | Agent pool to run job on. Empty uses default pool.          |
 | `DependsOn`                    | object   | `[ ]`               | List of jobs this job depends on                             |
 | `Condition`                    | string   | `succeeded()`       | Condition controlling whether this job runs                 |
-
 
 ---
 
