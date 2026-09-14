@@ -38,9 +38,10 @@ stages:
     jobs:
       - template: jobs/terraform_build.yml
         parameters:
-          RelativePathToTerraformFiles: infra/terraform # Required. Relative path from repo root to your terraform files.
+          # No parameters are strictly required - every parameter below has a default. Uncomment and set the ones you need.
 
-          TerraformVersion: '1.5.0' # Optional. Exact terraform version (default '1.14.0') or 'latest'; wildcards like '1.5.x' are not allowed.
+          # RelativePathToTerraformFiles: infra/terraform # Optional. Relative path from repo root to your terraform files. Default '' (repo root).
+          # TerraformVersion: '1.5.0' # Optional. Exact terraform version (default '1.14.0') or 'latest'; wildcards like '1.5.x' are not allowed.
           # ArtifactName: TerraformArtifact # Optional. Name of the published artifact; override if running multiple builds in one pipeline.
           # Pool: 'Linux Self-Hosted' # Optional. Agent pool to run this job on; empty uses the pipeline/job default pool.
 
@@ -84,6 +85,7 @@ None - all parameters have defaults.
 Include additional files beyond those in `RelativePathToTerraformFiles`:
 
 Each item is an object with:
+
 - `SourceDirectory` (string, required) – Relative path from repo root to source directory
 - `FilesPattern` (string, required) – Glob pattern for files to copy (e.g., `**/*.tfvars`)
 - `TargetSubdirectoryName` (string, required) – Subdirectory in artifact for files
@@ -139,6 +141,7 @@ stages:
 ```
 
 This will:
+
 1. Install Terraform 1.5.0
 2. Validate terraform files in `$(Pipeline.Workspace)/$(Build.Repository.Name)/terraform/`
 3. Create `TerraformArtifact` with packaged files
@@ -228,6 +231,7 @@ Deploy stages download this artifact and use it for planning and applying infras
 ### Build Fails with Terraform Version Error
 
 **Check**:
+
 - ✓ Verify `TerraformVersion` format is correct (e.g., `'1.5.0'`, not `'1.5.x'`)
 - ✓ Ensure version exists on [Terraform releases](https://releases.hashicorp.com/terraform/)
 - ✓ Check agent has internet access to download Terraform CLI
@@ -235,6 +239,7 @@ Deploy stages download this artifact and use it for planning and applying infras
 ### Validation Fails
 
 **Check**:
+
 - ✓ Verify Terraform files have correct syntax
 - ✓ Check all required providers and modules are available
 - ✓ Ensure variable definitions match the Terraform configuration
@@ -244,6 +249,7 @@ Deploy stages download this artifact and use it for planning and applying infras
 ### Additional Files Not Included in Artifact
 
 **Check**:
+
 - ✓ Verify `FilesPattern` matches your files (use glob patterns correctly)
 - ✓ Ensure `SourceDirectory` exists and is relative to repo root
 - ✓ Check case sensitivity (Linux agents are case-sensitive)
@@ -253,6 +259,7 @@ Deploy stages download this artifact and use it for planning and applying infras
 ### Injection Step Not Working
 
 **Check**:
+
 - ✓ Verify injection step has correct access to file paths
 - ✓ Use `$(Pipeline.Workspace)/$(Build.Repository.Name)/` prefix for file paths
 - ✓ Ensure step runs before terraform init
@@ -284,5 +291,3 @@ View working test examples in the repository:
 - [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Orchestrates build with deploy
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
 - [Additional Files Packaging Guide](../pipelines/terraform_pipeline_additional_files_to_package.md) – Detailed guide on file patterns
-
-
