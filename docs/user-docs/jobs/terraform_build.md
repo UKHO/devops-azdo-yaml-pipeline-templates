@@ -79,7 +79,17 @@ None - all parameters have defaults.
 | `AdditionalFilesToPackage`     | object   | `[ ]`               | List of additional files to include in artifact (see below) |
 | `DependsOn`                    | object   | `[ ]`               | List of jobs this job depends on                             |
 | `Condition`                    | string   | `succeeded()`       | Condition controlling whether this job runs                 |
+| Parameter                      | Type     | Default             | Description                                                 |
+|--------------------------------|----------|---------------------|-------------------------------------------------------------|
+| `RelativePathToTerraformFiles` | string   | `''`                | Relative path from repository root to Terraform files; empty defaults to repo root. |
+| `TerraformVersion`             | string   | `'1.14.0'`          | Terraform CLI version (`latest` or exact semantic version such as `'1.5.0'`; wildcards like `'1.5.x'` are not allowed). |
+| `ArtifactName`                 | string   | `TerraformArtifact` | Name of the published artifact for later retrieval          |
 | `TerraformBuildInjectionSteps` | stepList | `[ ]`               | Custom steps to run before terraform validation             |
+| `AdditionalFilesToPackage`     | object   | `[ ]`               | List of additional files to include in artifact (see below) |
+| `Pool`                         | string   | `''`                | Agent pool to run job on. Empty uses default pool.          |
+| `DependsOn`                    | object   | `[ ]`               | List of jobs this job depends on                             |
+| `Condition`                    | string   | `succeeded()`       | Condition controlling whether this job runs                 |
+
 
 ---
 
