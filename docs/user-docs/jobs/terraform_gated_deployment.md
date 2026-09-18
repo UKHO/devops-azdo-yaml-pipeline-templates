@@ -94,6 +94,11 @@ stages:
 
 ### TerraformDeploymentConfig (Required)
 
+Full field-by-field reference is in
+[Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md). This job
+validates `RunMode` and `VerificationMode` (unlike [Terraform Deploy Job](./terraform_deploy.md), which
+does not).
+
 | Property                      | Type   | Required                          | Description                                                                 |
 |-------------------------------|--------|-----------------------------------|-----------------------------------------------------------------------------|
 | `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`                          |
@@ -380,3 +385,4 @@ View working test examples in the repository:
 - [Manual Verification Job](./manual_verification.md) – Approval gate details
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
 - [Terraform Verification Modes](../pipelines/terraform_pipeline_manual_verification.md) – Detailed verification flow diagrams
+- [Terraform Job Config Definition](../../definition_docs/terraform_pipeline/terraform_job_config.md) – Full config field reference

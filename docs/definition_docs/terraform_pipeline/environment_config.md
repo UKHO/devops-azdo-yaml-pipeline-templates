@@ -10,7 +10,7 @@ EnvironmentConfigs:
     Stage:                            # REQUIRED
       DependsOn: string | list        # REQUIRED - Stage dependencies
       Condition: string               # REQUIRED - Stage condition
-    TerraformDeploymentConfig: object      # REQUIRED - See terraform_deployment_config.md
+TerraformDeploymentConfig: object      # REQUIRED - See terraform_job_config.md
 ```
 
 ## Required Properties
@@ -62,7 +62,7 @@ EnvironmentConfigs:
 
 **Type:** `object`
 
-**Description:** The infrastructure deployment configuration containing Azure connections (optional), backend configuration, verification settings, and Terraform parameters. See [terraform_deployment_config.md](./terraform_deployment_config.md) for complete details.
+**Description:** The infrastructure deployment configuration containing Azure connections (optional), backend configuration, verification settings, and Terraform parameters. See [terraform_job_config.md](./terraform_job_config.md) for complete details.
 
 ---
 
@@ -132,7 +132,7 @@ parameters:
 
 ## See Also
 
-- [TerraformDeploymentConfig Documentation](./terraform_deployment_config.md) - Complete details on `TerraformDeploymentConfig` properties
+- [Terraform Job Config Documentation](./terraform_job_config.md) - Complete details on `TerraformDeploymentConfig` properties
 - [Terraform Pipeline User Documentation](../../user-docs/pipelines/terraform_pipeline.md) - End-user pipeline documentation
 - [Terraform Gated Deployment Job](../../user-docs/jobs/terraform_gated_deployment.md) - Job that uses EnvironmentConfigs
 

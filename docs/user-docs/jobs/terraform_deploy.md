@@ -98,23 +98,28 @@ jobs:
 
 ### TerraformDeploymentConfig (Required)
 
-Complex object with deployment configuration:
+Complex object with deployment configuration. Full field-by-field reference (including which fields
+are validated by this job versus by [Terraform Gated Deployment Job](./terraform_gated_deployment.md))
+is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md).
 
-| Property                      | Type   | Required                          | Description                                                   |
-|-------------------------------|--------|-----------------------------------|---------------------------------------------------------------|
-| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approval gates                   |
-| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`            |
-| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`    |
-| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)             |
-| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                   |
-| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform (e.g., `TF_LOG`)          |
-| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files to use (paths relative to artifact)   |
-| `OutputVariables`             | list   | Optional                          | Terraform output names to export as pipeline variables        |
-| `ConfigSources`               | list   | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred) |
-| `KeyVaultConfig`              | object | Optional                          | Azure Key Vault configuration for retrieving secrets          |
-| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables to inject                 |
+| Property                      | Type   | Required  | Description                                                   |
+|-------------------------------|--------|-----------|---------------------------------------------------------------|
+| `AzDOEnvironmentName`         | string | ✓         | Azure DevOps environment for approval gates                   |
+| `BackendConfig`               | object | Optional  | Terraform backend configuration (key-value pairs)             |
+| `AzureServiceConnection`      | string | Optional  | Azure service connection for authentication                   |
+| `EnvironmentVariableMappings` | object | Optional  | Environment variables for Terraform (e.g., `TF_LOG`)          |
+| `VariableFiles`               | list   | Optional  | List of `.tfvars` files to use (paths relative to artifact)   |
+| `OutputVariables`             | list   | Optional  | Terraform output names to export as pipeline variables        |
+| `ConfigSources`               | list   | Optional  | Configuration sources (currently `Type: KeyVault`, preferred) |
+| `KeyVaultConfig`              | object | Optional  | Azure Key Vault configuration for retrieving secrets          |
+| `JobsVariableMappings`        | object | Optional  | Variable groups or inline variables to inject                 |
 
 `KeyVaultConfig` and `ConfigSources` are mutually exclusive. Use `ConfigSources` for new configurations.
+
+> **Note:** `RunMode` and `VerificationMode` are accepted on `TerraformDeploymentConfig` but are only
+> validated when the object is passed through [Terraform Gated Deployment Job](./terraform_gated_deployment.md).
+> This job (`terraform_deploy.yml`) does not itself require or validate them — it simply runs the
+> `TerraformDeployMode` (`Plan` or `Apply`) it is given.
 
 ---
 
@@ -257,6 +262,7 @@ variables:
 ```
 
 Replace:
+
 - `Deploy_prod_Terraform` with your stage name
 - `dependencies` (same stage) or `stageDependencies` (cross-stage), depending on where you consume the variable
 - if using a non-default `TerraformArtifactName`, replace `TerraformArtifact` in `TerraformDeployApply_TerraformArtifact` with your artifact name
@@ -271,6 +277,7 @@ Replace:
 **Cause**: Backend configuration is missing or incorrect.
 
 **Check**:
+
 - ✓ Verify storage account and container exist in Azure
 - ✓ Ensure service connection has proper permissions
 - ✓ Check backend configuration keys are correct
@@ -282,6 +289,7 @@ Replace:
 **Expected behavior**: When no infrastructure changes are needed, plan succeeds with no changes. This is normal.
 
 **If unexpected**:
+
 - ✓ Verify Terraform files are correct
 - ✓ Check variable files are being applied
 - ✓ Verify existing state matches your infrastructure
@@ -291,6 +299,7 @@ Replace:
 **Cause**: Output variables only available after Apply in the correct context.
 
 **Solution**:
+
 - Ensure `RunMode` includes apply (not `PlanOnly`)
 - Use correct variable reference syntax with stage/job dependencies
 - Verify output names match Terraform output definitions
@@ -300,6 +309,7 @@ Replace:
 **Cause**: Artifact from build job not found.
 
 **Check**:
+
 - ✓ Verify build job succeeded and published artifact
 - ✓ Ensure `TerraformArtifactName` matches artifact name from build
 - ✓ Check job dependencies include build job
@@ -341,6 +351,5 @@ View working test examples in the repository:
 - [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Orchestrates plan, verify, and apply
 - [Terraform Build Job](./terraform_build.md) – Creates artifacts used by this job
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using these jobs
+- [Terraform Job Config Definition](../../definition_docs/terraform_pipeline/terraform_job_config.md) – Full config field reference
 - [Terraform Backend Configuration](https://www.terraform.io/language/settings/backends)
-
-
