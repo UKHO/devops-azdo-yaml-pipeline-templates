@@ -25,15 +25,6 @@ jobs:
       - ? "'${{ parameters.EnvironmentName }}' environment error: VerificationMode is not supported for destroy workflows. Use RunMode 'PlanVerifyDestroy' for gated destroy."
         : "Error"
 
-  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationTimeoutBehaviour"') }}:
-      - ${{ if notIn(parameters.TerraformDestroyConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
-
-  - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), '"VerificationTimeoutInMinutes"') }}:
-      - ? ${{ if or(lt(parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDestroyConfig.VerificationTimeoutInMinutes, 43200)) }}
-        : - ? "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
-            : "Error"
-
   - ${{ if contains(convertToJson(parameters.TerraformDestroyConfig), 'AzureServiceConnection') }}:
       - ${{ if eq(length(parameters.TerraformDestroyConfig.AzureServiceConnection), 0) }}:
           - "'${{ parameters.EnvironmentName }}' environment error: AzureServiceConnection is not properly defined.": "Error"
@@ -47,7 +38,6 @@ jobs:
                   - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
     # OPTIONAL PARAMETERS
-
   - ${{ if parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}:
       - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.EnvironmentVariableMappings), '{')) }}:
           - ? "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs."
@@ -57,6 +47,7 @@ jobs:
               - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
                   - ? "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Key: '${{ mapping.Key }}'. Value: '${{ mapping.Value }}'. Must be an object of key/value pairs."
                     : "Error"
+
 
   - ${{ if parameters.TerraformDestroyConfig.VariableFiles }}:
       - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.VariableFiles), '[')) }}:

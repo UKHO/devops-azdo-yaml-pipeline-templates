@@ -10,6 +10,7 @@ All notable changes to this repository are documented in this file.
 - Leaf jobs (`terraform_deploy`, `terraform_destroy`) now only validate the properties they use directly (backend config, service connection, variable files, etc.).
 - Added a new `schemas/terraform_gated_destroy_config.yml` schema; `terraform_gated_destroy` previously had no dedicated schema and did not validate `RunMode` or the verification timeout fields at all.
 - This is a non-breaking change for valid configurations: it tightens validation for `terraform_gated_destroy` consumers and relaxes validation for `terraform_deploy`/`terraform_destroy` consumers that don't set `RunMode`/`VerificationMode` directly.
+- Removed `VerificationTimeoutInMinutes`/`VerificationTimeoutBehaviour` validation from the leaf `terraform_destroy` schema; those fields are only consumed by `terraform_gated_destroy.yml`, which already validates them in `schemas/terraform_gated_destroy_config.yml`.
 
 ### Changed
 
