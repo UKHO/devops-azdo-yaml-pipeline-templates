@@ -11,14 +11,14 @@ parameters:
 
   - name: DependsOn
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of jobs this job depends on'
 
   - name: Pool
     type: string
     default: ''
     displayName: 'The pool that this job will run on'
-  
+
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
@@ -26,7 +26,7 @@ parameters:
 
   - name: AdditionalFilesToPackage
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
 
   - name: TerraformVersion
@@ -36,35 +36,40 @@ parameters:
 
   - name: TerraformBuildInjectionSteps
     type: stepList
-    default: [ ]
+    default: []
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
 jobs:
   - job: TerraformBuild_${{ parameters.ArtifactName }}
     displayName: "Build '${{ parameters.ArtifactName }}' Terraform Artifact"
-    
+
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
     ${{ if parameters.Pool }}:
       pool: ${{ parameters.Pool }}
     workspace:
       clean: all
-      
+
     variables:
-      RepositoryCheckoutFolderName: $(Build.Repository.Name)
-      RepositoryDirectory: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
-      TerraformWorkingDirectory: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+      - name: RepositoryCheckoutFolderName
+        value: $(Build.Repository.Name)
+        readonly: true
+      - name: RepositoryDirectory
+        value: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
+        readonly: true
+      - name: TerraformWorkingDirectory
+        value: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+        readonly: true
 
     steps:
       - checkout: self
         displayName: 'Checkout self repository'
         clean: true
         path: $(RepositoryCheckoutFolderName)
-        
+
       - download: none
 
-      - ${{ each step in parameters.TerraformBuildInjectionSteps }}:
-          - ${{ step }}
+      - ${{ parameters.TerraformBuildInjectionSteps }}
 
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
           - template: /tasks/copy_files.yml
@@ -72,7 +77,7 @@ jobs:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
               FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
               TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetSubdirectoryName }}
-              
+
       - template: /tasks/terraform_installer.yml
         parameters:
           TerraformVersion: ${{ parameters.TerraformVersion }}

@@ -4,6 +4,20 @@ All notable changes to this repository are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Converted `terraform_build` and `terraform_deploy` job variables from map syntax to list syntax (`- name:`/`value:`) and marked them `readonly: true` to prevent accidental overrides downstream.
+- Replaced the `each` loop over `TerraformBuildInjectionSteps` with a direct step-list expansion, allowing consumers to pass step-list expressions (e.g. conditional inserts) rather than only literal step lists.
+- Marked the `concat_wrap_list.yml` utility's output variable as `readonly: true`.
+
+### Fixed
+
+- Removed insecure `--use-device-code` flag from the test framework's `az login` auto sign-in, restoring standard interactive browser sign-in.
+
+### Removed
+
+- Removed unnecessary trailing whitespace and inconsistent empty-array formatting (`[ ]` → `[]`) across `jobs/terraform_build.yml`.
+
 ## [0.3.0] - 2026-07-08
 
 ### Added
