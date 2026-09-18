@@ -98,9 +98,7 @@ jobs:
 
 ### TerraformDeploymentConfig (Required)
 
-Complex object with deployment configuration. Full field-by-field reference (including which fields
-are validated by this job versus by [Terraform Gated Deployment Job](./terraform_gated_deployment.md))
-is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md).
+Complex object with deployment configuration. Full field-by-field reference (including which fields are validated by this job versus by [Terraform Gated Deployment Job](./terraform_gated_deployment.md)) is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md).
 
 | Property                      | Type   | Required  | Description                                                   |
 |-------------------------------|--------|-----------|---------------------------------------------------------------|
@@ -116,10 +114,7 @@ is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_
 
 `KeyVaultConfig` and `ConfigSources` are mutually exclusive. Use `ConfigSources` for new configurations.
 
-> **Note:** `RunMode` and `VerificationMode` are accepted on `TerraformDeploymentConfig` but are only
-> validated when the object is passed through [Terraform Gated Deployment Job](./terraform_gated_deployment.md).
-> This job (`terraform_deploy.yml`) does not itself require or validate them — it simply runs the
-> `TerraformDeployMode` (`Plan` or `Apply`) it is given.
+> **Note:** `RunMode` and `VerificationMode` are accepted on `TerraformDeploymentConfig` but are only validated when the object is passed through [Terraform Gated Deployment Job](./terraform_gated_deployment.md). This job (`terraform_deploy.yml`) does not itself require or validate them — it simply runs the `TerraformDeployMode` (`Plan` or `Apply`) it is given.
 
 ---
 

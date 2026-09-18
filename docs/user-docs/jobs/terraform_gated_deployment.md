@@ -94,10 +94,7 @@ stages:
 
 ### TerraformDeploymentConfig (Required)
 
-Full field-by-field reference is in
-[Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md). This job
-validates `RunMode` and `VerificationMode` (unlike [Terraform Deploy Job](./terraform_deploy.md), which
-does not).
+Full field-by-field reference is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md). This job validates `RunMode` and `VerificationMode` (unlike [Terraform Deploy Job](./terraform_deploy.md), which does not).
 
 | Property                      | Type   | Required                          | Description                                                                 |
 |-------------------------------|--------|-----------------------------------|-----------------------------------------------------------------------------|

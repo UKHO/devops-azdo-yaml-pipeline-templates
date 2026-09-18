@@ -77,8 +77,7 @@ jobs:
 
 ## TerraformDestroyConfig
 
-Full field-by-field reference is in
-[Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md).
+Full field-by-field reference is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md).
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -92,10 +91,7 @@ Full field-by-field reference is in
 
 `KeyVaultConfig` is not supported in destroy workflows.
 
-> **Note:** `RunMode` is accepted on `TerraformDestroyConfig` but is only validated when the object is
-> passed through [Terraform Gated Destroy Job](./terraform_gated_destroy.md). This job
-> (`terraform_destroy.yml`) does not itself require or validate it — it simply runs the
-> `TerraformDestroyMode` (`Plan` or `Destroy`) it is given.
+> **Note:** `RunMode` is accepted on `TerraformDestroyConfig` but is only validated when the object is passed through [Terraform Gated Destroy Job](./terraform_gated_destroy.md). This job (`terraform_destroy.yml`) does not itself require or validate it — it simply runs the `TerraformDestroyMode` (`Plan` or `Destroy`) it is given.
 
 ## Notes
 
