@@ -105,7 +105,7 @@ jobs:
 
 ## Related Links
 
-- Terraform Destroy Job – the individual plan/destroy job this orchestrator creates
-- Manual Verification Job – the approval gate job this orchestrator creates
+- [Terraform Destroy Job](./terraform_destroy.md) – the individual plan/destroy job this orchestrator creates
+- [Manual Verification Job](./manual_verification.md) – the approval gate job this orchestrator creates
 
 

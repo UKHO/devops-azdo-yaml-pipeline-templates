@@ -98,6 +98,7 @@ jobs:
 | Property                      | Type   | Required  | Description                                                   |
 |-------------------------------|--------|-----------|---------------------------------------------------------------|
 | `AzDOEnvironmentName`         | string | ✓         | Azure DevOps environment for approval gates                   |
+| `VerificationMode`            | string | Optional  | When provided, the Plan job adds plan-verification steps (`terraform show` and `TerraformChangesCheck`) |
 | `BackendConfig`               | object | Optional  | Terraform backend configuration (key-value pairs)             |
 | `AzureServiceConnection`      | string | Optional  | Azure service connection for authentication                   |
 | `EnvironmentVariableMappings` | object | Optional  | Environment variables for Terraform (e.g., `TF_LOG`)          |
@@ -330,7 +331,7 @@ View working test examples in the repository:
 
 ## Related Links
 
-- Terraform Gated Deployment Job – orchestrates plan, verify, and apply using this job
-- Terraform Build Job – creates the artifact this job downloads
-- Terraform Pipeline – complete pipeline template using these jobs
+- [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – orchestrates plan, verify, and apply using this job
+- [Terraform Build Job](./terraform_build.md) – creates the artifact this job downloads
+- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – complete pipeline template using these jobs
 - [Terraform Backend Configuration](https://www.terraform.io/language/settings/backends)

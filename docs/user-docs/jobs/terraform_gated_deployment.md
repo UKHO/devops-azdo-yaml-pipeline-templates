@@ -368,8 +368,8 @@ View working test examples in the repository:
 
 ## Related Links
 
-- Terraform Deploy Job – the individual plan/apply job this orchestrator creates
-- Manual Verification Job – the approval gate job this orchestrator creates
-- Terraform Pipeline – complete pipeline template using this job
+- [Terraform Deploy Job](./terraform_deploy.md) – the individual plan/apply job this orchestrator creates
+- [Manual Verification Job](./manual_verification.md) – the approval gate job this orchestrator creates
+- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – complete pipeline template using this job
 
 

@@ -98,7 +98,7 @@ jobs:
 
 ## Related Links
 
-- Terraform Gated Destroy Job – orchestrated destroy workflow with manual approval, built on this job
-- Terraform Build Job – creates the artifact this job downloads
+- [Terraform Gated Destroy Job](./terraform_gated_destroy.md) – orchestrated destroy workflow with manual approval, built on this job
+- [Terraform Build Job](./terraform_build.md) – creates the artifact this job downloads
 
 

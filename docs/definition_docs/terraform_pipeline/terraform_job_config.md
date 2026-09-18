@@ -58,7 +58,7 @@ The Azure DevOps environment name for approval gates and deployment tracking.
 
 **Type:** `string` · **Optional**
 
-Controls whether `terraform_deploy.yml`'s Plan job adds the plan-verification steps (`terraform show` + `TerraformChangesCheck`). Only meaningful when the calling job's `RunMode` is `PlanVerifyApply` (see below); if omitted, no verification steps are added.
+Controls whether `terraform_deploy.yml`'s Plan job adds the plan-verification steps (`terraform show` + `TerraformChangesCheck`). It is required by the gated orchestrator when `RunMode` is `PlanVerifyApply`; when calling the leaf job directly, providing it adds those plan-verification steps. If omitted, no verification steps are added.
 
 **Allowed Values (if provided):**
 
