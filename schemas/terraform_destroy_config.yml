@@ -46,6 +46,8 @@ jobs:
               - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
                   - "'${{ parameters.EnvironmentName }}' environment error: BackendConfig is not correct. Must be an object of key/value pairs.": "Error"
 
+    # OPTIONAL PARAMETERS
+
   - ${{ if parameters.TerraformDestroyConfig.EnvironmentVariableMappings }}:
       - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.EnvironmentVariableMappings), '{')) }}:
           - ? "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs."
@@ -55,8 +57,6 @@ jobs:
               - ${{ if or(not(mapping.Key), not(mapping.Value), eq(mapping.Key, ''), eq(mapping.Value, '')) }}:
                   - ? "'${{ parameters.EnvironmentName }}' environment error: EnvironmentVariableMappings is not correct. Key: '${{ mapping.Key }}'. Value: '${{ mapping.Value }}'. Must be an object of key/value pairs."
                     : "Error"
-
-    # OPTIONAL PARAMETERS
 
   - ${{ if parameters.TerraformDestroyConfig.VariableFiles }}:
       - ${{ if not(contains(convertToJson(parameters.TerraformDestroyConfig.VariableFiles), '[')) }}:
