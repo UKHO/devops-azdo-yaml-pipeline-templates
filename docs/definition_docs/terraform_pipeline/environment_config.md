@@ -10,7 +10,7 @@ EnvironmentConfigs:
     Stage:                            # REQUIRED
       DependsOn: string | list        # REQUIRED - Stage dependencies
       Condition: string               # REQUIRED - Stage condition
-TerraformDeploymentConfig: object      # REQUIRED - See terraform_job_config.md
+    TerraformDeploymentConfig: object      # REQUIRED - See terraform_job_config.md
 ```
 
 ## Required Properties

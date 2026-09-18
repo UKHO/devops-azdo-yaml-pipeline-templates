@@ -101,4 +101,4 @@ TerraformDeploymentConfig:
 
 ## See Also
 
-[Terraform Job Config](../terraform_pipeline/terraform_job_config.md)
+- [Terraform Job Config](../terraform_pipeline/terraform_job_config.md)

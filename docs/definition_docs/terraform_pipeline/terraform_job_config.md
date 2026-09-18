@@ -7,7 +7,7 @@ This document covers the two configuration objects used by the Terraform deploy/
 
 Each object has a set of **core fields** consumed by the leaf job (`terraform_deploy.yml` / `terraform_destroy.yml`), and a set of **gated-only fields** consumed only by the orchestrator job (`terraform_gated_deployment.yml` / `terraform_gated_destroy.yml`). Each field below is labelled with which job(s) actually consume it, and which schema template validates it.
 
-> **Validation layering:** Each job validates only the fields it actually consumes, via its own schema template (`schemas/terraform_deploy_config.yml`, `schemas/terraform_gated_deployment_config.yml`, `schemas/terraform_destroy_config.yml`, `schemas/terraform_gated_destroy_config.yml`). If you call a gated job, its schema validates `RunMode`/timeout fields *and* the gated job then calls down into the leaf job, which independently validates its own fields — so the full config object gets fully validated regardless of which job you call directly.
+> **Validation layering:** Each job validates only the fields it actually consumes via its own schema (`schemas/terraform_deploy_config.yml`, `schemas/terraform_gated_deployment_config.yml`, `schemas/terraform_destroy_config.yml`, `schemas/terraform_gated_destroy_config.yml`). Calling a gated job validates the gated fields and then invokes the leaf schema for the remaining fields; calling a leaf job directly does not validate gated-only fields.
 
 ---
 
