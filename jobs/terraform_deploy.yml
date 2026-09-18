@@ -75,15 +75,19 @@ jobs:
       - ${{ if eq(parameters.TerraformDeployMode, 'Plan') }}:
           - name: TerraformPlanFilePath
             value: $(TerraformWorkingDirectory)/tfplan
+            readonly: true
           - name: TerraformPlannedChangesFilePath
             value: $(TerraformWorkingDirectory)/terraform-planned-changes.json
+            readonly: true
 
       # Terraform Apply Variables
       - ${{ if eq(parameters.TerraformDeployMode, 'Apply') }}:
           - name: TerraformOutputVariablesCommandOption
             value: ${{ join(',', parameters.TerraformDeploymentConfig.OutputVariables) }}
+            readonly: true
           - name: TerraformOutputVariablesFilePath
             value: $(TerraformWorkingDirectory)/terraform-output-variables.json
+            readonly: true
 
       # Shared Variables
       - template: /utils/concat_wrap_list.yml
@@ -104,10 +108,13 @@ jobs:
 
       - name: TerraformWorkingDirectory
         value: $(Pipeline.Workspace)/${{ parameters.TerraformArtifactName }}
+        readonly: true
       - name: CheckoutPath
         value: devops-azdo-yaml-pipeline-templates
+        readonly: true
       - name: ScriptDirectory
         value: $(Pipeline.Workspace)/$(CheckoutPath)/scripts
+        readonly: true
 
       - ${{ if parameters.TerraformDeploymentConfig.JobsVariableMappings }}: # Only run validation if the optional parameter is present
           - ${{ each mapping in parameters.TerraformDeploymentConfig.JobsVariableMappings }}:
