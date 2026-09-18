@@ -50,3 +50,4 @@ variables:
       value: ${{ parameters.Prefix }}${{ join(format('{0}{1}', parameters.Suffix, parameters.Prefix), parameters.Items) }}${{ parameters.Suffix }}
     ${{ else }}:
       value: ''
+    readonly: true

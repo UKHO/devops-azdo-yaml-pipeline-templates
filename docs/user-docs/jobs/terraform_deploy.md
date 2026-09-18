@@ -95,8 +95,6 @@ jobs:
 
 ### TerraformDeploymentConfig (Required)
 
-Complex object with deployment configuration:
-
 | Property                      | Type   | Required  | Description                                                   |
 |-------------------------------|--------|-----------|---------------------------------------------------------------|
 | `AzDOEnvironmentName`         | string | ✓         | Azure DevOps environment for approval gates                   |

@@ -11,11 +11,19 @@ All notable changes to this repository are documented in this file.
 - Added a new `schemas/terraform_gated_destroy_config.yml` schema; `terraform_gated_destroy` previously had no dedicated schema and did not validate `RunMode` or the verification timeout fields at all.
 - This is a non-breaking change for valid configurations: it tightens validation for `terraform_gated_destroy` consumers and relaxes validation for `terraform_deploy`/`terraform_destroy` consumers that don't set `RunMode`/`VerificationMode` directly.
 - Removed `VerificationTimeoutInMinutes`/`VerificationTimeoutBehaviour` validation from the leaf `terraform_destroy` schema; those fields are only consumed by `terraform_gated_destroy.yml`, which already validates them in `schemas/terraform_gated_destroy_config.yml`.
+- Removed insecure `--use-device-code` flag from the test framework's `az login` auto sign-in, restoring standard interactive browser sign-in.
 
 ### Changed
 
 - Combined `terraform_deployment_config.md` and `terraform_destroy_config.md` into a single [`terraform_job_config.md`](docs/definition_docs/terraform_pipeline/terraform_job_config.md).
 - The combined doc documents both `TerraformDeploymentConfig` and `TerraformDestroyConfig`, clearly marking which fields are validated by which job/schema.
+- Converted `terraform_build` and `terraform_deploy` job variables from map syntax to list syntax (`- name:`/`value:`) and marked them `readonly: true` to prevent accidental overrides downstream.
+- Replaced the `each` loop over `TerraformBuildInjectionSteps` with a direct step-list expansion, allowing consumers to pass step-list expressions (e.g. conditional inserts) rather than only literal step lists.
+- Marked the `concat_wrap_list.yml` utility's output variable as `readonly: true`.
+
+### Removed
+
+- Removed unnecessary trailing whitespace and inconsistent empty-array formatting (`[ ]` → `[]`) across `jobs/terraform_build.yml`.
 
 ## [0.3.0] - 2026-07-08
 
