@@ -45,7 +45,6 @@ jobs:
       EnvironmentName: dev
       TerraformDeploymentConfig:
         AzDOEnvironmentName: dev-environment
-        RunMode: PlanOnly
         BackendConfig:
           resource_group_name: rg-state
           storage_account_name: tfstate
