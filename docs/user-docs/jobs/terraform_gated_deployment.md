@@ -94,7 +94,7 @@ stages:
 
 ### TerraformDeploymentConfig (Required)
 
-Full field-by-field reference is in [Terraform Job Config](../../definition_docs/terraform_pipeline/terraform_job_config.md). This job validates `RunMode` and `VerificationMode` (unlike [Terraform Deploy Job](./terraform_deploy.md), which does not).
+This job validates `RunMode` and `VerificationMode` as part of its schema.
 
 | Property                      | Type   | Required                          | Description                                                                 |
 |-------------------------------|--------|-----------------------------------|-----------------------------------------------------------------------------|
@@ -352,16 +352,6 @@ Apply job runs only if:
 
 ---
 
-## Comparison with Other Jobs
-
-| Job                     | Plan Job | Manual Verification | Apply Job | Use Case          |
-|-------------------------|----------|---------------------|-----------|-------------------|
-| **Terraform Deploy**    | ✓        | ✗                   | ✓         | Individual steps  |
-| **Manual Verification** | ✗        | ✓                   | ✗         | Generic approval  |
-| **Gated Deployment**    | ✓        | ✓                   | ✓         | Complete workflow |
-
----
-
 ## Live Examples
 
 View working test examples in the repository:
@@ -376,10 +366,10 @@ View working test examples in the repository:
 
 ---
 
-## See Also
+## Related Links
 
-- [Terraform Deploy Job](./terraform_deploy.md) – Individual plan and apply steps
-- [Manual Verification Job](./manual_verification.md) – Approval gate details
-- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job
-- [Terraform Verification Modes](../pipelines/terraform_pipeline_manual_verification.md) – Detailed verification flow diagrams
-- [Terraform Job Config Definition](../../definition_docs/terraform_pipeline/terraform_job_config.md) – Full config field reference
+- Terraform Deploy Job – the individual plan/apply job this orchestrator creates
+- Manual Verification Job – the approval gate job this orchestrator creates
+- Terraform Pipeline – complete pipeline template using this job
+
+
