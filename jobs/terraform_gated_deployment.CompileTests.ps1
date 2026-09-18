@@ -334,6 +334,7 @@ $invalidTestCases = @(
         RunMode = "PlanOnly"
       }
     }
+    ErrorMessage = "Unexpected value ''dev' environment error: AzDOEnvironmentName is not properly defined and is a required field.'"
   },
 
   @{
@@ -344,6 +345,7 @@ $invalidTestCases = @(
         AzDOEnvironmentName = "compile-tests-only"
       }
     }
+    ErrorMessage = "Unexpected value ''dev' environment error: RunMode is not properly defined and is a required field. Must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).'"
   },
 
   @{
@@ -355,6 +357,7 @@ $invalidTestCases = @(
         RunMode = "InvalidMode"
       }
     }
+    ErrorMessage = "Unexpected value ''dev' environment error: RunMode must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).'"
   },
 
   @{
@@ -367,6 +370,7 @@ $invalidTestCases = @(
         VerificationMode = "InvalidVerificationMode"
       }
     }
+    ErrorMessage = "Unexpected value ''dev' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).'"
   },
   @{
     Description = "invalid CheckoutAlias value (must be AzDOPipelineTemplates or self)"
@@ -390,6 +394,20 @@ $invalidTestCases = @(
         VerificationTimeoutBehaviour = "invalid"
       }
     }
+    ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.'"
+  },
+  @{
+    Description = "invalid VerificationTimeoutInMinutes value (out of range)"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        VerificationTimeoutInMinutes = 0
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).'"
   }
 )
 

@@ -1,12 +1,15 @@
-# Schema Template: Terraform Deployment Config
-# Validates terraform deployment configuration objects used by deployment jobs.
-# See: docs/definition_docs/terraform_pipeline/terraform_deployment_config.md
+# Schema Template: Terraform Deploy Config
+# Validates the terraform deployment configuration properties used directly by jobs/terraform_deploy.yml.
+# RunMode, VerificationMode, VerificationTimeoutInMinutes, and VerificationTimeoutBehaviour are validated
+# separately by schemas/terraform_gated_deployment_config.yml, since those fields are only consumed by
+# jobs/terraform_gated_deployment.yml.
+# See: docs/definition_docs/terraform_pipeline/terraform_deploy_config.md
 
 parameters:
   - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_deployment_config.md)'
+    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_deploy_config.md)'
 
   - name: EnvironmentName
     type: string
@@ -17,22 +20,11 @@ jobs:
   - ${{ if or(not(parameters.TerraformDeploymentConfig.AzDOEnvironmentName), eq(parameters.TerraformDeploymentConfig.AzDOEnvironmentName, '')) }}:
       - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
 
-  - ${{ if notIn(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
-
-  - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
-      - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
-
-  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutBehaviour"') }}:
-      - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
-
-  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutInMinutes"') }}:
-      - ${{ if or(lt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 43200)) }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
-
   # OPTIONAL PARAMETERS
+
+  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationMode"') }}: # VerificationMode is optional here - jobs/terraform_deploy.yml conditionally adds plan-verification steps when it is provided. Whether it is *required* is enforced by schemas/terraform_gated_deployment_config.yml (only relevant when RunMode is PlanVerifyApply).
+      - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: If provided, VerificationMode must be a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), 'AzureServiceConnection') }}:
       - ${{ if eq(length(parameters.TerraformDeploymentConfig.AzureServiceConnection), 0) }}:

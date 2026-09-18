@@ -141,7 +141,7 @@ The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains
 
 **For complete configuration documentation, see:**
 - [EnvironmentConfig Documentation](../../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
-- [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_deployment_config.md) - Infrastructure-specific configuration details
+- [Terraform Job Config Documentation](../../definition_docs/terraform_pipeline/terraform_job_config.md) - Infrastructure-specific configuration details
 - [AdditionalFilesToPackage Documentation](../../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
 
 **Quick reference of required fields:**

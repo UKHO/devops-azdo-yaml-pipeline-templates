@@ -17,7 +17,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
       }
     }
     ExpectedYAML = @(
@@ -33,7 +32,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "DestroyOnly"
       }
     }
     ExpectedYAML = @(
@@ -50,7 +48,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "DestroyOnly"
         ConfigSources = @(
           @{
             Type = "KeyVault"
@@ -74,7 +71,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "DestroyOnly"
         AzureServiceConnection = "MyServiceConnection"
       }
     }
@@ -91,7 +87,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "DestroyOnly"
       }
     }
     ExpectedYAML = @(
@@ -109,7 +104,6 @@ $invalidTestCases = @(
     Parameters = @{
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
       }
     }
     ErrorMessage = "A value for the 'EnvironmentName' parameter must be provided."
@@ -122,23 +116,11 @@ $invalidTestCases = @(
     ErrorMessage = "A value for the 'TerraformDestroyConfig' parameter must be provided."
   },
   @{
-    Description = "ERROR: invalid run mode"
-    Parameters = @{
-      EnvironmentName = "compile-tests-only"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "Must provide a valid RunMode option (PlanVerifyDestroy, PlanOnly, DestroyOnly)"
-  },
-  @{
     Description = "ERROR: KeyVaultConfig is not supported"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "DestroyOnly"
         KeyVaultConfig = @{
           ServiceConnection = "legacy"
           Name = "legacy"

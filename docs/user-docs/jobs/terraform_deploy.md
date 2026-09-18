@@ -13,8 +13,6 @@ Use this job template when you need to:
 - **Integrate with custom workflows** – Build custom deployment orchestration
 - **Advanced deployments** – Have fine-grained control over plan and apply steps
 
-**Note**: For typical usage, consider using [Terraform Gated Deployment Job](./terraform_gated_deployment.md) which combines plan, verification, and apply into a single orchestrated workflow.
-
 ---
 
 ## What This Job Does
@@ -47,7 +45,6 @@ jobs:
       EnvironmentName: dev
       TerraformDeploymentConfig:
         AzDOEnvironmentName: dev-environment
-        RunMode: PlanOnly
         BackendConfig:
           resource_group_name: rg-state
           storage_account_name: tfstate
@@ -65,7 +62,6 @@ jobs:
       EnvironmentName: dev
       TerraformDeploymentConfig:
         AzDOEnvironmentName: dev-environment
-        RunMode: ApplyOnly
         BackendConfig:
           resource_group_name: rg-state
           storage_account_name: tfstate
@@ -98,21 +94,18 @@ jobs:
 
 ### TerraformDeploymentConfig (Required)
 
-Complex object with deployment configuration:
-
-| Property                      | Type   | Required                          | Description                                                   |
-|-------------------------------|--------|-----------------------------------|---------------------------------------------------------------|
-| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approval gates                   |
-| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`            |
-| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`    |
-| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)             |
-| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                   |
-| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform (e.g., `TF_LOG`)          |
-| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files to use (paths relative to artifact)   |
-| `OutputVariables`             | list   | Optional                          | Terraform output names to export as pipeline variables        |
-| `ConfigSources`               | list   | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred) |
-| `KeyVaultConfig`              | object | Optional                          | Azure Key Vault configuration for retrieving secrets          |
-| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables to inject                 |
+| Property                      | Type   | Required  | Description                                                   |
+|-------------------------------|--------|-----------|---------------------------------------------------------------|
+| `AzDOEnvironmentName`         | string | ✓         | Azure DevOps environment for approval gates                   |
+| `VerificationMode`            | string | Optional  | When provided, the Plan job adds plan-verification steps (`terraform show` and `TerraformChangesCheck`) |
+| `BackendConfig`               | object | Optional  | Terraform backend configuration (key-value pairs)             |
+| `AzureServiceConnection`      | string | Optional  | Azure service connection for authentication                   |
+| `EnvironmentVariableMappings` | object | Optional  | Environment variables for Terraform (e.g., `TF_LOG`)          |
+| `VariableFiles`               | list   | Optional  | List of `.tfvars` files to use (paths relative to artifact)   |
+| `OutputVariables`             | list   | Optional  | Terraform output names to export as pipeline variables        |
+| `ConfigSources`               | list   | Optional  | Configuration sources (currently `Type: KeyVault`, preferred) |
+| `KeyVaultConfig`              | object | Optional  | Azure Key Vault configuration for retrieving secrets          |
+| `JobsVariableMappings`        | object | Optional  | Variable groups or inline variables to inject                 |
 
 `KeyVaultConfig` and `ConfigSources` are mutually exclusive. Use `ConfigSources` for new configurations.
 
@@ -131,8 +124,6 @@ jobs:
       TerraformVersion: '1.5.0'
       TerraformDeploymentConfig:
         AzDOEnvironmentName: staging-environment
-        RunMode: PlanVerifyApply
-        VerificationMode: VerifyOnDestroy
         BackendConfig:
           resource_group_name: rg-state-staging
           storage_account_name: ststatestaging
@@ -159,7 +150,6 @@ jobs:
         - ApprovalJob
       TerraformDeploymentConfig:
         AzDOEnvironmentName: production-environment
-        RunMode: ApplyOnly
         BackendConfig:
           resource_group_name: rg-state-prod
           storage_account_name: ststateprod
@@ -186,7 +176,6 @@ jobs:
       EnvironmentName: prod
       TerraformDeploymentConfig:
         AzDOEnvironmentName: production-environment
-        RunMode: ApplyOnly
         AzureServiceConnection: AzureServiceConnection-Prod
         ConfigSources:
           - Type: KeyVault
@@ -214,7 +203,6 @@ jobs:
       EnvironmentName: prod
       TerraformDeploymentConfig:
         AzDOEnvironmentName: production-environment
-        RunMode: ApplyOnly
         AzureServiceConnection: AzureServiceConnection-Prod
         KeyVaultConfig:
           ServiceConnection: AzureServiceConnection-Prod
@@ -257,6 +245,7 @@ variables:
 ```
 
 Replace:
+
 - `Deploy_prod_Terraform` with your stage name
 - `dependencies` (same stage) or `stageDependencies` (cross-stage), depending on where you consume the variable
 - if using a non-default `TerraformArtifactName`, replace `TerraformArtifact` in `TerraformDeployApply_TerraformArtifact` with your artifact name
@@ -271,6 +260,7 @@ Replace:
 **Cause**: Backend configuration is missing or incorrect.
 
 **Check**:
+
 - ✓ Verify storage account and container exist in Azure
 - ✓ Ensure service connection has proper permissions
 - ✓ Check backend configuration keys are correct
@@ -282,6 +272,7 @@ Replace:
 **Expected behavior**: When no infrastructure changes are needed, plan succeeds with no changes. This is normal.
 
 **If unexpected**:
+
 - ✓ Verify Terraform files are correct
 - ✓ Check variable files are being applied
 - ✓ Verify existing state matches your infrastructure
@@ -291,7 +282,8 @@ Replace:
 **Cause**: Output variables only available after Apply in the correct context.
 
 **Solution**:
-- Ensure `RunMode` includes apply (not `PlanOnly`)
+
+- Ensure `TerraformDeployMode` is set to `Apply` (not `Plan`)
 - Use correct variable reference syntax with stage/job dependencies
 - Verify output names match Terraform output definitions
 
@@ -300,6 +292,7 @@ Replace:
 **Cause**: Artifact from build job not found.
 
 **Check**:
+
 - ✓ Verify build job succeeded and published artifact
 - ✓ Ensure `TerraformArtifactName` matches artifact name from build
 - ✓ Check job dependencies include build job
@@ -328,7 +321,6 @@ View working test examples in the repository:
 
 ## Best Practices
 
-- **Use with Gated Deployment** – Consider using [Terraform Gated Deployment Job](./terraform_gated_deployment.md) for orchestrated workflows
 - **Separate concerns** – Plan and apply in separate jobs for better control
 - **Export outputs** – Extract Terraform outputs for use in subsequent steps
 - **Environment variables** – Use `EnvironmentVariableMappings` for Terraform-specific settings
@@ -336,11 +328,9 @@ View working test examples in the repository:
 
 ---
 
-## See Also
+## Related Links
 
-- [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Orchestrates plan, verify, and apply
-- [Terraform Build Job](./terraform_build.md) – Creates artifacts used by this job
-- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using these jobs
+- [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – orchestrates plan, verify, and apply using this job
+- [Terraform Build Job](./terraform_build.md) – creates the artifact this job downloads
+- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – complete pipeline template using these jobs
 - [Terraform Backend Configuration](https://www.terraform.io/language/settings/backends)
-
-

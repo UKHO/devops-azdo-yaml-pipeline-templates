@@ -24,6 +24,7 @@ ConfigSources:
 **Required:** Yes
 
 **Allowed Values:**
+
 - `KeyVault`
 
 **Definition:** Identifies the configuration-source type so the task list can map the entry to the correct wrapper.
@@ -100,5 +101,4 @@ TerraformDeploymentConfig:
 
 ## See Also
 
-- [TerraformDeploymentConfig](../terraform_pipeline/terraform_deployment_config.md)
-
+- [Terraform Job Config](../terraform_pipeline/terraform_job_config.md)

@@ -1,7 +1,14 @@
 # ============================================================================
-# TEST: INFRASTRUCTURE CONFIG SCHEMA
+# TEST: TERRAFORM DEPLOY CONFIG SCHEMA
 # ============================================================================
 # This test demonstrates how to write tests using the simple PowerShell framework.
+# Validates only the properties consumed directly by jobs/terraform_deploy.yml.
+#
+# Note: VerificationMode's enum value IS validated here, because
+# jobs/terraform_deploy.yml conditionally adds plan-verification steps when it is
+# provided. However, whether VerificationMode is *required* (based on RunMode) is
+# validated separately in schemas/terraform_gated_deployment_config.CompileTests.ps1,
+# since RunMode is only consumed by jobs/terraform_gated_deployment.yml.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -17,54 +24,40 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # Valid test cases with different parameter combinations
 $validTestCases = @(
   @{
-    Description = "with required parameters only (PlanOnly mode)"
+    Description = "with required parameters only"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
       }
     }
   },
   @{
-    Description = "with required parameters only (ApplyOnly mode)"
-    Parameters = @{
-      EnvironmentName = "staging"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "staging-environment"
-        RunMode = "ApplyOnly"
-      }
-    }
-  },
-  @{
-    Description = "with PlanVerifyApply RunMode and VerifyOnDestroy mode"
+    Description = "with VerificationMode set to VerifyOnDestroy"
     Parameters = @{
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyOnDestroy"
       }
     }
   },
   @{
-    Description = "with PlanVerifyApply RunMode and VerifyOnAny mode"
+    Description = "with VerificationMode set to VerifyOnAny"
     Parameters = @{
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyOnAny"
       }
     }
   },
   @{
-    Description = "with PlanVerifyApply RunMode and VerifyDisabled mode"
+    Description = "with VerificationMode set to VerifyDisabled"
     Parameters = @{
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyDisabled"
       }
     }
@@ -75,7 +68,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         AzureServiceConnection = "my-service-connection"
       }
     }
@@ -86,7 +78,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
           Name = "my-vault"
@@ -101,7 +92,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         ConfigSources = @{
           Type = "KeyVault"
           ServiceConnection = "vault-service-connection"
@@ -117,7 +107,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         BackendConfig = @{
           "resource_group_name" = "my-rg"
           "storage_account_name" = "mysa"
@@ -133,7 +122,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         EnvironmentVariableMappings = @{
           "ARM_SUBSCRIPTION_ID" = "subscription-id"
           "ARM_TENANT_ID" = "tenant-id"
@@ -148,7 +136,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         VariableFiles = @("vars/common.tfvars", "vars/dev.tfvars")
       }
     }
@@ -159,7 +146,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         OutputVariables = @("resource_group_id", "storage_account_id")
       }
     }
@@ -170,7 +156,6 @@ $validTestCases = @(
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyOnAny"
         AzureServiceConnection = "prod-service-connection"
         KeyVaultConfig = @{
@@ -192,19 +177,6 @@ $validTestCases = @(
         OutputVariables = @("resource_id", "storage_id", "database_connection_string")
       }
     }
-  },
-  @{
-    Description = "with valid VerificationTimeoutInMinutes and VerificationTimeoutBehaviour"
-    Parameters = @{
-      EnvironmentName = "prod"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        VerificationTimeoutInMinutes = 120
-        VerificationTimeoutBehaviour = "resume"
-      }
-    }
   }
 )
 
@@ -215,7 +187,6 @@ $invalidTestCases = @(
     Parameters = @{
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
       }
     }
     ErrorMessage = "A value for the 'EnvironmentName' parameter must be provided."
@@ -232,7 +203,7 @@ $invalidTestCases = @(
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
-        RunMode = "PlanOnly"
+        AzureServiceConnection = "my-service-connection"
       }
     }
     ErrorMessage = "'dev' environment error: AzDOEnvironmentName is not properly defined and is a required field."
@@ -243,113 +214,31 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = ""
-        RunMode = "PlanOnly"
       }
     }
     ErrorMessage = "'dev' environment error: AzDOEnvironmentName is not properly defined and is a required field."
   },
   @{
-    Description = "missing RunMode in TerraformDeploymentConfig"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-      }
-    }
-    ErrorMessage = "'dev' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly)."
-  },
-  @{
-    Description = "invalid RunMode value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "'dev' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly)."
-  },
-  @{
-    Description = "empty RunMode value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = ""
-      }
-    }
-    ErrorMessage = "'dev' environment error: Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly)."
-  },
-  @{
-    Description = "PlanVerifyApply without VerificationMode"
+    Description = "invalid VerificationMode value"
     Parameters = @{
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
-      }
-    }
-    ErrorMessage = "'prod' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
-  },
-  @{
-    Description = "PlanVerifyApply with invalid VerificationMode"
-    Parameters = @{
-      EnvironmentName = "prod"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = "InvalidMode"
       }
     }
-    ErrorMessage = "'prod' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
+    ErrorMessage = "'prod' environment error: If provided, VerificationMode must be a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
   },
   @{
-    Description = "PlanVerifyApply with empty VerificationMode"
+    Description = "empty VerificationMode value"
     Parameters = @{
       EnvironmentName = "prod"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyApply"
         VerificationMode = ""
       }
     }
-    ErrorMessage = "'prod' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
-  },
-  @{
-    Description = "invalid VerificationTimeoutBehaviour value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
-        VerificationTimeoutBehaviour = "invalid"
-      }
-    }
-    ErrorMessage = "'dev' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
-  },
-  @{
-    Description = "VerificationTimeoutInMinutes below minimum range"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
-        VerificationTimeoutInMinutes = 0
-      }
-    }
-    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
-  },
-  @{
-    Description = "VerificationTimeoutInMinutes above maximum range"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
-        VerificationTimeoutInMinutes = 43201
-      }
-    }
-    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
+    ErrorMessage = "'prod' environment error: If provided, VerificationMode must be a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
   },
   @{
     Description = "empty AzureServiceConnection value"
@@ -357,7 +246,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         AzureServiceConnection = ""
       }
     }
@@ -369,7 +257,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
         }
@@ -383,7 +270,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           Name = "my-vault"
         }
@@ -397,7 +283,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           SecretsFilter = "secret*"
         }
@@ -411,7 +296,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = ""
           Name = "my-vault"
@@ -427,7 +311,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
           Name = ""
@@ -443,7 +326,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
           Name = "my-vault"
@@ -459,7 +341,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
           Name = "my-vault"
@@ -480,7 +361,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         BackendConfig = @{
           "resource_group_name" = ""
           "storage_account_name" = "mysa"
@@ -495,7 +375,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         BackendConfig = @{
           "" = "mysa"
         }
@@ -509,7 +388,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         EnvironmentVariableMappings = @{
           "ARM_SUBSCRIPTION_ID" = ""
           "ARM_TENANT_ID" = "tenant-id"
@@ -524,7 +402,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         EnvironmentVariableMappings = @{
           "" = "value"
         }
@@ -538,7 +415,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         VariableFiles = "not-a-list"
       }
     }
@@ -550,7 +426,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         VariableFiles = @("vars/common.tfvars", @{ nested = "object" })
       }
     }
@@ -562,7 +437,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         VariableFiles = @("vars/common.tfvars", @("nested", "list"))
       }
     }
@@ -574,7 +448,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         OutputVariables = "not-a-list"
       }
     }
@@ -586,7 +459,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         OutputVariables = @("resource_id", @{ nested = "object" })
       }
     }
@@ -598,7 +470,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
         OutputVariables = @("resource_id", @("nested", "list"))
       }
     }
@@ -611,7 +482,7 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "schemas/terraform_deployment_config.yml" `
+  -YamlPath "schemas/terraform_deploy_config.yml" `
   -TransformYamlFunction { param($yaml) return $yaml + @"
   - job:
     steps:
