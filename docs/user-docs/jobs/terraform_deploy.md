@@ -11,12 +11,12 @@ jobs:
       EnvironmentName: dev                             # Environment identifier; used in job naming and outputs.
       TerraformDeploymentConfig:                       # Deployment configuration object.
         # Required
-        AzDOEnvironmentName: dev-environment           # Azure DevOps environment for approval gates.
+        AzDOEnvironmentName: dev-environment           # Azure DevOps environment for deployment association.
 
         # Optional
-        # VerificationMode: VerifyOnDestroy            # One of: VerifyOnDestroy, VerifyOnAny, VerifyDisabled. When provided, adds plan-verification steps.
+        # VerificationMode: VerifyOnDestroy            # One of: VerifyOnDestroy, VerifyOnAny, VerifyDisabled.
         # BackendConfig:                               # (object) Terraform backend configuration (key-value pairs).
-        # AzureServiceConnection: ''                   # Azure service connection for authentication.
+        # AzureServiceConnection: ''                   # Azure service connection for authentication. Must be compile time known.
         # EnvironmentVariableMappings:                 # (object) Environment variables for Terraform (e.g., TF_LOG).
         # VariableFiles:                               # (list) .tfvars files to use (paths relative to artifact).
         # OutputVariables:                             # (list) Terraform output names to export as pipeline variables.
@@ -35,7 +35,7 @@ jobs:
       # TerraformVersion: '1.14.0'                     # Terraform CLI version, or 'latest'; wildcards like '1.5.x' are not allowed.
       # TerraformArtifactName: 'TerraformArtifact'     # Name of artifact to download from the build stage.
       # Pool: ''                                       # Agent pool to run this job on; empty uses the pipeline/stage default pool.
-      # CheckoutAlias: 'AzDOPipelineTemplates'         # Repository alias used to check out this template repo for output/verification scripts.
+      # CheckoutAlias: 'AzDOPipelineTemplates'         # Repository alias used to check out this template repo for output/verification scripts. Internal usage only.
       # DependsOn:                                     # (list) Jobs this job depends on.
       # Condition: succeeded()                         # Condition controlling whether this job runs.
 ```
