@@ -46,7 +46,7 @@ jobs:
 
 ## Output Variables
 
-When `OutputVariables` are configured, Terraform outputs are exported as pipeline variables available to later jobs in the same stage or jobs in later stages.
+When `OutputVariables` are configured for an Apply job, Terraform outputs are exported after a successful apply as pipeline variables available to later jobs in the same stage or jobs in later stages.
 
 Same stage syntax:
 
