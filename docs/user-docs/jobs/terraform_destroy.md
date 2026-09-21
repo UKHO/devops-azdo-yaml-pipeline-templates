@@ -10,11 +10,11 @@ jobs:
       EnvironmentName: dev                          # Environment identifier; used in job naming.
       TerraformDestroyConfig:                       # Destroy configuration object.
         # Required
-        AzDOEnvironmentName: dev-environment        # Azure DevOps environment for approval gates.
+        AzDOEnvironmentName: dev-environment        # Azure DevOps environment for deployment association.
 
         # Optional
         # BackendConfig:                            # (object) Terraform backend configuration (key-value pairs).
-        # AzureServiceConnection: ''                # Azure service connection for authentication.
+        # AzureServiceConnection: ''                # Azure service connection for authentication. Must be known at compile time.
         # ConfigSources:                            # (list) Ordered configuration sources (currently Type: KeyVault). Example item structure:
         #   - Type: KeyVault
         #     Name: kv-secrets

@@ -10,7 +10,7 @@ jobs:
       EnvironmentName: dev                          # Environment identifier; used in generated job names and outputs.
       TerraformDeploymentConfig:                    # Deployment configuration object.
         # Required
-        AzDOEnvironmentName: dev-environment        # Azure DevOps environment for approval gates.
+        AzDOEnvironmentName: dev-environment        # Azure DevOps environment for deployment association.
         RunMode: PlanVerifyApply                    # One of: PlanVerifyApply, PlanOnly, ApplyOnly.
 
         # Required when RunMode is PlanVerifyApply
@@ -22,7 +22,7 @@ jobs:
 
         # Optional
         # BackendConfig:                            # (object) Terraform backend configuration (key-value pairs).
-        # AzureServiceConnection: ''                # Azure service connection for authentication.
+        # AzureServiceConnection: ''                # Azure service connection for authentication. Must be known at compile time.
         # EnvironmentVariableMappings:              # (object) Environment variables for Terraform.
         # VariableFiles:                            # (list) .tfvars files (relative to artifact).
         # OutputVariables:                          # (list) Terraform outputs to export as variables.
@@ -34,7 +34,7 @@ jobs:
       # TerraformVersion: '1.14.0'                  # Terraform CLI version, or 'latest'; wildcards like '1.5.x' are not allowed.
       # TerraformArtifactName: 'TerraformArtifact'  # Name of artifact from the build stage.
       # Pool: ''                                    # Agent pool for generated jobs; empty uses the pipeline/stage default pool.
-      # CheckoutAlias: 'AzDOPipelineTemplates'      # Repository alias used to check out this template repo for output/verification scripts.
+      # CheckoutAlias: 'AzDOPipelineTemplates'      # Repository alias used to check out this template repo for output/verification scripts. Internal usage only.
       # DependsOn:                                  # (list) Jobs this orchestrator depends on.
       # Condition: succeeded()                      # Condition controlling whether this orchestrator runs.
 ```

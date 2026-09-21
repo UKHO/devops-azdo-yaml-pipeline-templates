@@ -10,7 +10,7 @@ jobs:
       EnvironmentName: prod                         # Environment identifier; used in generated job names.
       TerraformDestroyConfig:                       # Destroy configuration object.
         # Required
-        AzDOEnvironmentName: production-environment # Azure DevOps environment for approval gates.
+        AzDOEnvironmentName: production-environment # Azure DevOps environment for deployment association.
         RunMode: PlanVerifyDestroy                  # One of: PlanOnly, DestroyOnly, PlanVerifyDestroy.
 
         # Optional - used only when RunMode is PlanVerifyDestroy
@@ -19,7 +19,7 @@ jobs:
 
         # Optional
         # BackendConfig:                            # (object) Terraform backend configuration (key-value pairs).
-        # AzureServiceConnection: ''                # Azure service connection for authentication.
+        # AzureServiceConnection: ''                # Azure service connection for authentication. Must be known at compile time.
         # ConfigSources:                            # (list) Ordered configuration sources (currently Type: KeyVault).
         # JobsVariableMappings:                     # (list) Variable groups, templates, or inline variables.
         # EnvironmentVariableMappings:              # (object) Environment variables for the terraform task.
