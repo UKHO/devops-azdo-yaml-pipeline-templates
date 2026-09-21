@@ -1,19 +1,43 @@
 # Terraform Gated Deployment Job
 
-An orchestrator job template that combines terraform plan, manual verification, and terraform apply jobs into a cohesive deployment workflow. This job handles the complete infrastructure deployment cycle with configurable run modes and automatic gate logic.
+An orchestrator job template that combines terraform plan, manual verification, and terraform apply jobs into a cohesive deployment workflow, with automatic gate logic based on the configured run mode.
 
----
+```yaml
+jobs:
+  - template: jobs/terraform_gated_deployment.yml
+    parameters:
+      # Required - no defaults
+      EnvironmentName: dev                          # Environment identifier; used in generated job names and outputs.
+      TerraformDeploymentConfig:                    # Deployment configuration object.
+        # Required
+        AzDOEnvironmentName: dev-environment        # Azure DevOps environment for approval gates.
+        RunMode: PlanVerifyApply                    # One of: PlanVerifyApply, PlanOnly, ApplyOnly.
 
-## When to Use
+        # Required when RunMode is PlanVerifyApply
+        # VerificationMode: VerifyOnDestroy         # One of: VerifyOnDestroy, VerifyOnAny, VerifyDisabled.
 
-Use this job template when you need to:
+        # Optional - used only when RunMode is PlanVerifyApply
+        # VerificationTimeoutInMinutes: 60          # Number between 1 and 43200 (30 days).
+        # VerificationTimeoutBehaviour: reject      # 'reject' or 'resume'.
 
-- **Complete deployments** – Plan, verify (optionally), and apply in one stage
-- **Flexible verification** – Configure different approval strategies per environment
-- **Multi-mode support** – Support plan-only, apply-only, or full cycle deployments
-- **Automatic orchestration** – Job automatically creates sub-jobs based on configuration
+        # Optional
+        # BackendConfig:                            # (object) Terraform backend configuration (key-value pairs).
+        # AzureServiceConnection: ''                # Azure service connection for authentication.
+        # EnvironmentVariableMappings:              # (object) Environment variables for Terraform.
+        # VariableFiles:                            # (list) .tfvars files (relative to artifact).
+        # OutputVariables:                          # (list) Terraform outputs to export as variables.
+        # ConfigSources:                            # (list) Configuration sources (currently Type: KeyVault, preferred, array-based).
+        # KeyVaultConfig:                           # (object) Key Vault configuration (legacy - use ConfigSources for new deployments).
+        # JobsVariableMappings:                     # (list) Variable groups or inline variables.
 
-**Best for**: Deployment stages in infrastructure pipelines where you want complete infrastructure provisioning control.
+      # Optional - shown at their defaults. Uncomment and change a value to override it.
+      # TerraformVersion: '1.14.0'                  # Terraform CLI version, or 'latest'; wildcards like '1.5.x' are not allowed.
+      # TerraformArtifactName: 'TerraformArtifact'  # Name of artifact from the build stage.
+      # Pool: ''                                    # Agent pool for generated jobs; empty uses the pipeline/stage default pool.
+      # CheckoutAlias: 'AzDOPipelineTemplates'      # Repository alias used to check out this template repo for output/verification scripts.
+      # DependsOn:                                  # (list) Jobs this orchestrator depends on.
+      # Condition: succeeded()                      # Condition controlling whether this orchestrator runs.
+```
 
 ---
 
@@ -21,102 +45,31 @@ Use this job template when you need to:
 
 Based on the `RunMode` configuration, this job creates one to three sub-jobs:
 
-### PlanOnly Mode
+| RunMode            | Plan | Manual Verification    | Apply |
+|----------------------|------|--------------------------|-------|
+| `PlanOnly`           | Yes  | No                       | No    |
+| `ApplyOnly`          | No   | No                       | Yes   |
+| `PlanVerifyApply`    | Yes  | Conditional (see below)  | Yes   |
 
-- Creates **Plan job** that shows infrastructure changes
-- Skips manual verification
-- Skips apply job
-- Useful for dry-run validation on feature branches
+For `PlanVerifyApply`, the manual verification job only runs if the plan detects changes **and** `VerificationMode` determines approval is required:
 
-### ApplyOnly Mode
+- **`VerifyOnDestroy`** – approval only triggered if the plan shows resources being destroyed
+- **`VerifyOnAny`** – approval triggered if any infrastructure changes are detected
+- **`VerifyDisabled`** – no approval gate, apply runs automatically
 
-- Skips plan phase
-- Creates **Apply job** that directly provisions infrastructure
-- No manual verification
-- Useful for environments with automated trust (e.g., dev)
-
-### PlanVerifyApply Mode (Default)
-
-- Creates **Plan job** to show infrastructure changes
-- Creates **Manual Verification job** (conditional based on changes detected)
-- Creates **Apply job** to provision infrastructure
-- Verification gate is conditional based on `VerificationMode`
-
----
-
-## Basic Usage
-
-```yaml
-stages:
-  - stage: DeployDev
-    dependsOn: Build
-    jobs:
-      - template: jobs/terraform_gated_deployment.yml
-        parameters:
-          EnvironmentName: dev
-          TerraformVersion: '1.5.0'
-          TerraformDeploymentConfig:
-            AzDOEnvironmentName: dev-environment
-            RunMode: PlanVerifyApply
-            VerificationMode: VerifyOnDestroy
-            BackendConfig:
-              resource_group_name: rg-state-dev
-              storage_account_name: tfstatedev
-              container_name: tfstate
-              key: dev.tfstate
-            AzureServiceConnection: AzureServiceConnection-Dev
-            VariableFiles:
-              - config/common.tfvars
-              - config/dev.tfvars
+```text
+Plan Job
+   ↓
+Manual Verification Job (conditional)
+   ↓
+Apply Job
 ```
-
----
-
-## Parameters
-
-### Required Parameters
-
-| Parameter                   | Type   | Description                                                                  |
-|-----------------------------|--------|------------------------------------------------------------------------------|
-| `EnvironmentName`           | string | Environment identifier (e.g., `dev`, `prod`) – used in job names and outputs |
-| `TerraformDeploymentConfig` | object | Complete terraform deployment configuration (see below)                      |
-
-### Optional Parameters
-
-| Parameter               | Type   | Default                 | Description                             |
-|-------------------------|--------|-------------------------|-----------------------------------------|
-| `TerraformVersion`      | string | `1.14.0`                | Terraform CLI version                   |
-| `TerraformArtifactName` | string | `TerraformArtifact`     | Name of artifact from build stage       |
-| `Pool`                  | string | `''`                    | Agent pool for jobs                     |
-| `CheckoutAlias`         | string | `AzDOPipelineTemplates` | Repository alias for template checkout  |
-| `DependsOn`             | object | `[ ]`                   | Jobs this orchestrator depends on       |
-| `Condition`             | string | `succeeded()`           | Condition for running this orchestrator |
-
-### TerraformDeploymentConfig (Required)
-
-This job validates `RunMode` and `VerificationMode` as part of its schema.
-
-| Property                      | Type   | Required                          | Description                                                                 |
-|-------------------------------|--------|-----------------------------------|-----------------------------------------------------------------------------|
-| `RunMode`                     | string | ✓                                 | One of: `PlanVerifyApply`, `PlanOnly`, `ApplyOnly`                          |
-| `AzDOEnvironmentName`         | string | ✓                                 | Azure DevOps environment for approvals                                      |
-| `VerificationMode`            | string | When RunMode is `PlanVerifyApply` | One of: `VerifyOnDestroy`, `VerifyOnAny`, `VerifyDisabled`                  |
-| `BackendConfig`               | object | Optional                          | Terraform backend configuration (key-value pairs)                           |
-| `AzureServiceConnection`      | string | Optional                          | Azure service connection for authentication                                 |
-| `EnvironmentVariableMappings` | object | Optional                          | Environment variables for Terraform                                         |
-| `VariableFiles`               | list   | Optional                          | List of `.tfvars` files (relative to artifact)                              |
-| `OutputVariables`             | list   | Optional                          | Terraform outputs to export as variables                                    |
-| `ConfigSources`               | array  | Optional                          | Configuration sources (currently `Type: KeyVault`, preferred, array-based)  |
-| `KeyVaultConfig`              | object | Optional                          | Key Vault configuration (legacy, use `ConfigSources` for new deployments)   |
-| `JobsVariableMappings`        | object | Optional                          | Variable groups or inline variables                                         |
 
 ---
 
 ## Examples
 
 ### PlanOnly Mode (Feature Branch Validation)
-
-Validate changes without applying:
 
 ```yaml
 jobs:
@@ -133,9 +86,9 @@ jobs:
           key: validation.tfstate
 ```
 
-### ApplyOnly Mode (Development Auto-Deploy)
+**Live example**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml) (also see [`double_plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml))
 
-Automatically apply changes in dev environment:
+### ApplyOnly Mode (Development Auto-Deploy)
 
 ```yaml
 jobs:
@@ -156,9 +109,9 @@ jobs:
           - config/dev.tfvars
 ```
 
-### VerifyOnDestroy (Production Safe Apply)
+**Live example**: [`tests/jobs/terraform_gated_deployment/apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/apply_only_test.yml) (also see [`double_apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_apply_only_test.yml))
 
-Only gate if infrastructure will be destroyed:
+### VerifyOnDestroy (Production Safe Apply)
 
 ```yaml
 jobs:
@@ -183,8 +136,6 @@ jobs:
 ```
 
 ### VerifyOnAny (Strict Production Control)
-
-Gate all infrastructure changes:
 
 ```yaml
 jobs:
@@ -215,9 +166,9 @@ jobs:
           - config/prod.tfvars
 ```
 
-### VerifyDisabled (Auto-Apply Mode)
+**Live example**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml) (also see [`double_plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_verify_apply_test.yml))
 
-Apply changes automatically, no approval:
+### VerifyDisabled (Auto-Apply Mode)
 
 ```yaml
 jobs:
@@ -239,137 +190,39 @@ jobs:
           - config/staging.tfvars
 ```
 
----
+**Live example**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml)
 
-## How Verification Works
+### Overriding the Manual Verification Timeout
 
-### VerifyOnDestroy
-
-Manual approval is triggered **only if** Terraform plan shows resources being destroyed:
-
-```text
-Plan → Analyze (detect destroys?) → Manual Approval → Apply
-           ↓ (no destroys)
-           → Apply (no approval needed)
+```yaml
+jobs:
+  - template: jobs/terraform_gated_deployment.yml
+    parameters:
+      EnvironmentName: prod
+      TerraformDeploymentConfig:
+        AzDOEnvironmentName: production-environment
+        RunMode: PlanVerifyApply
+        VerificationMode: VerifyOnAny
+        VerificationTimeoutInMinutes: 240
+        VerificationTimeoutBehaviour: resume
 ```
 
-**Use when**: You want to prevent accidental deletion but allow non-destructive changes to apply automatically.
+---
 
-### VerifyOnAny
+## Comparison with Other Jobs
 
-Manual approval is triggered if **any** infrastructure changes are detected:
-
-```text
-Plan → Analyze (any changes?) → Manual Approval → Apply
-           ↓ (no changes)
-           → Success (nothing to apply)
-```
-
-**Use when**: All infrastructure changes require explicit approval.
-
-### VerifyDisabled
-
-No approval gate – apply automatically:
-
-```text
-Plan → Analyze → Apply
-    (approval disabled)
-```
-
-**Use when**: Environment is trusted (dev) or automated approval exists elsewhere.
+| Job                     | Plan Job | Manual Verification | Apply Job | Use Case          |
+|-------------------------|----------|----------------------|-----------|--------------------|
+| **Terraform Deploy**    | ✓        | ✗                    | ✓         | Individual steps  |
+| **Manual Verification** | ✗        | ✓                    | ✗         | Generic approval  |
+| **Gated Deployment**    | ✓        | ✓                    | ✓         | Complete workflow |
 
 ---
 
-## Job Dependencies
+## See Also
 
-The orchestrator automatically manages dependencies between generated jobs:
-
-```text
-Plan Job
-   ↓
-Manual Verification Job (conditional)
-   ↓
-Apply Job
-```
-
-Manual verification job only runs if:
-
-- Changes detected in plan
-- `VerificationMode` determines it needs approval
-
-Apply job runs only if:
-
-- No changes + no verification needed
-- OR approval was granted
-
----
-
-## Troubleshooting
-
-### Manual Verification Not Appearing
-
-**Check**:
-
-- ✓ Verify `RunMode` is `PlanVerifyApply` (not `PlanOnly` or `ApplyOnly`)
-- ✓ Verify `VerificationMode` is set correctly
-- ✓ Check that plan detected changes
-- ✓ Verify AzDO environment exists
-
-### Apply Never Runs
-
-**Possible causes**:
-
-- Approval was rejected → Expected, pipeline stops
-- Timeout occurred → Check timeout setting
-- No terraform changes detected → Expected, nothing to apply
-
-**Check**:
-
-- ✓ Review manual verification approval status
-- ✓ Check plan job output for detected changes
-- ✓ Verify approval was actually granted
-
-### Output Variables Not Available
-
-**Cause**: Variables only available after successful apply.
-
-**Check**:
-
-- ✓ Ensure `RunMode` includes apply operation
-- ✓ Verify `OutputVariables` are defined in config
-- ✓ Use correct variable reference syntax
-
----
-
-## Best Practices
-
-- **Choose right VerificationMode** – Match your deployment control level
-- **Use job dependencies** – Include build stage in `DependsOn`
-- **Export outputs** – Define `OutputVariables` for downstream usage
-- **Consistent naming** – Use clear environment names
-- **Test modes** – Test each mode (PlanOnly, ApplyOnly) before production
-- **Document gates** – Include gate strategy in deployment documentation
-
----
-
-## Live Examples
-
-View working test examples in the repository:
-
-- **PlanVerifyApply Mode**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
-- **PlanVerifyApply with VerifyDisabled**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_verify_disabled_test.yml)
-- **PlanOnly Mode**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml)
-- **ApplyOnly Mode**: [`tests/jobs/terraform_gated_deployment/apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/apply_only_test.yml)
-- **Double PlanVerifyApply**: [`tests/jobs/terraform_gated_deployment/double_plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_verify_apply_test.yml)
-- **Double PlanOnly**: [`tests/jobs/terraform_gated_deployment/double_plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml)
-- **Double ApplyOnly**: [`tests/jobs/terraform_gated_deployment/double_apply_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_apply_only_test.yml)
-
----
-
-## Related Links
-
-- [Terraform Deploy Job](./terraform_deploy.md) – the individual plan/apply job this orchestrator creates
-- [Manual Verification Job](./manual_verification.md) – the approval gate job this orchestrator creates
-- [Terraform Pipeline](../pipelines/terraform_pipeline.md) – complete pipeline template using this job
-
-
+- [Terraform Deploy Job](./terraform_deploy.md)
+- [Manual Verification Job](./manual_verification.md)
+- [Terraform Gated Destroy Job](./terraform_gated_destroy.md)
+- [Terraform Pipeline](../pipelines/terraform_pipeline.md)
+- [Terraform Verification Modes](../pipelines/terraform_pipeline_manual_verification.md)

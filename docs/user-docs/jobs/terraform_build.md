@@ -12,15 +12,15 @@ jobs:
       # TerraformVersion: '1.14.0'                   # Exact terraform version, or 'latest'; wildcards like '1.5.x' are not allowed.
       # ArtifactName: 'TerraformArtifact'            # Name of the published artifact.
       # Pool: ''                                     # Agent pool to run this job on; empty uses the pipeline/stage default pool.
-      # DependsOn: [ ]                               # List of jobs this job depends on.
+      # DependsOn:                                   # (list) Jobs this job depends on. Defaults to an empty list.
       # Condition: succeeded()                       # Condition controlling whether this job runs.
 
-      # AdditionalFilesToPackage: [ ]                # Extra files/folders to bundle into the artifact alongside the terraform files. Example item structure:
+      # AdditionalFilesToPackage:                    # (list) Extra files/folders to bundle into the artifact alongside the terraform files. Defaults to an empty list. Example item structure:
       #   - SourceDirectory: 'config/shared'         # Relative path from repo root to source directory.
       #     FilesPattern: '*.tfvars'                 # Glob pattern for files to copy.
       #     TargetSubdirectoryName: 'shared-config'  # Subdirectory name inside the artifact.
 
-      # TerraformBuildInjectionSteps: [ ]            # Custom steps run once, before terraform init/validate. Example item structure:
+      # TerraformBuildInjectionSteps:                # (list) Custom steps run once, before terraform init/validate. Defaults to an empty list. Example item structure:
       #   - pwsh: |
       #       Write-Host "Custom preprocessing..."
 ```
@@ -29,7 +29,7 @@ jobs:
 
 ## Artifact Output
 
-```
+```text
 TerraformArtifact/
 ├── main.tf                    # From RelativePathToTerraformFiles
 ├── variables.tf
