@@ -32,9 +32,14 @@ parameters:
   - name: TerraformDestroyConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Terraform destroy configuration object (see docs/definition_docs/terraform_pipeline/terraform_destroy_config.md)'
+    displayName: 'Terraform destroy configuration object (see docs/definition_docs/terraform_pipeline/terraform_job_config.md)'
 
 jobs:
+  - template: /schemas/terraform_gated_destroy_config.yml
+    parameters:
+      TerraformDestroyConfig: ${{ parameters.TerraformDestroyConfig }}
+      EnvironmentName: ${{ parameters.EnvironmentName }}
+
   - ${{ if in(parameters.TerraformDestroyConfig.RunMode, 'PlanVerifyDestroy', 'PlanOnly') }}:
       - template: /jobs/terraform_destroy.yml
         parameters:

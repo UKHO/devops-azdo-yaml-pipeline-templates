@@ -75,6 +75,7 @@ jobs:
 
 ## Notes
 
+- `RunMode` is validated by this orchestrator job's schema (`schemas/terraform_gated_destroy_config.yml`).
 - Manual verification behavior is driven by `RunMode`; there is no `VerificationMode` option for destroy.
 - Workflow is artifact-based and does not checkout repositories.
 - Optional `VerificationTimeoutInMinutes` and `VerificationTimeoutBehaviour` fields can be provided on
@@ -102,8 +103,9 @@ jobs:
 - [`tests/jobs/terraform_gated_destroy/plan_verify_destroy_test.yml`](../../../tests/jobs/terraform_gated_destroy/plan_verify_destroy_test.yml)
 - [`tests/jobs/terraform_gated_destroy/double_plan_verify_destroy_test.yml`](../../../tests/jobs/terraform_gated_destroy/double_plan_verify_destroy_test.yml)
 
-## See Also
+## Related Links
 
-- [Terraform Destroy Job](./terraform_destroy.md)
-- [Manual Verification Job](./manual_verification.md)
-- [Terraform Destroy Config Definition](../../definition_docs/terraform_pipeline/terraform_destroy_config.md)
+- [Terraform Destroy Job](./terraform_destroy.md) – the individual plan/destroy job this orchestrator creates
+- [Manual Verification Job](./manual_verification.md) – the approval gate job this orchestrator creates
+
+

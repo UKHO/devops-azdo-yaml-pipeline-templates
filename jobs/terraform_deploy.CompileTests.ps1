@@ -22,7 +22,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
       }
     }
     ExpectedYAML = @(
@@ -37,7 +36,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -51,7 +49,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
         VerificationMode = "VerifyOnDestroy"
       }
     }
@@ -66,7 +63,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
         VerificationMode = "VerifyOnAny"
       }
     }
@@ -81,7 +77,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
         VerificationMode = "VerifyDisabled"
       }
     }
@@ -96,7 +91,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
       }
     }
     ExpectedYAML = @(
@@ -110,7 +104,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         OutputVariables = @("resource_group_id")
       }
     }
@@ -126,7 +119,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         OutputVariables = @("resource_group_id", "app_service_url", "storage_account_name")
       }
     }
@@ -142,7 +134,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -156,7 +147,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
           Name = "my-key-vault"
@@ -177,7 +167,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         BackendConfig = @{
           resource_group_name = "my-rg"
           storage_account_name = "mysa"
@@ -197,7 +186,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
         BackendConfig = @{ }
       }
     }
@@ -211,7 +199,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
         BackendConfig = @{
           ConfigKey = "ConfigValue"
         }
@@ -228,7 +215,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         EnvironmentVariableMappings = @{
           TF_VAR_environment = "production"
           TF_VAR_location = "westus"
@@ -248,7 +234,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         VariableFiles = @("config/common.tfvars")
       }
     }
@@ -264,7 +249,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         VariableFiles = @("config/common.tfvars", "config/production.tfvars", "config/secrets.tfvars")
       }
     }
@@ -282,7 +266,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         JobsVariableMappings = @(
           @{ group = "ProductionVariables" }
         )
@@ -299,7 +282,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         JobsVariableMappings = @(
           @{ group = "CommonVariables" }
           @{ group = "EnvironmentVariables" }
@@ -320,7 +302,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         AzureServiceConnection = "MyServiceConnection"
       }
     }
@@ -336,7 +317,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -351,7 +331,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -366,7 +345,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -381,7 +359,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -396,7 +373,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -411,7 +387,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
       }
     }
     ExpectedYAML = @(
@@ -425,7 +400,6 @@ $validTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         ConfigSources = @(
           @{
             Type = "KeyVault"
@@ -473,55 +447,20 @@ $invalidTestCases = @(
     Description = "ERROR: missing AzDOEnvironmentName in config"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
-      TerraformDeploymentConfig = @{
-        RunMode = "PlanOnly"
-      }
+      TerraformDeploymentConfig = @{ }
     }
     ErrorMessage = "AzDOEnvironmentName is not properly defined and is a required field"
-  },
-  @{
-    Description = "ERROR: missing RunMode in config"
-    Parameters = @{
-      EnvironmentName = "compile-tests-only"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "test-env"
-      }
-    }
-    ErrorMessage = "Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly)"
-  },
-  @{
-    Description = "ERROR: incorrect RunMode value"
-    Parameters = @{
-      EnvironmentName = "compile-tests-only"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "test-env"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "Must provide a valid RunMode option (PlanVerifyApply, PlanOnly, ApplyOnly)"
-  },
-  @{
-    Description = "ERROR: PlanVerifyApply without VerificationMode"
-    Parameters = @{
-      EnvironmentName = "compile-tests-only"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "test-env"
-        RunMode = "PlanVerifyApply"
-      }
-    }
-    ErrorMessage = "Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)"
   },
   @{
     Description = "ERROR: invalid VerificationMode value"
     Parameters = @{
       EnvironmentName = "compile-tests-only"
       TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "test-env"
-        RunMode = "PlanVerifyApply"
+        AzDOEnvironmentName = "compile-tests-only"
         VerificationMode = "InvalidMode"
       }
     }
-    ErrorMessage = "Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)"
+    ErrorMessage = "Unexpected value ''compile-tests-only' environment error: If provided, VerificationMode must be a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).'"
   },
   @{
     Description = "ERROR: Partial Key Vault Configuration"
@@ -530,7 +469,6 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
         KeyVaultConfig = @{
           ServiceConnection = "vault-service-connection"
         }

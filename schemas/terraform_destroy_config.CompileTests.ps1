@@ -11,32 +11,11 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 
 $validTestCases = @(
   @{
-    Description = "required parameters only (PlanOnly)"
+    Description = "required parameters only"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanOnly"
-      }
-    }
-  },
-  @{
-    Description = "required parameters only (DestroyOnly)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "DestroyOnly"
-      }
-    }
-  },
-  @{
-    Description = "required parameters only (PlanVerifyDestroy)"
-    Parameters = @{
-      EnvironmentName = "prod"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyDestroy"
       }
     }
   },
@@ -46,7 +25,6 @@ $validTestCases = @(
       EnvironmentName = "prod"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyDestroy"
         ConfigSources = @(
           @{
             Type = "KeyVault"
@@ -55,18 +33,6 @@ $validTestCases = @(
             SecretsFilter = "*"
           }
         )
-      }
-    }
-  },
-  @{
-    Description = "with valid VerificationTimeoutInMinutes and VerificationTimeoutBehaviour"
-    Parameters = @{
-      EnvironmentName = "prod"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "prod-environment"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutInMinutes = 120
-        VerificationTimeoutBehaviour = "resume"
       }
     }
   }
@@ -91,23 +57,11 @@ $invalidTestCases = @(
     ErrorMessage = "A value for the 'TerraformDestroyConfig' parameter must be provided."
   },
   @{
-    Description = "invalid RunMode value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "Must provide a valid RunMode option (PlanVerifyDestroy, PlanOnly, DestroyOnly)."
-  },
-  @{
     Description = "KeyVaultConfig is deprecated and not supported"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "DestroyOnly"
         KeyVaultConfig = @{
           ServiceConnection = "legacy"
           Name = "kv"
@@ -123,47 +77,10 @@ $invalidTestCases = @(
       EnvironmentName = "dev"
       TerraformDestroyConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanVerifyDestroy"
         VerificationMode = "VerifyOnAny"
       }
     }
     ErrorMessage = "VerificationMode is not supported for destroy workflows. Use RunMode 'PlanVerifyDestroy' for gated destroy."
-  },
-  @{
-    Description = "invalid VerificationTimeoutBehaviour value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutBehaviour = "invalid"
-      }
-    }
-    ErrorMessage = "VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
-  },
-  @{
-    Description = "VerificationTimeoutInMinutes below minimum range"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutInMinutes = 0
-      }
-    }
-    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
-  },
-  @{
-    Description = "VerificationTimeoutInMinutes above maximum range"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutInMinutes = 43201
-      }
-    }
-    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 

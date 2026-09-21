@@ -10,9 +10,6 @@ Use this job template when you need to:
 - Execute Terraform destroy directly.
 - Build custom workflow orchestration around destroy operations.
 
-For full orchestration with manual approval, use
-[Terraform Gated Destroy Job](./terraform_gated_destroy.md).
-
 ## What This Job Does
 
 ### Plan Mode
@@ -39,7 +36,6 @@ jobs:
       EnvironmentName: dev
       TerraformDestroyConfig:
         AzDOEnvironmentName: dev-environment
-        RunMode: PlanOnly
 ```
 
 ### Destroy
@@ -52,7 +48,6 @@ jobs:
       EnvironmentName: dev
       TerraformDestroyConfig:
         AzDOEnvironmentName: dev-environment
-        RunMode: DestroyOnly
 ```
 
 ## Parameters
@@ -80,7 +75,6 @@ jobs:
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `AzDOEnvironmentName` | string | Yes | Azure DevOps environment name |
-| `RunMode` | string | Yes | `PlanVerifyDestroy`, `PlanOnly`, or `DestroyOnly` |
 | `BackendConfig` | object | No | Backend key-value mappings |
 | `AzureServiceConnection` | string | No | Azure service connection |
 | `ConfigSources` | list | No | Ordered config source list |
@@ -88,7 +82,7 @@ jobs:
 | `EnvironmentVariableMappings` | object | No | Task environment variables |
 | `VariableFiles` | list | No | `.tfvars` files relative to artifact root |
 
-`KeyVaultConfig` and `VerificationMode` are not supported in destroy workflows.
+`KeyVaultConfig` is not supported in destroy workflows.
 
 ## Notes
 
@@ -102,8 +96,9 @@ jobs:
 - [`tests/jobs/terraform_destroy/destroy_with_configsources_test.yml`](../../../tests/jobs/terraform_destroy/destroy_with_configsources_test.yml)
 - [`tests/jobs/terraform_destroy/plan_with_variable_files_test.yml`](../../../tests/jobs/terraform_destroy/plan_with_variable_files_test.yml)
 
-## See Also
+## Related Links
 
-- [Terraform Gated Destroy Job](./terraform_gated_destroy.md)
-- [Terraform Build Job](./terraform_build.md)
-- [Terraform Destroy Config Definition](../../definition_docs/terraform_pipeline/terraform_destroy_config.md)
+- [Terraform Gated Destroy Job](./terraform_gated_destroy.md) – orchestrated destroy workflow with manual approval, built on this job
+- [Terraform Build Job](./terraform_build.md) – creates the artifact this job downloads
+
+

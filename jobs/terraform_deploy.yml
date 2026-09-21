@@ -23,7 +23,7 @@ parameters:
 
   - name: DependsOn
     type: object
-    default: [ ]
+    default: []
     displayName: 'List of jobs this job depends on'
 
   - name: Pool
@@ -49,10 +49,10 @@ parameters:
   - name: TerraformDeploymentConfig
     type: object
     # NO default - Consumer must provide this
-    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_deployment_config.md)'
+    displayName: 'Terraform deployment configuration object (see docs/definition_docs/terraform_pipeline/terraform_job_config.md)'
 
 jobs:
-  - template: /schemas/terraform_deployment_config.yml
+  - template: /schemas/terraform_deploy_config.yml
     parameters:
       TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
       EnvironmentName: ${{ parameters.EnvironmentName }}
@@ -146,8 +146,8 @@ jobs:
                   parameters:
                     ConfigSources: ${{ parameters.TerraformDeploymentConfig.ConfigSources }}
 
-            - ${{ if and(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}:
-                - template: /tasks/azure_key_vault.yml
+            - ? ${{ if and(parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection, parameters.TerraformDeploymentConfig.KeyVaultConfig.Name, parameters.TerraformDeploymentConfig.KeyVaultConfig.SecretsFilter) }}
+              : - template: /tasks/azure_key_vault.yml
                   parameters:
                     KeyVaultServiceConnection: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfig.ServiceConnection }}
                     KeyVaultName: ${{ parameters.TerraformDeploymentConfig.KeyVaultConfig.Name }}
