@@ -78,8 +78,7 @@ The full developer guide is split into focused topics:
 | 5 | [Versioning & Breaking Changes](docs/developers/05-versioning-and-breaking-changes.md)                 | SemVer rules and the breaking change process |
 | 6 | [Workflow & Testing](docs/developers/06-workflow-and-testing.md)                                       | Branching, PR process, testing               |
 | 7 | [Advanced Topics](docs/developers/07-advanced-topics.md)                                               | Pipeline decorators, ADRs, design philosophy |
-| 8 | [AI & Documentation](docs/developers/08-ai-and-documentation.md)                                       | AI usage policy and documentation standards  |
-| 9 | [GitHub Copilot Instructions & Prompts](docs/developers/09-github-copilot-instructions-and-prompts.md) | Copilot usage guidance and example prompts   |
+| 8 | [AI & Documentation](docs/developers/08-ai-and-documentation.md)                                       | AI usage policy, and which `.github/` agent files exist and who owns them |
 
 Additional references:
 

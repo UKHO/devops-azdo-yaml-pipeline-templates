@@ -15,8 +15,7 @@ Welcome to the developer documentation for the Azure DevOps YAML Pipeline Templa
 | 5 | [Versioning & Breaking Changes](05-versioning-and-breaking-changes.md)                 | SemVer rules, subtle breaking changes, the breaking change process        |
 | 6 | [Development Workflow & Testing](06-workflow-and-testing.md)                           | Branching, PR process, testing approach                                   |
 | 7 | [Advanced Topics & Architecture](07-advanced-topics.md)                                | Pipeline decorators, ADRs, design philosophy                              |
-| 8 | [AI & Documentation Guidelines](08-ai-and-documentation.md)                            | AI usage policy, review process, maintaining copilot-instructions         |
-| 9 | [GitHub Copilot Instructions & Prompts](09-github-copilot-instructions-and-prompts.md) | Instruction files, prompt files, when to use each                         |
+| 8 | [AI & Documentation](08-ai-and-documentation.md)                                       | AI usage policy, and which `.github/` agent files exist and who owns them |
 
 ---
 

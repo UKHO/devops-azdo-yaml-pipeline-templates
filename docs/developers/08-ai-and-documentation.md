@@ -1,4 +1,4 @@
-# AI & Documentation Guidelines
+# AI & Documentation
 
 ## Using AI Tools
 
@@ -10,4 +10,16 @@
 
 - All AI-generated content must be reviewed by a human before merging.
 - Submit AI-generated changes via pull requests for discussion.
-- When repository practices change, update `.github/copilot-instructions.md` to keep it as a single source of truth.
+- When repository practices change, update the relevant `.github/` file directly (see below). Do not describe their contents here — that content goes stale the moment the file changes.
+
+## AI Agent Files in This Repository
+
+This repository uses GitHub Copilot via files under `.github/`. This page intentionally does not restate what each file says — read the file itself for current rules. It only answers: which files exist, when they load, and who owns them.
+
+| File | Loads | Owner |
+|---|---|---|
+| `.github/copilot-instructions.md` | Always (repo-wide) | Whoever changes a repo-wide convention |
+| `.github/instructions/*.instructions.md` | Automatically, scoped to files matching each file's `applyTo` glob | Whoever changes the convention it encodes |
+| `.github/prompts/*.prompt.md` | On-demand, invoked manually | Not currently maintained against active use — confirm these are still used before relying on them |
+
+If you change a convention documented in this repo, update the matching `.github/` file in the same Pull Request. If a `.github/` file and a human doc disagree, the human doc (this one, or the relevant reference page) is authoritative for policy; the `.github/` file is authoritative only for exact enforceable wording given to the AI.
