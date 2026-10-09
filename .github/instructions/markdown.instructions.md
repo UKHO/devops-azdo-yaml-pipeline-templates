@@ -13,7 +13,7 @@ The following markdown content rules are enforced in the validators:
 4. **Links**: Use proper markdown syntax for links. Ensure that links are valid and accessible.
 5. **Images**: Use proper markdown syntax for images. Include alt text for accessibility.
 6. **Tables**: Use markdown tables for tabular data. Ensure proper formatting and alignment.
-7. **Line Length**: Limit line length to 400 characters for readability.
+7. **Line Length**: Do not hard-wrap prose. A 400-character limit applies only as a sanity check (see the Line Length note under Formatting and Structure).
 8. **Whitespace**: Use appropriate whitespace to separate sections and improve readability.
 
 ## Formatting and Structure

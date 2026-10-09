@@ -1,4 +1,4 @@
-# Branching Strategy
+# Branching Model
 
 This repository uses simple **feature branching**. All work happens on a short-lived branch created from `main` and merged back into `main` via Pull Request.
 
@@ -7,7 +7,7 @@ This repository uses simple **feature branching**. All work happens on a short-l
 ## Overview
 
 ```text
-main ──────────────────────────────────────────►
+main ────────────────────────────────────────────►
   │                                    ▲
   └── feature/my-feature ──────────────┘
 ```
@@ -42,7 +42,7 @@ git push -u origin feature/my-feature
 ### 3. Open a Pull Request into `main`
 
 1. Open a Pull Request from `feature/my-feature` → `main`.
-2. Request review from the [code owners](../../CODEOWNERS) (`@UKHO/devops-chapter`, `@UKHO/digital-delivery-capability`).
+2. Request review from the [code owners](../../../CODEOWNERS) (`@UKHO/devops-chapter`, `@UKHO/digital-delivery-capability`).
 3. After approval, **squash-merge** into `main` and delete the branch.
 
 ---
@@ -88,7 +88,7 @@ git push --force-with-lease
 
 ### What Is Not Branched
 
-The Azure DevOps pipeline *definitions* that build and gate this repository (the pipelines provisioned by [`cicd/`](../../cicd)) are not changed via `feature/<name>` branches in this repo. They, and the branch-policy/gate-check configuration for `main`, are managed through the Terraform in `cicd/` and Azure DevOps project settings directly. Changes to what gates `main` are a separate, lower-frequency change from day-to-day template work.
+The Azure DevOps pipeline *definitions* that build and gate this repository (the pipelines provisioned by [`cicd/`](../../../cicd)) are not changed via `feature/<name>` branches in this repo. They, and the branch-policy/gate-check configuration for `main`, are managed through the Terraform in `cicd/` and Azure DevOps project settings directly. Changes to what gates `main` are a separate, lower-frequency change from day-to-day template work.
 
 ---
 
@@ -96,15 +96,4 @@ The Azure DevOps pipeline *definitions* that build and gate this repository (the
 
 > This repository is not currently set up for multiple people working on large, parallel features at once. If a change adds new tests, those tests currently need a manual Terraform deployment step before they can run — there is no automated provisioning of test infrastructure per branch. Keep features small and merge frequently rather than running long, parallel feature branches.
 
-## Testing
-
-> **Note:** The testing story for this repository is evolving. The long-term goal is to provision dedicated Azure DevOps pipelines via Terraform so that templates can be validated automatically.
-
-For now:
-
-- Run the relevant test pipeline in Azure DevOps and verify correct compilation and execution.
-- For Terraform templates, use mock providers where available.
-- Document any testing limitations in the Pull Request description.
-- There are no local testing tools; validation is done by running pipelines in Azure DevOps.
-
-See [Development Workflow & Testing](06-workflow-and-testing.md) for more detail.
+For how to actually validate a template change, see [Test a Template](../how-to/test-a-template.md).

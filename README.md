@@ -20,6 +20,18 @@ SemVer compatibility guarantees apply to templates in:
 - [pipelines](pipelines)
 - [jobs](jobs)
 
+## Design philosophy
+
+These templates are built on a few deliberate principles (see [Design Philosophy](docs/developers/explanation/design-philosophy.md) for the full rationale):
+
+- **Behavioural solutions, not building blocks** — the public templates deliver complete outcomes, so you adopt behaviour instead of assembling low-level steps.
+- **Narrow public surface** — only `pipelines/` and `jobs/` are public and versioned; everything else is an internal building block.
+- **Layered templates** — tasks → jobs → stages → pipelines, each tested in isolation and safely swappable.
+- **Fail fast at compile time** — schemas and guard expressions reject bad input before any agent runs.
+- **Fully-declared, self-documenting parameters** — required inputs have no default and fail loudly; the declaration is the contract.
+- **Protected internal state** — template-internal variables are `readonly` so consumers cannot silently override them.
+- **Defensive rendering** — templates produce valid output or a clear compile-time error, never something subtly wrong.
+
 ## Reference this repository
 
 In your consumer `azure-pipelines.yml`, add this repository as a template resource:
@@ -48,7 +60,7 @@ This repository follows a **set-menu + salad bar** model.
 
 Use this when you want an end-to-end Terraform pipeline with minimal setup.
 
-### Salad bar: modular templates for custom pipelines
+### Salad bar: modular job templates for custom pipelines
 
 Reusable job templates:
 
@@ -56,6 +68,8 @@ Reusable job templates:
 - [`jobs/terraform_deploy.yml`](jobs/terraform_deploy.yml)
 - [`jobs/terraform_gated_deployment.yml`](jobs/terraform_gated_deployment.yml)
 - [`jobs/manual_verification.yml`](jobs/manual_verification.yml)
+
+`tasks/`, `stages/`, and `utils/` are internal building blocks used to compose the above — not intended for direct external use.
 
 Supporting components:
 

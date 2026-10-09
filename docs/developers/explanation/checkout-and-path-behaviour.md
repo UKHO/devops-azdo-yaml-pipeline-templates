@@ -1,4 +1,4 @@
-# Azure DevOps Pipeline: Double Checkout Pathing Issues
+# Checkout and Path Behaviour
 
 When using the `checkout` task multiple times within a single job in Azure DevOps YAML pipelines, you may encounter unexpected pathing behaviour. By default, a single `checkout` task places files in the `Pipeline.Workspace`. However, introducing a second `checkout` task, even for the same repository, changes the behaviour: the first checkout now uses a subdirectory named after the repository.
 
@@ -18,7 +18,3 @@ To avoid pathing issues:
 
 - Explicitly set the `path` property for all `checkout` tasks to `$(Build.Repository.Name)`.
 - Update all job variables and step references to use this path.
-
----
-
-*This document was moved from `docs/` to `docs/developers/` for troubleshooting and advanced topics reference. See the developer documentation index for more details.*

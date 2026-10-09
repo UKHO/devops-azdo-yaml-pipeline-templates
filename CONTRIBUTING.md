@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to the **Azure DevOps YAML Pipeline Templates** repository. This document gives you everything you need to get started. For the full developer guide (YAML standards, template development, versioning, and more) see the [developer documentation](docs/developers/README.md).
+Thank you for your interest in contributing to the **Azure DevOps YAML Pipeline Templates** repository. This document gives you everything you need to get started. For the codemap see [ARCHITECTURE.md](ARCHITECTURE.md); for the full developer guide (YAML standards, template development, versioning, and more) see the [developer documentation](docs/developers/README.md).
 
 ---
 
@@ -26,15 +26,15 @@ Key rules:
 - **Squash-merge** into `main`; delete branches after merging.
 - Keep branches short-lived and scoped to one piece of work.
 
-For the full guide, including naming conventions and what is *not* branched, see [Branching Strategy](docs/developers/branching-strategy.md).
+For the full guide, including naming conventions and what is *not* branched, see [Branching Model](docs/developers/reference/branching-model.md).
 
 ---
 
 ## Workflow
 
 1. **Branch** — Create a feature branch from `main`.
-2. **Develop** — Implement your changes following the [YAML standards](docs/developers/02-yaml-standards.md) and [template development](docs/developers/03-template-development.md) guides.
-3. **Test** — Run the relevant test pipeline in Azure DevOps and verify correct compilation and execution. See [Testing](#testing) below.
+2. **Develop** — Implement your changes following the [YAML standards](docs/developers/reference/yaml-standards.md) and [template conventions](docs/developers/reference/template-conventions.md) guides.
+3. **Test** — Run the compile/test framework and verify correct compilation and execution. See [Test a Template](docs/developers/how-to/test-a-template.md).
 4. **Pull Request** — Open a PR and request review from the [code owners](CODEOWNERS). Use a draft PR early for initial feedback.
 5. **Merge** — After approval, squash-merge into `main` and delete your branch.
 
@@ -44,43 +44,26 @@ For the full guide, including naming conventions and what is *not* branched, see
 
 > **Note:** The testing approach for this repository is evolving. The long-term goal is to have dedicated Terraform-provisioned Azure DevOps pipelines that automatically validate template changes.
 
-For now:
-
-- Run the relevant test pipeline in Azure DevOps and verify correct compilation and execution.
-- For Terraform templates, use mock providers where available.
-- There are no local testing tools; all validation is done by running pipelines in Azure DevOps.
-- Document any testing limitations or manual verification steps in your Pull Request.
-
-See [Development Workflow & Testing](docs/developers/06-workflow-and-testing.md) for more detail.
+See [Test a Template](docs/developers/how-to/test-a-template.md) for the compile/test framework commands and the Pull Request process.
 
 ---
 
 ## Breaking Changes
 
-Before modifying an existing template, review the [Versioning & Breaking Changes](docs/developers/05-versioning-and-breaking-changes.md) guide. In short:
+Before modifying an existing template, review the [Versioning Policy](docs/developers/reference/versioning-policy.md) and [Release a Version](docs/developers/how-to/release-a-version.md) guides. In short:
 
 - Renaming, removing, or changing parameters, outputs, or defaults is a **breaking change**.
 - Breaking changes require a **major version bump**, a CHANGELOG entry, and a migration guide.
 - Adding optional parameters or new templates is non-breaking.
+- Only `pipelines/` and `jobs/` templates carry these guarantees — see [Architecture](ARCHITECTURE.md#invariants).
 
 ---
 
 ## Developer Documentation
 
-The full developer guide is split into focused topics:
+The full developer guide is organised by type in [`docs/developers/README.md`](docs/developers/README.md):
 
-| # | Topic                                                                                                  | Description                                  |
-|---|--------------------------------------------------------------------------------------------------------|----------------------------------------------|
-| 1 | [Repository Structure](docs/developers/01-repository-structure.md)                                     | Folder layout and placement rules            |
-| 2 | [YAML Standards](docs/developers/02-yaml-standards.md)                                                 | Formatting, naming, and key patterns         |
-| 3 | [Template Development](docs/developers/03-template-development.md)                                     | Parameters, scoping, decomposition           |
-| 4 | [Scripts & Tooling](docs/developers/04-scripts-and-tooling.md)                                         | Language policy, IDE setup, repo tools       |
-| 5 | [Versioning & Breaking Changes](docs/developers/05-versioning-and-breaking-changes.md)                 | SemVer rules and the breaking change process |
-| 6 | [Workflow & Testing](docs/developers/06-workflow-and-testing.md)                                       | Branching, PR process, testing               |
-| 7 | [Advanced Topics](docs/developers/07-advanced-topics.md)                                               | Pipeline decorators, ADRs, design philosophy |
-| 8 | [AI & Documentation](docs/developers/08-ai-and-documentation.md)                                       | AI usage policy, and which `.github/` agent files exist and who owns them |
-
-Additional references:
-
-- [Branching Strategy (full guide)](docs/developers/branching-strategy.md)
-- [Anti-Pattern: Double Wrapping](docs/developers/anti-pattern-double-wrapping.md)
+- **How-to**: [Test a Template](docs/developers/how-to/test-a-template.md), [Release a Version](docs/developers/how-to/release-a-version.md), [Update the Changelog](docs/developers/how-to/update-the-changelog.md)
+- **Reference**: [YAML Standards](docs/developers/reference/yaml-standards.md), [Template Conventions](docs/developers/reference/template-conventions.md), [Scripts & Tooling](docs/developers/reference/scripts-and-tooling.md), [Versioning Policy](docs/developers/reference/versioning-policy.md), [Branching Model](docs/developers/reference/branching-model.md)
+- **Explanation**: [Design Philosophy](docs/developers/explanation/design-philosophy.md), [Double Wrapping](docs/developers/explanation/double-wrapping.md), [Checkout and Path Behaviour](docs/developers/explanation/checkout-and-path-behaviour.md), [AI & Documentation](docs/developers/explanation/ai-and-documentation.md)
+- **ADRs**: [docs/developers/adr/](docs/developers/adr/README.md)

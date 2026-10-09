@@ -37,4 +37,4 @@ When checking out repositories, specify the repository name as the path.
 
 ## Repository Tools
 
-Check the `tools/` and `scripts/` directories for available utilities (e.g., `Set-TerraformVersionAcrossRepository.ps1`).
+Check the `tools/` and `scripts/` directories for available utilities (e.g., `Set-TerraformVersionAcrossRepository.ps1`). See [Architecture](../../../ARCHITECTURE.md) for the distinction between the two folders.

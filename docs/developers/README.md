@@ -1,27 +1,43 @@
 # Developer Documentation
 
-Welcome to the developer documentation for the Azure DevOps YAML Pipeline Templates repository. Start with the guides below — they cover everything you need to be productive.
+Welcome to the developer documentation for the Azure DevOps YAML Pipeline Templates repository. Start with [`ARCHITECTURE.md`](../../ARCHITECTURE.md) for the codemap, then use the sections below.
+
+Pages are organised by type:
+
+- **How-to** — task-oriented steps, for when you already know the basics.
+- **Reference** — precise, complete description of a convention or policy.
+- **Explanation** — background and rationale for a design decision.
+- **ADR** — a permanent record of one significant decision.
 
 ---
 
-## Developer Guide
+## How-to
 
-| # | Topic                                                                                  | Description                                                               |
-|---|----------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| 1 | [Repository Structure & Organisation](01-repository-structure.md)                      | Folder layout, placement rules, set-menu vs. salad-bar approach           |
-| 2 | [YAML Standards & Best Practices](02-yaml-standards.md)                                | AzDO YAML limitations, formatting, naming conventions, key patterns       |
-| 3 | [Template Development](03-template-development.md)                                     | Parameters, variable scoping, decomposition, documentation, anti-patterns |
-| 4 | [Scripts & Tooling](04-scripts-and-tooling.md)                                         | Language policy, when to script, file paths, IDE setup, repo tools        |
-| 5 | [Versioning & Breaking Changes](05-versioning-and-breaking-changes.md)                 | SemVer rules, subtle breaking changes, the breaking change process        |
-| 6 | [Development Workflow & Testing](06-workflow-and-testing.md)                           | Branching, PR process, testing approach                                   |
-| 7 | [Advanced Topics & Architecture](07-advanced-topics.md)                                | Pipeline decorators, ADRs, design philosophy                              |
-| 8 | [AI & Documentation](08-ai-and-documentation.md)                                       | AI usage policy, and which `.github/` agent files exist and who owns them |
+| Guide | Use when you need to... |
+|---|---|
+| [Test a Template](how-to/test-a-template.md) | Run the compile/test framework and follow the PR process |
+| [Release a Version](how-to/release-a-version.md) | Ship a breaking change or tag a release |
+| [Update the Changelog](how-to/update-the-changelog.md) | Write a `CHANGELOG.md` entry |
 
----
+## Reference
 
-## Reference Documents
+| Guide | Covers |
+|---|---|
+| [YAML Standards](reference/yaml-standards.md) | AzDO YAML limitations, formatting, naming conventions |
+| [Template Conventions](reference/template-conventions.md) | Parameters, variable scoping, decomposition, anti-patterns |
+| [Scripts & Tooling](reference/scripts-and-tooling.md) | Language policy, when to script, file paths, IDE setup |
+| [Versioning Policy](reference/versioning-policy.md) | SemVer rules, public API scope, breaking-change examples |
+| [Branching Model](reference/branching-model.md) | Branch naming, PR workflow, what is not branched |
 
-- [Branching Strategy (full guide)](branching-strategy.md)
-- [Anti-Pattern: Double Wrapping](anti-pattern-double-wrapping.md)
-- [Double Checkout Pathing Problems](quark-double-checkouts-pathing-problems.md)
-- [How to Update the Changelog](changelog-guidelines.md)
+## Explanation
+
+| Guide | Covers |
+|---|---|
+| [Design Philosophy](explanation/design-philosophy.md) | Why set-menu + salad bar |
+| [Double Wrapping](explanation/double-wrapping.md) | Why wrapping templates in templates went wrong, and the fix |
+| [Checkout and Path Behaviour](explanation/checkout-and-path-behaviour.md) | Why double-checkout jobs need an explicit `path` |
+| [AI & Documentation](explanation/ai-and-documentation.md) | AI usage policy, and which `.github/` agent files exist and who owns them |
+
+## Architecture Decision Records
+
+See [`adr/`](adr/README.md) for the ADR process and index.
