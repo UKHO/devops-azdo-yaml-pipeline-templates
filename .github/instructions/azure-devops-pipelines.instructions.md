@@ -215,7 +215,7 @@ steps:
 - Combining multiple unrelated templates into a workflow
 - Enforcing organizational standards with validation
 
-See: `docs/anti-pattern-double-wrapping.md`
+See: `docs/developers/anti-pattern-double-wrapping.md`
 
 ### ❌ Hardcoding Sensitive Values
 
@@ -474,9 +474,9 @@ When creating a new template:
 ## Additional Resources
 
 - **Repository Guidelines:** `.github/copilot-instructions.md`
-- **Anti-patterns:** `docs/anti-pattern-double-wrapping.md`
+- **Anti-patterns:** `docs/developers/anti-pattern-double-wrapping.md`
 - **User Documentation:** `docs/user-docs/README.md`
-- **Versioning Guide:** `docs/how-to-version.md`
+- **Versioning Guide:** `docs/developers/how-to-version.md`
 - **EditorConfig Spec:** https://editorconfig.org/
 - **Azure DevOps YAML Schema:** https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
 

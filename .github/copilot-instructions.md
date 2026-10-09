@@ -33,7 +33,7 @@ This repository follows a "set-menu with salad bar" approach:
 - **Self-documenting parameters:** Use `displayName`, `type`, and sensible defaults on all
   parameters
 - **No double-wrapping:** Do not wrap a template inside another template unless absolutely
-  necessary — see `docs/anti-pattern-double-wrapping.md`
+  necessary — see `docs/developers/anti-pattern-double-wrapping.md`
 - **Security:** Never hardcode secrets — use Azure Key Vault or variable groups
 - **Breaking changes:** Increment the major version and update `CHANGELOG.md`
 
