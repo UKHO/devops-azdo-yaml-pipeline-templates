@@ -1,6 +1,6 @@
 ---
 description: 'Azure DevOps Pipeline YAML best practices for devops-azdo-yaml-pipeline-templates repository'
-applyTo: '**/*.yml'
+applyTo: '**/*.{yml,yaml}'
 ---
 
 # Azure DevOps Pipeline YAML Best Practices
@@ -8,6 +8,10 @@ applyTo: '**/*.yml'
 This guide applies to all YAML files in the `devops-azdo-yaml-pipeline-templates` repository.
 
 ## Formatting Standards (MUST FOLLOW)
+
+**File extension is always `.yml`, never `.yaml`.** This matches Azure DevOps's own default
+(`azure-pipelines.yml`) and every existing template in this repository. Reject any new file
+ending in `.yaml`.
 
 **Always adhere to `.editorconfig` rules:**
 - **Line Endings:** LF (Unix-style, not CRLF)
@@ -22,6 +26,9 @@ This guide applies to all YAML files in the `devops-azdo-yaml-pipeline-templates
 - ❌ Missing final newline
 
 ## Template Documentation Strategy
+
+Documentation location depends on template type — see [Architecture](../../ARCHITECTURE.md#documentation-location-by-folder)
+for the full rule. The exact required format for each type follows.
 
 ### Tasks and Utils (`tasks/`, `utils/`) - Comprehensive In-File Documentation Required
 
@@ -54,26 +61,17 @@ steps:
   # ...implementation...
 ```
 
-**Required Elements:**
-- ✅ Purpose statement (one to two lines)
-- ✅ All parameters documented with types, required/optional status, and defaults
-- ✅ Enum parameters include `Values: a, b, c.` in their description
-- ✅ Required params omit `Default:`; optional params include it
-- ✅ Conditionally required params marked `optional` with a note (e.g., "required when …")
-- ✅ At least one realistic example including all required parameters
-- ✅ When three or more examples, label each additional with a `# Description` comment
-- ✅ Notes section with a `See:` link to Microsoft docs when available
+**Required Elements:** see [Template Conventions](../../docs/developers/reference/template-conventions.md#task-template-file-documentation)
+for the full rules (enum `Values:` notation, required vs. optional `Default:`, conditionally-required notes, example labelling, `See:` links).
 
 ### Pipelines, Jobs, and Stages (`pipelines/`, `jobs/`, `stages/`) - External Documentation
 
-These templates should **NOT** have comprehensive in-file documentation blocks:
-
-- ✅ Use self-documenting parameter names
-- ✅ Use `displayName` attribute on all parameters
-- ✅ Keep template files clean and implementation-focused
-- ✅ Document comprehensively in `docs/` directory (e.g., `docs/user-docs/infrastructure_pipeline.md`)
+These templates should **NOT** have comprehensive in-file documentation blocks — use self-documenting
+parameter names and `displayName`, and document comprehensively in `docs/` instead.
 
 ### Schemas (`schemas/`) - Brief Comments Only
+
+Brief in-file comment block only — see [Template Conventions](../../docs/developers/reference/template-conventions.md#schema-template-documentation). Format:
 
 ```yaml
 # Schema Template: Name
@@ -83,6 +81,26 @@ These templates should **NOT** have comprehensive in-file documentation blocks:
 parameters:
   # ...parameters...
 ```
+
+Schema templates validate complex object parameters at **compile time** by emitting a one-key mapping whose value is `"Error"` under a `${{ if ... }}` guard — when the condition is true, compilation fails and the key is printed as the message. Author new schemas with this pattern (required-field, type, and allowed-value checks), ending each message with a `See:` link. See [Schema Validation](../../docs/developers/reference/schema-validation.md) for the full mechanism and pattern catalogue.
+
+```yaml
+steps:
+  - ${{ if or(not(parameters.Config.Name), eq(parameters.Config.Name, '')) }}:
+      - "Invalid Config: field 'Name' is required. See docs/definition_docs/path/to/details.md": "Error"
+  - ${{ if notIn(parameters.Config.Type, 'KeyVault') }}:
+      - "Invalid Config: field 'Type' must be 'KeyVault'. See docs/definition_docs/path/to/details.md": "Error"
+```
+
+## Cross-Platform and Open-Source Tasks (MUST FOLLOW)
+
+**Templates must run on both Windows and Linux agents.** Do not assume an OS or shell:
+
+- Use `pwsh` (PowerShell Core) for scripting steps, not `powershell` (Windows-only) or `bash` (Unix-only).
+- Avoid hardcoded path separators and OS-specific shell built-ins; use cross-platform constructs.
+- Do not assume a specific agent image — consumers choose their pool.
+
+**Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension. For example, this repository invokes the Terraform CLI through a `cmdline`/`script` step rather than a Marketplace Terraform task, so no extension install is required. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
 
 ## Template Structure and Design
 
@@ -117,26 +135,8 @@ parameters:
     displayName: 'Only needed when Flag is true (required when Flag is set)'
 ```
 
-**Guidelines:**
-- Use `displayName` on **all** parameters for clarity
-- Choose appropriate `type` for validation
-- Use `values` to restrict to known options
-- Comment `# NO default - Consumer must provide this` for required parameters, including
-  required enumerations (those with `values:` but no `default:`)
-- Include `(required)` at the end of `displayName` for required parameters
-- Provide sensible defaults for optional parameters
-- **Conditionally required** parameters (optional by YAML definition but required when another
-  parameter is set) should document the condition in their `displayName`
-
-**Parameter property ordering** (for `tasks/` and `utils/` templates):
-
-Properties within each parameter must appear in this order:
-
-1. `name`
-2. `type`
-3. `default` (or the `# NO default` comment)
-4. `values` (when applicable)
-5. `displayName`
+**Guidelines:** see [Template Conventions](../../docs/developers/reference/template-conventions.md#parameters)
+for the full parameter naming, ordering, and required/optional conventions.
 
 ### Variable Best Practices
 
@@ -148,17 +148,20 @@ variables:
   - name: RuntimeVariable
     value: $(Build.BuildId)  # Runtime expression
 
+  - name: InternalOnly
+    value: $(Build.SourcesDirectory)/${{ parameters.RelativePath }}
+    readonly: true  # Prevents consumer pipelines from overriding this variable
+
   # Variable from external template
   - template: ../utils/variable-template.yml
     parameters:
       SomeParam: 'value'
 ```
 
-**Guidelines:**
-- Use compile-time expressions (`${{ }}`) for parameters and conditions
-- Use runtime expressions (`$()`) for built-in variables and outputs
-- Organize variables logically (group related variables together)
-- Use meaningful names that indicate purpose
+**Guidelines:** see [Template Conventions](../../docs/developers/reference/template-conventions.md#protecting-template-internal-variables)
+for variable scoping and the `readonly: true` rule. In short: use compile-time expressions
+(`${{ }}`) for parameters/conditions, runtime expressions (`$()`) for built-in variables, and
+mark any template-internal variable `readonly: true`.
 
 ### Conditional Logic
 
@@ -172,9 +175,8 @@ variables:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
 ```
 
-**When to use each:**
-- **Compile-time** (`${{ if }}`): Template logic, parameter-based decisions, structure changes
-- **Runtime** (`condition:`): Build results, variable values, dynamic conditions
+**When to use each:** see [YAML Standards](../../docs/developers/reference/yaml-standards.md#key-patterns)
+for the full compile-time vs. runtime distinction.
 
 ## Anti-Patterns (AVOID THESE)
 
@@ -191,10 +193,10 @@ steps:
       Command: 'apply'
 ```
 
-**Instead, use a single comprehensive template:**
+**Instead, use a single comprehensive template** that selects behaviour at compile time, driven by built-in/`script` steps rather than a paid Marketplace task:
 
 ```yaml
-# ✅ GOOD - Single template with all logic
+# ✅ GOOD - Single template with all logic, no paid extension required
 # terraform.yml
 parameters:
   - name: Command
@@ -205,17 +207,14 @@ steps:
   - ${{ if eq(parameters.Command, 'init') }}:
       # ...init-specific logic...
   - ${{ else }}:
-      - task: TerraformTask@5
-        inputs:
-          command: ${{ parameters.Command }}
+      - script: terraform ${{ parameters.Command }}
+        displayName: 'Terraform ${{ parameters.Command }}'
 ```
 
-**Exceptions where wrappers are acceptable:**
-- Orchestration at different levels (pipeline → stage → job → task)
-- Combining multiple unrelated templates into a workflow
-- Enforcing organizational standards with validation
-
-See: `docs/anti-pattern-double-wrapping.md`
+**Exceptions where wrapping is acceptable:** orchestration across pipeline→stage→job→task
+levels, combining unrelated templates into one workflow, or enforcing extra validation. See
+[Double Wrapping](../../docs/developers/explanation/double-wrapping.md) for the full rationale
+and exception list — do not add new exceptions here without updating that file too.
 
 ### ❌ Hardcoding Sensitive Values
 
@@ -279,35 +278,17 @@ trigger:
 
 ## Breaking Changes and Versioning
 
-This repository follows **Semantic Versioning 2.0.0**:
-
-- **Major version** (1.0.0 → 2.0.0): Breaking changes
-- **Minor version** (1.0.0 → 1.1.0): New features, backward compatible
-- **Patch version** (1.0.0 → 1.0.1): Bug fixes, backward compatible
-
-### Breaking Changes Include:
-
-- ❌ Renaming, removing, or changing type of parameters
-- ❌ Removing or renaming template files
-- ❌ Changing default values that affect behavior
-- ❌ Removing steps, jobs, or outputs
-- ❌ Changing expected input/output structure
-
-### Non-Breaking Changes Include:
-
-- ✅ Adding optional parameters with defaults
-- ✅ Adding new steps that don't affect existing behavior
-- ✅ Improving documentation
-- ✅ Fixing bugs
-- ✅ Internal refactoring
-
-**When making breaking changes:**
-1. Increment major version
-2. Update `CHANGELOG.md`
-3. Document migration steps
-4. Consider deprecation period if feasible
+See [Versioning Policy](../../docs/developers/reference/versioning-policy.md) for the full
+SemVer rules and worked breaking/non-breaking examples. In short: a breaking change to a
+`pipelines/`/`jobs/` template requires a major version bump, a `CHANGELOG.md` entry (see
+[Update the Changelog](../../docs/developers/how-to/update-the-changelog.md)), migration
+steps, and inline comments in the affected template files.
 
 ## Security Best Practices
+
+See [Template Conventions](../../docs/developers/reference/template-conventions.md#security)
+for the full policy (Key Vault, variable groups, managed identities, least privilege). Exact
+syntax for the common cases:
 
 ### Secrets Management
 
@@ -331,10 +312,8 @@ variables:
 
 ### Service Connections
 
-- Use **managed identities** when possible instead of service principals
-- Follow **principle of least privilege** (minimal required permissions)
-- Use **environment-specific** service connections
-- Implement **approval gates** for production deployments
+See [Template Conventions](../../docs/developers/reference/template-conventions.md#security) —
+managed identities, least privilege, environment-specific connections, approval gates.
 
 ### Secret Scanning
 
@@ -346,6 +325,9 @@ variables:
 ```
 
 ## Performance Optimization
+
+See [Template Conventions](../../docs/developers/reference/template-conventions.md#performance-patterns)
+for the full policy. Exact syntax:
 
 ### Caching Dependencies
 
@@ -389,6 +371,9 @@ steps:
 ```
 
 ## Error Handling and Cleanup
+
+See [Template Conventions](../../docs/developers/reference/template-conventions.md#error-handling)
+for the full policy. Exact syntax:
 
 ### Proper Conditions
 
@@ -447,14 +432,17 @@ stages:
 
 ### Parameter Naming
 
-- Use **PascalCase** for parameter names: `TerraformVersion`, `ServiceConnectionName`
-- Use full words, avoid abbreviations: `TargetEnvironment` not `TgtEnv`
-- Prefix boolean parameters with verbs: `EnableLogging`, `AllowFailure`, `RunTests`
+See [Template Conventions](../../docs/developers/reference/template-conventions.md#parameters) —
+PascalCase, full words over abbreviations, verb-prefixed booleans.
 
 ### Filename Naming (`tasks/`, `utils/`)
 
-- Use **snake_case** based on the template's purpose, not the Azure DevOps task name
-- Examples: `azure_key_vault.yml`, `publish_pipeline_artifact.yml`, `file_transform.yml`
+See [YAML Standards](../../docs/developers/reference/yaml-standards.md#formatting--naming) —
+snake_case, `.yml` never `.yaml`.
+
+## Testing a New or Changed Template
+
+Validate template changes by compiling them before opening a Pull Request. Add a `*_test.yml` fixture under `tests/<area>/<template-name>/` (referencing the template as a consumer would, pinning the repo resource `ref` to `${{ variables['Build.SourceBranch'] }}`), and for `tasks/`/`utils/` optionally a `*.CompileTests.ps1` using `Run-Tests` with `ValidTestCases`/`InvalidTestCases`. Link new fixtures from the user doc's `**Live example**` entries. See [Test a Template](../../docs/developers/how-to/test-a-template.md#writing-a-test) for the full pattern and run commands.
 
 ## Template Reusability Checklist
 
@@ -464,19 +452,25 @@ When creating a new template:
 - [ ] All parameters have types and displayName
 - [ ] Defaults are sensible and documented
 - [ ] No hardcoded values (use parameters or variables)
+- [ ] Template-internal variables are marked `readonly: true`
 - [ ] No double-wrapping or unnecessary abstraction
 - [ ] Error handling implemented where needed
 - [ ] Follows `.editorconfig` formatting rules
 - [ ] Security best practices followed
 - [ ] Tested with realistic scenarios
+- [ ] Added a compile test fixture under `tests/` (and linked it from the user doc's Live example)
 - [ ] Added example usage (in-file or in docs)
 
 ## Additional Resources
 
 - **Repository Guidelines:** `.github/copilot-instructions.md`
-- **Anti-patterns:** `docs/anti-pattern-double-wrapping.md`
+- **Architecture:** `ARCHITECTURE.md`
+- **Anti-patterns:** `docs/developers/explanation/double-wrapping.md`
+- **Template Conventions:** `docs/developers/reference/template-conventions.md`
+- **Schema Validation:** `docs/developers/reference/schema-validation.md`
+- **YAML Standards:** `docs/developers/reference/yaml-standards.md`
+- **Versioning Guide:** `docs/developers/reference/versioning-policy.md`
 - **User Documentation:** `docs/user-docs/README.md`
-- **Versioning Guide:** `docs/how-to-version.md`
 - **EditorConfig Spec:** https://editorconfig.org/
 - **Azure DevOps YAML Schema:** https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
 

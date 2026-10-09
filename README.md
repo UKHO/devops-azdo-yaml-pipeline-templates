@@ -1,20 +1,15 @@
- # Azure DevOps YAML Pipeline Templates
+# Azure DevOps YAML Pipeline Templates
 
-This repository provides reusable Azure DevOps YAML templates for Terraform
-infrastructure delivery on Azure.
+This repository provides reusable Azure DevOps YAML templates for Terraform infrastructure delivery on Azure.
 
-The goal is to help teams ship faster with consistent, production-ready
-pipelines, while reducing duplication across repositories.
+The goal is to help teams ship faster with consistent, production-ready pipelines, while reducing duplication across repositories.
 
 ## Why use these templates
 
-- **Standardization**: consistent Terraform build/deploy behavior across teams
-  and services.
+- **Standardization**: consistent Terraform build/deploy behavior across teams and services.
 - **Faster delivery**: reuse templates instead of rebuilding pipeline logic.
-- **Safer releases**: built-in support for plan/apply workflows, verification,
-  and approval gates.
-- **Composable architecture**: use full pipelines for quick adoption, or modular
-  jobs/templates for custom workflows.
+- **Safer releases**: built-in support for plan/apply workflows, verification, and approval gates.
+- **Composable architecture**: use full pipelines for quick adoption, or modular jobs/templates for custom workflows.
 
 ## Versioning scope
 
@@ -25,10 +20,22 @@ SemVer compatibility guarantees apply to templates in:
 - [pipelines](pipelines)
 - [jobs](jobs)
 
+## Design philosophy
+
+These templates are built on a few deliberate principles (see [Design Philosophy](docs/developers/explanation/design-philosophy.md) for the full rationale):
+
+- **Behavioural solutions, not building blocks** — the public templates deliver complete outcomes, so you adopt behaviour instead of assembling low-level steps.
+- **Narrow public surface** — only `pipelines/` and `jobs/` are public and versioned; everything else is an internal building block.
+- **Layered templates** — tasks → jobs → stages → pipelines, each tested in isolation and safely swappable.
+- **Fail fast at compile time** — schemas and guard expressions reject bad input before any agent runs.
+- **Fully-declared, self-documenting parameters** — required inputs have no default and fail loudly; the declaration is the contract.
+- **Protected internal state** — template-internal variables are `readonly` so consumers cannot silently override them.
+- **Defensive rendering** — templates produce valid output or a clear compile-time error, never something subtly wrong.
+- **Cross-platform and open-source** — templates run on both Windows and Linux agents and prefer built-in or open-source tasks over paid Marketplace extensions.
+
 ## Reference this repository
 
-In your consumer `azure-pipelines.yml`, add this repository as a template
-resource:
+In your consumer `azure-pipelines.yml`, add this repository as a template resource:
 
 ```yaml
 resources:
@@ -37,10 +44,12 @@ resources:
       type: github
       endpoint: UKHO
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/0.1.0
+      ref: refs/tags/0.3.1
 ```
 
 Then reference templates using `@AzDOPipelineTemplates`.
+
+Always pin `ref` to a specific tagged release (`MAJOR.MINOR.PATCH`). Tags are immutable and never moved once pushed. An unpinned reference (e.g. `ref: refs/heads/main`, or omitting `ref` entirely) receives every merge to `main` immediately, with no warning.
 
 ## What is available
 
@@ -52,7 +61,7 @@ This repository follows a **set-menu + salad bar** model.
 
 Use this when you want an end-to-end Terraform pipeline with minimal setup.
 
-### Salad bar: modular templates for custom pipelines
+### Salad bar: modular job templates for custom pipelines
 
 Reusable job templates:
 
@@ -60,6 +69,8 @@ Reusable job templates:
 - [`jobs/terraform_deploy.yml`](jobs/terraform_deploy.yml)
 - [`jobs/terraform_gated_deployment.yml`](jobs/terraform_gated_deployment.yml)
 - [`jobs/manual_verification.yml`](jobs/manual_verification.yml)
+
+`tasks/`, `stages/`, and `utils/` are internal building blocks used to compose the above — not intended for direct external use.
 
 Supporting components:
 
@@ -71,26 +82,22 @@ Supporting components:
 
 ## Quality assurance and CI/CD confidence
 
-These templates are validated with compile/test automation and runnable template
-test suites.
+These templates are validated with compile/test automation and runnable template test suites.
 
 - PowerShell compile/test framework in [`tests/framework`](tests/framework)
-- Job test runner:
-  [`tests/jobs/jobs.CompileTests.ps1`](tests/jobs/jobs.CompileTests.ps1)
-- Pipeline test runner:
-  [`tests/pipelines/pipelines.CompileTests.ps1`](tests/pipelines/pipelines.CompileTests.ps1)
+- Job test runner: [`tests/jobs/jobs.CompileTests.ps1`](tests/jobs/jobs.CompileTests.ps1)
+- Pipeline test runner: [`tests/pipelines/pipelines.CompileTests.ps1`](tests/pipelines/pipelines.CompileTests.ps1)
 - Template test suites under [`tests`](tests), including:
   - [`tests/pipelines/terraform_pipeline`](tests/pipelines/terraform_pipeline)
   - [`tests/jobs/manual_verification`](tests/jobs/manual_verification)
   - [`tests/jobs/terraform_build`](tests/jobs/terraform_build)
   - [`tests/jobs/terraform_deploy`](tests/jobs/terraform_deploy)
   - [`tests/jobs/terraform_gated_deployment`](tests/jobs/terraform_gated_deployment)
-- Merge policy: every merge to `main` requires all Azure DevOps template tests
-  to pass successfully
 - CI/CD infrastructure assets and deployment utilities in [`cicd`](cicd)
+
+This repository's own template changes are covered by an automated compile/test suite (see above) that must pass before a Pull Request can merge to `main`. That suite validates the templates compile and run as expected; it does not, on its own, guarantee that `main` is as stable as a tagged release — pinning a tagged `MAJOR.MINOR.PATCH` version is the only way to get a fixed, reproducible set of templates. We recommend pinning a tag for any production consumer pipeline.
 
 ## Documentation
 
 - User documentation: [`docs/user-docs/README.md`](docs/user-docs/README.md)
-- Definition/reference docs:
-  [`docs/definition_docs`](docs/definition_docs)
+- Definition/reference docs: [`docs/definition_docs`](docs/definition_docs)

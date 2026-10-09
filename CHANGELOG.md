@@ -2,6 +2,8 @@
 
 All notable changes to this repository are documented in this file.
 
+## [Unreleased]
+
 ## [0.3.1] - 2026-10-06
 
 ### Fixed
