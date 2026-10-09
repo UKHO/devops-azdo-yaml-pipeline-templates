@@ -47,6 +47,12 @@ Conceptually related values are grouped into a single object parameter (for exam
 
 A single template can select an execution strategy from its inputs instead of forcing consumers into separate templates. For example, `tasks/terraform.yml` runs a native script when no `ServiceConnection` is supplied and switches to `AzureCLI@2` for authenticated access when one is — one interface, the right behaviour chosen at compile time.
 
+## Cross-Platform and Open-Source by Default
+
+Templates are built to run on **both Windows and Linux** agents. Scripting is PowerShell Core (`pwsh`), which is cross-platform, and template logic avoids OS-specific assumptions (path separators, shell built-ins) so the same template works regardless of the agent image. Consumers choose their agent pool; the templates do not force one.
+
+We also deliberately favour **open-source, freely available task extensions** over proprietary or paid Marketplace tasks. Where a built-in Azure DevOps task or an open-source equivalent exists, we use it, so consumers do not need to install licensed extensions into their organisation to use these templates. This keeps the templates portable across organisations and avoids coupling consumers to paid dependencies.
+
 ## What to Template
 
 Not everything should become a template. Only abstract logic that genuinely benefits from reuse, validation, or a stable interface — templating trivial or one-off YAML adds indirection without payoff. (Some elements also cannot be templated at all, such as the root `trigger` and `pr` blocks.)

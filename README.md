@@ -31,6 +31,7 @@ These templates are built on a few deliberate principles (see [Design Philosophy
 - **Fully-declared, self-documenting parameters** — required inputs have no default and fail loudly; the declaration is the contract.
 - **Protected internal state** — template-internal variables are `readonly` so consumers cannot silently override them.
 - **Defensive rendering** — templates produce valid output or a clear compile-time error, never something subtly wrong.
+- **Cross-platform and open-source** — templates run on both Windows and Linux agents and prefer built-in or open-source tasks over paid Marketplace extensions.
 
 ## Reference this repository
 

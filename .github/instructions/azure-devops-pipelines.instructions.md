@@ -82,6 +82,26 @@ parameters:
   # ...parameters...
 ```
 
+Schema templates validate complex object parameters at **compile time** by emitting a one-key mapping whose value is `"Error"` under a `${{ if ... }}` guard — when the condition is true, compilation fails and the key is printed as the message. Author new schemas with this pattern (required-field, type, and allowed-value checks), ending each message with a `See:` link. See [Writing a Schema (Validation) Template](../../docs/developers/reference/template-conventions.md#writing-a-schema-validation-template) for the full rules.
+
+```yaml
+steps:
+  - ${{ if or(not(parameters.Config.Name), eq(parameters.Config.Name, '')) }}:
+      - "Invalid Config: field 'Name' is required. See docs/definition_docs/path/to/details.md": "Error"
+  - ${{ if notIn(parameters.Config.Type, 'KeyVault') }}:
+      - "Invalid Config: field 'Type' must be 'KeyVault'. See docs/definition_docs/path/to/details.md": "Error"
+```
+
+## Cross-Platform and Open-Source Tasks (MUST FOLLOW)
+
+**Templates must run on both Windows and Linux agents.** Do not assume an OS or shell:
+
+- Use `pwsh` (PowerShell Core) for scripting steps, not `powershell` (Windows-only) or `bash` (Unix-only).
+- Avoid hardcoded path separators and OS-specific shell built-ins; use cross-platform constructs.
+- Do not assume a specific agent image — consumers choose their pool.
+
+**Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension. For example, this repository invokes the Terraform CLI through a `cmdline`/`script` step rather than a Marketplace Terraform task, so no extension install is required. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
+
 ## Template Structure and Design
 
 ### Parameter Best Practices
@@ -173,10 +193,10 @@ steps:
       Command: 'apply'
 ```
 
-**Instead, use a single comprehensive template:**
+**Instead, use a single comprehensive template** that selects behaviour at compile time, driven by built-in/`script` steps rather than a paid Marketplace task:
 
 ```yaml
-# ✅ GOOD - Single template with all logic
+# ✅ GOOD - Single template with all logic, no paid extension required
 # terraform.yml
 parameters:
   - name: Command
@@ -187,9 +207,8 @@ steps:
   - ${{ if eq(parameters.Command, 'init') }}:
       # ...init-specific logic...
   - ${{ else }}:
-      - task: TerraformTask@5
-        inputs:
-          command: ${{ parameters.Command }}
+      - script: terraform ${{ parameters.Command }}
+        displayName: 'Terraform ${{ parameters.Command }}'
 ```
 
 **Exceptions where wrapping is acceptable:** orchestration across pipeline→stage→job→task
@@ -421,6 +440,10 @@ PascalCase, full words over abbreviations, verb-prefixed booleans.
 See [YAML Standards](../../docs/developers/reference/yaml-standards.md#formatting--naming) —
 snake_case, `.yml` never `.yaml`.
 
+## Testing a New or Changed Template
+
+Validate template changes by compiling them before opening a Pull Request. Add a `*_test.yml` fixture under `tests/<area>/<template-name>/` (referencing the template as a consumer would, pinning the repo resource `ref` to `${{ variables['Build.SourceBranch'] }}`), and for `tasks/`/`utils/` optionally a `*.CompileTests.ps1` using `Run-Tests` with `ValidTestCases`/`InvalidTestCases`. Link new fixtures from the user doc's `**Live example**` entries. See [Test a Template](../../docs/developers/how-to/test-a-template.md#writing-a-test) for the full pattern and run commands.
+
 ## Template Reusability Checklist
 
 When creating a new template:
@@ -435,6 +458,7 @@ When creating a new template:
 - [ ] Follows `.editorconfig` formatting rules
 - [ ] Security best practices followed
 - [ ] Tested with realistic scenarios
+- [ ] Added a compile test fixture under `tests/` (and linked it from the user doc's Live example)
 - [ ] Added example usage (in-file or in docs)
 
 ## Additional Resources
