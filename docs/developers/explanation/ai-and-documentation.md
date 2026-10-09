@@ -20,6 +20,7 @@ This repository uses GitHub Copilot via files under `.github/`. This page intent
 |---|---|---|
 | `.github/copilot-instructions.md` | Always (repo-wide) | Whoever changes a repo-wide convention |
 | `.github/instructions/*.instructions.md` | Automatically, scoped to files matching each file's `applyTo` glob | Whoever changes the convention it encodes |
-| `.github/prompts/*.prompt.md` | On-demand, invoked manually | Not currently maintained against active use — confirm these are still used before relying on them |
+
+There are no `.github/prompts/*.prompt.md` files in this repository; agent behaviour is driven solely by `copilot-instructions.md` and the `instructions/` files above.
 
 If you change a convention documented in this repo, update the matching `.github/` file in the same Pull Request. If a `.github/` file and a human doc disagree, the human doc (this one, or the relevant reference page) is authoritative for policy; the `.github/` file is authoritative only for exact enforceable wording given to the AI.

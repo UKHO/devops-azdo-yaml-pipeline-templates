@@ -14,7 +14,7 @@ Pages are organised by type:
 ## How-to
 
 | Guide | Use when you need to... |
-|---|---|
+| --- | --- |
 | [Test a Template](how-to/test-a-template.md) | Run the compile/test framework and follow the PR process |
 | [Release a Version](how-to/release-a-version.md) | Ship a breaking change or tag a release |
 | [Update the Changelog](how-to/update-the-changelog.md) | Write a `CHANGELOG.md` entry |
@@ -22,7 +22,7 @@ Pages are organised by type:
 ## Reference
 
 | Guide | Covers |
-|---|---|
+| --- | --- |
 | [YAML Standards](reference/yaml-standards.md) | AzDO YAML limitations, formatting, naming conventions |
 | [Template Conventions](reference/template-conventions.md) | Parameters, variable scoping, decomposition, anti-patterns |
 | [Scripts & Tooling](reference/scripts-and-tooling.md) | Language policy, when to script, file paths, IDE setup |
@@ -32,7 +32,7 @@ Pages are organised by type:
 ## Explanation
 
 | Guide | Covers |
-|---|---|
+| --- | --- |
 | [Design Philosophy](explanation/design-philosophy.md) | Why set-menu + salad bar |
 | [Double Wrapping](explanation/double-wrapping.md) | Why wrapping templates in templates went wrong, and the fix |
 | [Checkout and Path Behaviour](explanation/checkout-and-path-behaviour.md) | Why double-checkout jobs need an explicit `path` |
