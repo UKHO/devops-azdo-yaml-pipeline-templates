@@ -1,314 +1,70 @@
 # Terraform Pipeline
 
-A standardised infrastructure deployment pipeline template that uses terraform as the IaC tooling and Azure as the cloud provider. This pipeline will:
-
-- Build/Validate/Package the terraform files
-- Deploy the packaged terraform files to environments with optional [manual verification gates](terraform_pipeline_manual_verification.md)
-
----
-
-## Important Setup Information
-
-### Repository Resource Configuration
-
-**Critical**: The pipeline requires access to this template repository during execution. You **must** define the repository resource with the name `AzDOPipelineTemplates` in your `azure-pipelines.yml` because the pipeline internally checks out this repository to access helper scripts during the deployment stage.
-
-Example:
-```yaml
-resources:
-  repositories:
-    - repository: AzDOPipelineTemplates
-      type: github
-      endpoint: UKHO                    # Your GitHub service connection
-      name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/<version>          # Always use a specific version tag
-```
-
-See the [Basic Usage](#basic-usage) example below for the complete configuration.
-
-### Agent Pool Considerations
-
-This pipeline template does not expose a per-environment pool setting through `EnvironmentConfigs`.
-`EnvironmentConfig.Stage` supports `DependsOn` and `Condition`, but not `Pool`.
-
-If you do not specify a pool, Azure DevOps uses the pipeline/job default pool configured for the run.
-
-**Important considerations:**
-- To set a pool for the entire consumer pipeline, define a top-level `pool:` in your `azure-pipelines.yml`
-- If you need per-job pool control, use the job templates directly (for example `jobs/terraform_build.yml`, `jobs/terraform_deploy.yml`, `jobs/terraform_gated_deployment.yml`) because those templates expose a `Pool` parameter
-- Ensure your chosen pool has internet access to download Terraform CLI
-- For self-hosted agents, verify Terraform can be installed on the agent OS
-
-Example (top-level pool in consumer pipeline):
-
-```yaml
-pool:
-  vmImage: ubuntu-latest
-
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    # ...template parameters...
-```
-
-### Limitations & Known Issues
-
-#### Plan Generation and Reuse
-
-The Terraform plan generated during the deploy stage's Plan job is evaluated during manual verification but is then discarded before the `terraform apply` runs. This means infrastructure provisioned during apply may differ from what was reviewed in the plan if there are external changes between stages.
-
-**Recommendation**: Use `VerificationMode: VerifyOnDestroy` during deployments to add an extra layer of safety for destructive changes.
-
-## Basic Usage
-
-### Prerequisites Checklist
-
-Before implementing this pipeline, verify:
-
-- ✓ You have a Git repository with Terraform files
-- ✓ You have created an Azure Resource Manager service connection
-- ✓ You have a GitHub service connection (for accessing template repository)
-- ✓ You have an Azure storage account configured for Terraform state
-- ✓ You have terraform files in your repository (e.g., `infra/`, `terraform/`)
-
-### Example of Basic Usage
-
-This shows a minimal working example with a single development environment:
+A standardised infrastructure pipeline that builds, validates, and packages your terraform files, then deploys them to one or more environments with optional [manual verification gates](terraform_pipeline_manual_verification.md).
 
 ```yaml
 # azure-pipelines.yml
 resources:
   repositories:
-    - repository: AzDOPipelineTemplates                 # REQUIRED: Must be named 'AzDOPipelineTemplates'
+    - repository: AzDOPipelineTemplates               # REQUIRED: must be named exactly 'AzDOPipelineTemplates'.
       type: github
-      endpoint: UKHO                                    # Your GitHub service connection name
+      endpoint: UKHO                                  # Your GitHub service connection name.
       name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/0.1.0                             # Always use a specific version tag - see https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/releases
-
-trigger:
-  branches:
-    include:
-      - main
+      ref: refs/tags/0.3.1                            # Always pin to a specific version tag.
 
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: infra/webapp          # Path to your terraform files relative to repo root
-    TerraformVersion: '1.5.0'                           # Terraform version to use (or 'latest')
-    EnvironmentConfigs:
-      - Name: dev                                       # Environment name
-        Stage:
-          DependsOn: Build_Terraform                    # Depends on the build stage
-          Condition: succeeded()                        # Execute if build succeeded
-        TerraformDeploymentConfig:
-          AzDOEnvironmentName: dev-environment          # AzDO Environment for approvals
-          AzureServiceConnection: Pipeline-dev          # Azure service connection name
-          BackendConfig:                                # Terraform backend configuration
-            resource_group_name: m-project-rg
-            storage_account_name: projecttfsa
-            container_name: tfstate
-            key: dev.terraform.tfstate
-          RunMode: PlanVerifyApply                      # Plan, verify, then apply
-          VerificationMode: VerifyOnDestroy             # Only gate on destructive changes
-          VariableFiles:                                # Terraform variable files
-            - config/common.tfvars
-            - config/dev.tfvars
-          OutputVariables:                              # Terraform outputs to export
-            - random_number
-            - random_string
+      # EnvironmentConfigs is the only required parameter - every other value below is shown at its default.
+
+      EnvironmentConfigs:                             # (required, list) One entry per environment. See the EnvironmentConfig docs linked below.
+        - Name: dev                                   # Unique environment name.
+          Stage:
+            DependsOn: Build_Terraform                # Stage dependency.
+            Condition: succeeded()                    # Stage execution condition.
+          TerraformDeploymentConfig:
+            AzDOEnvironmentName: dev-environment      # AzDO Environment for approvals.
+            RunMode: PlanVerifyApply                  # PlanVerifyApply, PlanOnly, or ApplyOnly.
+            VerificationMode: VerifyOnDestroy         # Required for PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled.
+
+      # RelativePathToTerraformFiles: ''              # Path to terraform files relative to repo root; empty defaults to repo root.
+      # TerraformVersion: '1.14.0'                    # Exact terraform version, or 'latest'; wildcards like '1.5.x' are not allowed.
+      # AdditionalFilesToPackage:                     # (list) Extra files to bundle into the terraform artifact. Defaults to an empty list.
+      # TerraformBuildInjectionSteps:                 # (stepList) Custom steps run before terraform init/validate. Defaults to an empty list.
 ```
 
-### What Happens
-
-With this configuration, the pipeline will:
-
-1. **Build Stage** (`Build_Terraform`)
-   - Check out your repository
-   - Install Terraform CLI version 1.5.0
-   - Run `terraform init` (without backend to allow flexible backend config in deploy)
-   - Run `terraform validate` to check syntax
-   - Package terraform files as an artifact
-
-2. **Deploy Stage** (`Deploy_dev_Terraform`)
-   - Download terraform artifact
-   - Run `terraform init` with the backend configuration
-   - Run `terraform plan` to show what will change
-   - If changes are detected, `VerificationMode` determines whether a manual approval gate is triggered (`VerifyOnDestroy`, `VerifyOnAny`) or skipped (`VerifyDisabled`)
-   - Run `terraform apply` to provision resources
-   - Export specified outputs as pipeline variables
-
-The infrastructure pipeline uses an `EnvironmentConfigs` parameter that contains a list of environment configurations. Each environment configuration has the following structure:
-
-**For complete configuration documentation, see:**
-- [EnvironmentConfig Documentation](../../definition_docs/terraform_pipeline/environment_config.md) - Complete environment configuration structure
-- [Terraform Job Config Documentation](../../definition_docs/terraform_pipeline/terraform_job_config.md) - Infrastructure-specific configuration details
-- [AdditionalFilesToPackage Documentation](../../definition_docs/terraform_pipeline/additional_files_to_package.md) - Additional files to include in the terraform artifact
-
-**Quick reference of required fields:**
-
-| Field Path                                    | Type        | Description                                                                               |
-|-----------------------------------------------|-------------|-------------------------------------------------------------------------------------------|
-| Name                                          | string      | Unique environment name (e.g., 'dev', 'staging', 'production')                            |
-| Stage.DependsOn                               | string/list | Stage dependencies (e.g., 'Build_Terraform' or list of stages)                            |
-| Stage.Condition                               | string      | Stage execution condition (e.g., 'succeeded()')                                           |
-| TerraformDeploymentConfig.AzDOEnvironmentName | string      | AzDO Environment name to associate the deployment jobs to                                 |
-| TerraformDeploymentConfig.RunMode             | string      | Deployment mode: PlanVerifyApply, PlanOnly, or ApplyOnly                                  |
-| TerraformDeploymentConfig.VerificationMode    | string      | Required when RunMode is PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled |
-
-See the [developer documentation](../../definition_docs/terraform_pipeline/environment_config.md) for optional parameters and advanced configuration.
+The `EnvironmentConfigs` object is the heart of this pipeline. For its full structure see the [EnvironmentConfig](../../definition_docs/terraform_pipeline/environment_config.md) and [TerraformDeploymentConfig](../../definition_docs/terraform_pipeline/terraform_job_config.md) definition docs, or the [Parameters in Detail](terraform_pipeline_parameters_in_detail.md) guide.
 
 ---
 
-## Advanced Usage
+## Setup Requirements
 
-### Multi-Environment Deployment
-
-Deploy to multiple environments with stage dependencies:
-
-```yaml
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
-    TerraformVersion: '1.6.0'
-    EnvironmentConfigs:
-      # Development Environment
-      - Name: dev
-        Stage:
-          DependsOn: Build_Terraform
-          Condition: succeeded()
-        TerraformDeploymentConfig:
-          AzureServiceConnection: AzureServiceConnection-Dev
-          AzDOEnvironmentName: development-environment
-          BackendConfig:
-            resource_group_name: rg-terraform-state-dev
-            storage_account_name: sttfstatedev
-            container_name: tfstate
-            key: dev.terraform.tfstate
-          RunMode: PlanVerifyApply
-          VerificationMode: VerifyOnDestroy
-          VariableFiles:
-            - config/common.tfvars
-            - config/dev.tfvars
-
-      # Production Environment (deploys after dev, only on main branch)
-      - Name: production
-        Stage:
-          DependsOn: Deploy_dev_Terraform
-          Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-        TerraformDeploymentConfig:
-          AzureServiceConnection: AzureServiceConnection-Production
-          AzDOEnvironmentName: production-environment
-          BackendConfig:
-            resource_group_name: rg-terraform-state-prod
-            storage_account_name: sttfstateprod
-            container_name: tfstate
-            key: production.terraform.tfstate
-          RunMode: PlanVerifyApply
-          VerificationMode: VerifyOnAny
-          ConfigSources:
-            - Type: KeyVault
-              Name: kv-production-secrets
-              ServiceConnection: AzureServiceConnection-Production
-              SecretsFilter: '*'
-          JobsVariableMappings:
-            - group: ProductionVariableGroup
-          EnvironmentVariableMappings:
-            TF_LOG: INFO
-          VariableFiles:
-            - config/common.tfvars
-            - config/production.tfvars
-          OutputVariables:
-            - resource_group_name
-            - app_service_url
-```
-
-### Including Additional Files in the Terraform Artifact
-
-Use `AdditionalFilesToPackage` to include additional files (beyond those in `RelativePathToTerraformFiles`) in the terraform artifact:
-
-```yaml
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
-    AdditionalFilesToPackage:
-      - SourceDirectory: 'config/shared'
-        FilesPattern: '*.tfvars'
-        TargetSubdirectoryName: 'shared-config'
-      - SourceDirectory: 'scripts'
-        FilesPattern: '**/*.ps1'
-        TargetSubdirectoryName: 'scripts'
-    TerraformVersion: '1.6.0'
-    EnvironmentConfigs:
-      - Name: dev
-        Stage:
-          DependsOn: Build_Terraform
-          Condition: succeeded()
-        TerraformDeploymentConfig:
-          AzureServiceConnection: AzureServiceConnection-Dev
-          AzDOEnvironmentName: development-environment
-          BackendConfig:
-            resource_group_name: rg-terraform-state-dev
-            storage_account_name: sttfstatedev
-            container_name: tfstate
-            key: dev.terraform.tfstate
-          RunMode: PlanVerifyApply
-          VerificationMode: VerifyOnDestroy
-          VariableFiles:
-            - config/common.tfvars
-            - config/dev.tfvars
-```
-
-This will:
-1. Copy all `.tfvars` files from `config/shared/` into the artifact at `shared-config/`
-2. Copy all PowerShell scripts from `scripts/` into the artifact at `scripts/`
-3. Make these files available alongside the terraform files during deployment
-
-### Injection Step to add required_version
-
-```yaml
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    RelativePathToTerraformFiles: infra/webapp
-    TerraformVersion: '1.1.9'
-    TerraformBuildInjectionSteps:
-      - pwsh: |
-          $path = "$(Pipeline.Workspace)/$(Build.Repository.Name)/infra/webapp/main.tf"
-          $content = Get-Content $path -Raw
-          if ($content -match '(?m)^terraform\s*\{') {
-            $content = $content -replace '(?m)^(terraform\s*\{)\r?\n', "`$1`r`n  required_version = `"1.1.9`"`r`n"
-            Set-Content $path $content
-          }
-        displayName: "Injecting into terraform block 'required_version'"
-    EnvironmentConfigs:
-      - Name: dev
-        Stage:
-          DependsOn: Build_Terraform
-          Condition: succeeded()
-        TerraformDeploymentConfig:
-          # ... infrastructure config ...
-```
+- **Repository resource** — You **must** declare the repository resource named exactly `AzDOPipelineTemplates` (shown above); the pipeline checks it out to access helper scripts.
+- **Agent pool** — `EnvironmentConfigs` does not expose a per-environment pool. Set a top-level `pool:` in your `azure-pipelines.yml`, or use the job templates directly (`jobs/terraform_build.yml`, `jobs/terraform_deploy.yml`) when you need per-job pool control. Ensure the pool can download the Terraform CLI.
+- **Prerequisites** — A Git repo with terraform files, an Azure Resource Manager service connection, a GitHub service connection, and an Azure storage account for terraform state.
 
 ---
 
-## Common Scenarios & Patterns
+## What Happens
 
-This section shows common implementation patterns you might want to use.
+1. **Build stage** (`Build_Terraform`) — checks out your repo, installs the Terraform CLI, runs `terraform init` (no backend) and `terraform validate`, then packages the files as an artifact.
+2. **Deploy stage** (`Deploy_<Name>_Terraform`, one per environment) — downloads the artifact, runs `terraform init` with the backend, runs `terraform plan`, optionally gates on a manual approval per `VerificationMode`, runs `terraform apply`, and exports any `OutputVariables`.
 
-### Scenario 1: Development + Production Pipeline
+---
 
-Deploy to dev automatically, but require approval before deploying to production:
+## Examples
+
+### Dev + Production with Approval
+
+Deploy to dev automatically, then require approval before production (main branch only):
 
 ```yaml
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
+    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
     EnvironmentConfigs:
-      # Development: Auto-deploy with verify-on-destroy only
       - Name: dev
         Stage:
           DependsOn: Build_Terraform
@@ -322,15 +78,14 @@ extends:
             container_name: tfstate
             key: dev.terraform.tfstate
           RunMode: PlanVerifyApply
-          VerificationMode: VerifyOnDestroy          # Only gate on destructive changes
+          VerificationMode: VerifyOnDestroy           # Only gate on destructive changes.
           VariableFiles:
             - config/common.tfvars
             - config/dev.tfvars
 
-      # Production: Requires approval for any changes
       - Name: production
         Stage:
-          DependsOn: Deploy_dev_Terraform       # Must deploy to dev first
+          DependsOn: Deploy_dev_Terraform             # Deploy to dev first.
           Condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
         TerraformDeploymentConfig:
           AzureServiceConnection: AzureServiceConnection-Prod
@@ -341,21 +96,19 @@ extends:
             container_name: tfstate
             key: prod.terraform.tfstate
           RunMode: PlanVerifyApply
-          VerificationMode: VerifyOnAny             # Always require approval
+          VerificationMode: VerifyOnAny               # Always require approval.
           VariableFiles:
             - config/common.tfvars
             - config/prod.tfvars
 ```
 
-### Scenario 2: Plan-Only for Feature Branches
-
-Enable plan-only validation on feature branches without deploying:
+### Plan-Only for Feature Branches
 
 ```yaml
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
+    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
     EnvironmentConfigs:
       - Name: precheck
@@ -364,21 +117,19 @@ extends:
           Condition: and(succeeded(), not(eq(variables['Build.SourceBranch'], 'refs/heads/main')))
         TerraformDeploymentConfig:
           AzDOEnvironmentName: precheck-environment
-          RunMode: PlanOnly                          # Only plan, don't apply
+          RunMode: PlanOnly                           # Only plan, never apply.
           VariableFiles:
             - config/common.tfvars
             - config/precheck.tfvars
 ```
 
-### Scenario 3: Environment Variables & Key Vault
-
-Use Azure Key Vault for secrets and environment-specific variables:
+### Key Vault Secrets and Environment Variables
 
 ```yaml
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: 'infrastructure/terraform'
+    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
     EnvironmentConfigs:
       - Name: production
@@ -395,17 +146,13 @@ extends:
             key: prod.terraform.tfstate
           RunMode: PlanVerifyApply
           VerificationMode: VerifyOnAny
-          # Retrieve secrets from Key Vault
           ConfigSources:
             - Type: KeyVault
               Name: kv-prod-secrets
               ServiceConnection: AzureServiceConnection-Prod
               SecretsFilter: '*'
-          # Environment variables for Terraform
           EnvironmentVariableMappings:
-            TF_LOG: INFO                            # Enable debug logging
-            ARM_SKIP_PROVIDER_REGISTRATION: 'true'
-          # Variable groups from Azure DevOps
+            TF_LOG: INFO
           JobsVariableMappings:
             - group: ProductionVariables
           VariableFiles:
@@ -416,152 +163,41 @@ extends:
             - app_service_hostname
 ```
 
+For packaging extra files or injecting a `required_version` constraint, see the
+[Additional Files guide](terraform_pipeline_additional_files_to_package.md) and the
+[Parameters in Detail](terraform_pipeline_parameters_in_detail.md) guide.
+
+**Live example**: [`tests/pipelines/terraform_pipeline/linux_test.yml`](../../../tests/pipelines/terraform_pipeline/linux_test.yml) (also see [`windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml) and [`elastic_test.yml`](../../../tests/pipelines/terraform_pipeline/elastic_test.yml))
+
 ---
 
 ## Troubleshooting
 
-### Repository Resource Not Found
+**Repository resource not found** (`Repository 'AzDOPipelineTemplates' not found`) — ensure the resource is declared with the exact name `AzDOPipelineTemplates`, the GitHub service connection exists, and it has permission to access the template repository.
 
-**Error**: `Repository 'AzDOPipelineTemplates' not found`
+**Manual verification not triggering** — `RunMode` must be `PlanVerifyApply` and `VerificationMode` must be `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`); the plan must detect changes and the AzDO Environment must have approvers configured. When no changes are detected the plan succeeds, verification is skipped, and apply is skipped — this is expected.
 
-**Cause**: The repository resource is not configured correctly or is missing from your `azure-pipelines.yml`.
+**Output variables unavailable downstream** — outputs are only exported when `RunMode` includes an apply and the names are listed in `OutputVariables`. Reference them with the dependency syntax, for example:
 
-**Solution**:
-1. Ensure the repository resource is defined with the exact name `AzDOPipelineTemplates`
-2. Verify the GitHub service connection exists in your Azure DevOps project
-3. Check that the service connection has permission to access the repository
-
-**Example**:
-```yaml
-resources:
-  repositories:
-    - repository: AzDOPipelineTemplates    # Must be exactly this name
-      type: github
-      endpoint: UKHO                        # Service connection must exist
-      name: UKHO/devops-azdo-yaml-pipeline-templates
-      ref: refs/tags/0.1.0
-```
-
-### Manual Verification Not Triggering
-
-**Issue**: Manual verification gate doesn't appear even when changes are detected.
-
-**Checks**:
-- ✓ Verify `RunMode` is set to `PlanVerifyApply` (not `PlanOnly` or `ApplyOnly`)
-- ✓ Verify `VerificationMode` is set to either `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`)
-- ✓ Check the plan output in the deploy stage to ensure changes were actually detected
-- ✓ Verify the AzDO Environment exists and has appropriate approvers configured
-- ✓ Check pipeline logs for any error messages in the approval step
-
-**If no changes detected**: This is expected behavior. When Terraform detects no changes:
-- Plan job succeeds
-- Manual verification is skipped
-- Apply job is skipped
-- Pipeline completes successfully
-
-### Output Variables Not Available in Subsequent Stages
-
-**Cause**: Output variables from Terraform are only available after the Apply job completes and are scoped to the deployment job. They are only exported when `RunMode` includes an apply operation (`PlanVerifyApply` or `ApplyOnly`, not `PlanOnly`).
-
-**Solution**: To use Terraform output variables in subsequent stages or jobs:
-1. Ensure the variables are listed in the `OutputVariables` property of your `TerraformDeploymentConfig`
-2. Reference them using the correct dependency syntax:
-   - Same stage (later job):
-     ```text
-     dependencies.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
-     ```
-
-   - Later stage:
-     ```text
-     stageDependencies.Deploy_{EnvironmentName}_Terraform.TerraformDeployApply_{ArtifactName}.outputs['TerraformDeployApply_{ArtifactName}.TerraformExportOutputsVariables.{variableName}']
-     ```
-   where:
-   - `{EnvironmentName}` is replaced with your environment name (e.g., `dev`, `prod`)
-   - `{ArtifactName}` is the value of `TerraformArtifactName` (default: `TerraformArtifact`)
-   - `{variableName}` is the output variable name
-
-**Example**:
 ```yaml
 variables:
   - name: ResourceGroupId
     value: $[ stageDependencies.Deploy_dev_Terraform.TerraformDeployApply_TerraformArtifact.outputs['TerraformDeployApply_TerraformArtifact.TerraformExportOutputsVariables.rg_id'] ]
 ```
 
-### Incorrect Terraform Version Being Used
+Use `dependencies.` (same stage) or `stageDependencies.` (later stage), replace `TerraformArtifact` if you set a custom `TerraformArtifactName`, and the final segment with your output variable name.
 
-**Symptom**: Pipeline fails due to Terraform version mismatch or syntax errors.
+**Wrong terraform version** — set `TerraformVersion` explicitly to an exact semantic version (e.g. `'1.5.7'`) or `'latest'`; wildcards like `'1.5.x'` are not allowed.
 
-**Solution**:
-1. Explicitly set the `TerraformVersion` parameter in your pipeline
-2. The default is `'1.14.0'`. Use `'latest'` for the latest version or specify an exact semantic version (e.g., `'1.5.7'`)
-3. Note that wildcards like `'1.5.x'` are NOT allowed - use exact semantic versions
-
-**Example with exact version**:
-```yaml
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    TerraformVersion: '1.5.7'
-    # ... rest of parameters ...
-```
-
-**Example with latest version**:
-```yaml
-extends:
-  template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
-  parameters:
-    TerraformVersion: 'latest'
-    # ... rest of parameters ...
-```
-
-
-### Backend Configuration Issues
-
-**Symptom**: Error: `backend initialization required` or state file access errors
-
-**Causes**:
-- Backend configuration is incorrect
-- Service connection doesn't have permissions to storage account
-- Storage account or container doesn't exist
-
-**Solution**:
-1. Verify the storage account name and container exist in Azure
-2. Verify the service connection has `Contributor` or `Storage Blob Data Owner` role on the storage account
-3. Verify the backend configuration values are correct:
-   ```yaml
-   BackendConfig:
-     resource_group_name: correct-rg      # Check exact names
-     storage_account_name: correctsaname
-     container_name: tfstate
-     key: dev.terraform.tfstate
-   ```
-4. Alternatively, hardcode backend config in your Terraform files instead of using pipeline parameters
-
-### Plan Shows No Changes
-
-**Issue**: Terraform plan runs but shows no changes, so apply step is skipped.
-
-**Expected behavior**: This is normal. When there are no changes:
-- Plan step completes successfully
-- Manual approval is skipped (not needed)
-- Apply step is skipped (nothing to apply)
-- Pipeline completes successfully
-
-**If this is unexpected**:
-- Check that your Terraform files are correct
-- Verify variable files are being passed correctly
-- Check that the Terraform backend contains existing state from previous deployments
-- Verify terraform providers are correctly configured for your Azure environment
+**Backend initialization errors** — verify the storage account and container exist, the service connection has `Storage Blob Data Owner`/`Contributor` on the account, and the `BackendConfig` values are correct.
 
 ---
 
-## Live Examples
+## See Also
 
-View working test examples in the repository:
-
-- **Windows Pipeline**: [`tests/pipelines/terraform_pipeline/windows_test.yml`](../../../tests/pipelines/terraform_pipeline/windows_test.yml)
-- **Linux Pipeline**: [`tests/pipelines/terraform_pipeline/linux_test.yml`](../../../tests/pipelines/terraform_pipeline/linux_test.yml)
-- **Elastic Pipeline**: [`tests/pipelines/terraform_pipeline/elastic_test.yml`](../../../tests/pipelines/terraform_pipeline/elastic_test.yml)
-
-These are functional test pipelines that demonstrate the template in action with various configurations.
-
+- [Parameters in Detail](terraform_pipeline_parameters_in_detail.md) – Every parameter explained
+- [Manual Verification Flows](terraform_pipeline_manual_verification.md) – Verification modes
+- [Additional Files Packaging](terraform_pipeline_additional_files_to_package.md) – Bundling extra files
+- [EnvironmentConfig](../../definition_docs/terraform_pipeline/environment_config.md) – Environment config structure
+- [TerraformDeploymentConfig](../../definition_docs/terraform_pipeline/terraform_job_config.md) – Deployment config structure
+- [Terraform Build Job](../jobs/terraform_build.md) · [Terraform Deploy Job](../jobs/terraform_deploy.md) – Underlying job templates
