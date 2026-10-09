@@ -1,7 +1,6 @@
 # Repository Structure & Organisation
 
-This is the single canonical description of the repository's top-level folder
-layout. If any other document disagrees with this one, this one wins.
+This is the single canonical description of the repository's top-level folder layout. If any other document disagrees with this one, this one wins.
 
 The repository groups templates and scripts by function and level:
 

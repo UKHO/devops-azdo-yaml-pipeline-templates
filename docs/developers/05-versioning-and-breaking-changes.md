@@ -12,13 +12,7 @@ We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline templat
 
 ## Public API Scope
 
-SemVer compatibility guarantees apply to templates in `pipelines/` and `jobs/` — these are
-this repository's **public API**. Everything else (`tasks/`, `stages/`, `utils/`, `schemas/`,
-`scripts/`) is internal implementation and may be changed freely, **as long as no public
-`pipelines/`/`jobs/` template's parameters, outputs, or documented behaviour change as a
-result**. If an internal change is invisible to a consumer of a `pipelines/`/`jobs/`
-template, it is not a breaking change in SemVer terms, even if it would be breaking in
-isolation.
+SemVer compatibility guarantees apply to templates in `pipelines/` and `jobs/` — these are this repository's **public API**. Everything else (`tasks/`, `stages/`, `utils/`, `schemas/`, `scripts/`) is internal implementation and may be changed freely, **as long as no public `pipelines/`/`jobs/` template's parameters, outputs, or documented behaviour change as a result**. If an internal change is invisible to a consumer of a `pipelines/`/`jobs/` template, it is not a breaking change in SemVer terms, even if it would be breaking in isolation.
 
 ## Version Segment Guide
 
@@ -96,9 +90,7 @@ git tag -a 1.3.0 -m "Release 1.3.0 - Added support for dotnet 8"
 git push origin 1.3.0
 ```
 
-> Tags must be applied from the `main` branch only after validation. Tags are immutable
-> `MAJOR.MINOR.PATCH` values — never a moving tag such as `v1`, and never re-pointed once
-> pushed.
+> Tags must be applied from the `main` branch only after validation. Tags are immutable `MAJOR.MINOR.PATCH` values — never a moving tag such as `v1`, and never re-pointed once pushed.
 
 ## Checklist for Versioning a Change
 

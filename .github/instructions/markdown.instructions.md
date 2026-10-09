@@ -26,7 +26,7 @@ Follow these guidelines for formatting and structuring your markdown content:
 - **Links**: Use `[link text](URL)` for links. Ensure that the link text is descriptive and the URL is valid.
 - **Images**: Use `![alt text](image URL)` for images. Include a brief description of the image in the alt text.
 - **Tables**: Use `|` to create tables. Ensure that columns are properly aligned and headers are included.
-- **Line Length**: Break lines at 80 characters to improve readability. Use soft line breaks for long paragraphs.
+- **Line Length**: No hard line-wrapping of prose. GitHub and IDEs reflow paragraphs for display, so wrap manually only inside fenced code blocks where it matters. The 400-character hard limit from the Markdown Content Rules above still applies as a sanity check, not a style target.
 - **Whitespace**: Use blank lines to separate sections and improve readability. Avoid excessive whitespace.
 - **Content Rules**: Ensure that the content follows the markdown content rules specified above.
 - **Formatting**: Ensure that the content is properly formatted and structured according to the guidelines.
