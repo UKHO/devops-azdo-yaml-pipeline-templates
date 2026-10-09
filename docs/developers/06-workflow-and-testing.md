@@ -7,23 +7,9 @@
 
 ## Branching Strategy
 
-This repository uses a **feature-branching** workflow:
+This repository uses simple feature branching: create a `feature/<name>` branch from `main`, make your changes, and merge it back into `main` via Pull Request (squash-merge, never commit directly to `main`).
 
-1. Create a **feature main** branch from `main` (e.g. `feature/my-feature`).
-2. Create **development branches** off the feature main for individual tasks.
-3. Merge development branches back into the feature main via PR.
-4. Merge the feature main into `main` via PR when the feature is complete.
-
-Key rules:
-
-- Never commit directly to `main`.
-- `feature/<name>` for features, `fix/<name>` for bug fixes, `docs/<name>` for documentation, `chore/<name>` for housekeeping.
-- Delete branches after merging.
-- Prefer **rebasing** over merging from `main`.
-- **Squash-merge** into `main`.
-- In case of conflicts, code branches take precedence over documentation branches.
-
-For the full guide — including diagrams, naming conventions, and rebase instructions — see [Branching Strategy](branching-strategy.md).
+For the full guide — naming conventions, rebase instructions, and what is *not* branched (the `cicd/`-managed pipeline definitions and gate checks) — see [Branching Strategy](branching-strategy.md).
 
 ## Pull Request Process
 

@@ -17,21 +17,16 @@ If you have questions, need a review, or are unsure whether a change is appropri
 
 ## Branching Strategy
 
-This repository follows a **feature-branching** workflow. The short version is:
-
-1. **Create a feature main branch** from `main` (e.g. `feature/my-feature`).
-2. **Create development branches** off the feature main for individual tasks (e.g. `feature/my-feature/add-validation`).
-3. **Merge development branches** back into the feature main via Pull Request.
-4. **Merge the feature main** into `main` via Pull Request once the feature is complete.
+This repository uses simple feature branching: create a `feature/<name>` branch from `main`, make your changes, and merge back into `main` via Pull Request.
 
 Key rules:
 
 - Never commit directly to `main`.
 - Prefer **rebasing** over merging to keep a linear history.
 - **Squash-merge** into `main`; delete branches after merging.
-- Keep feature branches short-lived.
+- Keep branches short-lived and scoped to one piece of work.
 
-For the full guide, including naming conventions and diagrams, see [Branching Strategy](docs/developers/branching-strategy.md).
+For the full guide, including naming conventions and what is *not* branched, see [Branching Strategy](docs/developers/branching-strategy.md).
 
 ---
 
