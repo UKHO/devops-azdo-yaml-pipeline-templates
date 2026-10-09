@@ -25,6 +25,7 @@ Pages are organised by type:
 | --- | --- |
 | [YAML Standards](reference/yaml-standards.md) | AzDO YAML limitations, formatting, naming conventions |
 | [Template Conventions](reference/template-conventions.md) | Parameters, variable scoping, decomposition, anti-patterns |
+| [Schema Validation](reference/schema-validation.md) | Compile-time object validation: the mechanism and pattern catalogue |
 | [Scripts & Tooling](reference/scripts-and-tooling.md) | Language policy, when to script, file paths, IDE setup |
 | [Versioning Policy](reference/versioning-policy.md) | SemVer rules, public API scope, breaking-change examples |
 | [Branching Model](reference/branching-model.md) | Branch naming, PR workflow, what is not branched |

@@ -51,32 +51,7 @@ See `tasks/terraform.yml` for a well-documented example.
 
 ## Writing a Schema (Validation) Template
 
-Schema templates in `schemas/` validate complex object parameters at **compile time**, before any agent runs. They work by emitting a one-key mapping whose value is the string `"Error"` under a compile-time `${{ if ... }}` condition: when the condition is true, Azure DevOps fails compilation and prints the key as the message. The key should be a descriptive sentence ending with a `See:` link to the definition doc.
-
-```yaml
-steps:
-  # Required-field check
-  - ${{ if or(not(parameters.Config.Name), eq(parameters.Config.Name, '')) }}:
-      - "Invalid Config: field 'Name' is required. See docs/definition_docs/path/to/details.md": "Error"
-
-  # Type check (object/array accidentally supplied where a string is expected)
-  - ${{ if or(contains(convertToJson(parameters.Config.Name), '{'), contains(convertToJson(parameters.Config.Name), '[')) }}:
-      - "Invalid Config: field 'Name' must be a string. See docs/definition_docs/path/to/details.md": "Error"
-
-  # Allowed-values check
-  - ${{ if notIn(parameters.Config.Type, 'KeyVault') }}:
-      - "Invalid Config: field 'Type' must be 'KeyVault'. See docs/definition_docs/path/to/details.md": "Error"
-```
-
-Conventions for guard expressions:
-
-- Validate a list with `${{ each item in parameters.List }}:` and apply the per-entry checks inside.
-- Detect a non-scalar (object/array) value by checking whether its `convertToJson` output contains `{` or `[`.
-- Gate optional-field checks on presence first: `${{ if and(contains(convertToJson(parameters.Config), '"Field"'), <bad-value condition>) }}`.
-- Reject an empty required list explicitly (`eq(length(parameters.List), 0)`) rather than letting it pass silently.
-- Keep each message specific and actionable, and end it with the `See:` link to the object's `docs/definition_docs/` page.
-
-See `schemas/config_sources.yml` for a complete worked example.
+Schema templates in `schemas/` validate complex object parameters at **compile time** using inline guard expressions that emit an `"Error"` mapping when input is malformed. This is a substantial topic with its own pattern catalogue — see [Schema Validation](schema-validation.md) for the full mechanism, anatomy, and patterns. Worked examples: `schemas/config_sources.yml`, `schemas/terraform_deploy_config.yml`.
 
 ## Schema Template Documentation
 

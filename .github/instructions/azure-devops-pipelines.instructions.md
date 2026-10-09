@@ -82,7 +82,7 @@ parameters:
   # ...parameters...
 ```
 
-Schema templates validate complex object parameters at **compile time** by emitting a one-key mapping whose value is `"Error"` under a `${{ if ... }}` guard — when the condition is true, compilation fails and the key is printed as the message. Author new schemas with this pattern (required-field, type, and allowed-value checks), ending each message with a `See:` link. See [Writing a Schema (Validation) Template](../../docs/developers/reference/template-conventions.md#writing-a-schema-validation-template) for the full rules.
+Schema templates validate complex object parameters at **compile time** by emitting a one-key mapping whose value is `"Error"` under a `${{ if ... }}` guard — when the condition is true, compilation fails and the key is printed as the message. Author new schemas with this pattern (required-field, type, and allowed-value checks), ending each message with a `See:` link. See [Schema Validation](../../docs/developers/reference/schema-validation.md) for the full mechanism and pattern catalogue.
 
 ```yaml
 steps:
@@ -467,6 +467,7 @@ When creating a new template:
 - **Architecture:** `ARCHITECTURE.md`
 - **Anti-patterns:** `docs/developers/explanation/double-wrapping.md`
 - **Template Conventions:** `docs/developers/reference/template-conventions.md`
+- **Schema Validation:** `docs/developers/reference/schema-validation.md`
 - **YAML Standards:** `docs/developers/reference/yaml-standards.md`
 - **Versioning Guide:** `docs/developers/reference/versioning-policy.md`
 - **User Documentation:** `docs/user-docs/README.md`
