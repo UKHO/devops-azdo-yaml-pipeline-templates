@@ -89,5 +89,4 @@ The full developer guide is split into focused topics:
 Additional references:
 
 - [Branching Strategy (full guide)](docs/developers/branching-strategy.md)
-- [How to Version Templates](docs/developers/how-to-version.md)
 - [Anti-Pattern: Double Wrapping](docs/developers/anti-pattern-double-wrapping.md)

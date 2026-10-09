@@ -476,7 +476,7 @@ When creating a new template:
 - **Repository Guidelines:** `.github/copilot-instructions.md`
 - **Anti-patterns:** `docs/developers/anti-pattern-double-wrapping.md`
 - **User Documentation:** `docs/user-docs/README.md`
-- **Versioning Guide:** `docs/developers/how-to-version.md`
+- **Versioning Guide:** `docs/developers/05-versioning-and-breaking-changes.md`
 - **EditorConfig Spec:** https://editorconfig.org/
 - **Azure DevOps YAML Schema:** https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema
 
