@@ -1,5 +1,8 @@
 # Repository Structure & Organisation
 
+This is the single canonical description of the repository's top-level folder
+layout. If any other document disagrees with this one, this one wins.
+
 The repository groups templates and scripts by function and level:
 
 | Folder       | Purpose                                                                                                              |
@@ -8,14 +11,19 @@ The repository groups templates and scripts by function and level:
 | `jobs/`      | Self-contained, reusable job-level templates. Includes parameter validation and may use schemas for complex objects. |
 | `stages/`    | Stage templates that group jobs for specific pipeline goals (e.g., environments or milestones).                      |
 | `pipelines/` | Entry-point templates that assemble stages into complete pipelines.                                                  |
-| `scripts/`   | PowerShell scripts for operations not supported by built-in tasks or YAML expressions.                               |
 | `utils/`     | Shared YAML snippets that support other templates.                                                                   |
-| `tools/`     | Scripts and utilities for repository maintenance and automation.                                                     |
 | `schemas/`   | Validation templates for complex object parameters passed through pipelines.                                         |
+| `scripts/`   | PowerShell scripts invoked **by templates at pipeline runtime**, for operations not supported by built-in tasks or YAML expressions (e.g. `scripts/terraform/`). These ship to consumers as part of the templates. |
+| `tools/`     | PowerShell scripts invoked **by developers of this repository**, for repository maintenance and automation (e.g. bulk-updating a tool version across templates). These never run inside a consumer's pipeline. |
+| `tests/`     | The PowerShell compile/test framework and test fixtures used to validate templates before merge. |
+| `examples/`  | Standalone illustrative pipelines/snippets (e.g. variable scoping behaviour) that are not part of the template library itself. |
+| `cicd/`      | Terraform that provisions this repository's own Azure DevOps/GitHub CI/CD resources. Not consumed by template users. |
+| `docs/`      | All contributor and consumer documentation. |
 
 ## Placement Rules
 
-- **Scripts** go in `scripts/`.
+- **Scripts consumed by templates at runtime** go in `scripts/`.
+- **Scripts for maintaining this repository** go in `tools/`.
 - **Templates** go in the folder matching their level: `tasks/`, `jobs/`, `stages/`, or `pipelines/`.
 - **Schemas** go in `schemas/`.
 - For templates that produce a list (e.g. a sequence of jobs), use a descriptive suffix such as `_job_list` in the filename.
