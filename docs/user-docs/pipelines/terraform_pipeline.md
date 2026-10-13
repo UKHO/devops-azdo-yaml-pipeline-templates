@@ -41,7 +41,7 @@ The `EnvironmentConfigs` object is the heart of this pipeline. For its full stru
 
 - **Repository resource** — You **must** declare the repository resource named exactly `AzDOPipelineTemplates` (shown above); the pipeline checks it out to access helper scripts.
 - **Agent pool** — `EnvironmentConfigs` does not expose a per-environment pool. Set a top-level `pool:` in your `azure-pipelines.yml`, or use the job templates directly (`jobs/terraform_build.yml`, `jobs/terraform_deploy.yml`) when you need per-job pool control. Ensure the pool can download the Terraform CLI.
-- **Prerequisites** — A Git repo with terraform files, an Azure Resource Manager service connection, a GitHub service connection, and an Azure storage account for terraform state.
+- **Prerequisites** — A Git repo with terraform files and a GitHub service connection. Provide either an Azure Resource Manager service connection or ARM credentials through `EnvironmentVariableMappings`, and configure the Terraform backend either in code or with `BackendConfig`.
 
 ---
 
