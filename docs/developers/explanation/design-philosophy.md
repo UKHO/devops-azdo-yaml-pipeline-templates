@@ -12,7 +12,7 @@ The repository was designed to be both **flexible** and **reusable**:
 Templates are composed in layers by scope: **tasks → jobs → stages → pipelines**. A task wraps a single Azure DevOps task, jobs combine tasks, stages group jobs, and pipelines assemble stages into a complete run. This layering exists for three reasons:
 
 - **Reusability** — smaller pieces can be recombined into new jobs, stages, and pipelines without duplication.
-- **Testing at each level** — every layer has its own compile tests, so a change can be validated in isolation at the layer it affects rather than only through a full pipeline.
+- **Testing of composed templates** — job and pipeline compile tests validate the public entry points together with the internal layers they compose.
 - **Safe substitution** — because each layer has a stable interface, an internal piece can be swapped out when it hits a limitation without disturbing the layers above it. For example, the terraform step was originally implemented as a dedicated task template, but that approach had limitations, so it was swapped for a `cmdline`-based implementation with no change to the jobs and pipelines that depend on it.
 
 ## Public vs. Internal

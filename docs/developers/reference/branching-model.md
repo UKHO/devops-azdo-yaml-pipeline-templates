@@ -14,7 +14,7 @@ main ─────────────────────────
 
 | Branch              | Purpose                                | Lifetime                |
 |---------------------|-----------------------------------------|--------------------------|
-| `main`              | Production-ready code. Always stable.  | Permanent                |
+| `main`              | Integration branch containing approved merges; not a fixed release. | Permanent                |
 | `feature/<name>`    | A single unit of work.                 | Lives until merged to `main` |
 
 There is no "feature main" or nested development-branch hierarchy. Keep each `feature/<name>` branch scoped to one piece of work and merge it directly into `main`.
@@ -88,7 +88,7 @@ git push --force-with-lease
 
 ### What Is Not Branched
 
-The Azure DevOps pipeline *definitions* that build and gate this repository (the pipelines provisioned by [`cicd/`](../../../cicd)) are not changed via `feature/<name>` branches in this repo. They, and the branch-policy/gate-check configuration for `main`, are managed through the Terraform in `cicd/` and Azure DevOps project settings directly. Changes to what gates `main` are a separate, lower-frequency change from day-to-day template work.
+The Azure DevOps pipeline definitions and gate checks for this repository are managed by Terraform under [`cicd/`](../../../cicd). Changes to that Terraform follow the same branch and Pull Request workflow as other repository changes; applying it and changing Azure DevOps project settings are separate maintainer operations.
 
 ---
 

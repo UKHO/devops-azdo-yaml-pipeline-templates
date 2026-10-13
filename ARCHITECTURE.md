@@ -53,8 +53,8 @@ The repository follows a "set-menu with salad bar" model: **set-menu** = `pipeli
 | Folder | Documentation lives in |
 | --- | --- |
 | `tasks/`, `utils/` | In-file YAML comment block only |
-| `jobs/`, `stages/` | In-file comment block, plus external docs in `docs/` where the template is complex enough to need one |
-| `pipelines/` | In-file comment block, plus user-facing docs in `docs/user-docs/` |
+| `jobs/`, `stages/` | Self-documenting parameter declarations, plus external docs in `docs/` where the template is complex enough to need one |
+| `pipelines/` | Self-documenting parameter declarations, plus user-facing docs in `docs/user-docs/` |
 | `schemas/` | Brief in-file comment block, plus `docs/definition_docs/` for the validated object |
 
 ## Invariants

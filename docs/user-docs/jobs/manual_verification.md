@@ -1,6 +1,6 @@
 # Manual Verification Job
 
-A reusable job template that pauses a pipeline for manual approval by wrapping the Azure DevOps `ManualValidation@1` task with configurable approvers, instructions, and timeout behaviour.
+A reusable job template that pauses a pipeline for manual approval by wrapping the Azure DevOps `ManualValidation@1` task with configurable instructions and timeout behaviour.
 
 ```yaml
 jobs:
