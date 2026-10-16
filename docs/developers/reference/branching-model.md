@@ -17,7 +17,7 @@ main ─────────────────────────
 | `main`              | Integration branch containing approved merges; not a fixed release. | Permanent                |
 | `feature/<name>`    | A single unit of work.                 | Lives until merged to `main` |
 
-There is no "feature main" or nested development-branch hierarchy. Keep each `feature/<name>` branch scoped to one piece of work and merge it directly into `main`.
+There is no "feature main" or nested development-branch hierarchy. Keep each `feature/<name>` branch scoped to one piece of work and merge it directly into `main`. A nested hierarchy adds long-lived integration branches and repeated merges for little benefit at this repository's size; see [Current Scaling Limits](#current-scaling-limits) for how we keep work small instead.
 
 ## Step-by-Step Workflow
 

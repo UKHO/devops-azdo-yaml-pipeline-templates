@@ -59,7 +59,7 @@ The repository follows a "set-menu with salad bar" model: **set-menu** = `pipeli
 
 ## Invariants
 
-These rarely change. If one of them needs to change, it needs an ADR (`docs/developers/adr/`), not just a PR:
+These rarely change. If one of them needs to change, update the relevant reference or [Design Philosophy](docs/developers/explanation/design-philosophy.md) page in the same Pull Request and call the change out in the PR description, rather than treating it as routine:
 
 - **Public API**: Only `pipelines/` and `jobs/` templates carry SemVer compatibility guarantees. Everything else can change freely as long as no public template's parameters, outputs, or documented behaviour change as a result. See [Versioning Policy](docs/developers/reference/versioning-policy.md).
 - **Tags are immutable**: Releases are tagged `MAJOR.MINOR.PATCH` only. No moving tags (`v1`), no re-pointing a pushed tag.

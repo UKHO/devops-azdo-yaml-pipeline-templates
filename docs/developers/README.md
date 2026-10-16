@@ -6,8 +6,7 @@ Pages are organised by type:
 
 - **How-to** — task-oriented steps, for when you already know the basics.
 - **Reference** — precise, complete description of a convention or policy.
-- **Explanation** — background and rationale for a design decision.
-- **ADR** — a permanent record of one significant decision.
+- **Explanation** — background and rationale for a design decision. This is where the "why" lives, so guides don't need to re-explain it.
 
 ---
 
@@ -38,7 +37,3 @@ Pages are organised by type:
 | [Double Wrapping](explanation/double-wrapping.md) | Why wrapping templates in templates went wrong, and the fix |
 | [Checkout and Path Behaviour](explanation/checkout-and-path-behaviour.md) | Why double-checkout jobs need an explicit `path` |
 | [AI & Documentation](explanation/ai-and-documentation.md) | AI usage policy, and which `.github/` agent files exist and who owns them |
-
-## Architecture Decision Records
-
-See [`adr/`](adr/README.md) for the ADR process and index.

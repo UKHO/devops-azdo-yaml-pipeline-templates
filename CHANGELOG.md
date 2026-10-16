@@ -6,7 +6,8 @@ All notable changes to this repository are documented in this file.
 
 ### Changed
 
-- Reorganised the developer documentation into how-to, reference, explanation, and ADR sections, and refreshed the Terraform pipeline and manual-verification user guides.
+- Reorganised the developer documentation into how-to, reference, and explanation sections, and refreshed the Terraform pipeline and manual-verification user guides.
+
 ## [0.3.1] - 2026-10-06
 
 ### Fixed
