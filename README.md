@@ -1,37 +1,33 @@
 # Azure DevOps YAML Pipeline Templates
 
-This repository provides reusable Azure DevOps YAML templates for Terraform infrastructure delivery on Azure.
+Reusable, versioned Azure DevOps YAML Pipeline templates that give teams consistent, production-ready, flexible templates.
 
-The goal is to help teams ship faster with consistent, production-ready pipelines, while reducing duplication across repositories.
+## What is available
 
-## Why use these templates
+This repository follows a **set-menu + salad bar** model. Only the templates listed here are the supported public surface; everything else in the repository is an internal building block and may change without notice.
 
-- **Standardization**: consistent Terraform build/deploy behavior across teams and services.
-- **Faster delivery**: reuse templates instead of rebuilding pipeline logic.
-- **Safer releases**: built-in support for plan/apply workflows, verification, and approval gates.
-- **Composable architecture**: use full pipelines for quick adoption, or modular jobs/templates for custom workflows.
+Browse the full [user documentation](docs/user-docs/README.md) for usage and upgrade guides, and the [definition docs](docs/definition_docs) for the structure of each configuration object.
 
-## Versioning scope
+### Set-menu: ready-to-use pipeline templates
 
-This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
+Use these when you want an end-to-end pipeline with minimal setup.
 
-SemVer compatibility guarantees apply to templates in:
+| Template                                                               | Purpose                                                                                                                         | Documentation                                                        |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [`pipelines/terraform_pipeline.yml`](pipelines/terraform_pipeline.yml) | End-to-end Terraform pipeline: build, validate, package, and deploy across multiple environments with manual verification gates | [Terraform Pipeline](docs/user-docs/pipelines/terraform_pipeline.md) |
 
-- [pipelines](pipelines)
-- [jobs](jobs)
+### Salad bar: modular job templates for custom pipelines
 
-## Design philosophy
+Use these to compose your own workflow.
 
-These templates are built on a few deliberate principles (see [Design Philosophy](docs/developers/explanation/design-philosophy.md) for the full rationale):
-
-- **Behavioural solutions, not building blocks** — the public templates deliver complete outcomes, so you adopt behaviour instead of assembling low-level steps.
-- **Narrow public surface** — only `pipelines/` and `jobs/` are public and versioned; everything else is an internal building block.
-- **Layered templates** — tasks → jobs → stages → pipelines, with composed behaviour covered by job and pipeline compile tests.
-- **Fail fast at compile time** — schemas and guard expressions reject bad input before any agent runs.
-- **Fully-declared, self-documenting parameters** — required inputs have no default and fail loudly; the declaration is the contract.
-- **Protected internal state** — template-internal variables are `readonly` so consumers cannot silently override them.
-- **Defensive rendering** — templates produce valid output or a clear compile-time error, never something subtly wrong.
-- **Cross-platform and open-source** — templates run on both Windows and Linux agents and prefer built-in or open-source tasks over paid Marketplace extensions.
+| Template                                                                     | Purpose                                                                                 | Documentation                                                                       |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [`jobs/terraform_build.yml`](jobs/terraform_build.yml)                       | Builds, validates, and packages Terraform files                                         | [Terraform Build Job](docs/user-docs/jobs/terraform_build.md)                       |
+| [`jobs/terraform_deploy.yml`](jobs/terraform_deploy.yml)                     | A single Terraform deployment step (plan or apply)                                      | [Terraform Deploy Job](docs/user-docs/jobs/terraform_deploy.md)                     |
+| [`jobs/terraform_gated_deployment.yml`](jobs/terraform_gated_deployment.yml) | Complete deployment workflow (plan → verify → apply) with configurable run modes        | [Terraform Gated Deployment Job](docs/user-docs/jobs/terraform_gated_deployment.md) |
+| [`jobs/terraform_destroy.yml`](jobs/terraform_destroy.yml)                   | A single Terraform destroy step (plan-destroy or destroy) using packaged artifacts      | [Terraform Destroy Job](docs/user-docs/jobs/terraform_destroy.md)                   |
+| [`jobs/terraform_gated_destroy.yml`](jobs/terraform_gated_destroy.yml)       | Complete destroy workflow (plan-destroy → verify → destroy) with configurable run modes | [Terraform Gated Destroy Job](docs/user-docs/jobs/terraform_gated_destroy.md)       |
+| [`jobs/manual_verification.yml`](jobs/manual_verification.yml)               | Reusable manual approval gate with configurable timeouts and notifications              | [Manual Verification Job](docs/user-docs/jobs/manual_verification.md)               |
 
 ## Reference this repository
 
@@ -47,59 +43,36 @@ resources:
       ref: refs/tags/0.3.1
 ```
 
-Then reference templates using `@AzDOPipelineTemplates`.
+Then reference templates using `@AzDOPipelineTemplates`, for example `- template: jobs/<template>.yml@AzDOPipelineTemplates`.
 
-Always pin `ref` to a specific tagged release (`MAJOR.MINOR.PATCH`). Tags are immutable and never moved once pushed. An unpinned reference (e.g. `ref: refs/heads/main`, or omitting `ref` entirely) receives every merge to `main` immediately, with no warning.
+- **Keep the repository alias as `AzDOPipelineTemplates`.** The templates use this name internally (it is the default `CheckoutAlias`) to check out this repository for their own scripts, so a different alias will break them.
+- **Always pin `ref` to a specific tagged release** (`MAJOR.MINOR.PATCH`). Tags are immutable: they are never moved once pushed, and repository rulesets protect them from deletion. An unpinned reference (e.g. `ref: refs/heads/main`, or omitting `ref` entirely) receives every merge to `main` immediately, with no warning.
 
-## What is available
+## Stability and quality
 
-This repository follows a **set-menu + salad bar** model.
+The goal is templates you can depend on: they should not break your pipelines, and changes should arrive in a way you can predict. Three things deliver that.
 
-### Set-menu: ready-to-use pipeline templates
+- **Backward compatibility is the contract.** Everything in the public surface above is protected against breaking changes. A change that would break existing consumers is only released as a new major version, with an upgrade guide. See the [Versioning Policy](docs/developers/reference/versioning-policy.md).
+- **Semantic Versioning is how that is communicated.** Releases follow [Semantic Versioning 2.0.0](https://semver.org/), so the version number tells you whether an upgrade is safe to take.
+- **Automated testing gates every change.** Template changes are covered by a PowerShell compile-test framework ([`tests/framework`](tests/framework)) with test suites per template under [`tests`](tests), and the suite must pass before a Pull Request can merge to `main`. It verifies YAML expansion; runtime behaviour is validated separately by running fixture pipelines in Azure DevOps. See [Test a Template](docs/developers/how-to/test-a-template.md).
 
-- [`pipelines/terraform_pipeline.yml`](pipelines/terraform_pipeline.yml)
+Compilation alone does not guarantee that `main` is as stable as a tagged release. Pinning a tagged `MAJOR.MINOR.PATCH` version is the only way to get a fixed, reproducible set of templates, so pin a tag for any production consumer pipeline.
 
-Use this when you want an end-to-end Terraform pipeline with minimal setup.
+## Design philosophy
 
-### Salad bar: modular job templates for custom pipelines
+These templates are built on a few deliberate principles. Each links to its full rationale in [Design Philosophy](docs/developers/explanation/design-philosophy.md).
 
-Reusable job templates:
+- [**Behavioural solutions, not building blocks**](docs/developers/explanation/design-philosophy.md#behavioural-solutions-not-building-blocks): public templates deliver complete outcomes, so you adopt behaviour instead of assembling low-level steps.
+- [**Narrow public surface**](docs/developers/explanation/design-philosophy.md#public-vs-internal): only a small, versioned set of templates is public, which lets the internals evolve without breaking you.
+- [**Layered templates**](docs/developers/explanation/design-philosophy.md#layered-templates): small pieces compose into larger ones, with the composed behaviour covered by compile tests.
+- [**Fail fast at compile time**](docs/developers/explanation/design-philosophy.md#fail-fast-at-compile-time): bad input is rejected before any agent runs.
+- [**Fully-declared, self-documenting parameters**](docs/developers/explanation/design-philosophy.md#fully-declared-self-documenting-parameters): required inputs have no default and fail loudly; the declaration is the contract.
+- [**Protected internal state**](docs/developers/explanation/design-philosophy.md#protect-template-internal-state): template-internal variables are `readonly`, so consumers cannot silently override them.
+- [**Defensive rendering**](docs/developers/explanation/design-philosophy.md#defensive-safe-rendering): templates produce valid output or a clear compile-time error, never something subtly wrong.
+- [**Cross-platform and open-source**](docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default): run on Windows and Linux agents, preferring built-in or open-source tasks over paid Marketplace extensions.
 
-- [`jobs/terraform_build.yml`](jobs/terraform_build.yml)
-- [`jobs/terraform_deploy.yml`](jobs/terraform_deploy.yml)
-- [`jobs/terraform_gated_deployment.yml`](jobs/terraform_gated_deployment.yml)
-- [`jobs/manual_verification.yml`](jobs/manual_verification.yml)
+## Feedback and contributing
 
-`tasks/`, `stages/`, and `utils/` are internal building blocks used to compose the above — not intended for direct external use.
+These templates exist to make your pipelines easier, so we want to hear how they work for you. If you have feedback, a question, a bug report, or an idea for a new template, please get in touch by [raising an issue](https://github.com/UKHO/devops-azdo-yaml-pipeline-templates/issues).
 
-Supporting components:
-
-- [`stages`](stages)
-- [`tasks`](tasks)
-- [`utils`](utils)
-- [`schemas`](schemas)
-- [`scripts`](scripts)
-
-## Quality assurance and CI/CD confidence
-
-These templates are validated with compile/test automation and runnable template test suites.
-
-- PowerShell compile/test framework in [`tests/framework`](tests/framework)
-- Job test runner: [`tests/jobs/jobs.CompileTests.ps1`](tests/jobs/jobs.CompileTests.ps1)
-- Pipeline test runner: [`tests/pipelines/pipelines.CompileTests.ps1`](tests/pipelines/pipelines.CompileTests.ps1)
-- Template test suites under [`tests`](tests), including:
-  - [`tests/pipelines/terraform_pipeline`](tests/pipelines/terraform_pipeline)
-  - [`tests/jobs/manual_verification`](tests/jobs/manual_verification)
-  - [`tests/jobs/terraform_build`](tests/jobs/terraform_build)
-  - [`tests/jobs/terraform_deploy`](tests/jobs/terraform_deploy)
-  - [`tests/jobs/terraform_gated_deployment`](tests/jobs/terraform_gated_deployment)
-- CI/CD infrastructure assets and deployment utilities in [`cicd`](cicd)
-
-This repository's own template changes are covered by an automated compile suite (see above) that must pass before a Pull Request can merge to `main`. The suite verifies YAML expansion; runtime behaviour is validated separately by running fixture pipelines in Azure DevOps.
-
-Compilation alone does not guarantee that `main` is as stable as a tagged release — pinning a tagged `MAJOR.MINOR.PATCH` version is the only way to get a fixed, reproducible set of templates. We recommend pinning a tag for any production consumer pipeline.
-
-## Documentation
-
-- User documentation: [`docs/user-docs/README.md`](docs/user-docs/README.md)
-- Definition/reference docs: [`docs/definition_docs`](docs/definition_docs)
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and see the [developer documentation](docs/developers/README.md) for conventions and how to test a change. To see what has changed between releases, read the [CHANGELOG](CHANGELOG.md).
