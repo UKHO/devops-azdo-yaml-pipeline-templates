@@ -100,7 +100,9 @@ steps:
 - Avoid hardcoded path separators and OS-specific shell built-ins; use cross-platform constructs.
 - Do not assume a specific agent image — consumers choose their pool.
 
-**Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension. For example, this repository invokes the Terraform CLI through a `cmdline`/`script` step rather than a Marketplace Terraform task, so no extension install is required. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
+**Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension.
+
+This repository runs Terraform commands through `cmdline`/`script` steps, but installing the CLI still requires the free Microsoft DevLabs Terraform extension that supplies `TerraformInstaller@1`. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
 
 ## Template Structure and Design
 
