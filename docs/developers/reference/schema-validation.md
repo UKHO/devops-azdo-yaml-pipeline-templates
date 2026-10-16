@@ -80,12 +80,14 @@ Reject anything outside the permitted set with `notIn`:
 
 ### Type check (scalar vs. object/array)
 
-There is no `typeof`. Serialise the value with `convertToJson` and check for structural characters: a JSON object starts with `{`, a JSON array with `[`. If either appears where a string is expected, the value is not a scalar:
+There is no `typeof`. Serialise the value with `convertToJson` and inspect the **first character** with `startsWith`: a JSON object starts with `{`, a JSON array with `[`, and a JSON string with `"`. If an object or array appears where a string is expected, the value is not a scalar:
 
 ```yaml
-- ${{ if or(contains(convertToJson(parameters.Config.Name), '{'), contains(convertToJson(parameters.Config.Name), '[')) }}:
+- ${{ if or(startsWith(convertToJson(parameters.Config.Name), '{'), startsWith(convertToJson(parameters.Config.Name), '[')) }}:
     - "Invalid Config: 'Name' must be a string. See: docs/definition_docs/path.md": "Error"
 ```
+
+> Use `startsWith`, not `contains`. `contains` matches anywhere in the serialised output, so a valid string such as `vars[0].tfvars` would be misclassified as structural.
 
 ### Optional field: validate only when present
 
@@ -112,11 +114,11 @@ Confirm the value is a list, then check each item is a scalar:
 
 ```yaml
 - ${{ if parameters.Config.VariableFiles }}:
-    - ${{ if not(contains(convertToJson(parameters.Config.VariableFiles), '[')) }}:
+    - ${{ if not(startsWith(convertToJson(parameters.Config.VariableFiles), '[')) }}:
         - "Invalid Config: 'VariableFiles' must be a list. See: docs/definition_docs/path.md": "Error"
     - ${{ else }}:
         - ${{ each variable in parameters.Config.VariableFiles }}:
-            - ${{ if or(contains(convertToJson(variable), '['), contains(convertToJson(variable), '{')) }}:
+            - ${{ if or(startsWith(convertToJson(variable), '['), startsWith(convertToJson(variable), '{')) }}:
                 - "Invalid Config: 'VariableFiles' items must be strings. See: docs/definition_docs/path.md": "Error"
 ```
 
@@ -126,7 +128,7 @@ Confirm it is an object, then iterate entries asserting both key and value are p
 
 ```yaml
 - ${{ if parameters.Config.BackendConfig }}:
-    - ${{ if not(contains(convertToJson(parameters.Config.BackendConfig), '{')) }}:
+    - ${{ if not(startsWith(convertToJson(parameters.Config.BackendConfig), '{')) }}:
         - "Invalid Config: 'BackendConfig' must be an object of key/value pairs. See: docs/definition_docs/path.md": "Error"
     - ${{ else }}:
         - ${{ each mapping in parameters.Config.BackendConfig }}:
