@@ -26,7 +26,7 @@ These templates are built on a few deliberate principles (see [Design Philosophy
 
 - **Behavioural solutions, not building blocks** — the public templates deliver complete outcomes, so you adopt behaviour instead of assembling low-level steps.
 - **Narrow public surface** — only `pipelines/` and `jobs/` are public and versioned; everything else is an internal building block.
-- **Layered templates** — tasks → jobs → stages → pipelines, each tested in isolation and safely swappable.
+- **Layered templates** — tasks → jobs → stages → pipelines, with composed behaviour covered by job and pipeline compile tests.
 - **Fail fast at compile time** — schemas and guard expressions reject bad input before any agent runs.
 - **Fully-declared, self-documenting parameters** — required inputs have no default and fail loudly; the declaration is the contract.
 - **Protected internal state** — template-internal variables are `readonly` so consumers cannot silently override them.
@@ -95,7 +95,9 @@ These templates are validated with compile/test automation and runnable template
   - [`tests/jobs/terraform_gated_deployment`](tests/jobs/terraform_gated_deployment)
 - CI/CD infrastructure assets and deployment utilities in [`cicd`](cicd)
 
-This repository's own template changes are covered by an automated compile/test suite (see above) that must pass before a Pull Request can merge to `main`. That suite validates the templates compile and run as expected; it does not, on its own, guarantee that `main` is as stable as a tagged release — pinning a tagged `MAJOR.MINOR.PATCH` version is the only way to get a fixed, reproducible set of templates. We recommend pinning a tag for any production consumer pipeline.
+This repository's own template changes are covered by an automated compile suite (see above) that must pass before a Pull Request can merge to `main`. The suite verifies YAML expansion; runtime behaviour is validated separately by running fixture pipelines in Azure DevOps.
+
+Compilation alone does not guarantee that `main` is as stable as a tagged release — pinning a tagged `MAJOR.MINOR.PATCH` version is the only way to get a fixed, reproducible set of templates. We recommend pinning a tag for any production consumer pipeline.
 
 ## Documentation
 
