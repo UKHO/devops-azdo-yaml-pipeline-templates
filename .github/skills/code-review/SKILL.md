@@ -56,7 +56,7 @@ If the user has not told you the scope, determine it from the diff (`get_changed
 2. **Read each changed file in full**, plus anything it depends on for context (the template a test exercises, the schema a job includes, the doc a template mirrors).
 3. **Apply the checklist for each area.** Each folder has a different documentation and testing contract (see `ARCHITECTURE.md` → Documentation Location by Folder). Do not apply job rules to a task, or the reverse.
 4. **Verify the sibling files.** A single logical change usually touches a template _and_ its docs _and_ its tests _and_ `CHANGELOG.md`. A missing sibling is the most common and most important finding.
-5. **Don't duplicate CI.** The Lint workflow (`.github/workflows/lint.yml`) already runs editorconfig-checker, yamlfmt, yamllint, markdownlint-cli2, PSScriptAnalyzer and gitleaks. Only raise a formatting or secret issue yourself if it is semantic or something those tools would miss.
+5. **Check what automation actually covers.** Look in `.github/workflows/` and the repo's lint config files to see which checks exist and run on pull requests for the files under review. Delegate a check (formatting, markdown lint, PowerShell analysis, secret scanning) to automation only after confirming the workflow is present and applies to this change; otherwise review it yourself. Never assume coverage.
 6. **Report** using the output format at the end, citing the specific doc for every finding.
 
 ---
@@ -137,7 +137,7 @@ Source: `scripts-and-tooling.md`.
 
 - [ ] PowerShell (`pwsh`), cross-platform, and in the right folder (`scripts/` for runtime, `tools/` for maintainers).
 - [ ] The script is justified: the logic is too complex for a built-in task or compile-time expression, is runtime-specific, or has no built-in task equivalent.
-- [ ] Passes PSScriptAnalyzer (CI covers this, so only comment on semantics).
+- [ ] Follows the PowerShell conventions in `scripts-and-tooling.md`. Skip lint-style comments only if you have confirmed a PowerShell analysis workflow runs for this change; otherwise check for obvious issues yourself.
 
 ### `tests/` — compile tests and fixtures
 
@@ -158,7 +158,7 @@ Source: `.github/instructions/markdown.instructions.md` and `update-documentatio
 - [ ] `user-docs` and `definition_docs` cross-link where a complex object parameter is involved.
 - [ ] Documentation does not restate rationale that belongs in `explanation/`, or fast-changing detail that belongs in `reference/` (`ARCHITECTURE.md` intro).
 - [ ] The root `README.md` stays free of named internal templates and reasons that go stale; it lists only the public catalogue.
-- [ ] Markdown lint passes. CI runs `npx --yes markdownlint-cli2@0.14.0 "**/*.md" "#node_modules"`; there is no `npm run` lint script in this repo.
+- [ ] Markdown rules are met. If a workflow runs markdownlint for this change (check `.github/workflows/` and `.markdownlint.json`), rely on it for rule-level checks and comment on semantics; if not, apply `markdown.instructions.md` yourself. Don't tell the author to run a lint script the repo does not define.
 
 ### `.github/` and conventions
 
@@ -204,7 +204,7 @@ Source: `versioning-policy.md`, `release-a-version.md`, `update-the-changelog.md
 
 - **Blocker**: breaks compilation, ships a secret, forces a paid extension, introduces a `.yaml` file, or is a breaking change with no major bump, CHANGELOG entry, or migration guide. Must fix before merge.
 - **Major**: a missing required documentation or test sibling, a missing schema for a config object, an overridable internal variable (no `readonly`), double-wrapping, the wrong documentation format for the template type, a broken `See:` link in a schema, or an internal template exposed as public.
-- **Minor**: naming or formatting that CI did not catch, imprecise `displayName`, a stale example, `contains` used where `startsWith` is needed in a way that does not currently misfire.
+- **Minor**: naming or formatting that automated checks (where confirmed to exist) did not catch, imprecise `displayName`, a stale example, `contains` used where `startsWith` is needed in a way that does not currently misfire.
 - **Nit / Question**: a style preference, or a point needing author clarification.
 
 Do not invent rules the repository doesn't hold. If something looks wrong but you can't tie it to a documented convention, raise it as a **Question**, not a Blocker.
@@ -233,6 +233,6 @@ Keep it skimmable. Prefer a bulleted finding with a precise citation over prose,
 - **Don't cite ADRs.** There are none; point to the `explanation/` or `reference/` page instead.
 - **Don't apply the wrong doc contract** (for example demanding an in-file block on a `jobs/` template, or a user doc for a `tasks/` template).
 - **Don't flag unpushed-branch test failures** as template defects.
-- **Don't repeat what CI already checks** (editorconfig, yamlfmt, yamllint, markdownlint, PSScriptAnalyzer, gitleaks) unless the tools missed it.
+- **Don't assume CI coverage.** Treat a check as already automated only after confirming the workflow exists and runs for this change. If it doesn't, the check is yours to do.
 - **Don't rewrite the author's code** unless asked. Review and propose; let them decide.
 - **Don't approve** a change that adds or edits a template without checking its docs, tests, and `CHANGELOG.md` siblings.
