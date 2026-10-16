@@ -1,12 +1,13 @@
 ---
 name: powershell-core
 description: >
-  Expert guide for generating idiomatic, cross-platform PowerShell Core (pwsh) code.
-  Use this skill whenever the user asks to write, generate, scaffold, or improve
-  PowerShell scripts, functions, modules, or cmdlets. Also trigger when the user
-  mentions pwsh, .ps1 files, PowerShell pipelines, cmdlets, or wants to automate
-  tasks using PowerShell. Covers best practices for error handling, output formatting,
-  parameter design, modules, and cross-platform compatibility (Windows, macOS, Linux).
+  Use when the user asks to write, generate, scaffold, review, or improve
+  PowerShell Core (pwsh) scripts, functions, modules, or cmdlets — or mentions
+  `.ps1` files, pwsh pipelines, or automating a task with PowerShell — to produce
+  idiomatic, cross-platform (Windows/macOS/Linux) code with correct error
+  handling, parameter design, pipeline-friendly output, and module structure.
+  NOT when the task is a one-off shell command with no scripting intent, or a
+  Windows-only `powershell.exe`/`bash` script — use normal chat instead.
 license: MIT
 ---
 
