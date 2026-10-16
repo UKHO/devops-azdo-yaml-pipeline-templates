@@ -50,6 +50,8 @@ The `EnvironmentConfigs` object is the heart of this pipeline. For its full stru
 1. **Build stage** (`Build_Terraform`) — checks out your repo, installs the Terraform CLI, runs `terraform init` (no backend) and `terraform validate`, then packages the files as an artifact.
 2. **Deploy stage** (`Deploy_<Name>_Terraform`, one per environment) — downloads the artifact, runs `terraform init` with the backend, runs `terraform plan`, optionally gates on a manual approval per `VerificationMode`, runs `terraform apply`, and exports any `OutputVariables`.
 
+The Apply job does not reuse the saved plan from the Plan job; it recalculates changes during `terraform apply`. External changes between approval and apply can therefore make the applied result differ from the reviewed plan.
+
 ---
 
 ## Examples
