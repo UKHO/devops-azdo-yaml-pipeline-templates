@@ -9,6 +9,10 @@
 
 ## Running the Compile/Test Framework
 
+Install Azure CLI and authenticate with `az login` using an account with access to the preview pipeline configured in `tests/framework/Config.ps1`. Confirm the organisation, project, and pipeline ID match your environment.
+
+Commit and push template changes to the branch under test before running these commands. `TargetBranch` defaults to the current branch in `tests/framework/Config.ps1`. The framework sends fixture YAML to the Azure DevOps preview API, which resolves referenced templates remotely; unpushed edits to those templates are not tested.
+
 ```powershell
 # From the repository root, in PowerShell
 $repoRoot = git rev-parse --show-toplevel
