@@ -388,6 +388,21 @@ VerificationMode: 'VerifyOnAny'
 
 See [How does Infrastructure Manual Verification work?](terraform_pipeline_manual_verification.md) and [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_job_config.md#verificationmode).
 
+### Apply Even If No Changes
+
+By default, when the plan detects no changes in `PlanVerifyApply` mode, the apply job is skipped, so output variables are not exported and anything depending on the apply job does not run. Set `ApplyEvenIfNoChanges: true` to always run the apply job. Manual verification is never bypassed. **Note:** Only allowed when `RunMode` is `PlanVerifyApply`; defaults to `false`.
+
+**Within `TerraformDeploymentConfig.ApplyEvenIfNoChanges`:**
+
+Example:
+```yaml
+RunMode: PlanVerifyApply
+VerificationMode: 'VerifyOnAny'
+ApplyEvenIfNoChanges: true
+```
+
+See [TerraformDeploymentConfig Documentation](../../definition_docs/terraform_pipeline/terraform_job_config.md#applyevenifnochanges).
+
 ### Environment Variables
 
 Provide environment variables for Terraform execution.
@@ -427,7 +442,7 @@ Specify Terraform output variables to export as pipeline variables after deploym
 
 **Within `TerraformDeploymentConfig.OutputVariables`:**
 
-**Note**: Output variables are only exported during the **Apply job** (when `RunMode` is not `PlanOnly` and apply runs successfully).
+**Note**: Output variables are only exported during the **Apply job** (when `RunMode` is not `PlanOnly` and apply runs successfully). In `PlanVerifyApply` mode the apply job is skipped when the plan has no changes, unless `ApplyEvenIfNoChanges: true` is set.
 
 Example:
 ```yaml
