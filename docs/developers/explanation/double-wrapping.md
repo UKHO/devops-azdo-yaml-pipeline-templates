@@ -1,4 +1,4 @@
-# Anti-Pattern: Double Wrapping
+# Double Wrapping
 
 Some pipeline templates may initially seem to benefit from additional wrapper templates to simplify usage or parameter passing. However, introducing multiple layers of wrappers—referred to here as **base wrappers** and **secondary wrappers**—can lead to maintenance challenges and unnecessary complexity.
 
@@ -128,5 +128,11 @@ Example job using the unified template:
           TargetPath: $(TargetPath)
           ArtifactName: ${{ parameters.ArtifactName }}
 ```
+
+**Exceptions where wrapping is acceptable:**
+
+- Orchestration at different levels (pipeline → stage → job → task) — this is composition, not double-wrapping
+- Combining multiple unrelated templates into a single workflow
+- Enforcing organizational standards with validation logic the wrapped template doesn't have
 
 This approach improves maintainability, transparency, and extensibility, while preserving the benefits of the original examples.
