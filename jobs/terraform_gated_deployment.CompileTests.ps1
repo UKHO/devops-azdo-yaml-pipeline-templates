@@ -304,6 +304,156 @@ $validTestCases = @(
       "onTimeout: reject"
       "instructions:*Please validate the terraform plan is acceptable to apply"
     )
+  },
+
+  # ========================================================================
+  # APPLY EVEN IF NO CHANGES TESTS
+  # ========================================================================
+  # NOTE: ExpectedYAML uses PowerShell -like matching, which is case-insensitive and treats [ ] as
+  # character-class wildcards. '?' is used in place of the literal [ and ] in outputs['...'].
+  # The flag is rendered at compile time into eq('<value>', 'true'): absent -> '', true -> 'True',
+  # false -> 'False' (the runtime eq() is case-insensitive).
+
+  @{
+    Description = "PlanVerifyApply without ApplyEvenIfNoChanges renders the override as off (default behaviour)"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+      }
+    }
+    ExpectedYAML = @(
+      "or(*ChangesNeedApplying'?, 'true'),*eq('', 'true')*)"
+      "succeeded('ManualVerification_TerraformArtifact')"
+      "ChangesNeedManualVerification'?, 'false')"
+    )
+  },
+
+  @{
+    Description = "PlanVerifyApply with ApplyEvenIfNoChanges false renders the override as off"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = $false
+      }
+    }
+    ExpectedYAML = @(
+      "or(*ChangesNeedApplying'?, 'true'),*eq('false', 'true')*)"
+      "succeeded('ManualVerification_TerraformArtifact')"
+      "ChangesNeedManualVerification'?, 'false')"
+    )
+  },
+
+  @{
+    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true renders the override as on and keeps manual verification"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ExpectedYAML = @(
+      "or(*ChangesNeedApplying'?, 'true'),*eq('true', 'true')*)"
+      "ChangesNeedManualVerification'?, 'false')"
+      "succeeded('ManualVerification_TerraformArtifact')"
+      "job: ManualVerification_TerraformArtifact"
+      "deployment: TerraformDeployApply_TerraformArtifact"
+      "dependsOn:*- ManualVerification_TerraformArtifact*- TerraformDeployPlan_TerraformArtifact"
+    )
+  },
+
+  @{
+    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and VerifyOnDestroy keeps manual verification"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnDestroy"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ExpectedYAML = @(
+      "job: ManualVerification_TerraformArtifact"
+      "succeeded('ManualVerification_TerraformArtifact')"
+      "-VerificationMode VerifyOnDestroy"
+    )
+  },
+
+  @{
+    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and VerifyDisabled keeps manual verification job"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyDisabled"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ExpectedYAML = @(
+      "job: ManualVerification_TerraformArtifact"
+      "succeeded('ManualVerification_TerraformArtifact')"
+      "-VerificationMode VerifyDisabled"
+    )
+  },
+
+  @{
+    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and custom TerraformArtifactName"
+    Parameters = @{
+      EnvironmentName = "staging"
+      TerraformArtifactName = "InfrastructureArtifact"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ExpectedYAML = @(
+      "ChangesNeedApplying'?, 'true'),*eq('true', 'true')"
+      "TerraformDeployPlan_InfrastructureArtifact.TerraformChangesCheck.ChangesNeedManualVerification'?, 'false')"
+      "succeeded('ManualVerification_InfrastructureArtifact')"
+    )
+  },
+
+  @{
+    Description = "PlanOnly with ApplyEvenIfNoChanges false is allowed and includes only the Plan job"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+        ApplyEvenIfNoChanges = $false
+      }
+    }
+    ExpectedYAML = @(
+      "TerraformDeployPlan_TerraformArtifact"
+    )
+  },
+
+  @{
+    Description = "ApplyOnly with ApplyEvenIfNoChanges false is allowed and includes only the Apply job"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = $false
+      }
+    }
+    ExpectedYAML = @(
+      "TerraformDeployApply_TerraformArtifact"
+      "condition: succeeded()"
+    )
   }
 )
 
@@ -408,6 +558,43 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges true with RunMode PlanOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges true with RunMode ApplyOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to a non-boolean value"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = "yes"
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
   }
 )
 
