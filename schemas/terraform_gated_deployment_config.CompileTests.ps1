@@ -4,7 +4,7 @@
 # Validates only the properties consumed directly by jobs/terraform_gated_deployment.yml:
 # AzDOEnvironmentName (duplicated from schemas/terraform_deploy_config.yml for clear
 # standalone errors), RunMode, VerificationMode-required-when-RunMode-is-PlanVerifyApply,
-# and the verification timeout fields.
+# the verification timeout fields, and ApplyEvenIfNoChanges.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -83,6 +83,52 @@ $validTestCases = @(
         RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyOnAny"
         VerificationTimeoutInMinutes = 43200
+      }
+    }
+  },
+  @{
+    Description = "with ApplyEvenIfNoChanges set to true and RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "prod"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "prod-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+  },
+  @{
+    Description = "with ApplyEvenIfNoChanges set to false and RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "prod"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "prod-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = $false
+      }
+    }
+  },
+  @{
+    Description = "with ApplyEvenIfNoChanges set to false and RunMode ApplyOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = $false
+      }
+    }
+  },
+  @{
+    Description = "with ApplyEvenIfNoChanges set to false and RunMode PlanOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        ApplyEvenIfNoChanges = $false
       }
     }
   }
@@ -218,6 +264,43 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to true with RunMode PlanOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanOnly"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to true with RunMode ApplyOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = $true
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to a non-boolean value"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = "yes"
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
   }
 )
 

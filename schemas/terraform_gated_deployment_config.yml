@@ -1,7 +1,7 @@
 # Schema Template: Terraform Gated Deployment Config
 # Validates the terraform deployment configuration properties used directly by
 # jobs/terraform_gated_deployment.yml (RunMode, VerificationMode-required-by-RunMode,
-# and verification timeout fields). AzDOEnvironmentName is also validated here
+# verification timeout fields, and ApplyEvenIfNoChanges). AzDOEnvironmentName is also validated here
 # (duplicated from schemas/terraform_deploy_config.yml) so that a consumer calling
 # this job directly gets a clear, standalone error rather than a confusing
 # downstream failure. All other fields (BackendConfig, VariableFiles, etc.) are
@@ -37,6 +37,12 @@ jobs:
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutBehaviour"') }}:
       - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
+
+  - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"ApplyEvenIfNoChanges"') }}:
+      - ${{ if notIn(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true, false) }}:
+          - "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).": "Error"
+      - ${{ elseif and(eq(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true), in(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly', 'ApplyOnly')) }}: # Only meaningful with PlanVerifyApply; missing/invalid RunMode is already reported above
+          - "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.": "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutInMinutes"') }}:
       - ${{ if or(lt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 43200)) }}:
