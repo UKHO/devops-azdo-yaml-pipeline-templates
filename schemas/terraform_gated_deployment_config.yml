@@ -41,7 +41,11 @@ jobs:
           - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"ApplyEvenIfNoChanges"') }}:
-      - ${{ if notIn(convertToJson(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges), 'true', 'false') }}:
+      # Compare the JSON form rather than the value: notIn() coerces its right-hand operands to
+      # the left-hand type, so a numeric 1/0 would otherwise pass. YAML object literals reach the
+      # template as strings (convertToJson gives "true" including quotes), while REST/JSON callers
+      # pass real booleans (true), so both forms are accepted; anything else (1, 0, "yes") is rejected.
+      - ${{ if notIn(convertToJson(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges), 'true', 'false', '"true"', '"false"') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).": "Error"
       - ? ${{ elseif and(eq(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true), in(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly', 'ApplyOnly')) }}
         : # Only meaningful with PlanVerifyApply; missing/invalid RunMode is already reported above

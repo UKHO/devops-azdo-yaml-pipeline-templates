@@ -131,6 +131,31 @@ $validTestCases = @(
         ApplyEvenIfNoChanges = $false
       }
     }
+  },
+  # YAML object literals (ApplyEvenIfNoChanges: true) reach templates as strings, not booleans,
+  # so the string forms must be accepted - this is how real consumer pipelines pass the value.
+  @{
+    Description = "with ApplyEvenIfNoChanges set to string 'true' (YAML literal form) and RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "prod"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "prod-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = "true"
+      }
+    }
+  },
+  @{
+    Description = "with ApplyEvenIfNoChanges set to string 'false' (YAML literal form) and RunMode ApplyOnly"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = "false"
+      }
+    }
   }
 )
 
@@ -344,30 +369,29 @@ $invalidTestCases = @(
     ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
   },
   @{
-    Description = "ApplyEvenIfNoChanges set to string 'true' with RunMode PlanVerifyApply"
+    Description = "ApplyEvenIfNoChanges set to string '1' (YAML literal form) with RunMode PlanVerifyApply"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
         RunMode = "PlanVerifyApply"
         VerificationMode = "VerifyOnAny"
-        ApplyEvenIfNoChanges = "true"
+        ApplyEvenIfNoChanges = "1"
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
   },
   @{
-    Description = "ApplyEvenIfNoChanges set to string 'false' with RunMode PlanVerifyApply"
+    Description = "ApplyEvenIfNoChanges set to string 'true' (YAML literal form) with RunMode PlanOnly"
     Parameters = @{
       EnvironmentName = "dev"
       TerraformDeploymentConfig = @{
         AzDOEnvironmentName = "dev-environment"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        ApplyEvenIfNoChanges = "false"
+        RunMode = "PlanOnly"
+        ApplyEvenIfNoChanges = "true"
       }
     }
-    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
   }
 )
 
