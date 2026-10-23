@@ -26,6 +26,9 @@ $config = @{
   TestExecution = @{
     ShowVerboseOutput = $false
     ThrowExceptionOnTestFailure = $true
+    # Maximum number of concurrent compile requests sent to Azure DevOps.
+    # Lower this if you hit throttling (HTTP 429); 1 = fully sequential.
+    MaxConcurrentRequests = 8
   }
 
   SaveCompiledYaml = $false

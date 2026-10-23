@@ -37,9 +37,14 @@ function Invoke-DirectoryCompileTests
         }
         else
         {
-            foreach ($testFile in $testFiles)
+            # Compile all discovered files concurrently, then report in discovery order
+            $requests = @($testFiles | ForEach-Object {
+                @{ YamlContent = (Get-Content -Path $_ -Raw); Parameters = @{ } }
+            })
+            $compileResults = Invoke-CompileYamlBatch -Requests $requests
+            for ($i = 0; $i -lt $testFiles.Count; $i++)
             {
-                script:Run-DirectoryTest -YamlFilePath $testFile
+                script:Run-DirectoryTest -YamlFilePath $testFiles[$i] -CompileResult $compileResults[$i]
             }
         }
 
@@ -109,7 +114,11 @@ function script:Run-DirectoryTest
     param(
         [Parameter(Mandatory)]
         [string]
-        $YamlFilePath
+        $YamlFilePath,
+
+        [Parameter()]
+        [object]
+        $CompileResult
     )
     $script:DirectoryTestState.FilesRun++
     try
@@ -117,8 +126,12 @@ function script:Run-DirectoryTest
         $displayName = script:Get-TestFileDisplayName -FilePath $YamlFilePath
         $relativeDirectory = [System.IO.Path]::GetDirectoryName($YamlFilePath.Substring($RepositoryRoot.Length + 1))
         Write-Host "  Testing: $displayName" -ForegroundColor Cyan
-        $yamlContent = Get-Content -Path $YamlFilePath -Raw
-        $result = Test-CompileYaml -YamlContent $yamlContent -Parameters @{ }
+        $result = $CompileResult
+        if ($null -eq $result)
+        {
+            $yamlContent = Get-Content -Path $YamlFilePath -Raw
+            $result = Test-CompileYaml -YamlContent $yamlContent -Parameters @{ }
+        }
         $testPassed = script:Evaluate-DirectoryCompilationResult -CompileResult $result
         if ($testPassed)
         {
