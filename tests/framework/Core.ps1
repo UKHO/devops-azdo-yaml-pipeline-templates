@@ -29,6 +29,7 @@ $script:TestState = @{
   SkipValidation = $Config.Validation.SkipValidation
   AzDO = $Config.AzDO
   SaveCompiledYaml = $Config.SaveCompiledYaml
+  MaxConcurrentRequests = $Config.TestExecution.MaxConcurrentRequests
   AccessToken = $null
 }
 
