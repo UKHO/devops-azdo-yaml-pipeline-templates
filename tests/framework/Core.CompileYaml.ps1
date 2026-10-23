@@ -274,7 +274,7 @@ function Invoke-CompileYamlBatch
         $delay = [TimeSpan]::FromSeconds([Math]::Pow(2, $attempts[$index]))
         if ($response.Headers.RetryAfter -and $response.Headers.RetryAfter.Delta)
         {
-          $delay = $response.Headers.RetryAfter.Delta.Value
+          $delay = $response.Headers.RetryAfter.Delta
         }
         Write-Verbose "Request $index throttled ($statusCode); retrying after $( $delay.TotalSeconds )s"
         Start-Sleep -Milliseconds ([int]$delay.TotalMilliseconds)

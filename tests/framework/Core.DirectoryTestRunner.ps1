@@ -44,7 +44,7 @@ function Invoke-DirectoryCompileTests
             $compileResults = Invoke-CompileYamlBatch -Requests $requests
             for ($i = 0; $i -lt $testFiles.Count; $i++)
             {
-                script:Run-DirectoryTest -YamlFilePath $testFiles[$i] -CompileResult $compileResults[$i]
+                script:Run-DirectoryTest -YamlFilePath (@($testFiles)[$i]) -CompileResult $compileResults[$i]
             }
         }
 
