@@ -2,20 +2,53 @@
 # TEST FRAMEWORK - AUTHENTICATION
 # ============================================================================
 
+function Get-CachedAccessToken
+{
+  <#
+  .SYNOPSIS
+    Return the session-cached access token if it is still valid for at least 5 minutes, otherwise $null.
+  #>
+  [CmdletBinding()]
+  param()
+
+  $cache = $global:AzDOCompileTestTokenCache
+  if ($null -ne $cache -and $cache.ExpiresOn -gt [DateTimeOffset]::UtcNow.AddMinutes(5))
+  {
+    return $cache.AccessToken
+  }
+  return $null
+}
+
 function Get-AccessToken
 {
   <#
   .SYNOPSIS
     Get access token from Azure CLI logged-in context.
+  .DESCRIPTION
+    The token is cached in the global scope for the lifetime of the PowerShell
+    session (until 5 minutes before expiry), so that running many test files
+    only invokes the (slow) Azure CLI once.
   #>
   [CmdletBinding()]
   param()
 
+  $cached = Get-CachedAccessToken
+  if ($cached)
+  {
+    Write-Verbose "Using cached access token"
+    return $cached
+  }
+
   Write-Verbose "Retrieving access token from Azure CLI logged-in context..."
   try
   {
-    $accessToken = az account get-access-token --query accessToken -o tsv
-    if (-not $accessToken)
+    $json = az account get-access-token --output json 2> $null
+    if ($LASTEXITCODE -ne 0 -or -not $json)
+    {
+      throw "Failed to retrieve access token from Azure CLI"
+    }
+    $token = ($json -join "`n") | ConvertFrom-Json
+    if (-not $token.accessToken)
     {
       throw "Failed to retrieve access token from Azure CLI"
     }
@@ -24,7 +57,22 @@ function Get-AccessToken
   {
     throw "Unable to get access token from Azure CLI. Ensure you are logged in with 'az login' and have the required permissions."
   }
-  return $accessToken
+
+  $expiresOn = [DateTimeOffset]::UtcNow.AddMinutes(30)
+  if ($token.expires_on)
+  {
+    $expiresOn = [DateTimeOffset]::FromUnixTimeSeconds([long]$token.expires_on)
+  }
+  elseif ($token.expiresOn)
+  {
+    $expiresOn = [DateTimeOffset]::Parse([string]$token.expiresOn)
+  }
+
+  $global:AzDOCompileTestTokenCache = @{
+    AccessToken = $token.accessToken
+    ExpiresOn = $expiresOn
+  }
+  return $token.accessToken
 }
 
 function Invoke-AutoSignIn

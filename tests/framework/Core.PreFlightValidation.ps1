@@ -67,6 +67,14 @@ function Invoke-PreFlightValidation
   $allValidationsPassed = $true
   $validationErrors = @()
 
+  # Fast path: a valid token is already cached for this session, so the CLI and
+  # authentication checks have already passed. Only re-check configuration.
+  if ((Get-CachedAccessToken) -and (Test-AzDOConfigurationValues))
+  {
+    Write-Host "Pre-flight validation: OK (cached session token)" -ForegroundColor DarkGray
+    return
+  }
+
   Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
   Write-Host "PRE-FLIGHT VALIDATION" -ForegroundColor Cyan
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
@@ -98,13 +106,25 @@ function Invoke-PreFlightValidation
   }
 
   Write-Host -NoNewline "  ✓ Azure authentication... "
-  if (-not (Test-AzAuthentication))
+  $authenticated = $false
+  try
+  {
+    # Acquiring the token proves authentication and caches it for later use
+    $null = Get-AccessToken
+    $authenticated = $true
+  }
+  catch
+  {
+    Write-Verbose "Token acquisition failed: $_"
+  }
+  if (-not $authenticated)
   {
     Write-Host "FAILED" -ForegroundColor Red
     try
     {
       Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
       Invoke-AutoSignIn -Organization $script:TestState.AzDO.Organization
+      $null = Get-AccessToken
       Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
     }
     catch
