@@ -288,7 +288,7 @@ By default, when the plan detects no changes in `PlanVerifyApply` mode, both the
 Set `ApplyEvenIfNoChanges: true` to run the Apply job even when the plan has no changes, so output variables are always exported and downstream jobs can rely on Apply succeeding.
 
 - Manual verification is **never** bypassed: if the plan requires verification (according to `VerificationMode`), Apply still waits for it.
-- When there are no changes, Manual Verification is still skipped (there is nothing to approve) and Apply runs straight after the plan. Terraform makes no changes to infrastructure.
+- When the original plan has no changes, Manual Verification is skipped and Apply runs after the plan. Apply recalculates changes rather than using the saved plan, so intervening drift can cause infrastructure changes without another manual-verification check.
 - Omitting the field is the same as `false`.
 
 **Cross-field rules:**
