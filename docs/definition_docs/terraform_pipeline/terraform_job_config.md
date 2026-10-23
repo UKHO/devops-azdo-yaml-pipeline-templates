@@ -38,6 +38,7 @@ TerraformDeploymentConfig:
   OutputVariables: list                         # OPTIONAL - leaf job
   VerificationTimeoutInMinutes: number          # OPTIONAL - gated job only (only used when RunMode is PlanVerifyApply)
   VerificationTimeoutBehaviour: string          # OPTIONAL - gated job only ('reject' | 'resume', only used when RunMode is PlanVerifyApply)
+  ApplyEvenIfNoChanges: boolean                 # OPTIONAL - gated job only (default false; true only allowed when RunMode is PlanVerifyApply)
 ```
 
 ### Core fields (consumed by `terraform_deploy.yml`)
@@ -276,6 +277,37 @@ Action to take if manual verification is not actioned within `VerificationTimeou
 - `'reject'` - The job fails, halting the pipeline (default behaviour)
 - `'resume'` - The job automatically succeeds as if approved, and the pipeline continues
 
+---
+
+#### ApplyEvenIfNoChanges
+
+**Type:** `boolean` · **Optional** · **Default:** `false`
+
+By default, when the plan detects no changes in `PlanVerifyApply` mode, both the Manual Verification and Apply jobs are **skipped**. Because Apply is skipped, `OutputVariables` are not exported and any job that depends on the Apply job (for example `succeeded('TerraformDeployApply_{ArtifactName}')`) will not run.
+
+Set `ApplyEvenIfNoChanges: true` to run the Apply job even when the plan has no changes, so output variables are always exported and downstream jobs can rely on Apply succeeding.
+
+- Manual verification is **never** bypassed: if the plan requires verification (according to `VerificationMode`), Apply still waits for it.
+- When the original plan has no changes, Manual Verification is skipped and Apply runs after the plan. Apply recalculates changes rather than using the saved plan, so intervening drift can cause infrastructure changes without another manual-verification check.
+- Omitting the field is the same as `false`.
+
+**Cross-field rules:**
+
+- Must be a boolean (`true` or `false`).
+- Can only be set to `true` when `RunMode` is `'PlanVerifyApply'`. `ApplyOnly` always applies, and `PlanOnly` never applies, so the flag has no meaning in those modes. `false` is accepted in any mode.
+
+```yaml
+TerraformDeploymentConfig:
+  AzDOEnvironmentName: production-environment
+  RunMode: PlanVerifyApply
+  VerificationMode: VerifyOnAny
+  ApplyEvenIfNoChanges: true
+  OutputVariables:
+    - resource_group_name
+```
+
+> There is no equivalent field for `TerraformDestroyConfig` — gated destroy does not export output variables.
+
 ### Complete Examples
 
 #### PlanVerifyApply with Manual Verification
@@ -331,6 +363,10 @@ TerraformDeploymentConfig:
 - **Apply Basic**: [`tests/jobs/terraform_deploy/apply_basic_test.yml`](../../../tests/jobs/terraform_deploy/apply_basic_test.yml)
 - **Gated Deployment (PlanVerifyApply)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_test.yml)
 - **Gated Deployment (PlanOnly)**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml)
+- **Gated Deployment (ApplyEvenIfNoChanges: true)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_test.yml)
+- **Gated Deployment (ApplyEvenIfNoChanges: false)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_false_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_false_test.yml)
+- **Gated Deployment (no changes, default skips Apply)**: [`tests/jobs/terraform_gated_deployment/plan_verify_apply_no_changes_skips_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_no_changes_skips_apply_test.yml)
+- **Compile tests**: [`jobs/terraform_gated_deployment.CompileTests.ps1`](../../../jobs/terraform_gated_deployment.CompileTests.ps1), [`schemas/terraform_gated_deployment_config.CompileTests.ps1`](../../../schemas/terraform_gated_deployment_config.CompileTests.ps1)
 
 ---
 

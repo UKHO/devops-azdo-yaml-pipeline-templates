@@ -1,0 +1,142 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+variables:
+  - name: terraform_path
+    value: tests/shared_resources/resource_group_terraform
+
+# Scenario: ApplyEvenIfNoChanges omitted (default) - no changes must skip Apply
+#   Arrange: build the single TerraformArtifact and ApplyOnly it, so the resource group exists in state.
+#   Act:     PlanVerifyApply against the same state, so the plan has NO changes.
+#            With ApplyEvenIfNoChanges omitted the Apply job must be SKIPPED (skipped jobs do not fail the run).
+#   Assert:  the assertion job only fails on a genuine regression (see docs/developers/how-to/test-a-template.md).
+#   CleanUp: destroy the resource group whatever happened before.
+# Arrange/Act/Assert/CleanUp stages let the same artifact name (and therefore the same job names) be reused.
+
+stages:
+  - stage: Arrange
+    jobs:
+      - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+        parameters:
+          RelativePathToTerraformFiles: $(terraform_path)
+
+      - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
+        parameters:
+          DependsOn: TerraformBuild_TerraformArtifact
+          Condition: succeeded('TerraformBuild_TerraformArtifact')
+          EnvironmentName: Discovery
+          TerraformDeploymentConfig:
+            AzureServiceConnection: DevOps Chapter Dev
+            AzDOEnvironmentName: Discovery
+            BackendConfig:
+              resource_group_name: $(TFStateResourceGroupName)
+              storage_account_name: $(TFStateStorageAccountName)
+              container_name: tfstate-devops-azdo-yaml-pipeline-templates
+              key: template_test.$(Build.DefinitionName).tfstate
+            RunMode: 'ApplyOnly'
+            JobsVariableMappings:
+              - group: DevOpsChapterAzureSubscription
+            VariableFiles:
+              - config/common.tfvars
+              - config/discovery.tfvars
+
+  - stage: Act
+    dependsOn: Arrange
+    jobs:
+      - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
+        parameters:
+          EnvironmentName: Discovery
+          TerraformDeploymentConfig:
+            AzureServiceConnection: DevOps Chapter Dev
+            AzDOEnvironmentName: Discovery
+            BackendConfig:
+              resource_group_name: $(TFStateResourceGroupName)
+              storage_account_name: $(TFStateStorageAccountName)
+              container_name: tfstate-devops-azdo-yaml-pipeline-templates
+              key: template_test.$(Build.DefinitionName).tfstate
+            RunMode: 'PlanVerifyApply'
+            VerificationMode: 'VerifyOnAny'
+            VerificationTimeoutInMinutes: 1
+            VerificationTimeoutBehaviour: resume
+            JobsVariableMappings:
+              - group: DevOpsChapterAzureSubscription
+            OutputVariables:
+              - resource_group_name
+            VariableFiles:
+              - config/common.tfvars
+              - config/discovery.tfvars
+
+  - stage: Assert
+    dependsOn: Act
+    condition: not(canceled())
+    jobs:
+      - job: Assert_NoChangesSkipsApply
+        displayName: 'Assert Apply was skipped with no changes (ApplyEvenIfNoChanges omitted)'
+        variables:
+          PlanResult: $[ stageDependencies.Act.TerraformDeployPlan_TerraformArtifact.result ]
+          ManualVerificationResult: $[ stageDependencies.Act.ManualVerification_TerraformArtifact.result ]
+          ApplyResult: $[ stageDependencies.Act.TerraformDeployApply_TerraformArtifact.result ]
+          ChangesNeedApplying: $[ stageDependencies.Act.TerraformDeployPlan_TerraformArtifact.outputs['TerraformDeployPlan_TerraformArtifact.TerraformChangesCheck.ChangesNeedApplying'] ]
+        steps:
+          - checkout: none
+          - pwsh: |
+              $failures = @()
+
+              Write-Host "Plan result:                $(PlanResult)"
+              Write-Host "ChangesNeedApplying:        $(ChangesNeedApplying)"
+              Write-Host "ManualVerification result:  $(ManualVerificationResult)"
+              Write-Host "Apply result:               $(ApplyResult)"
+
+              if ('$(PlanResult)' -ne 'Succeeded') { $failures += "Plan job should have Succeeded but was '$(PlanResult)' (a failed plan would also skip Apply, masking a regression)." }
+              if ('$(ChangesNeedApplying)' -ne 'False') { $failures += "Plan should have reported no changes (ChangesNeedApplying=False) but was '$(ChangesNeedApplying)'; the scenario under test was not exercised." }
+              if ('$(ManualVerificationResult)' -ne 'Skipped') { $failures += "ManualVerification should have been Skipped (no changes) but was '$(ManualVerificationResult)'." }
+              if ('$(ApplyResult)' -ne 'Skipped') { $failures += "Apply job should have been Skipped when there are no changes and ApplyEvenIfNoChanges is omitted, but was '$(ApplyResult)'." }
+
+              if ($failures.Count -gt 0) {
+                $failures | ForEach-Object { Write-Host "##[error]$_" }
+                exit 1
+              }
+              Write-Host "Default no-changes behaviour (Apply skipped) is unchanged."
+            displayName: 'Assert results'
+
+  - stage: CleanUp
+    dependsOn:
+      - Arrange
+      - Act
+      - Assert
+    condition: not(canceled())
+    jobs:
+      - template: jobs/terraform_destroy.yml@AzDOPipelineTemplates
+        parameters:
+          TerraformDestroyMode: Destroy
+          EnvironmentName: Discovery
+          TerraformDestroyConfig:
+            AzureServiceConnection: DevOps Chapter Dev
+            AzDOEnvironmentName: Discovery
+            BackendConfig:
+              resource_group_name: $(TFStateResourceGroupName)
+              storage_account_name: $(TFStateStorageAccountName)
+              container_name: tfstate-devops-azdo-yaml-pipeline-templates
+              key: template_test.$(Build.DefinitionName).tfstate
+            RunMode: 'DestroyOnly'
+            JobsVariableMappings:
+              - group: DevOpsChapterAzureSubscription
+            VariableFiles:
+              - config/common.tfvars
+              - config/discovery.tfvars

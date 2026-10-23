@@ -22,6 +22,7 @@ external consumption.
 - **No double-wrapping:** Do not wrap a template inside another template unless absolutely necessary — see `docs/developers/explanation/double-wrapping.md`
 - **Security:** Never hardcode secrets — use Azure Key Vault or variable groups. Declare template-internal variables with `readonly: true` so consumers cannot override them — see [Template Conventions](../docs/developers/reference/template-conventions.md#protecting-template-internal-variables).
 - **Breaking changes:** Increment the major version and update `CHANGELOG.md`
+- **End-to-end tests must finish green:** `tests/**/*_test.yml` pipelines report to PRs as GitHub Status Checks, so no job may fail when templates behave correctly. Express negative scenarios as skipped jobs and rejected input as `InvalidTestCases` in `*.CompileTests.ps1` — see [Test a Template](../docs/developers/how-to/test-a-template.md#end-to-end-test-pipelines-must-finish-green).
 
 ## Dedicated Instruction Files
 

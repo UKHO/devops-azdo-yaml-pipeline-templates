@@ -19,6 +19,7 @@ jobs:
         # Optional - used only when RunMode is PlanVerifyApply
         # VerificationTimeoutInMinutes: 60          # Number between 1 and 43200 (30 days).
         # VerificationTimeoutBehaviour: reject      # 'reject' or 'resume'.
+        # ApplyEvenIfNoChanges: false               # true runs Apply even when the plan has no changes (PlanVerifyApply only).
 
         # Optional
         # BackendConfig:                            # (object) Terraform backend configuration (key-value pairs).
@@ -45,17 +46,19 @@ jobs:
 
 Based on the `RunMode` configuration, this job creates one to three sub-jobs:
 
-| RunMode            | Plan | Manual Verification    | Apply |
-|----------------------|------|--------------------------|-------|
-| `PlanOnly`           | Yes  | No                       | No    |
-| `ApplyOnly`          | No   | No                       | Yes   |
-| `PlanVerifyApply`    | Yes  | Conditional (see below)  | Yes   |
+| RunMode            | Plan | Manual Verification    | Apply                   |
+|----------------------|------|--------------------------|-------------------------|
+| `PlanOnly`           | Yes  | No                       | No                      |
+| `ApplyOnly`          | No   | No                       | Yes                     |
+| `PlanVerifyApply`    | Yes  | Conditional (see below)  | Conditional (see below) |
 
 For `PlanVerifyApply`, the manual verification job only runs if the plan detects changes **and** `VerificationMode` determines approval is required:
 
 - **`VerifyOnDestroy`** – approval only triggered if the plan shows resources being destroyed
 - **`VerifyOnAny`** – approval triggered if any infrastructure changes are detected
 - **`VerifyDisabled`** – no approval gate, apply runs automatically
+
+If the plan detects **no changes**, Manual Verification and Apply are both skipped by default. Set `ApplyEvenIfNoChanges: true` to run Apply anyway (see [Always Applying](#always-applying-applyevenifnochanges)).
 
 ```text
 Plan Job
@@ -206,6 +209,30 @@ jobs:
         VerificationTimeoutInMinutes: 240
         VerificationTimeoutBehaviour: resume
 ```
+
+### Always Applying (ApplyEvenIfNoChanges)
+
+When the plan has no changes, Apply is skipped by default, so `OutputVariables` are not exported and jobs depending on Apply do not run. Set `ApplyEvenIfNoChanges: true` to always run Apply:
+
+```yaml
+jobs:
+  - template: jobs/terraform_gated_deployment.yml
+    parameters:
+      EnvironmentName: prod
+      TerraformDeploymentConfig:
+        AzDOEnvironmentName: production-environment
+        RunMode: PlanVerifyApply
+        VerificationMode: VerifyOnAny
+        ApplyEvenIfNoChanges: true  # Apply runs even with no changes, so outputs are exported
+        OutputVariables:
+          - app_service_url
+```
+
+- Manual verification is never bypassed — when the plan has changes that need verification, Apply still waits for approval.
+- Only allowed with `RunMode: PlanVerifyApply`; `true` with `PlanOnly` or `ApplyOnly` fails validation.
+- Defaults to `false`.
+
+**Live examples**: [`plan_verify_apply_apply_even_if_no_changes_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_test.yml), [`plan_verify_apply_apply_even_if_no_changes_false_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_apply_even_if_no_changes_false_test.yml), [`plan_verify_apply_no_changes_skips_apply_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_verify_apply_no_changes_skips_apply_test.yml)
 
 ---
 

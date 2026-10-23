@@ -12,7 +12,7 @@ When `RunMode` is `PlanOnly`, the pipeline terminates after the plan step. When 
 - `VerifyOnDestroy`: Trigger the gate only if the changes are destructive
 - `VerifyOnAny`: Trigger the gate for adds, changes, and deletions
 
-If the Terraform `plan` indicates that any resources will be changed (in `PlanVerifyApply` mode), then `VerificationMode` will be checked and the appropriate verification taken; if no resources will be changed then the `apply` will not be called. If the gate is triggered, then authorised users will need to approve in Azure DevOps in order to move on to the `apply` step. The gate will fail the pipeline if either rejected or times out.
+If the Terraform `plan` indicates that any resources will be changed (in `PlanVerifyApply` mode), then `VerificationMode` will be checked and the appropriate verification taken; if no resources will be changed then the `apply` will not be called (unless `ApplyEvenIfNoChanges: true` is set, in which case `apply` runs without a gate so output variables are still exported; manual verification is never bypassed when there are changes). If the gate is triggered, then authorised users will need to approve in Azure DevOps in order to move on to the `apply` step. The gate will fail the pipeline if either rejected or times out.
 
 The template is broken into three jobs:
 
