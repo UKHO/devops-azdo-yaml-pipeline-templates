@@ -301,6 +301,73 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+  },
+  # Regression: notIn() coerces right-hand operands to the left-hand type, so numeric 1/0
+  # used to pass validation. In PlanVerifyApply, 1 then rendered as eq('1', 'true') and silently
+  # left the override disabled. The schema must enforce the JSON boolean type.
+  @{
+    Description = "ApplyEvenIfNoChanges set to numeric 1 with RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = 1
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to numeric 0 with RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = 0
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to numeric 1 with RunMode ApplyOnly (type error, not RunMode error)"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "ApplyOnly"
+        ApplyEvenIfNoChanges = 1
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to string 'true' with RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = "true"
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+  },
+  @{
+    Description = "ApplyEvenIfNoChanges set to string 'false' with RunMode PlanVerifyApply"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        ApplyEvenIfNoChanges = "false"
+      }
+    }
+    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
   }
 )
 

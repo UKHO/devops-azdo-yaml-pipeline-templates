@@ -21,29 +21,34 @@ parameters:
     displayName: 'The environment name that the infrastructure is for'
 
 jobs:
-  - ${{ if or(not(parameters.TerraformDeploymentConfig.AzDOEnvironmentName), eq(parameters.TerraformDeploymentConfig.AzDOEnvironmentName, '')) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
+  - ? ${{ if or(not(parameters.TerraformDeploymentConfig.AzDOEnvironmentName), eq(parameters.TerraformDeploymentConfig.AzDOEnvironmentName, '')) }}
+    : - "'${{ parameters.EnvironmentName }}' environment error: AzDOEnvironmentName is not properly defined and is a required field.": "Error"
 
   - ${{ if or(not(parameters.TerraformDeploymentConfig.RunMode), eq(parameters.TerraformDeploymentConfig.RunMode, '')) }}:
-      - "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field. Must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
+      - ? "'${{ parameters.EnvironmentName }}' environment error: RunMode is not properly defined and is a required field. Must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly)."
+        : "Error"
   - ${{ else }}:
       - ${{ if notIn(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply', 'PlanOnly', 'ApplyOnly') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: RunMode must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).": "Error"
 
   - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
       - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationMode, 'VerifyOnDestroy', 'VerifyOnAny', 'VerifyDisabled') }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).": "Error"
+          - ? "'${{ parameters.EnvironmentName }}' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled)."
+            : "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutBehaviour"') }}:
       - ${{ if notIn(parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour, 'reject', 'resume') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.": "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"ApplyEvenIfNoChanges"') }}:
-      - ${{ if notIn(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true, false) }}:
+      - ${{ if notIn(convertToJson(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges), 'true', 'false') }}:
           - "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).": "Error"
-      - ${{ elseif and(eq(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true), in(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly', 'ApplyOnly')) }}: # Only meaningful with PlanVerifyApply; missing/invalid RunMode is already reported above
-          - "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.": "Error"
+      - ? ${{ elseif and(eq(parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges, true), in(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly', 'ApplyOnly')) }}
+        : # Only meaningful with PlanVerifyApply; missing/invalid RunMode is already reported above
+          - ? "'${{ parameters.EnvironmentName }}' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply."
+            : "Error"
 
   - ${{ if contains(convertToJson(parameters.TerraformDeploymentConfig), '"VerificationTimeoutInMinutes"') }}:
-      - ${{ if or(lt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 43200)) }}:
-          - "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).": "Error"
+      - ? ${{ if or(lt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 1), gt(parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes, 43200)) }}
+        : - ? "'${{ parameters.EnvironmentName }}' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
+            : "Error"
