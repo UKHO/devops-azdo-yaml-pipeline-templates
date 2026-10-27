@@ -39,6 +39,14 @@ function Get-AccessToken
     return $cached
   }
 
+  # Azure Pipelines: use the job access token (System.AccessToken must be mapped
+  # into the step's environment as SYSTEM_ACCESSTOKEN). No Azure CLI required.
+  if ($env:SYSTEM_ACCESSTOKEN)
+  {
+    Write-Verbose "Using SYSTEM_ACCESSTOKEN from the pipeline environment"
+    return $env:SYSTEM_ACCESSTOKEN
+  }
+
   Write-Verbose "Retrieving access token from Azure CLI logged-in context..."
   try
   {

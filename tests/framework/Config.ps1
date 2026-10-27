@@ -10,14 +10,42 @@
 [CmdletBinding()]
 param()
 
+# Running inside an Azure Pipelines job?
+$isAzurePipelines = $env:TF_BUILD -eq 'True'
+
+# Branch whose templates the server resolves (test YAMLs reference the template
+# repository at this branch). Order of precedence:
+#   1. PR builds: the PR source branch (Build.SourceBranch is refs/pull/<n>/merge, which
+#      does not exist on the GitHub repository as a branch)
+#   2. Other CI builds: Build.SourceBranch (the agent checkout is a detached HEAD)
+#   3. Local runs: the current git branch
+$targetBranch = if ($env:SYSTEM_PULLREQUEST_SOURCEBRANCH)
+{
+  $env:SYSTEM_PULLREQUEST_SOURCEBRANCH
+}
+elseif ($env:BUILD_SOURCEBRANCH)
+{
+  $env:BUILD_SOURCEBRANCH
+}
+else
+{
+  git rev-parse --abbrev-ref HEAD
+}
+$targetBranch = $targetBranch -replace '^refs/heads/', ''
+
+# Pipeline used as the target of the preview-run (compile) requests.
+# CI sets COMPILE_TESTS_PIPELINE_ID to its own definition id; locally 1576 (compile_test_pipeline) is used.
+$pipelineId = if ($env:COMPILE_TESTS_PIPELINE_ID) { [int]$env:COMPILE_TESTS_PIPELINE_ID } else { 1576 }
+
 $config = @{
   AzDO = @{
     Organization = "ukhydro"
     Project = "DevOps Chapter"
-    PipelineId = 1576
+    PipelineId = $pipelineId
   }
 
-  TargetBranch = (git rev-parse --abbrev-ref HEAD)
+  TargetBranch = $targetBranch
+  IsAzurePipelines = $isAzurePipelines
 
   Validation = @{
     SkipValidation = $false
