@@ -65,6 +65,16 @@ jobs:
 
 Name fixtures after the scenario they exercise (e.g. `resume_test.yml`, `double_resume_test.yml`), and link them from the user doc's `**Live example**` entries.
 
+#### End-to-end test pipelines must finish green
+
+The `*_test.yml` fixtures under `tests/` are also run as end-to-end pipelines in Azure DevOps, and their results are reported back to pull requests as **GitHub Status Checks**. A PR is only mergeable on green ticks, so:
+
+- **No job in an end-to-end test may fail when the templates behave correctly.** Any failed job turns the status check red and blocks the PR.
+- Do not write "expected failure" scenarios (e.g. a deliberately rejected manual verification, or a job that is meant to error) as end-to-end tests. Cover rejected input with `InvalidTestCases` in a `*.CompileTests.ps1` file instead.
+- Skipped jobs are acceptable: a skipped job does not fail the run. Negative scenarios (e.g. "this job should *not* run") should therefore be expressed as the job being **skipped**.
+- Assertion jobs are allowed, but they must only fail when the template under test is genuinely broken (a real regression), never as part of the normal, passing scenario.
+- Use settings that let the pipeline complete unattended, e.g. `VerificationTimeoutBehaviour: resume` with a short `VerificationTimeoutInMinutes` for manual verification gates.
+
 ### 2. Parameterised assertions (`Run-Tests`)
 
 For a `tasks/` or `utils/` template, a `*.CompileTests.ps1` file can assert on the compiled YAML or on expected validation errors across parameter combinations:

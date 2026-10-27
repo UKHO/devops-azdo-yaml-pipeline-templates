@@ -177,7 +177,7 @@ For packaging extra files or injecting a `required_version` constraint, see the
 
 **Repository resource not found** (`Repository 'AzDOPipelineTemplates' not found`) — ensure the resource is declared with the exact name `AzDOPipelineTemplates`, the GitHub service connection exists, and it has permission to access the template repository.
 
-**Manual verification not triggering** — `RunMode` must be `PlanVerifyApply` and `VerificationMode` must be `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`); the plan must detect changes and the AzDO Environment must have approvers configured. When no changes are detected the plan succeeds, verification is skipped, and apply is skipped — this is expected.
+**Manual verification not triggering** — `RunMode` must be `PlanVerifyApply` and `VerificationMode` must be `VerifyOnAny` or `VerifyOnDestroy` (not `VerifyDisabled`); the plan must detect changes and the AzDO Environment must have approvers configured. When no changes are detected the plan succeeds, verification is skipped, and apply is skipped — this is expected. To run apply anyway (e.g. so output variables are always exported), set `ApplyEvenIfNoChanges: true` - see [ApplyEvenIfNoChanges](../../definition_docs/terraform_pipeline/terraform_job_config.md#applyevenifnochanges).
 
 **Output variables unavailable downstream** — outputs are only exported when `RunMode` includes an apply and the names are listed in `OutputVariables`. Reference them with the dependency syntax, for example:
 

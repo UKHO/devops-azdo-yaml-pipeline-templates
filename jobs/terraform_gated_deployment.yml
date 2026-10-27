@@ -89,7 +89,10 @@ jobs:
                 succeeded('ManualVerification_${{ parameters.TerraformArtifactName }}'),
                 and(
                   succeeded('TerraformDeployPlan_${{ parameters.TerraformArtifactName }}'),
-                  eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                  or(
+                    eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedApplying'], 'true'),
+                    eq('${{ parameters.TerraformDeploymentConfig.ApplyEvenIfNoChanges }}', 'true')
+                  ),
                   eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedManualVerification'], 'false')
                 )
               )

@@ -4,6 +4,15 @@ All notable changes to this repository are documented in this file.
 
 ## [Unreleased]
 
+## 0.4.0 - 2026-10-23
+
+### Added
+
+- Added an optional `ApplyEvenIfNoChanges` boolean to `TerraformDeploymentConfig` for `terraform_gated_deployment`. When `true`, the Apply job runs even when the plan has no changes, so `OutputVariables` are always exported and jobs depending on Apply can run. Manual verification is never bypassed. Defaults to `false` (existing behaviour); `true` is only allowed when `RunMode` is `PlanVerifyApply`, validated in `schemas/terraform_gated_deployment_config.yml`.
+- Added end-to-end tests for the no-changes scenario (`ApplyEvenIfNoChanges` `true`, `false` and omitted) under `tests/jobs/terraform_gated_deployment/`, using Arrange/Act/Assert/CleanUp stages.
+- Added `resource_group_name` and `resource_group_location` outputs to the `tests/shared_resources/resource_group_terraform` test Terraform.
+- Documented that end-to-end test pipelines must finish green, as their results are reported as GitHub Status Checks.
+
 ### Changed
 
 - Reorganised the developer documentation into how-to, reference, and explanation sections, and refreshed the Terraform pipeline and manual-verification user guides.
