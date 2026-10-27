@@ -12,10 +12,21 @@ locals {
     }
   }
 
-  all_pipeline_names = [
-    for pipe in values(local.template_tests_to_deploy) :
-    pipe.azdo_name
-  ]
+  all_pipeline_names = concat(
+    [
+      for pipe in values(local.template_tests_to_deploy) :
+      pipe.azdo_name
+    ],
+    [local.compile_tests_pipeline.azdo_name]
+  )
+
+  # Single pipeline that runs Run-AllCompileTests.ps1 (all *.CompileTests.ps1 files)
+  compile_tests_pipeline = {
+    azdo_name = "compile_tests"
+    file_path = "cicd/pipelines/compile_tests.yml"
+    # Identity behind System.AccessToken for project-scoped jobs
+    build_service_identity_name = "${var.azdo_project_name} Build Service (ukhydro)"
+  }
 
   pipeline_authorizations = merge([
     for pipeline_key in keys(local.template_tests_to_deploy) : {
