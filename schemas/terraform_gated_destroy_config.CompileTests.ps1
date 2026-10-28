@@ -80,6 +80,18 @@ $validTestCases = @(
         VerificationTimeoutInMinutes = 43200
       }
     }
+  },
+  @{
+    Description = "with VerificationTimeoutInMinutes as a YAML number literal"
+    Parameters = @{
+      EnvironmentName = "dev"
+      # Passed as YAML text so the number is typed by the YAML parser, as in a consumer's pipeline
+      TerraformDestroyConfig = @"
+AzDOEnvironmentName: dev-environment
+RunMode: PlanVerifyDestroy
+VerificationTimeoutInMinutes: 30
+"@
+    }
   }
 )
 
@@ -187,6 +199,18 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).'"
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes is not a number"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyDestroy"
+        VerificationTimeoutInMinutes = "abc"
+      }
+    }
+    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 

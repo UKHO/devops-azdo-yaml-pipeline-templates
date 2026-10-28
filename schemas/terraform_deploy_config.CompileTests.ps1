@@ -177,6 +177,29 @@ $validTestCases = @(
         OutputVariables = @("resource_id", "storage_id", "database_connection_string")
       }
     }
+  },
+  @{
+    Description = "with empty BackendConfig, EnvironmentVariableMappings, VariableFiles and OutputVariables"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        BackendConfig = @{ }
+        EnvironmentVariableMappings = @{ }
+        VariableFiles = @()
+        OutputVariables = @()
+      }
+    }
+  },
+  @{
+    Description = "with empty KeyVaultConfig and no ConfigSources"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        KeyVaultConfig = @{ }
+      }
+    }
   }
 )
 
@@ -474,6 +497,48 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "'dev' environment error: OutputVariables item"
+  },
+  @{
+    Description = "BackendConfig is not an object"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        BackendConfig = "not-an-object"
+      }
+    }
+    ErrorMessage = "'dev' environment error: BackendConfig is not correct. Must be an object of key/value pairs."
+  },
+  @{
+    Description = "EnvironmentVariableMappings is not an object"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        EnvironmentVariableMappings = "not-an-object"
+      }
+    }
+    ErrorMessage = "'dev' environment error: EnvironmentVariableMappings is not correct. Must be an object of key/value pairs."
+  },
+  @{
+    Description = "ConfigSources with a KeyVaultConfig that has only one member set"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        KeyVaultConfig = @{
+          Name = "my-vault"
+        }
+        ConfigSources = @(
+          @{
+            Type = "KeyVault"
+            Name = "second-vault"
+            ServiceConnection = "vault-service-connection"
+          }
+        )
+      }
+    }
+    ErrorMessage = "'dev' environment error: use either KeyVaultConfig (legacy) or ConfigSources (new), not both."
   }
 )
 

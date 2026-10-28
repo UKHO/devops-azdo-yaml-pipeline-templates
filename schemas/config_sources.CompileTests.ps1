@@ -36,6 +36,31 @@ $validTestCases = @(
    RunAsPreJob: true
 "@
     }
+  },
+  @{
+    Description = "with several KeyVault entries"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "shared-vault"
+   ServiceConnection: "Azure-Shared-SC"
+ - Type: KeyVault
+   Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+   SecretsFilter: "dev-*"
+"@
+    }
+  },
+  @{
+    Description = "with RunAsPreJob set to false"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+   RunAsPreJob: false
+"@
+    }
   }
 )
 
@@ -121,6 +146,53 @@ $invalidTestCases = @(
 "@
     }
     ErrorMessage = "Invalid ConfigSources: KeyVault entry field 'RunAsPreJob' must be a boolean when provided."
+  },
+  @{
+    Description = "ConfigSources entry is missing Type"
+    Parameters = @{
+      ConfigSources = @"
+ - Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+"@
+    }
+    ErrorMessage = "Invalid ConfigSources: entry field 'Type' is required, must be a non-empty string, and must be 'KeyVault'."
+  },
+  @{
+    Description = "ConfigSources entry ServiceConnection is not a string"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "dev-vault"
+   ServiceConnection:
+     Name: "Azure-Dev-SC"
+"@
+    }
+    ErrorMessage = "Invalid ConfigSources: entry field 'ServiceConnection' must be a string."
+  },
+  @{
+    Description = "KeyVault entry Name is not a string"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name:
+     - "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+"@
+    }
+    ErrorMessage = "Invalid ConfigSources: KeyVault entry field 'Name' must be a string."
+  },
+  @{
+    Description = "second ConfigSources entry is invalid when the first is valid"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "dev-vault"
+   ServiceConnection: "Azure-Dev-SC"
+ - Type: KeyVault
+   ServiceConnection: "Azure-Dev-SC"
+"@
+    }
+    ErrorMessage = "Invalid ConfigSources: KeyVault entry is missing required field 'Name'."
   }
 )
 
