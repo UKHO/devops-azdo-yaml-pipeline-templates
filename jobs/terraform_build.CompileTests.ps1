@@ -159,6 +159,33 @@ $validTestCases = @(
 "@
         }
         ExpectedYaml = @('CmdLine@2', 'Validate configuration', 'CopyFiles@2', 'scripts', 'terraform_scripts')
+    },
+    @{
+        Description = "Condition is applied to the job"
+        Parameters = @{
+            Condition = "and(succeeded(), eq(variables.IsPullRequest, 'true'))"
+        }
+        ExpectedYaml = @(
+            "condition: and(succeeded(), eq(variables.IsPullRequest, 'true'))"
+        )
+    },
+    @{
+        Description = "DependsOn is applied to the job"
+        Parameters = @{
+            DependsOn = @("PreviousJob")
+        }
+        ExpectedYaml = @(
+            'dependsOn:*PreviousJob'
+        )
+    },
+    @{
+        Description = "Pool is applied to the job"
+        Parameters = @{
+            Pool = "Custom-Agent-Pool"
+        }
+        ExpectedYaml = @(
+            'pool:*name: Custom-Agent-Pool'
+        )
     }
 )
 
@@ -190,7 +217,9 @@ $invalidTestCases = @(
 # RUN TESTS
 # ============================================================================
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_build.yml" `
+  -TransformYamlFunction { param($yaml) return $yaml + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

@@ -211,6 +211,16 @@ $validTestCases = @(
         ExpectedYaml = @(
             'retryCountOnTaskFailure: 2'
         )
+    },
+    @{
+        Description = "WorkingDirectory is applied to the task"
+        Parameters = @{
+            Command = "init"
+            WorkingDirectory = "infra/terraform"
+        }
+        ExpectedYaml = @(
+            'workingDirectory: infra/terraform'
+        )
     }
 )
 

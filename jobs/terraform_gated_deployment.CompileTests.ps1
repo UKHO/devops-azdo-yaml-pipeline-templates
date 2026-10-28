@@ -302,6 +302,20 @@ $validTestCases = @(
       "deployment: TerraformDeployApply_TerraformArtifact"
       "dependsOn:*- ManualVerification_TerraformArtifact*- TerraformDeployPlan_TerraformArtifact"
     )
+  },
+  @{
+    Description = "DependsOn is applied to the first job"
+    Parameters = @{
+      DependsOn = @("PreviousJob")
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "dependsOn:*PreviousJob"
+    )
   }
 )
 
@@ -355,8 +369,9 @@ $invalidTestCases = @(
 # RUN TESTS
 # ============================================================================
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_gated_deployment.yml" `
-  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return ($yaml -replace 'AzDOPipelineTemplates', 'self') + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
