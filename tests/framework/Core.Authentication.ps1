@@ -2,21 +2,17 @@
 # TEST FRAMEWORK - AUTHENTICATION
 # ============================================================================
 
+
 function Get-CachedAccessToken
 {
   <#
   .SYNOPSIS
-    Return the session-cached access token if it is still valid for at least 5 minutes, otherwise $null.
+    Return the session-cached access token, or $null if no token is cached.
   #>
   [CmdletBinding()]
   param()
 
-  $cache = $global:AzDOCompileTestTokenCache
-  if ($null -ne $cache -and $cache.ExpiresOn -gt [DateTimeOffset]::UtcNow.AddMinutes(5))
-  {
-    return $cache.AccessToken
-  }
-  return $null
+  return $global:AzDOCompileTestTokenCache.accessToken
 }
 
 function Get-AccessToken
@@ -26,17 +22,16 @@ function Get-AccessToken
     Get access token from Azure CLI logged-in context.
   .DESCRIPTION
     The token is cached in the global scope for the lifetime of the PowerShell
-    session (until 5 minutes before expiry), so that running many test files
-    only invokes the (slow) Azure CLI once.
+    session, so that running many test files only invokes the (slow) Azure CLI once.
+    Token expiry is not checked; an expired token may cause requests to fail.
   #>
   [CmdletBinding()]
   param()
 
-  $cached = Get-CachedAccessToken
-  if ($cached)
+  if (Get-CachedAccessToken)
   {
     Write-Verbose "Using cached access token"
-    return $cached
+    return Get-CachedAccessToken
   }
 
   # Azure Pipelines: use the job access token (System.AccessToken must be mapped
@@ -60,26 +55,12 @@ function Get-AccessToken
     {
       throw "Failed to retrieve access token from Azure CLI"
     }
-  }
-  catch
+  } catch
   {
     throw "Unable to get access token from Azure CLI. Ensure you are logged in with 'az login' and have the required permissions."
   }
 
-  $expiresOn = [DateTimeOffset]::UtcNow.AddMinutes(30)
-  if ($token.expires_on)
-  {
-    $expiresOn = [DateTimeOffset]::FromUnixTimeSeconds([long]$token.expires_on)
-  }
-  elseif ($token.expiresOn)
-  {
-    $expiresOn = [DateTimeOffset]::Parse([string]$token.expiresOn)
-  }
-
-  $global:AzDOCompileTestTokenCache = @{
-    AccessToken = $token.accessToken
-    ExpiresOn = $expiresOn
-  }
+  $global:AzDOCompileTestTokenCache = $token
   return $token.accessToken
 }
 
@@ -99,31 +80,29 @@ function Invoke-AutoSignIn
 
   try
   {
-      Write-Verbose "Starting automatic sign-in process..."
-      Write-Verbose "Organization: $Organization"
+    Write-Verbose "Starting automatic sign-in process..."
+    Write-Verbose "Organization: $Organization"
 
-      # Check if user is already signed in
-      Write-Verbose "Checking current authentication status..."
-      $currentUser = az account show --output json 2> $null | ConvertFrom-Json
-      if ($null -eq $currentUser)
-      {
-          Write-Host "  ↳ Not signed in, launching browser for authentication..." -ForegroundColor Cyan
-          Write-Verbose "User not signed in, initiating interactive sign-in..."
-          az login | Out-Null
-          Write-Verbose "Successfully signed in to Azure"
-          Write-Host "  ✓ Signed in successfully" -ForegroundColor Green
-      }
-      else
-      {
-          Write-Verbose "User already signed in: $( $currentUser.user.name )"
-      }
+    # Check if user is already signed in
+    Write-Verbose "Checking current authentication status..."
+    $currentUser = az account show --output json 2> $null | ConvertFrom-Json
+    if ($null -eq $currentUser)
+    {
+      Write-Host "  ↳ Not signed in, attempting signin.." -ForegroundColor Cyan
+      Write-Verbose "User not signed in, initiating interactive sign-in..."
+      az login | Out-Null
+      Write-Verbose "Successfully signed in to Azure"
+      Write-Host "  ✓ Signed in successfully" -ForegroundColor Green
+    } else
+    {
+      Write-Verbose "User already signed in: $( $currentUser.user.name )"
+    }
 
-      Write-Verbose "Automatic sign-in completed successfully."
-  }
-  catch
+    Write-Verbose "Automatic sign-in completed successfully."
+  } catch
   {
-      $errorMessage = $_.Exception.Message
-      Write-Verbose "Automatic sign-in failed: $errorMessage"
-      throw $errorMessage
+    $errorMessage = $_.Exception.Message
+    Write-Verbose "Automatic sign-in failed: $errorMessage"
+    throw $errorMessage
   }
 }

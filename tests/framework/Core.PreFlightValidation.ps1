@@ -67,7 +67,7 @@ function Invoke-PreFlightValidation
   $allValidationsPassed = $true
   $validationErrors = @()
 
-  # Fast path: a valid token is already cached for this session, so the CLI and
+  # Fast path: a token is already cached for this session, so the CLI and
   # authentication checks have already passed. Only re-check configuration.
   if ((Get-CachedAccessToken) -and (Test-AzDOConfigurationValues))
   {
