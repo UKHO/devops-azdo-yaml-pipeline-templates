@@ -10,7 +10,7 @@
 # Authentication: the job access token (System.AccessToken) is mapped into the script's
 # environment. Compile requests are sent as preview runs of this pipeline's own definition
 # (COMPILE_TESTS_PIPELINE_ID), so the project build service only needs permissions on this
-# pipeline - see azuredevops_build_definition_permissions.compile_tests in cicd/azuredevops.tf.
+# pipeline - this is set manually currently
 #
 # Note: the server resolves template references from the pushed source branch on GitHub
 # (System.PullRequest.SourceBranch for PR builds), not from the PR merge commit.
