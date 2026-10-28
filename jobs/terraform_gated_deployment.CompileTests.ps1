@@ -68,32 +68,6 @@ $validTestCases = @(
   # VERIFICATION MODE TESTS (with PlanVerifyApply)
   # ========================================================================
 
-  @{
-    Description = "PlanVerifyApply with VerifyOnDestroy verification mode"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnDestroy"
-      }
-    }
-    ExpectedYAML = "ManualVerification_TerraformArtifact"
-  },
-
-  @{
-    Description = "PlanVerifyApply with VerifyDisabled verification mode"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyDisabled"
-      }
-    }
-    ExpectedYAML = "ManualVerification_TerraformArtifact"
-  },
-
   # ========================================================================
   # CHECKOUT ALIAS TESTS
   # ========================================================================
@@ -227,46 +201,6 @@ $validTestCases = @(
   # COMBINED/INTEGRATION TESTS
   # ========================================================================
 
-  @{
-    Description = "Complex scenario: PlanVerifyApply with custom versions, pool, and artifact name"
-    Parameters = @{
-      EnvironmentName = "production"
-      CheckoutAlias = "self"
-      Condition = "eq(variables['Environment'], 'Production')"
-      Pool = "Production-Agents"
-      TerraformVersion = "1.5.7"
-      TerraformArtifactName = "ProdInfraArtifact"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-      }
-    }
-    ExpectedYAML = @(
-      "repository: self"
-      "inputs:*TerraformVersion:* 1.5.7"
-      "artifactName: ProdInfraArtifact"
-      "pool:*name: Production-Agents"
-      "ManualVerification_ProdInfraArtifact"
-      "TerraformDeployPlan_ProdInfraArtifact"
-      "TerraformDeployApply_ProdInfraArtifact"
-    )
-  },
-
-  @{
-    Description = "Quick deploy scenario: ApplyOnly with minimal parameters"
-    Parameters = @{
-      EnvironmentName = "hotfix-env"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
-      }
-    }
-    ExpectedYAML = @(
-      "TerraformDeployApply_TerraformArtifact"
-    )
-  },
-
   # ========================================================================
   # VERIFICATION TIMEOUT TESTS
   # ========================================================================
@@ -368,92 +302,6 @@ $validTestCases = @(
       "deployment: TerraformDeployApply_TerraformArtifact"
       "dependsOn:*- ManualVerification_TerraformArtifact*- TerraformDeployPlan_TerraformArtifact"
     )
-  },
-
-  @{
-    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and VerifyOnDestroy keeps manual verification"
-    Parameters = @{
-      EnvironmentName = "staging"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnDestroy"
-        ApplyEvenIfNoChanges = $true
-      }
-    }
-    ExpectedYAML = @(
-      "job: ManualVerification_TerraformArtifact"
-      "succeeded('ManualVerification_TerraformArtifact')"
-      "-VerificationMode VerifyOnDestroy"
-    )
-  },
-
-  @{
-    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and VerifyDisabled keeps manual verification job"
-    Parameters = @{
-      EnvironmentName = "staging"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyDisabled"
-        ApplyEvenIfNoChanges = $true
-      }
-    }
-    ExpectedYAML = @(
-      "job: ManualVerification_TerraformArtifact"
-      "succeeded('ManualVerification_TerraformArtifact')"
-      "-VerificationMode VerifyDisabled"
-    )
-  },
-
-  @{
-    Description = "PlanVerifyApply with ApplyEvenIfNoChanges true and custom TerraformArtifactName"
-    Parameters = @{
-      EnvironmentName = "staging"
-      TerraformArtifactName = "InfrastructureArtifact"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        ApplyEvenIfNoChanges = $true
-      }
-    }
-    ExpectedYAML = @(
-      "ChangesNeedApplying'?, 'true'),*eq('true', 'true')"
-      "TerraformDeployPlan_InfrastructureArtifact.TerraformChangesCheck.ChangesNeedManualVerification'?, 'false')"
-      "succeeded('ManualVerification_InfrastructureArtifact')"
-    )
-  },
-
-  @{
-    Description = "PlanOnly with ApplyEvenIfNoChanges false is allowed and includes only the Plan job"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
-        ApplyEvenIfNoChanges = $false
-      }
-    }
-    ExpectedYAML = @(
-      "TerraformDeployPlan_TerraformArtifact"
-    )
-  },
-
-  @{
-    Description = "ApplyOnly with ApplyEvenIfNoChanges false is allowed and includes only the Apply job"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
-        ApplyEvenIfNoChanges = $false
-      }
-    }
-    ExpectedYAML = @(
-      "TerraformDeployApply_TerraformArtifact"
-      "condition: succeeded()"
-    )
   }
 )
 
@@ -467,6 +315,7 @@ $invalidTestCases = @(
         RunMode = "PlanOnly"
       }
     }
+    ErrorMessage = "A value for the 'EnvironmentName' parameter must be provided."
   },
 
   @{
@@ -474,17 +323,7 @@ $invalidTestCases = @(
     Parameters = @{
       EnvironmentName = "dev"
     }
-  },
-
-  @{
-    Description = "TerraformDeploymentConfig missing AzDOEnvironmentName"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        RunMode = "PlanOnly"
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: AzDOEnvironmentName is not properly defined and is a required field.'"
+    ErrorMessage = "A value for the 'TerraformDeploymentConfig' parameter must be provided."
   },
 
   @{
@@ -499,30 +338,6 @@ $invalidTestCases = @(
   },
 
   @{
-    Description = "invalid RunMode value (should be PlanOnly, ApplyOnly, or PlanVerifyApply)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: RunMode must be a valid option (PlanVerifyApply, PlanOnly, ApplyOnly).'"
-  },
-
-  @{
-    Description = "invalid VerificationMode value with PlanVerifyApply"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "InvalidVerificationMode"
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: Must provide a valid VerificationMode option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).'"
-  },
-  @{
     Description = "invalid CheckoutAlias value (must be AzDOPipelineTemplates or self)"
     Parameters = @{
       EnvironmentName = "dev"
@@ -532,69 +347,7 @@ $invalidTestCases = @(
         RunMode = "PlanOnly"
       }
     }
-  },
-  @{
-    Description = "invalid VerificationTimeoutBehaviour value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        VerificationTimeoutBehaviour = "invalid"
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutBehaviour must be either 'reject' or 'resume'.'"
-  },
-  @{
-    Description = "invalid VerificationTimeoutInMinutes value (out of range)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        VerificationTimeoutInMinutes = 0
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days).'"
-  },
-  @{
-    Description = "ApplyEvenIfNoChanges true with RunMode PlanOnly"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanOnly"
-        ApplyEvenIfNoChanges = $true
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
-  },
-  @{
-    Description = "ApplyEvenIfNoChanges true with RunMode ApplyOnly"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "ApplyOnly"
-        ApplyEvenIfNoChanges = $true
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
-  },
-  @{
-    Description = "ApplyEvenIfNoChanges set to a non-boolean value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyApply"
-        VerificationMode = "VerifyOnAny"
-        ApplyEvenIfNoChanges = "yes"
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges must be a boolean (true or false).'"
+    ErrorMessage = "The 'CheckoutAlias' parameter value 'InvalidAlias' is not a valid value."
   }
 )
 

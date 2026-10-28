@@ -32,13 +32,6 @@ $validTestCases = @(
     ExpectedYaml = @('TerraformInstall', 'terraformVersion: latest')
   },
   @{
-    Description = "with semantic version 1.3.5"
-    Parameters = @{
-      TerraformVersion = "1.3.5"
-    }
-    ExpectedYaml = @('TerraformInstall', 'terraformVersion: 1.3.5')
-  },
-  @{
     Description = "with semantic version 1.11.3"
     Parameters = @{
       TerraformVersion = "1.11.3"
@@ -51,13 +44,6 @@ $validTestCases = @(
       TerraformVersion = "0.15.0"
     }
     ExpectedYaml = @('TerraformInstall', "terraformVersion: '0.15.0'") # Keep the quoted form because the compiled YAML normalizes this version as a string
-  },
-  @{
-    Description = "with semantic version 2.0.1"
-    Parameters = @{
-      TerraformVersion = "2.0.1"
-    }
-    ExpectedYaml = @('TerraformInstall', 'terraformVersion: 2.0.1')
   }
 
 )

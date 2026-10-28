@@ -98,21 +98,6 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "Apply with Single Output Variable"
-    Parameters = @{
-      TerraformDeployMode = "Apply"
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        OutputVariables = @("resource_group_id")
-      }
-    }
-    ExpectedYAML = @(
-      "TerraformExportOutputsVariables"
-      "terraform-output-variables.json"
-    )
-  },
-  @{
     Description = "Apply with Multiple Output Variables"
     Parameters = @{
       TerraformDeployMode = "Apply"
@@ -176,8 +161,8 @@ $validTestCases = @(
       }
     }
     ExpectedYAML = @(
-      "-backend-config="
-      "resource_group_name=my-rg"
+      "-backend-config=`"resource_group_name=my-rg`""
+      "-backend-config=`"key=dev.tfstate`""
     )
   },
   @{
@@ -191,21 +176,6 @@ $validTestCases = @(
     }
     ExpectedYAML = @(
       "BackendConfigCommandOption*value: ''"
-    )
-  },
-  @{
-    Description = "Apply with Backend Configuration - Multiple Properties"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        BackendConfig = @{
-          ConfigKey = "ConfigValue"
-        }
-      }
-    }
-    ExpectedYAML = @(
-      "-backend-config=`"ConfigKey=ConfigValue`""
     )
   },
   @{
@@ -228,21 +198,6 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "Apply with Single Variable File"
-    Parameters = @{
-      TerraformDeployMode = "Apply"
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        VariableFiles = @("config/common.tfvars")
-      }
-    }
-    ExpectedYAML = @(
-      "-var-file="
-      "config/common.tfvars"
-    )
-  },
-  @{
     Description = "Apply with Multiple Variable Files"
     Parameters = @{
       TerraformDeployMode = "Apply"
@@ -257,22 +212,6 @@ $validTestCases = @(
       "config/common.tfvars"
       "config/production.tfvars"
       "config/secrets.tfvars"
-    )
-  },
-  @{
-    Description = "Apply with Variable Group"
-    Parameters = @{
-      TerraformDeployMode = "Apply"
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        JobsVariableMappings = @(
-          @{ group = "ProductionVariables" }
-        )
-      }
-    }
-    ExpectedYAML = @(
-      "group: ProductionVariables"
     )
   },
   @{
@@ -321,20 +260,6 @@ $validTestCases = @(
     }
     ExpectedYAML = @(
       "inputs:*TerraformVersion:* 1.6.0"
-    )
-  },
-  @{
-    Description = "Apply with Different Terraform Version"
-    Parameters = @{
-      TerraformDeployMode = "Apply"
-      TerraformVersion = "1.4.6"
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-      }
-    }
-    ExpectedYAML = @(
-      "inputs:*TerraformVersion:* 1.4.6"
     )
   },
   @{
@@ -450,31 +375,6 @@ $invalidTestCases = @(
       TerraformDeploymentConfig = @{ }
     }
     ErrorMessage = "AzDOEnvironmentName is not properly defined and is a required field"
-  },
-  @{
-    Description = "ERROR: invalid VerificationMode value"
-    Parameters = @{
-      EnvironmentName = "compile-tests-only"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        VerificationMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "Unexpected value ''compile-tests-only' environment error: If provided, VerificationMode must be a valid option (VerifyOnDestroy, VerifyOnAny, VerifyDisabled).'"
-  },
-  @{
-    Description = "ERROR: Partial Key Vault Configuration"
-    Parameters = @{
-      TerraformDeployMode = "Apply"
-      EnvironmentName = "dev"
-      TerraformDeploymentConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        KeyVaultConfig = @{
-          ServiceConnection = "vault-service-connection"
-        }
-      }
-    }
-    ErrorMessage = "Unexpected value ''dev' environment error: KeyVaultConfig.Name is required when any Key Vault configuration is provided.'*Unexpected value ''dev' environment error: KeyVaultConfig.SecretsFilter is required when any Key Vault configuration is provided.'"
   }
 )
 

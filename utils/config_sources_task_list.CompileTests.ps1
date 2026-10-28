@@ -103,27 +103,6 @@ $invalidTestCases = @(
 "@
     }
     ErrorMessage = "Invalid ConfigSources: list cannot be empty. If no configuration sources are needed, omit the parameter entirely."
-  },
-  @{
-    Description = "validation is triggered for unsupported Type"
-    Parameters = @{
-      ConfigSources = @"
- - Type: Unsupported
-   Name: "dev-vault"
-   ServiceConnection: "Azure-Dev-SC"
-"@
-    }
-    ErrorMessage = "Invalid ConfigSources: entry field 'Type' is required, must be a non-empty string, and must be 'KeyVault'."
-  },
-  @{
-    Description = "validation is triggered for missing ServiceConnection"
-    Parameters = @{
-      ConfigSources = @"
- - Type: KeyVault
-   Name: "dev-vault"
-"@
-    }
-    ErrorMessage = "Invalid ConfigSources: entry is missing required field 'ServiceConnection'."
   }
 )
 

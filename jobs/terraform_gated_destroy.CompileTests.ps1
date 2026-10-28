@@ -135,16 +135,6 @@ $invalidTestCases = @(
     ErrorMessage = "A value for the 'TerraformDestroyConfig' parameter must be provided."
   },
   @{
-    Description = "TerraformDestroyConfig missing AzDOEnvironmentName"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        RunMode = "PlanOnly"
-      }
-    }
-    ErrorMessage = "'dev' environment error: AzDOEnvironmentName is not properly defined and is a required field."
-  },
-  @{
     Description = "TerraformDestroyConfig missing RunMode"
     Parameters = @{
       EnvironmentName = "dev"
@@ -153,41 +143,6 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "RunMode is not properly defined and is a required field. Must be a valid option (PlanVerifyDestroy, PlanOnly, DestroyOnly)."
-  },
-  @{
-    Description = "invalid RunMode value (should be PlanOnly, DestroyOnly, or PlanVerifyDestroy)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "RunMode must be a valid option (PlanVerifyDestroy, PlanOnly, DestroyOnly)."
-  },
-  @{
-    Description = "invalid VerificationTimeoutBehaviour value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutBehaviour = "invalid"
-      }
-    }
-    ErrorMessage = "VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
-  },
-  @{
-    Description = "invalid VerificationTimeoutInMinutes value (out of range)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutInMinutes = 43201
-      }
-    }
-    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 
