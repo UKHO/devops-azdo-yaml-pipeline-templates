@@ -69,7 +69,9 @@ function Invoke-PreFlightValidation
 
   # Fast path: a token is already cached for this session, so the CLI and
   # authentication checks have already passed. Only re-check configuration.
-  if ((Get-CachedAccessToken) -and (Test-AzDOConfigurationValues))
+  if ((Get-CachedAccessToken) -and (Test-AzDOConfigurationValues) -and
+    (-not [string]::IsNullOrWhiteSpace($script:TestState.TargetBranch)) -and
+    $script:TestState.TargetBranch -ne 'HEAD')
   {
     Write-Host "Pre-flight validation: OK (cached session token)" -ForegroundColor DarkGray
     return
