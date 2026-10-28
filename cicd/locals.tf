@@ -24,8 +24,6 @@ locals {
   compile_tests_pipeline = {
     azdo_name = "compile_tests"
     file_path = "cicd/pipelines/compile_tests.yml"
-    # Graph subject descriptor of the project build service (the identity behind System.AccessToken)
-    build_service_subject_descriptor = "svc.${replace(base64encode("${var.azdo_organization_id}:Build:${data.azuredevops_project.this.id}"), "=", "")}"
   }
 
   pipeline_authorizations = merge([

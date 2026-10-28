@@ -65,12 +65,3 @@ variable "azdo_environment_name" {
     error_message = "Environment name must be 1-128 characters and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
   }
 }
-
-variable "azdo_organization_id" {
-  type        = string
-  description = "ID (GUID) of the Azure DevOps organisation. Used to compute the project build service descriptor"
-  validation {
-    condition     = can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", var.azdo_organization_id))
-    error_message = "Organisation ID must be a GUID."
-  }
-}

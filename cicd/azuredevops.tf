@@ -108,24 +108,3 @@ resource "azuredevops_pipeline_authorization" "compile_tests_queue" {
   pipeline_id = azuredevops_build_definition.compile_tests.id
   resource_id = data.azuredevops_agent_queue.this.id
 }
-# The tests send preview runs (POST _apis/pipelines/{id}/runs, previewRun: true) of this
-# pipeline's own definition using System.AccessToken, i.e. as the project build service.
-# By default that identity does NOT have 'Queue builds' (checked via the security REST API),
-# so grant what it needs on this definition only.
-#
-# The principal must be the Graph *subject* descriptor of the project build service. It is
-# computed rather than looked up: 'svc.' + unpadded base64('<organisation id>:Build:<project id>').
-# (The azuredevops_identity_user data source was unreliable for this identity, and returns the
-# identity descriptor, which this resource rejects.)
-resource "azuredevops_build_definition_permissions" "compile_tests" {
-  project_id          = data.azuredevops_project.this.id
-  build_definition_id = azuredevops_build_definition.compile_tests.id
-  principal           = local.compile_tests_pipeline.build_service_subject_descriptor
-  replace             = false
-
-  permissions = {
-    ViewBuilds          = "Allow"
-    ViewBuildDefinition = "Allow"
-    QueueBuilds         = "Allow"
-  }
-}
