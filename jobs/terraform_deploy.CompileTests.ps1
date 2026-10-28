@@ -350,6 +350,34 @@ $validTestCases = @(
       "terraform-*"
       "pipeline-*"
     )
+  },
+  @{
+    Description = "DependsOn is applied to the job"
+    Parameters = @{
+      TerraformDeployMode = "Apply"
+      DependsOn = @("PreviousJob")
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "dependsOn:*PreviousJob"
+    )
+  },
+  @{
+    Description = "Pool is applied to the job"
+    Parameters = @{
+      TerraformDeployMode = "Apply"
+      Pool = "Custom-Agent-Pool"
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "pool:*name: Custom-Agent-Pool"
+    )
   }
 )
 
@@ -382,8 +410,9 @@ $invalidTestCases = @(
 # RUN TESTS
 # ============================================================================
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_deploy.yml" `
-  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return ($yaml -replace 'AzDOPipelineTemplates', 'self') + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

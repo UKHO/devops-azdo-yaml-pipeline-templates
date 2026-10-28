@@ -113,6 +113,48 @@ $validTestCases = @(
       "onTimeout: reject"
       "instructions:*Please validate the terraform destroy plan is acceptable to execute"
     )
+  },
+  @{
+    Description = "Condition is applied to the first job"
+    Parameters = @{
+      Condition = "and(succeeded(), eq(variables.IsManual, 'true'))"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "condition: and(succeeded(), eq(variables.IsManual, 'true'))"
+    )
+  },
+  @{
+    Description = "DependsOn is applied to the first job"
+    Parameters = @{
+      DependsOn = @("PreviousJob")
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "dependsOn:*PreviousJob"
+    )
+  },
+  @{
+    Description = "TerraformVersion is passed to the destroy jobs"
+    Parameters = @{
+      TerraformVersion = "1.6.0"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "inputs:*TerraformVersion:* 1.6.0"
+    )
   }
 )
 
@@ -146,9 +188,10 @@ $invalidTestCases = @(
   }
 )
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_gated_destroy.yml" `
-  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return ($yaml -replace 'AzDOPipelineTemplates', 'self') + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
 
