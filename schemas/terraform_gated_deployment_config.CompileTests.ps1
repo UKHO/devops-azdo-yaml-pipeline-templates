@@ -156,6 +156,42 @@ $validTestCases = @(
         ApplyEvenIfNoChanges = "false"
       }
     }
+  },
+  @{
+    Description = "with RunMode set to PlanVerifyApply and VerificationMode VerifyOnDestroy"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnDestroy"
+      }
+    }
+  },
+  @{
+    Description = "with RunMode set to PlanVerifyApply and VerificationMode VerifyDisabled"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyDisabled"
+      }
+    }
+  },
+  @{
+    Description = "with VerificationTimeoutInMinutes and ApplyEvenIfNoChanges as YAML literals"
+    Parameters = @{
+      EnvironmentName = "dev"
+      # Passed as YAML text so scalars are typed by the YAML parser, as in a consumer's pipeline
+      TerraformDeploymentConfig = @"
+AzDOEnvironmentName: dev-environment
+RunMode: PlanVerifyApply
+VerificationMode: VerifyOnAny
+VerificationTimeoutInMinutes: 30
+ApplyEvenIfNoChanges: true
+"@
+    }
   }
 )
 
@@ -392,6 +428,19 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "Unexpected value ''dev' environment error: ApplyEvenIfNoChanges can only be set to true when RunMode is PlanVerifyApply.'"
+  },
+  @{
+    Description = "VerificationTimeoutInMinutes is not a number"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "dev-environment"
+        RunMode = "PlanVerifyApply"
+        VerificationMode = "VerifyOnAny"
+        VerificationTimeoutInMinutes = "abc"
+      }
+    }
+    ErrorMessage = "'dev' environment error: VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 
