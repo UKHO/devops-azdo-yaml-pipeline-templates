@@ -12,7 +12,25 @@ function Get-CachedAccessToken
   [CmdletBinding()]
   param()
 
-  return $global:AzDOCompileTestTokenCache.accessToken
+  $cachedToken = $global:AzDOCompileTestTokenCache
+  if ($null -eq $cachedToken)
+  {
+    return $null
+  }
+  $expiresAt = if ($null -ne $cachedToken.expires_on)
+  {
+    [DateTimeOffset]::FromUnixTimeSeconds([long]$cachedToken.expires_on)
+  }
+  else
+  {
+    [DateTimeOffset]::Parse($cachedToken.expiresOn, [System.Globalization.CultureInfo]::InvariantCulture)
+  }
+  if ($expiresAt -le [DateTimeOffset]::UtcNow.AddMinutes(5))
+  {
+    $global:AzDOCompileTestTokenCache = $null
+    return $null
+  }
+  return $cachedToken.accessToken
 }
 
 function Get-AccessToken
