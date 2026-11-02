@@ -28,6 +28,7 @@ function Invoke-ParameterisedTests
     try
     {
         script:Initialize-ParameterisedTestState
+        script:Assert-ParameterisedTestCases -ValidTestCases $ValidTestCases -InvalidTestCases $InvalidTestCases -YamlPath $YamlPath
         $yamlFullPath = Join-Path $RepositoryRoot $YamlPath
         $yaml = Get-Content -Path $yamlFullPath -Raw
         if ($null -ne $TransformYamlFunction)
@@ -95,6 +96,66 @@ function script:Initialize-ParameterisedTestState
     }
 }
 
+function script:Assert-ParameterisedTestCases
+{
+    # Checks the test case definitions before any compile call is made, so a badly defined
+    # file fails fast and cheaply. A case that cannot fail for the right reason is a bug in
+    # the test file, not a test result.
+    param(
+        [array]$ValidTestCases,
+        [array]$InvalidTestCases,
+        [string]$YamlPath
+    )
+    $problems = @()
+    $allCases = @(@($ValidTestCases) + @($InvalidTestCases))
+
+    for ($i = 0; $i -lt $allCases.Count; $i++)
+    {
+        if ([string]::IsNullOrWhiteSpace($allCases[$i].Description))
+        {
+            $problems += "Test case #$( $i + 1 ) has no Description."
+        }
+    }
+
+    $duplicates = @($allCases |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_.Description) } |
+        Group-Object -Property { $_.Description } |
+        Where-Object { $_.Count -gt 1 })
+    foreach ($duplicate in $duplicates)
+    {
+        $problems += "Description '$( $duplicate.Name )' is used by $( $duplicate.Count ) test cases. Descriptions must be unique."
+    }
+
+    foreach ($testCase in @($InvalidTestCases))
+    {
+        if ([string]::IsNullOrWhiteSpace($testCase.ErrorMessage))
+        {
+            $problems += "Invalid test case '$( $testCase.Description )' has no ErrorMessage. Without one it would pass on any compile error."
+        }
+    }
+
+    if ($problems.Count -gt 0)
+    {
+        throw "Test case definitions for '$YamlPath' are not valid:`n  - $( $problems -join "`n  - " )"
+    }
+}
+
+function script:Test-ErrorMessageMatch
+{
+    # ErrorMessage is matched as a literal, case-insensitive substring of the API message.
+    # Unlike -like, the characters * ? [ ] have no special meaning, so messages such as
+    # "'ConfigSources[].Name' is required" can be asserted exactly.
+    param(
+        [string]$ApiMessage,
+        [string]$ExpectedMessage
+    )
+    if ($null -eq $ApiMessage -or [string]::IsNullOrEmpty($ExpectedMessage))
+    {
+        return $false
+    }
+    return $ApiMessage.IndexOf($ExpectedMessage, [System.StringComparison]::OrdinalIgnoreCase) -ge 0
+}
+
 function script:Get-ValidPassCriteriaFunction
 {
     return {
@@ -130,7 +191,7 @@ function script:Get-InvalidPassCriteriaFunction
     return {
         $testFailed = $result.success -eq $false
         $correctStatusCode = $result.error.statusCode -eq 400
-        $errorMessageMatches = $testCase.ErrorMessage -eq "" -or $result.error.apiMessage -like "*$( $testCase.ErrorMessage )*"
+        $errorMessageMatches = script:Test-ErrorMessageMatch -ApiMessage $result.error.apiMessage -ExpectedMessage $testCase.ErrorMessage
         return ($testFailed -and $correctStatusCode -and $errorMessageMatches)
     }
 }
