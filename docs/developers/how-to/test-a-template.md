@@ -110,6 +110,18 @@ Run-Tests `
 
 Use `ValidTestCases` with `ExpectedYaml` to assert the compiled output, and `InvalidTestCases` with `ErrorMessage` to assert that a schema/guard rejects bad input. See `tests/framework/example_echo_task.CompileTests.ps1` for a complete example.
 
+Rules the framework enforces before making any compile call (a file that breaks them fails without running):
+
+- Every case has a `Description`, and descriptions are unique within the file (valid and invalid cases together).
+- Every invalid case has a non-empty `ErrorMessage`. Without one, a case would pass on any compile error.
+
+How values are matched:
+
+| Key            | Matching                                                                                                                                                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ErrorMessage` | **Literal**, case-insensitive substring of the Azure DevOps error message. `*`, `?`, `[` and `]` have no special meaning.                                                                                                  |
+| `ExpectedYaml` | **Wildcard** (`-like "*<value>*"`). `*` matches any text, including line breaks, so `'inputs:*TerraformVersion:**1.14.0'` spans lines. `?`, `[` and `]` are also pattern characters: avoid them, or escape them with a backtick. |
+
 ## Pull Request Process
 
 1. Create a **draft PR** early for initial feedback.
