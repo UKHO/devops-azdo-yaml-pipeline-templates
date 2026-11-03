@@ -39,17 +39,22 @@ foreach ($testFile in $testFiles) {
   Write-Host ($('-' * 80)) -ForegroundColor Gray
 
   try {
-    # Run the test script
+    # Reset so a non-zero exit code left over from an earlier native command
+    # (git, az, ...) cannot mark this file as failed.
+    $global:LASTEXITCODE = 0
+
+    # Run the test script. Test failures are reported by throwing (see
+    # TestExecution.ThrowExceptionOnTestFailure), which is handled by the catch below.
     & $testFile.FullName
 
-    # Check if the script execution was successful
-    if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq $null) {
-      Write-Host "✓ PASSED" -ForegroundColor Green
-      $passedCount++
-    } else {
+    # A test script may also signal failure explicitly with 'exit <non-zero>'
+    if ($LASTEXITCODE -ne 0) {
       Write-Host "✗ FAILED (Exit Code: $LASTEXITCODE)" -ForegroundColor Red
       $failedCount++
       $failedTests += $testName
+    } else {
+      Write-Host "✓ PASSED" -ForegroundColor Green
+      $passedCount++
     }
   }
   catch {

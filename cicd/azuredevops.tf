@@ -65,3 +65,46 @@ resource "azuredevops_pipeline_authorization" "this" {
   pipeline_id = azuredevops_build_definition.template_tests[each.value.pipeline_key].id
   resource_id = each.value.resource_id
 }
+
+
+# ---------------------------------------------------------------------------
+# Compile tests pipeline (Run-AllCompileTests.ps1)
+# ---------------------------------------------------------------------------
+
+resource "azuredevops_build_definition" "compile_tests" {
+  project_id = data.azuredevops_project.this.id
+  name       = local.compile_tests_pipeline.azdo_name
+
+  agent_pool_name = data.azuredevops_agent_queue.this.name
+
+  path = "\\${local.repository_name}"
+  repository {
+    repo_type             = "GitHub"
+    repo_id               = local.repo_id
+    branch_name           = "refs/heads/main"
+    yml_path              = local.compile_tests_pipeline.file_path
+    service_connection_id = data.azuredevops_serviceendpoint_github.this.service_endpoint_id
+  }
+
+  ci_trigger {
+    use_yaml = true
+  }
+
+  # Draft pull requests are included via 'pr.drafts: true' in the YAML
+  pull_request_trigger {
+    use_yaml = true
+    forks {
+      enabled       = false
+      share_secrets = false
+    }
+  }
+}
+
+# Only the agent queue is needed: the job deploys nothing and uses no service
+# connections, environments or variable groups.
+resource "azuredevops_pipeline_authorization" "compile_tests_queue" {
+  project_id  = data.azuredevops_project.this.id
+  type        = "queue"
+  pipeline_id = azuredevops_build_definition.compile_tests.id
+  resource_id = data.azuredevops_agent_queue.this.id
+}

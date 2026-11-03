@@ -67,6 +67,16 @@ function Invoke-PreFlightValidation
   $allValidationsPassed = $true
   $validationErrors = @()
 
+  # Fast path: a token is already cached for this session, so the CLI and
+  # authentication checks have already passed. Only re-check configuration.
+  if ((Get-CachedAccessToken) -and (Test-AzDOConfigurationValues) -and
+    (-not [string]::IsNullOrWhiteSpace($script:TestState.TargetBranch)) -and
+    $script:TestState.TargetBranch -ne 'HEAD')
+  {
+    Write-Host "Pre-flight validation: OK (cached session token)" -ForegroundColor DarkGray
+    return
+  }
+
   Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
   Write-Host "PRE-FLIGHT VALIDATION" -ForegroundColor Cyan
   Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
@@ -84,39 +94,73 @@ function Invoke-PreFlightValidation
     Write-Host "OK" -ForegroundColor Green
   }
 
-  # Validate Az CLI
-  Write-Host -NoNewline "  ✓ Az CLI... "
-  if (-not (Test-AzCli))
+  # Validate target branch (a detached HEAD outside Azure Pipelines resolves to 'HEAD')
+  Write-Host -NoNewline "  ✓ Target branch... "
+  if ([string]::IsNullOrWhiteSpace($script:TestState.TargetBranch) -or $script:TestState.TargetBranch -eq 'HEAD')
   {
     Write-Host "FAILED" -ForegroundColor Red
-    $validationErrors += "Az CLI is not installed or not available in PATH."
+    $validationErrors += "Could not determine the target branch (got '$( $script:TestState.TargetBranch )'). Check out a branch, or set BUILD_SOURCEBRANCH."
     $allValidationsPassed = $false
   }
   else
   {
-    Write-Host "OK" -ForegroundColor Green
+    Write-Host "$( $script:TestState.TargetBranch )" -ForegroundColor Green
   }
 
-  Write-Host -NoNewline "  ✓ Azure authentication... "
-  if (-not (Test-AzAuthentication))
+  if ($env:SYSTEM_ACCESSTOKEN)
   {
-    Write-Host "FAILED" -ForegroundColor Red
-    try
-    {
-      Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
-      Invoke-AutoSignIn -Organization $script:TestState.AzDO.Organization
-      Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
-    }
-    catch
-    {
-      $validationErrors += "User is not authenticated with Azure"
-      $allValidationsPassed = $false
-      Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
-    }
+    # Azure Pipelines: the job access token is used directly; no Azure CLI needed
+    Write-Host -NoNewline "  ✓ Azure DevOps authentication... "
+    Write-Host "OK (System.AccessToken)" -ForegroundColor Green
   }
   else
   {
-    Write-Host "OK" -ForegroundColor Green
+    # Validate Az CLI
+    Write-Host -NoNewline "  ✓ Az CLI... "
+    if (-not (Test-AzCli))
+    {
+      Write-Host "FAILED" -ForegroundColor Red
+      $validationErrors += "Az CLI is not installed or not available in PATH."
+      $allValidationsPassed = $false
+    }
+    else
+    {
+      Write-Host "OK" -ForegroundColor Green
+    }
+
+    Write-Host -NoNewline "  ✓ Azure authentication... "
+    $authenticated = $false
+    try
+    {
+      # Acquiring the token proves authentication and caches it for later use
+      $null = Get-AccessToken
+      $authenticated = $true
+    }
+    catch
+    {
+      Write-Verbose "Token acquisition failed: $_"
+    }
+    if (-not $authenticated)
+    {
+      Write-Host "FAILED" -ForegroundColor Red
+      try
+      {
+        Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
+        Invoke-AutoSignIn -Organization $script:TestState.AzDO.Organization
+        $null = Get-AccessToken
+        Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
+      }
+      catch
+      {
+        $validationErrors += "User is not authenticated with Azure"
+        $allValidationsPassed = $false
+        Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
+      }
+    }
+    else
+    {
+      Write-Host "OK" -ForegroundColor Green
+    }
   }
 
   # Handle validation results

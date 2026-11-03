@@ -1,0 +1,47 @@
+# Compile Tests Pipeline
+#
+# Runs every *.CompileTests.ps1 in the repository (Run-AllCompileTests.ps1) against the
+# Azure DevOps preview-run API. Provisioned by cicd/azuredevops.tf and a required status
+# check on main (cicd/github.tf).
+#
+# Unlike the per-template *_test.yml pipelines, this also runs on draft pull requests,
+# because it only compiles templates and does not deploy anything.
+#
+# Authentication: the job access token (System.AccessToken) is mapped into the script's
+# environment. Compile requests are sent as preview runs of this pipeline's own definition
+# (COMPILE_TESTS_PIPELINE_ID), so the project build service only needs permissions on this
+# pipeline - this is set manually currently
+#
+# Note: the server resolves template references from the pushed source branch on GitHub
+# (System.PullRequest.SourceBranch for PR builds), not from the PR merge commit.
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: true
+
+# Must match var.azdo_agent_pool_name in cicd/ukho.tfvars (the pipeline is authorised for that queue)
+pool:
+  name: Azure-UKHO-Engineering
+
+jobs:
+  - job: CompileTests
+    displayName: Run all compile tests
+    timeoutInMinutes: 30
+    steps:
+      - checkout: self
+        fetchDepth: 1
+        clean: true
+
+      - pwsh: ./Run-AllCompileTests.ps1
+        displayName: Run-AllCompileTests.ps1
+        workingDirectory: $(Build.SourcesDirectory)
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          COMPILE_TESTS_PIPELINE_ID: $(System.DefinitionId)

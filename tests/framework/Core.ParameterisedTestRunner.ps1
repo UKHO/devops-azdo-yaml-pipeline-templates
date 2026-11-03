@@ -46,11 +46,30 @@ function Invoke-ParameterisedTests
         $invalidPassCriteria = script:Get-InvalidPassCriteriaFunction
         $invalidErrorMessage = script:Get-InvalidErrorMessageFunction
 
-        script:Run-ParameterisedTest -Yaml $yaml -TestCases $validTestCases -PassCriteriaFunction $validPassCriteria `
+        # Compile every test case (valid and invalid) concurrently in a single batch,
+        # then evaluate and report the results in their declared order.
+        $validTestCases = @($ValidTestCases)
+        $invalidTestCases = @($InvalidTestCases)
+        $requests = @(@($validTestCases) + @($invalidTestCases) | ForEach-Object {
+            @{ YamlContent = $yaml; Parameters = $_.Parameters }
+        })
+        $allResults = Invoke-CompileYamlBatch -Requests $requests
+        $validResults = @()
+        $invalidResults = @()
+        if ($validTestCases.Count -gt 0)
+        {
+$validResults = @($allResults[0..($validTestCases.Count - 1)])
+        }
+        if ($invalidTestCases.Count -gt 0)
+        {
+$invalidResults = @($allResults[$validTestCases.Count..($allResults.Count - 1)])
+        }
+
+        script:Run-ParameterisedTest -TestCases $validTestCases -Results $validResults -PassCriteriaFunction $validPassCriteria `
       -TestCasesTitle "`nValid Test Cases:" -ErrorMessageFunction $validErrorMessage `
       -TestFilePath $testDirectoryPath -TemplateName $testName
 
-        script:Run-ParameterisedTest -Yaml $yaml -TestCases $invalidTestCases -PassCriteriaFunction $invalidPassCriteria `
+        script:Run-ParameterisedTest -TestCases $invalidTestCases -Results $invalidResults -PassCriteriaFunction $invalidPassCriteria `
       -TestCasesTitle "`nInvalid Test Cases (should fail):" -ErrorMessageFunction $invalidErrorMessage `
       -TestFilePath $testDirectoryPath -TemplateName $testName
         Write-Host "`n"
@@ -141,8 +160,8 @@ function script:Get-InvalidErrorMessageFunction
 function script:Run-ParameterisedTest
 {
     param(
-        [string]$Yaml,
         [array]$TestCases,
+        [array]$Results,
         [scriptblock]$PassCriteriaFunction,
         [scriptblock]$ErrorMessageFunction,
         [string]$TestCasesTitle,
@@ -152,10 +171,11 @@ function script:Run-ParameterisedTest
     if ($TestCases.Count -gt 0)
     {
         Write-Host $TestCasesTitle -ForegroundColor Yellow
-        foreach ($testCase in $TestCases)
+        for ($testCaseIndex = 0; $testCaseIndex -lt $TestCases.Count; $testCaseIndex++)
         {
+            $testCase = $TestCases[$testCaseIndex]
             script:Invoke-ParameterisedTest -TestName "$( $testCase.Description )" -TestScript {
-                $result = Test-CompileYaml -YamlContent $yaml -Parameters $testCase.Parameters
+                $result = $Results[$testCaseIndex]
                 $passed = & $PassCriteriaFunction
                 $failureMessage = ""
                 if ($passed -eq $false)
