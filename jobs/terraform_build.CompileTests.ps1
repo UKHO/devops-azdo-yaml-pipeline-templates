@@ -175,7 +175,7 @@ $validTestCases = @(
             DependsOn = @("PreviousJob")
         }
         ExpectedYaml = @(
-            'dependsOn:*PreviousJob'
+            'dependsOn:*- PreviousJob'
         )
     },
     @{
