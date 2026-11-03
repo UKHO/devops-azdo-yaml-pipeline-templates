@@ -80,6 +80,16 @@ $validTestCases = @(
     ExpectedYaml = @(
       "condition: and(succeeded(), eq('refs/heads/main', 'refs/heads/main'))"
     )
+  },
+  @{
+    Description = "DependsOn is applied to the job"
+    Parameters = @{
+      JobName = "ManualVerification"
+      DependsOn = @("PreviousJob")
+    }
+    ExpectedYaml = @(
+      'dependsOn:*PreviousJob'
+    )
   }
 )
 
@@ -100,7 +110,9 @@ $invalidTestCases = @(
 # RUN TESTS
 # ============================================================================
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/manual_verification.yml" `
+  -TransformYamlFunction { param($yaml) return $yaml + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

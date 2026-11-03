@@ -211,6 +211,16 @@ $validTestCases = @(
         ExpectedYaml = @(
             'retryCountOnTaskFailure: 2'
         )
+    },
+    @{
+        Description = "WorkingDirectory is applied to the task"
+        Parameters = @{
+            Command = "init"
+            WorkingDirectory = "infra/terraform"
+        }
+        ExpectedYaml = @(
+            'workingDirectory: infra/terraform'
+        )
     }
 )
 
@@ -237,7 +247,7 @@ $invalidTestCases = @(
         ErrorMessage = "The 'CustomCommand' parameter is not a valid String."
     },
     @{
-        Description = "custom command with missing custom command"
+        Description = "save console output to file without a file name"
         Parameters = @{
             Command = "plan"
             SaveCommandConsoleOutputToFile = $true
@@ -245,7 +255,7 @@ $invalidTestCases = @(
         ErrorMessage = "The 'CommandConsoleOutputFileName' parameter is required when 'SaveCommandConsoleOutputToFile' is true."
     },
     @{
-        Description = "custom command with missing custom command"
+        Description = "console output file name without enabling save to file"
         Parameters = @{
             Command = "plan"
             CommandConsoleOutputFileName = "file"

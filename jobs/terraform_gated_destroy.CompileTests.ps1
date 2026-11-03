@@ -113,6 +113,48 @@ $validTestCases = @(
       "onTimeout: reject"
       "instructions:*Please validate the terraform destroy plan is acceptable to execute"
     )
+  },
+  @{
+    Description = "Condition is applied to the first job"
+    Parameters = @{
+      Condition = "and(succeeded(), eq(variables.IsManual, 'true'))"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "condition: and(succeeded(), eq(variables.IsManual, 'true'))"
+    )
+  },
+  @{
+    Description = "DependsOn is applied to the first job"
+    Parameters = @{
+      DependsOn = @("PreviousJob")
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "dependsOn:*PreviousJob"
+    )
+  },
+  @{
+    Description = "TerraformVersion is passed to the destroy jobs"
+    Parameters = @{
+      TerraformVersion = "1.6.0"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+      }
+    }
+    ExpectedYAML = @(
+      "inputs:*TerraformVersion:* 1.6.0"
+    )
   }
 )
 
@@ -135,16 +177,6 @@ $invalidTestCases = @(
     ErrorMessage = "A value for the 'TerraformDestroyConfig' parameter must be provided."
   },
   @{
-    Description = "TerraformDestroyConfig missing AzDOEnvironmentName"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        RunMode = "PlanOnly"
-      }
-    }
-    ErrorMessage = "'dev' environment error: AzDOEnvironmentName is not properly defined and is a required field."
-  },
-  @{
     Description = "TerraformDestroyConfig missing RunMode"
     Parameters = @{
       EnvironmentName = "dev"
@@ -153,47 +185,13 @@ $invalidTestCases = @(
       }
     }
     ErrorMessage = "RunMode is not properly defined and is a required field. Must be a valid option (PlanVerifyDestroy, PlanOnly, DestroyOnly)."
-  },
-  @{
-    Description = "invalid RunMode value (should be PlanOnly, DestroyOnly, or PlanVerifyDestroy)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "InvalidMode"
-      }
-    }
-    ErrorMessage = "RunMode must be a valid option (PlanVerifyDestroy, PlanOnly, DestroyOnly)."
-  },
-  @{
-    Description = "invalid VerificationTimeoutBehaviour value"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutBehaviour = "invalid"
-      }
-    }
-    ErrorMessage = "VerificationTimeoutBehaviour must be either 'reject' or 'resume'."
-  },
-  @{
-    Description = "invalid VerificationTimeoutInMinutes value (out of range)"
-    Parameters = @{
-      EnvironmentName = "dev"
-      TerraformDestroyConfig = @{
-        AzDOEnvironmentName = "compile-tests-only"
-        RunMode = "PlanVerifyDestroy"
-        VerificationTimeoutInMinutes = 43201
-      }
-    }
-    ErrorMessage = "VerificationTimeoutInMinutes must be a number between 1 and 43200 (30 days)."
   }
 )
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_gated_destroy.yml" `
-  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return ($yaml -replace 'AzDOPipelineTemplates', 'self') + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
 

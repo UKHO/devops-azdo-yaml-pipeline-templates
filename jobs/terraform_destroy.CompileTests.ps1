@@ -94,6 +94,58 @@ $validTestCases = @(
       "displayName: Destroy 'DestroyArtifact'"
       "artifactName: DestroyArtifact"
     )
+  },
+  @{
+    Description = "Condition is applied to the job"
+    Parameters = @{
+      Condition = "and(succeeded(), eq(variables.IsManual, 'true'))"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "condition: and(succeeded(), eq(variables.IsManual, 'true'))"
+    )
+  },
+  @{
+    Description = "DependsOn is applied to the job"
+    Parameters = @{
+      DependsOn = @("PreviousJob")
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "dependsOn:*PreviousJob"
+    )
+  },
+  @{
+    Description = "Pool is applied to the job"
+    Parameters = @{
+      Pool = "Custom-Agent-Pool"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "pool:*name: Custom-Agent-Pool"
+    )
+  },
+  @{
+    Description = "TerraformVersion is passed to the installer"
+    Parameters = @{
+      TerraformVersion = "1.6.0"
+      EnvironmentName = "dev"
+      TerraformDestroyConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+      }
+    }
+    ExpectedYAML = @(
+      "inputs:*TerraformVersion:* 1.6.0"
+    )
   }
 )
 
@@ -132,9 +184,10 @@ $invalidTestCases = @(
   }
 )
 
+# PreviousJob is appended so that cases can set DependsOn to an existing job
 Run-Tests `
   -YamlPath "jobs/terraform_destroy.yml" `
-  -TransformYamlFunction { param($yaml) return $yaml -replace 'AzDOPipelineTemplates', 'self' } `
+  -TransformYamlFunction { param($yaml) return ($yaml -replace 'AzDOPipelineTemplates', 'self') + "`n  - job: PreviousJob`n    steps:`n      - script: echo PreviousJob`n" } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases
 

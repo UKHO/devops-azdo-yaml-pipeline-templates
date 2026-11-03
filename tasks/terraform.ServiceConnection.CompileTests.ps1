@@ -182,6 +182,18 @@ $validTestCases = @(
       'azureSubscription: AzureRMServiceConnection'
       'retryCountOnTaskFailure: 2'
     )
+  },
+  @{
+    Description = "WorkingDirectory is applied to the task"
+    Parameters = @{
+      Command = "init"
+      WorkingDirectory = "infra/terraform"
+      ServiceConnection = "AzureRMServiceConnection"
+    }
+    ExpectedYaml = @(
+      '- task: AzureCLI@2'
+      'workingDirectory: infra/terraform'
+    )
   }
 )
 
