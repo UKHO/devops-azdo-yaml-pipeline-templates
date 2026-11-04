@@ -42,7 +42,7 @@ function Test-AzDOConfigurationValues
   $azDO = $script:TestState.AzDO
 
   return (
-  -not [string]::IsNullOrWhiteSpace($azDO.Organization) -and
+    -not [string]::IsNullOrWhiteSpace($azDO.Organization) -and
     -not [string]::IsNullOrWhiteSpace($azDO.Project) -and
     $null -ne $azDO.PipelineId -and
     $azDO.PipelineId -gt 0
@@ -60,7 +60,7 @@ function Invoke-PreFlightValidation
 
   if ($script:TestState.SkipValidation)
   {
-    Write-Host "⚠️  Pre-flight validation is skipped. Ensure your environment is correctly configured." -ForegroundColor Yellow
+    Write-Host "[WARN]  Pre-flight validation is skipped. Ensure your environment is correctly configured." -ForegroundColor Yellow
     return
   }
 
@@ -77,12 +77,12 @@ function Invoke-PreFlightValidation
     return
   }
 
-  Write-Host "`n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+  Write-Host "`n======================================================" -ForegroundColor Cyan
   Write-Host "PRE-FLIGHT VALIDATION" -ForegroundColor Cyan
-  Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+  Write-Host "======================================================" -ForegroundColor Cyan
 
   # Validate configuration values
-  Write-Host -NoNewline "  ✓ Configuration values... "
+  Write-Host -NoNewline "  [OK] Configuration values... "
   if (-not (Test-AzDOConfigurationValues))
   {
     Write-Host "FAILED" -ForegroundColor Red
@@ -95,7 +95,7 @@ function Invoke-PreFlightValidation
   }
 
   # Validate target branch (a detached HEAD outside Azure Pipelines resolves to 'HEAD')
-  Write-Host -NoNewline "  ✓ Target branch... "
+  Write-Host -NoNewline "  [OK] Target branch... "
   if ([string]::IsNullOrWhiteSpace($script:TestState.TargetBranch) -or $script:TestState.TargetBranch -eq 'HEAD')
   {
     Write-Host "FAILED" -ForegroundColor Red
@@ -110,13 +110,13 @@ function Invoke-PreFlightValidation
   if ($env:SYSTEM_ACCESSTOKEN)
   {
     # Azure Pipelines: the job access token is used directly; no Azure CLI needed
-    Write-Host -NoNewline "  ✓ Azure DevOps authentication... "
+    Write-Host -NoNewline "  [OK] Azure DevOps authentication... "
     Write-Host "OK (System.AccessToken)" -ForegroundColor Green
   }
   else
   {
     # Validate Az CLI
-    Write-Host -NoNewline "  ✓ Az CLI... "
+    Write-Host -NoNewline "  [OK] Az CLI... "
     if (-not (Test-AzCli))
     {
       Write-Host "FAILED" -ForegroundColor Red
@@ -128,7 +128,7 @@ function Invoke-PreFlightValidation
       Write-Host "OK" -ForegroundColor Green
     }
 
-    Write-Host -NoNewline "  ✓ Azure authentication... "
+    Write-Host -NoNewline "  [OK] Azure authentication... "
     $authenticated = $false
     try
     {
@@ -145,16 +145,16 @@ function Invoke-PreFlightValidation
       Write-Host "FAILED" -ForegroundColor Red
       try
       {
-        Write-Host "  ↳ Attempting automatic sign-in..." -ForegroundColor Cyan
+        Write-Host "  -> Attempting automatic sign-in..." -ForegroundColor Cyan
         Invoke-AutoSignIn -Organization $script:TestState.AzDO.Organization
         $null = Get-AccessToken
-        Write-Host "  ✓ Automatic sign-in successful" -ForegroundColor Green
+        Write-Host "  [OK] Automatic sign-in successful" -ForegroundColor Green
       }
       catch
       {
         $validationErrors += "User is not authenticated with Azure"
         $allValidationsPassed = $false
-        Write-Host "  ✗ Automatic sign-in failed: $_" -ForegroundColor Red
+        Write-Host "  [FAIL] Automatic sign-in failed: $_" -ForegroundColor Red
       }
     }
     else
@@ -168,7 +168,7 @@ function Invoke-PreFlightValidation
   {
     $errorMessage = @"
 
-❌ PRE-FLIGHT VALIDATION FAILED
+[FAIL] PRE-FLIGHT VALIDATION FAILED
 
 $( $validationErrors -join "`n" )
 
@@ -182,7 +182,7 @@ REMEDIATION STEPS:
 
   }
 
-  Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Cyan
+  Write-Host "======================================================" -ForegroundColor Cyan
   Write-Host "`n"
 }
 
