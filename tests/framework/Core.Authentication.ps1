@@ -9,6 +9,7 @@ function Get-CachedAccessToken
   .SYNOPSIS
     Return the session-cached access token, or $null if no token is cached.
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Token is cached for the whole PowerShell session so many test files reuse one Azure CLI call.')]
   [CmdletBinding()]
   param()
 
@@ -20,7 +21,8 @@ function Get-CachedAccessToken
   $expiresAt = if ($null -ne $cachedToken.expires_on)
   {
     [DateTimeOffset]::FromUnixTimeSeconds([long]$cachedToken.expires_on)
-  } else
+  }
+  else
   {
     [DateTimeOffset]::Parse($cachedToken.expiresOn, [System.Globalization.CultureInfo]::InvariantCulture)
   }
@@ -42,6 +44,7 @@ function Get-AccessToken
     session, so that running many test files only invokes the (slow) Azure CLI once.
     Token expiry is not checked; an expired token may cause requests to fail.
   #>
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Token is cached for the whole PowerShell session so many test files reuse one Azure CLI call.')]
   [CmdletBinding()]
   param()
 
@@ -72,7 +75,8 @@ function Get-AccessToken
     {
       throw "Failed to retrieve access token from Azure CLI"
     }
-  } catch
+  }
+  catch
   {
     throw "Unable to get access token from Azure CLI. Ensure you are logged in with 'az login' and have the required permissions."
   }
@@ -105,18 +109,20 @@ function Invoke-AutoSignIn
     $currentUser = az account show --output json 2> $null | ConvertFrom-Json
     if ($null -eq $currentUser)
     {
-      Write-Host "  ↳ Not signed in, attempting signin.." -ForegroundColor Cyan
+      Write-Host "  -> Not signed in, attempting signin.." -ForegroundColor Cyan
       Write-Verbose "User not signed in, initiating interactive sign-in..."
       az login | Out-Null
       Write-Verbose "Successfully signed in to Azure"
-      Write-Host "  ✓ Signed in successfully" -ForegroundColor Green
-    } else
+      Write-Host "  [OK] Signed in successfully" -ForegroundColor Green
+    }
+    else
     {
       Write-Verbose "User already signed in: $( $currentUser.user.name )"
     }
 
     Write-Verbose "Automatic sign-in completed successfully."
-  } catch
+  }
+  catch
   {
     $errorMessage = $_.Exception.Message
     Write-Verbose "Automatic sign-in failed: $errorMessage"
