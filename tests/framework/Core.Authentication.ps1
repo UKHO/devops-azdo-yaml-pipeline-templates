@@ -20,8 +20,7 @@ function Get-CachedAccessToken
   $expiresAt = if ($null -ne $cachedToken.expires_on)
   {
     [DateTimeOffset]::FromUnixTimeSeconds([long]$cachedToken.expires_on)
-  }
-  else
+  } else
   {
     [DateTimeOffset]::Parse($cachedToken.expiresOn, [System.Globalization.CultureInfo]::InvariantCulture)
   }
