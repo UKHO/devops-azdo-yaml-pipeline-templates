@@ -10,6 +10,9 @@
 
 function script:Get-CompileHttpClient
 {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'One HttpClient is shared for the whole PowerShell session so connections are reused across test files.')]
+  param()
+
   if ($null -eq $global:AzDOCompileTestHttpClient)
   {
     $handler = [System.Net.Http.SocketsHttpHandler]::new()
@@ -142,7 +145,7 @@ function script:ConvertFrom-CompileResponse
     if ($null -eq $parsed)
     {
       return (script:New-CompileErrorObject -Message "Received null response from Azure DevOps API" -StatusCode $statusCode `
-        -ApiMessage "Received null response from Azure DevOps API")
+          -ApiMessage "Received null response from Azure DevOps API")
     }
     Write-Verbose "Pipeline YAML compilation succeeded. Run ID: $( $parsed.id )"
     return $parsed

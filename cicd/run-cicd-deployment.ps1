@@ -81,12 +81,12 @@ Write-Host ""
 Write-Host "[2/6] Initializing Terraform..." -ForegroundColor Green
 Write-Host "Running terraform init with backend configuration..."
 terraform init -migrate-state `
-    -backend-config="key=cicd.tfstate" `
-    -backend-config="container_name=tfstate-devops-azdo-yaml-pipeline-templates" `
-    -backend-config="storage_account_name=devopschapdevsa" `
-    -backend-config="resource_group_name=DevOps Chapter Dev" `
-    -backend-config="subscription_id=$SubscriptionId" `
-    -backend-config="use_azuread_auth=true"
+  -backend-config="key=cicd.tfstate" `
+  -backend-config="container_name=tfstate-devops-azdo-yaml-pipeline-templates" `
+  -backend-config="storage_account_name=devopschapdevsa" `
+  -backend-config="resource_group_name=DevOps Chapter Dev" `
+  -backend-config="subscription_id=$SubscriptionId" `
+  -backend-config="use_azuread_auth=true"
 
 Write-Host "[OK] Terraform initialization successful" -ForegroundColor Green
 Write-Host ""
