@@ -1,0 +1,39 @@
+# Schema Template: Terraform Build
+# Validates the `Checks` entries for jobs/terraform_build.yml.
+# Interim schema: a later TerraformBuildConfig refactor will bring this job in line with the other config schemas.
+# See: designs/build-checks.md
+#
+# Validates the list and each entry's 'Check' and 'Name' fields only. Each check's own settings are
+# validated by the check template itself (checks/<name>.yml) through its typed parameters.
+
+parameters:
+  - name: Checks
+    type: object
+    # NO default - Consumer must provide this
+    displayName: 'List of build check objects (required)'
+
+steps:
+  - ${{ if not(startsWith(convertToJson(parameters.Checks), '[')) }}:
+      - "Invalid Checks: must be a list of check objects, for example '- Check: TerraformFormat'.": "Error"
+  - ${{ else }}:
+      - ${{ each check in parameters.Checks }}:
+          # Entry must be an object.
+          - ${{ if not(startsWith(convertToJson(check), '{')) }}:
+              - "Invalid Checks: each entry must be an object with a 'Check' field, for example '- Check: TerraformFormat'.": "Error"
+          - ${{ else }}:
+              # Discriminator: required, string, supported by this build.
+              - ${{ if or(or(not(check.Check), eq(check.Check, '')), or(contains(convertToJson(check.Check), '{'), contains(convertToJson(check.Check), '['))) }}:
+                  - "Invalid Checks: entry is missing required string field 'Check'. Supported: TerraformFormat.": "Error"
+              - ${{ elseif notIn(check.Check, 'TerraformFormat') }}:
+                  - "Invalid Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat.": "Error"
+
+              # Optional Name: non-empty string when provided.
+              - ${{ if and(contains(convertToJson(check), '"Name"'), or(eq(check.Name, ''), or(contains(convertToJson(check.Name), '{'), contains(convertToJson(check.Name), '[')))) }}:
+                  - "Invalid Checks: 'Name' must be a non-empty string when provided.": "Error"
+
+              # Duplicates: when the same Check is listed more than once, every entry for it needs a Name.
+              # Template expressions have no loop index, so entries are compared by content.
+              - ${{ if or(not(check.Name), eq(check.Name, '')) }}:
+                  - ${{ each other in parameters.Checks }}:
+                      - ${{ if and(eq(other.Check, check.Check), ne(convertToJson(other), convertToJson(check))) }}:
+                          - "Invalid Checks: '${{ check.Check }}' is listed more than once, so every '${{ check.Check }}' entry needs a unique 'Name'.": "Error"
