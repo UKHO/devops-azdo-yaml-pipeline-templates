@@ -39,6 +39,11 @@ parameters:
     default: []
     displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
 
+  - name: Checks
+    type: object
+    default: []
+    displayName: 'Build checks to run after terraform validate, in order (for example "- Check: TerraformFormat")'
+
 jobs:
   - job: TerraformBuild_${{ parameters.ArtifactName }}
     displayName: "Build '${{ parameters.ArtifactName }}' Terraform Artifact"
@@ -62,6 +67,11 @@ jobs:
         readonly: true
 
     steps:
+      - ${{ if ne(length(parameters.Checks), 0) }}:
+          - template: /schemas/terraform_build.yml
+            parameters:
+              Checks: ${{ parameters.Checks }}
+
       - checkout: self
         displayName: 'Checkout self repository'
         clean: true
@@ -92,6 +102,17 @@ jobs:
         parameters:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
+
+      # User checks: run after the mandatory checks (init, validate) and before packaging.
+      # schemas/terraform_build.yml (above) holds the only list of supported checks. It rejects unknown
+      # check names, which fails the whole compile, so an unknown name never runs.
+      - ${{ each check in parameters.Checks }}:
+          - template: /checks/${{ lower(check.Check) }}.yml
+            parameters:
+              WorkingDirectory: $(TerraformWorkingDirectory)
+              ${{ each setting in check }}:
+                ${{ if ne(setting.key, 'Check') }}:
+                  ${{ setting.key }}: ${{ setting.value }}
 
       - template: /tasks/powershell.yml
         parameters:
