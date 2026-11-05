@@ -199,6 +199,22 @@ $validTestCases = @(
       'name: TerraformTask_validate*name: TerraformTask_fmt*RemoveTerraformDirectory',
       'terraform fmt -check -diff -recursive'
     )
+  },
+  @{
+    Description = "Checks with SnykIac scans the Terraform working directory after validate"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*task: UkhoSnykScanTask@0*RemoveTerraformDirectory',
+      'testType: iac',
+      'testDirectory: $(TerraformWorkingDirectory)',
+      'reportFileName: snyk-iac'
+    )
   }
 )
 
@@ -238,7 +254,7 @@ $invalidTestCases = @(
  - Check: NotValidCheck
 "@
     }
-    ErrorMessage = "Invalid Checks: 'NotValidCheck' is not a supported check for terraform_build. Supported: TerraformFormat."
+    ErrorMessage = "Invalid Checks: 'NotValidCheck' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
   },
   @{
     # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.
