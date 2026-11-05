@@ -74,7 +74,7 @@ parameter names and `displayName`, and document comprehensively in `docs/` inste
 Each check is one file named after the check in lowercase (`TerraformFormat` → `checks/terraformformat.yml`). It must:
 
 - Start with a short comment block describing the public interface: check name, purpose, and every setting with type and default.
-- Accept `WorkingDirectory` (supplied by the build job, not the consumer), plus the common settings `Name` (string, default `''`) and `TreatAsWarnings` (boolean, default `false`), plus its own settings with sensible defaults so `- Check: <Name>` alone is valid.
+- Accept `WorkingDirectory` (supplied by the build job, not the consumer), plus the common settings `Name` (string, default `''`) and `TreatAsWarnings` (boolean, default `false`), plus its own settings. Give every setting a sensible default where one exists; only settings that just the consumer can supply (such as a service connection) may be required, and must be listed as required on the check's page.
 - Use `Name` to keep step names unique and map `TreatAsWarnings` to the step's native `continueOnError`.
 - Have a `*.CompileTests.ps1` next to it.
 
@@ -112,6 +112,8 @@ steps:
 - Do not assume a specific agent image — consumers choose their pool.
 
 **Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension.
+
+**Exception — opt-in checks:** a build check in `checks/` may use a licensed or internal extension (for example `SnykIac` uses the UKHO Snyk extension), because only consumers who list that check need it. The check's user page must list the extension and any licence or service connection under **Prerequisites**, and no other template may depend on it.
 
 This repository runs Terraform commands through `cmdline`/`script` steps, but installing the CLI still requires the free Microsoft DevLabs Terraform extension that supplies `TerraformInstaller@1`. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
 

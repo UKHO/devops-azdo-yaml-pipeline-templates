@@ -229,6 +229,44 @@ $validTestCases = @(
     ExpectedYaml = @(
       'name: TerraformTask_fmt_Root*name: TerraformTask_fmt_All'
     )
+  },
+  @{
+    Description = "Checks with SnykIac scans the Terraform working directory after validate"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*task: UkhoSnykScanTask@0*RemoveTerraformDirectory',
+      'testType: iac',
+      'testDirectory: $(TerraformWorkingDirectory)',
+      'reportFileName: snyk-iac'
+    )
+  },
+  @{
+    Description = "Checks with SnykIac listed twice with different Names"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   Name: All
+   ServiceConnection: Snyk
+   Organization: my-team
+ - Check: SnykIac
+   Name: HighOnly
+   ServiceConnection: Snyk
+   Organization: my-team
+   SeverityThreshold: high
+   TreatAsWarnings: true
+"@
+    }
+    ExpectedYaml = @(
+      'name: SnykScanTask_iac_All*name: SnykScanTask_iac_HighOnly',
+      'reportFileName: snyk-iac-HighOnly',
+      'severityThreshold: high'
+    )
   }
 )
 
@@ -261,7 +299,7 @@ $invalidTestCases = @(
  - Check: TFLint
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat."
+    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
   },
   @{
     # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.
@@ -303,6 +341,16 @@ $invalidTestCases = @(
 "@
     }
     ErrorMessage = "WorkingDirectory"
+  },
+  @{
+    Description = "Checks with SnykIac missing its required Organization"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   ServiceConnection: Snyk
+"@
+    }
+    ErrorMessage = "A value for the 'Organization' parameter must be provided."
   }
 )
 

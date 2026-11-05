@@ -71,7 +71,7 @@ If the user has not told you the scope, determine it from the diff (`get_changed
 - **Public vs internal**: only `pipelines/` and `jobs/` are public and versioned, plus the check names and settings in `checks/` (selected through a build job's `Checks` parameter; the files themselves are never referenced directly). Internal folders must not be referenced by consumers or presented as consumer-facing in docs. (`ARCHITECTURE.md`)
 - **Cross-platform scripting**: `pwsh`, not `powershell` or `bash`; PowerShell is preferred, Bash is allowed only for rare Linux file operations PowerShell cannot do, Batch is prohibited; no hardcoded path separators or OS-specific built-ins; no assumed agent image. (`scripts-and-tooling.md`, `design-philosophy.md`)
 - **Paths** are based on standard Azure DevOps variables such as `$(Pipeline.Workspace)`. (`scripts-and-tooling.md`)
-- **Open-source / built-in tasks only**: nothing that forces consumers to install a paid Marketplace extension. (`design-philosophy.md` → Cross-Platform and Open-Source by Default)
+- **Open-source / built-in tasks only**: nothing that forces consumers to install a paid Marketplace extension. The only exception is an opt-in check in `checks/` that lists the extension under Prerequisites on its page. (`design-philosophy.md` → Cross-Platform and Open-Source by Default)
 - **No hardcoded secrets**: use Key Vault (`tasks/azure_key_vault.yml`) or variable groups, and mark secret variables `isSecret`. (`template-conventions.md` → Security)
 - **`readonly: true`** on every template-internal variable so consumers cannot override it. (`template-conventions.md` → Protecting Template-Internal Variables)
 - **No double-wrapping**: do not wrap a template just to preset defaults. Allowed exceptions are cross-level orchestration, combining unrelated templates, and enforcing extra validation. (`double-wrapping.md`)
@@ -122,7 +122,7 @@ Source: `ARCHITECTURE.md` → Documentation Location by Folder, and `update-docu
 Source: `ARCHITECTURE.md`, `versioning-policy.md` → Build Checks, `azure-devops-pipelines.instructions.md` → Build Checks, `update-documentation.instructions.md` section 2b.
 
 - [ ] File is named after the check in lowercase (`TerraformFormat` → `checks/terraformformat.yml`) and has a short interface comment block listing every setting with type and default.
-- [ ] Accepts `WorkingDirectory`, `Name` (default `''`) and `TreatAsWarnings` (default `false`); every check-specific setting has a sensible default so `- Check: <Name>` alone is valid.
+- [ ] Accepts `WorkingDirectory`, `Name` (default `''`) and `TreatAsWarnings` (default `false`); every check-specific setting has a sensible default unless only the consumer can supply it (such as a service connection), in which case it is required and documented as such.
 - [ ] `Name` keeps step names unique; `TreatAsWarnings` maps to the step's `continueOnError`.
 - [ ] The check is added to the supported list in the build job's schema **only**; the list is not duplicated in the job.
 - [ ] Has a `*.CompileTests.ps1` next to it, the schema's tests cover the new name, and there is an end-to-end `*_test.yml` under `tests/jobs/<build_job>/` that finishes green.
