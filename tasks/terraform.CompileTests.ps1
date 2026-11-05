@@ -213,6 +213,31 @@ $validTestCases = @(
     )
   },
   @{
+    Description = "command with ContinueOnError"
+    Parameters = @{
+      Command = "custom"
+      CustomCommand = "fmt"
+      CommandOptions = "-check -diff"
+      ContinueOnError = $true
+    }
+    ExpectedYaml = @(
+      'terraform fmt -check -diff'
+      'continueOnError: true'
+    )
+  },
+  @{
+    Description = "command with ContinueOnError and ServiceConnection"
+    Parameters = @{
+      Command = "plan"
+      ServiceConnection = "MyAzureConnection"
+      ContinueOnError = $true
+    }
+    ExpectedYaml = @(
+      'task: AzureCLI@2'
+      'continueOnError: true'
+    )
+  },
+  @{
     Description = "WorkingDirectory is applied to the task"
     Parameters = @{
       Command = "init"
