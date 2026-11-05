@@ -23,7 +23,7 @@ pr:
 # Expected result: the run is "partially succeeded".
 #
 # Note: confirm how "partially succeeded" is reported to the GitHub Status Check before relying on this
-# pipeline as a required check (see designs/build-checks.md).
+# pipeline as a required check.
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:

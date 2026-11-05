@@ -23,6 +23,14 @@ Complete end-to-end pipeline templates for specific use cases.
 | **[Terraform Destroy Job](./jobs/terraform_destroy.md)**                   | Handles individual Terraform destroy steps (plan-destroy or destroy) using packaged Terraform artifacts            |
 | **[Terraform Gated Destroy Job](./jobs/terraform_gated_destroy.md)**       | Orchestrates complete Terraform destroy workflow (plan-destroy → verify → destroy) with destroy run modes          |
 
+### Available Checks
+
+Optional quality checks enabled through a build job's `Checks` parameter. See **[Build Checks](./checks/README.md)** for how they work.
+
+| Check                                              | Purpose                                                  |
+|----------------------------------------------------|----------------------------------------------------------|
+| **[TerraformFormat](./checks/terraformformat.md)** | Fails when Terraform files are not formatted canonically |
+
 ## 📦 Upgrade Guides
 
 Guides for upgrading between versions of this repository.
