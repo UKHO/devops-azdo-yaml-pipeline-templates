@@ -9,7 +9,9 @@ This repository follows [Semantic Versioning 2.0.0](https://semver.org/).
 See [ARCHITECTURE.md](../ARCHITECTURE.md) for the full folder layout, documentation-location
 rules, and invariants. In short: this repository follows a "set-menu with salad bar" approach—
 `pipelines/` is the set-menu (ready-to-use), `jobs/` is the salad bar (modular, combinable
-templates). `tasks/`, `stages/`, and `utils/` are internal building blocks, not for direct
+templates). `checks/` holds optional build checks that consumers select by name through a build
+job's `Checks` parameter; the check names and settings are public and versioned, but the files
+are never referenced directly. `tasks/`, `stages/`, and `utils/` are internal building blocks, not for direct
 external consumption.
 
 ## Key Principles

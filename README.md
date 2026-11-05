@@ -29,6 +29,10 @@ Use these to compose your own workflow.
 | [`jobs/terraform_gated_destroy.yml`](jobs/terraform_gated_destroy.yml)       | Complete destroy workflow (plan-destroy → verify → destroy) with configurable run modes | [Terraform Gated Destroy Job](docs/user-docs/jobs/terraform_gated_destroy.md)       |
 | [`jobs/manual_verification.yml`](jobs/manual_verification.yml)               | Reusable manual approval gate with configurable timeouts and notifications              | [Manual Verification Job](docs/user-docs/jobs/manual_verification.md)               |
 
+### Build checks
+
+Optional quality checks (for example `TerraformFormat`) you switch on through a build job's `Checks` parameter. Check names and their settings are part of the public surface. See [Build Checks](docs/user-docs/checks/README.md) for the available checks and which build jobs support them.
+
 ## Reference this repository
 
 In your consumer `azure-pipelines.yml`, add this repository as a template resource:
