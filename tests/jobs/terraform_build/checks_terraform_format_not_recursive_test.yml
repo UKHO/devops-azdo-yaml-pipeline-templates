@@ -1,0 +1,31 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+# TerraformFormat check with Recursive: false. The root of the fixture folder is formatted, but
+# modules/child is not, so only checking the root passes. (With the default Recursive: true the same
+# folder fails; that negative case is covered by compile tests, because end-to-end tests must finish green.)
+# Expected result: the build job succeeds.
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformVersion: 1.13.0
+      RelativePathToTerraformFiles: tests/shared_resources/terraform_format/unformatted_subfolder
+      Checks:
+        - Check: TerraformFormat
+          Recursive: false
