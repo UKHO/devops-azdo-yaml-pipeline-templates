@@ -46,6 +46,27 @@ $validTestCases = @(
    Name: Modules
 "@
     }
+  },
+  @{
+    Description = "with a SnykIac entry and its settings"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
+  },
+  @{
+    Description = "with TerraformFormat and SnykIac together (different checks need no Name)"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
   }
 )
 
@@ -101,7 +122,7 @@ $invalidTestCases = @(
  - Check: TFLint
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat."
+    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
   },
   @{
     Description = "with a path-like Check value"

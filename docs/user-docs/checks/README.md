@@ -7,6 +7,7 @@ Checks are optional quality gates that run inside a build job, after the mandato
 | Check                                       | Purpose                                                  | Supported By                                      |
 | ------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------- |
 | **[TerraformFormat](./terraformformat.md)** | Fails when Terraform files are not formatted canonically | [Terraform Build Job](../jobs/terraform_build.md) |
+| **[SnykIac](./snykiac.md)**                 | Scans Terraform for security misconfigurations with Snyk | [Terraform Build Job](../jobs/terraform_build.md) |
 
 Listing a check that the build job does not support, or misspelling a check or setting name, fails the pipeline at compile time with an error message listing the supported checks.
 
@@ -28,7 +29,9 @@ jobs:
         - Check: TerraformFormat
 ```
 
-Each entry names the check with `Check:` and may add any settings that check supports. Settings you leave out use the check's defaults, so `- Check: <Name>` on its own is always valid.
+Each entry names the check with `Check:` and may add any settings that check supports. Settings you leave out use the check's defaults. Most checks need nothing else, so `- Check: <Name>` on its own is enough; checks that need something only you can provide (such as a service connection) list their required settings on their own page.
+
+Some checks also need something installed or set up first (for example an extension or a service connection). These are listed under **Prerequisites** on the check's page; consumers who don't use the check need none of them.
 
 ### Treating Failures as Warnings
 

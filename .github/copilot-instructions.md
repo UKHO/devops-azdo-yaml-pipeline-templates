@@ -19,7 +19,7 @@ external consumption.
 - **Formatting:** Follow `.editorconfig` (UTF-8, LF line endings, 2-space indent)
 - **Reusability:** Design templates to be modular and consumable by other repositories
 - **Cross-platform:** Templates must run on both Windows and Linux agents. Use `pwsh` for scripting and avoid OS-specific assumptions (path separators, shell built-ins)
-- **Open-source tasks:** Prefer built-in Azure DevOps tasks or open-source equivalents over paid Marketplace extensions, so consumers need not install licensed extensions
+- **Open-source tasks:** Prefer built-in Azure DevOps tasks or open-source equivalents over paid Marketplace extensions, so consumers need not install licensed extensions. The only exception is an opt-in build check in `checks/`, which may need an extension if its page lists it under Prerequisites
 - **Self-documenting parameters:** Use `displayName`, `type`, and sensible defaults on all parameters
 - **No double-wrapping:** Do not wrap a template inside another template unless absolutely necessary — see `docs/developers/explanation/double-wrapping.md`
 - **Security:** Never hardcode secrets — use Azure Key Vault or variable groups. Declare template-internal variables with `readonly: true` so consumers cannot override them — see [Template Conventions](../docs/developers/reference/template-conventions.md#protecting-template-internal-variables).

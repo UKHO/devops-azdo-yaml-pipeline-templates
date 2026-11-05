@@ -23,9 +23,9 @@ steps:
           - ${{ else }}:
               # Discriminator: required, string, supported by this build.
               - ${{ if or(or(not(check.Check), eq(check.Check, '')), or(contains(convertToJson(check.Check), '{'), contains(convertToJson(check.Check), '['))) }}:
-                  - "Invalid Checks: entry is missing required string field 'Check'. Supported: TerraformFormat. See: docs/user-docs/checks/README.md": "Error"
-              - ${{ elseif notIn(check.Check, 'TerraformFormat') }}:
-                  - "Invalid Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat. See: docs/user-docs/checks/README.md": "Error"
+                  - "Invalid Checks: entry is missing required string field 'Check'. Supported: TerraformFormat, SnykIac. See: docs/user-docs/checks/README.md": "Error"
+              - ${{ elseif notIn(check.Check, 'TerraformFormat', 'SnykIac') }}:
+                  - "Invalid Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac. See: docs/user-docs/checks/README.md": "Error"
 
               # Optional Name: non-empty string when provided.
               - ${{ if and(contains(convertToJson(check), '"Name"'), or(eq(check.Name, ''), or(contains(convertToJson(check.Name), '{'), contains(convertToJson(check.Name), '[')))) }}:

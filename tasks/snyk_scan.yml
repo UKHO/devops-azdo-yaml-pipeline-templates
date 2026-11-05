@@ -1,0 +1,119 @@
+# Azure DevOps Task: UkhoSnykScanTask@0
+#
+# Purpose:
+#   Runs a Snyk scan using the UKHO Snyk extension task. Only infrastructure-as-code scans
+#   (TestType 'iac', 'snyk iac test') are supported for now; other test types can be added later.
+#
+# Parameters:
+#   - ServiceConnection (string, required): Name of the Snyk Authentication (SnykAuth) service connection.
+#   - Organization (string, required): Snyk organisation slug or ID.
+#   - WorkingDirectory (string, required): Folder to scan (the scan is recursive from here).
+#   - TestType (string, optional): What to scan. Values: iac. Default: 'iac'
+#   - SeverityThreshold (string, optional): Lowest severity that is reported and fails the scan. Values: low, medium, high, critical. Default: 'low'
+#   - FailOnIssues (boolean, optional): Fail the step when issues are found. When false, scan errors (bad token, no projects found) also pass. Default: true
+#   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
+#   - ReportFileName (string, optional): File name (without extension) for the JSON and HTML reports; empty uses the task's timestamped default. Default: ''
+#   - TaskNameUniqueSlug (string, optional): Unique string to add to the step name if the scan is repeated in a job. Default: ''
+#   - ContinueOnError (boolean, optional): When true, a failure marks the step as SucceededWithIssues (a warning) and the job carries on. Default: false
+#
+# Example Usage:
+#   - template: tasks/snyk_scan.yml
+#     parameters:
+#       ServiceConnection: 'Snyk'
+#       Organization: 'my-team'
+#       WorkingDirectory: '$(Pipeline.Workspace)/infra'
+#
+#   # Only fail on high or critical issues, and report as a warning
+#   - template: tasks/snyk_scan.yml
+#     parameters:
+#       ServiceConnection: 'Snyk'
+#       Organization: 'my-team'
+#       WorkingDirectory: '$(Pipeline.Workspace)/infra'
+#       SeverityThreshold: 'high'
+#       ContinueOnError: true
+#
+# Notes:
+#   - Requires the UKHO 'ukho-azure-pipeline-scan-task' extension in the Azure DevOps organisation.
+#   - The task downloads the Snyk CLI from https://downloads.snyk.io on every run (no proxy support), so
+#     the agent needs outbound internet access to it and to the Snyk API.
+#   - Reports are written to $(Agent.TempDirectory) and added as build attachments, so they never end up
+#     in the scanned folder.
+#   - 'snyk monitor' never runs for iac scans, and results are not uploaded to Snyk unless '--report' is
+#     passed in AdditionalArguments.
+#   - See: snyk-task source (UkhoSnykScanTask) and https://docs.snyk.io/snyk-cli/commands/iac-test
+
+parameters:
+  - name: ServiceConnection
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Snyk Authentication service connection (required)'
+
+  - name: Organization
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Snyk organisation slug or ID (required)'
+
+  - name: WorkingDirectory
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Folder to scan (required)'
+
+  - name: TestType
+    type: string
+    default: 'iac'
+    values:
+      - iac
+    displayName: 'What to scan'
+
+  - name: SeverityThreshold
+    type: string
+    default: 'low'
+    values:
+      - low
+      - medium
+      - high
+      - critical
+    displayName: 'Lowest severity that is reported and fails the scan'
+
+  - name: FailOnIssues
+    type: boolean
+    default: true
+    displayName: 'Fail the step when issues are found'
+
+  - name: AdditionalArguments
+    type: string
+    default: ''
+    displayName: 'Extra Snyk CLI arguments'
+
+  - name: ReportFileName
+    type: string
+    default: ''
+    displayName: 'File name (without extension) for the reports'
+
+  - name: TaskNameUniqueSlug
+    type: string
+    default: ''
+    displayName: 'Unique string to add to the step name if the scan is repeated'
+
+  - name: ContinueOnError
+    type: boolean
+    default: false
+    displayName: 'Mark a failure as SucceededWithIssues (warning) and let the job carry on'
+
+steps:
+  - task: UkhoSnykScanTask@0
+    displayName: "Snyk ${{ parameters.TestType }} scan${{ iif(ne(parameters.TaskNameUniqueSlug, ''), format(' ({0})', parameters.TaskNameUniqueSlug), '') }}"
+    name: SnykScanTask_${{ parameters.TestType }}${{ iif(ne(parameters.TaskNameUniqueSlug, ''), format('_{0}', parameters.TaskNameUniqueSlug), '') }}
+    inputs:
+      serviceConnectionEndpoint: ${{ parameters.ServiceConnection }}
+      testType: ${{ parameters.TestType }}
+      organization: ${{ parameters.Organization }}
+      testDirectory: ${{ parameters.WorkingDirectory }}
+      severityThreshold: ${{ parameters.SeverityThreshold }}
+      failOnIssues: ${{ parameters.FailOnIssues }}
+      ${{ if ne(parameters.AdditionalArguments, '') }}:
+        additionalArguments: ${{ parameters.AdditionalArguments }}
+      ${{ if ne(parameters.ReportFileName, '') }}:
+        reportFileName: ${{ parameters.ReportFileName }}
+    ${{ if parameters.ContinueOnError }}:
+      continueOnError: true
