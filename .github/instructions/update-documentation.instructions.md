@@ -142,6 +142,33 @@ file and add an entry to `docs/user-docs/README.md`.
 Stage templates follow the same rule as jobs: no comprehensive in-file block; document consumer-facing
 behaviour in `docs/user-docs/` where the stage is complex enough to warrant it.
 
+### 2b. Build Check Templates (`checks/`)
+
+**Documentation location:** a short in-file comment block describing the check's public
+interface (name and settings), **plus** one user-facing page per check at
+`docs/user-docs/checks/<lowercase-check-name>.md`.
+
+**Check page format:** H1 `# <CheckName> Check` and a one-line description, then a `yaml` block
+starting `Checks:` / `  - Check: <CheckName>` with every other setting commented out at its
+default and an inline comment giving its type (`(string)`, `(boolean)`), then `**Supported by:**`
+links to each build job doc, `## Examples` with `**Live example**:` links, and `## See Also`.
+
+**When a check is added:**
+
+- Create `docs/user-docs/checks/<name>.md`
+- Add a row to the Available Checks table in `docs/user-docs/checks/README.md` and in
+  `docs/user-docs/README.md`
+- In each supporting build job doc (e.g. `docs/user-docs/jobs/terraform_build.md`), add
+  `#   - Check: <CheckName>` to the commented `Checks:` block (names only — no settings) and a
+  bullet under `## Supported Checks`
+
+**When a check's settings change:** update its in-file comment block and its check page. Job
+docs list check names only, so they do not need changing.
+
+**When support for a check is added to another build job:** update the check page's
+`**Supported by:**` line, the Supported By column in `docs/user-docs/checks/README.md`, and the
+new job's doc.
+
 ### 3. Schema Templates (`schemas/`)
 
 **Documentation location:** Both the in-file comment block **and** external markdown files in
@@ -201,6 +228,8 @@ Changes can cascade across documentation. Be aware of these relationships:
 | Schema validation rule | Schema comment block + `docs/definition_docs/` markdown |
 | Schema validation rule | `docs/user-docs/` markdown (if it affects pipeline usage) |
 | New pipeline or job template | `docs/user-docs/README.md` (add entry) |
+| New check | `docs/user-docs/checks/<name>.md`, both Available Checks tables, supporting job docs |
+| Check setting | Check in-file comment block + `docs/user-docs/checks/<name>.md` |
 | Breaking change (any) | `CHANGELOG.md` |
 
 ## CHANGELOG.md Updates
@@ -265,3 +294,4 @@ Before considering documentation complete:
 - [ ] `CHANGELOG.md` is updated for significant changes
 - [ ] Links between documentation files are valid
 - [ ] `docs/user-docs/README.md` lists all pipeline and job templates
+- [ ] Every check in `checks/` has a page in `docs/user-docs/checks/`, appears in both Available Checks tables, and is linked from each supporting build job doc

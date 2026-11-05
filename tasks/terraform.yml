@@ -10,6 +10,7 @@
 #   - Condition (string, optional): Evaluate this condition expression to determine whether to run this task. Default: succeeded()
 #   - WorkingDirectory (string, optional): Directory containing Terraform configuration files. Default: $(Pipeline.Workspace)
 #   - RetryCountOnTaskFailure (number, optional): Number of times to retry the task on failure. Default: 0
+#   - ContinueOnError (boolean, optional): When true, a failure marks the step as SucceededWithIssues (a warning) and the job carries on. Default: false
 #   - Command (string, required): The Terraform command to execute. Values: init, validate, plan, apply, output, custom.
 #   - CommandOptions (string, optional): Extra arguments for the Terraform command. Default: ''
 #   - CustomCommand (string, optional): Custom Terraform CLI command (when Command is custom). Default: ''
@@ -85,6 +86,11 @@ parameters:
     default: 0
     displayName: 'Number of times to retry the task on failure'
 
+  - name: ContinueOnError
+    type: boolean
+    default: false
+    displayName: 'Mark a failure as SucceededWithIssues (warning) and let the job carry on'
+
   - name: Command
     type: string
     # NO default - Consumer must provide this
@@ -145,6 +151,8 @@ steps:
           condition: ${{ parameters.Condition }}
         ${{ if gt(parameters.RetryCountOnTaskFailure, 0) }}:
           retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
+        ${{ if parameters.ContinueOnError }}:
+          continueOnError: true
 
   - ${{ else }}:
       - task: AzureCLI@2
@@ -163,3 +171,5 @@ steps:
           condition: ${{ parameters.Condition }}
         ${{ if gt(parameters.RetryCountOnTaskFailure, 0) }}:
           retryCountOnTaskFailure: ${{ parameters.RetryCountOnTaskFailure }}
+        ${{ if parameters.ContinueOnError }}:
+          continueOnError: true

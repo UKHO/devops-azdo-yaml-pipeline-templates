@@ -1,0 +1,75 @@
+# Check: TerraformFormat
+#
+# Purpose:
+#   Fails the build when any Terraform file isn't formatted the way 'terraform fmt' would format it.
+#   Runs 'terraform fmt -check -diff' (plus '-recursive' by default), so the log shows exactly which
+#   files need formatting and what would change.
+#
+# Public interface (SemVer):
+#   The check name 'TerraformFormat' and the consumer-facing parameters below (Name, TreatAsWarnings,
+#   Recursive) are public, because consumers set them through the Checks parameter. The steps in this
+#   file are internal and can change, as long as the behaviour stays the same.
+#
+# Consumer usage (through a build job's Checks parameter):
+#   Checks:
+#     - Check: TerraformFormat
+#     - Check: TerraformFormat
+#       Name: Modules
+#       Recursive: false
+#       TreatAsWarnings: true
+#
+# Parameters:
+#   Supplied by the calling job (consumers never set this):
+#   - WorkingDirectory (string, required): Folder containing the Terraform files.
+#   Common check contract:
+#   - Name (string, optional): Label for this entry. Required (and unique) when the check is listed more
+#     than once. Letters, digits and underscores only, because it becomes part of the step name. Default: ''
+#   - TreatAsWarnings (boolean, optional): Report unformatted files as a warning (SucceededWithIssues)
+#     instead of failing the job. Default: false
+#   TerraformFormat settings:
+#   - Recursive (boolean, optional): Also check Terraform files in subfolders. Default: true
+#
+# Notes:
+#   - Terraform must already be installed (the build job's Prepare phase does this).
+#   - Runs through /tasks/terraform.yml. TreatAsWarnings uses the step's native continueOnError, so a
+#     failure shows as a warning and the job finishes as SucceededWithIssues.
+
+parameters:
+  # Supplied by the calling job
+  - name: WorkingDirectory
+    type: string
+    # NO default - the calling job must provide this
+    displayName: 'Folder containing the Terraform files (supplied by the job)'
+
+  # Common check contract
+  - name: Name
+    type: string
+    default: ''
+    displayName: 'Label for this check entry (letters, digits and underscores)'
+
+  - name: TreatAsWarnings
+    type: boolean
+    default: false
+    displayName: 'Report unformatted files as a warning instead of failing the job'
+
+  # TerraformFormat settings
+  - name: Recursive
+    type: boolean
+    default: true
+    displayName: 'Also check Terraform files in subfolders'
+
+steps:
+  # 1. Validate settings: the parameter types cover everything. Azure DevOps itself rejects a missing or
+  #    empty WorkingDirectory, misspelled settings, and non-boolean values.
+
+  # 2. Ensure the tool exists: Terraform is already installed by the build job's Prepare phase.
+
+  # 3. Run the check
+  - template: /tasks/terraform.yml
+    parameters:
+      Command: custom
+      CustomCommand: fmt
+      CommandOptions: -check -diff${{ iif(parameters.Recursive, ' -recursive', '') }}
+      WorkingDirectory: ${{ parameters.WorkingDirectory }}
+      TaskNameUniqueSlug: ${{ parameters.Name }}
+      ContinueOnError: ${{ parameters.TreatAsWarnings }}

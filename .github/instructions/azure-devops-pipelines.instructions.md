@@ -69,6 +69,17 @@ for the full rules (enum `Values:` notation, required vs. optional `Default:`, c
 These templates should **NOT** have comprehensive in-file documentation blocks — use self-documenting
 parameter names and `displayName`, and document comprehensively in `docs/` instead.
 
+### Build Checks (`checks/`) - Interface Comment Block plus User Doc
+
+Each check is one file named after the check in lowercase (`TerraformFormat` → `checks/terraformformat.yml`). It must:
+
+- Start with a short comment block describing the public interface: check name, purpose, and every setting with type and default.
+- Accept `WorkingDirectory` (supplied by the build job, not the consumer), plus the common settings `Name` (string, default `''`) and `TreatAsWarnings` (boolean, default `false`), plus its own settings with sensible defaults so `- Check: <Name>` alone is valid.
+- Use `Name` to keep step names unique and map `TreatAsWarnings` to the step's native `continueOnError`.
+- Have a `*.CompileTests.ps1` next to it.
+
+The list of checks a build job supports lives **only** in that job's schema (e.g. `schemas/terraform_build.yml`); do not duplicate it in the job. Check names and settings are public API — see [Versioning Policy](../../docs/developers/reference/versioning-policy.md#build-checks). User docs live in `docs/user-docs/checks/`.
+
 ### Schemas (`schemas/`) - Brief Comments Only
 
 Brief in-file comment block only — see [Template Conventions](../../docs/developers/reference/template-conventions.md#schema-template-documentation). Format:
@@ -282,7 +293,7 @@ trigger:
 
 See [Versioning Policy](../../docs/developers/reference/versioning-policy.md) for the full
 SemVer rules and worked breaking/non-breaking examples. In short: a breaking change to a
-`pipelines/`/`jobs/` template requires a major version bump, a `CHANGELOG.md` entry (see
+`pipelines/`/`jobs/` template, or to a check name or setting in `checks/`, requires a major version bump, a `CHANGELOG.md` entry (see
 [Update the Changelog](../../docs/developers/how-to/update-the-changelog.md)), migration
 steps, and inline comments in the affected template files.
 

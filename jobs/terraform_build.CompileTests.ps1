@@ -9,6 +9,7 @@
 # - Repository checkout paths and working directories
 # - Build injection steps (custom pre-build steps)
 # - Additional files packaging (copying extra resources into artifact)
+# - Checks (TerraformFormat): order, settings pass-through, duplicates and rejected input
 # - Combined scenarios with multiple parameters
 #
 # NOTE: Job templates that reference other templates (tasks, jobs, steps) may experience
@@ -186,6 +187,48 @@ $validTestCases = @(
     ExpectedYaml = @(
       'pool:*name: Custom-Agent-Pool'
     )
+  },
+  @{
+    Description = "Checks with TerraformFormat runs after validate and before packaging"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*name: TerraformTask_fmt*RemoveTerraformDirectory',
+      'terraform fmt -check -diff -recursive'
+    )
+  },
+  @{
+    Description = "Checks settings are passed through to the check"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name: Modules
+   Recursive: false
+   TreatAsWarnings: true
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_fmt_Modules',
+      'continueOnError: true'
+    )
+  },
+  @{
+    Description = "Checks with TerraformFormat listed twice with different Names"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name: Root
+   Recursive: false
+ - Check: TerraformFormat
+   Name: All
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_fmt_Root*name: TerraformTask_fmt_All'
+    )
   }
 )
 
@@ -210,6 +253,56 @@ $invalidTestCases = @(
       TerraformBuildInjectionSteps = "junk"
     }
     ErrorMessage = "The 'TerraformBuildInjectionSteps' parameter is not a valid StepList."
+  },
+  @{
+    Description = "Checks with an unsupported check"
+    Parameters = @{
+      Checks = @"
+ - Check: TFLint
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat."
+  },
+  @{
+    # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.
+    Description = "Checks with a path-like check name"
+    Parameters = @{
+      Checks = @"
+ - Check: ../tasks/terraform
+"@
+    }
+    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build."
+  },
+  @{
+    Description = "Checks with a misspelled TerraformFormat setting"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Recursiv: false
+"@
+    }
+    ErrorMessage = "Recursiv"
+  },
+  @{
+    Description = "Checks with TerraformFormat listed twice without Names"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+ - Check: TerraformFormat
+   Recursive: false
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'."
+  },
+  @{
+    Description = "Checks that try to override the job-supplied WorkingDirectory"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   WorkingDirectory: somewhere/else
+"@
+    }
+    ErrorMessage = "WorkingDirectory"
   }
 )
 
