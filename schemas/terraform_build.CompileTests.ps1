@@ -59,6 +59,27 @@ $validTestCases = @(
    Name: Root_All
 "@
     }
+  },
+  @{
+    Description = "with a SnykIac entry and its settings"
+    Parameters = @{
+      Checks = @"
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
+  },
+  @{
+    Description = "with TerraformFormat and SnykIac together (different checks need no Name)"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+ - Check: SnykIac
+   ServiceConnection: Snyk
+   Organization: my-team
+"@
+    }
   }
 )
 
@@ -86,7 +107,7 @@ $invalidTestCases = @(
  - Name: Modules
 "@
     }
-    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with an empty Check field"
@@ -95,7 +116,7 @@ $invalidTestCases = @(
  - Check: ''
 "@
     }
-    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with a Check field that is a list"
@@ -105,7 +126,7 @@ $invalidTestCases = @(
      - TerraformFormat
 "@
     }
-    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with a Check field that is an object"
@@ -115,7 +136,7 @@ $invalidTestCases = @(
      Name: TerraformFormat
 "@
     }
-    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with an unsupported check"
@@ -124,7 +145,7 @@ $invalidTestCases = @(
  - Check: TFLint
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with a path-like Check value"
@@ -133,7 +154,7 @@ $invalidTestCases = @(
  - Check: ../tasks/terraform
 "@
     }
-    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build. Supported: TerraformFormat. $seeDocs"
+    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac. $seeDocs"
   },
   @{
     Description = "with an empty Name"

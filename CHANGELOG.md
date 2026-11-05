@@ -8,6 +8,7 @@ All notable changes to this repository are documented in this file.
 
 - Added an optional `Checks` list to `terraform_build`, so you can switch on extra quality checks that run after `terraform validate` and before the artifact is packaged. Each entry is `- Check: <Name>` plus any settings for that check; every check accepts `Name` (needed when the same check is listed more than once) and `TreatAsWarnings` (report problems as warnings instead of failing the build). Unsupported or misspelt checks are rejected when the pipeline is queued. Defaults to an empty list, so existing builds are unchanged.
 - Added the `TerraformFormat` check, which fails the build when Terraform files are not formatted canonically (`terraform fmt -check`). Set `Recursive: false` to check only the top-level folder.
+- Added the `SnykIac` check, which scans the build's Terraform for security misconfigurations with Snyk and fails on issues at or above `SeverityThreshold` (default `low`). It needs the UKHO Snyk extension and a Snyk Authentication service connection; `ServiceConnection` and `Organization` are required.
 - Added Build Checks user documentation, with a page per check.
 
 ## 0.4.0 - 2026-10-23

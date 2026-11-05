@@ -26,6 +26,7 @@ jobs:
 
       # Checks:                                      # (list) Quality checks run after terraform validate, before packaging. Defaults to an empty list. Each check has its own settings - see Supported Checks below. Example:
       #   - Check: TerraformFormat
+      #   - Check: SnykIac
 ```
 
 ---
@@ -35,6 +36,7 @@ jobs:
 The `Checks` parameter accepts the following checks. See [Build Checks](../checks/README.md) for how checks run and the settings every check shares.
 
 - [TerraformFormat](../checks/terraformformat.md) – Fails when Terraform files are not formatted canonically (`terraform fmt -check`).
+- [SnykIac](../checks/snykiac.md) – Scans Terraform for security misconfigurations with Snyk (needs the UKHO Snyk extension and a Snyk service connection).
 
 ---
 

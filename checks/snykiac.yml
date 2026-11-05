@@ -1,0 +1,116 @@
+# Check: SnykIac
+#
+# Purpose:
+#   Scans the build's Terraform for security misconfigurations with Snyk ('snyk iac test'), using the
+#   UKHO Snyk extension task. Fails the build when issues at or above SeverityThreshold are found.
+#
+# Public interface (SemVer):
+#   The check name 'SnykIac' and the consumer-facing parameters below (Name, TreatAsWarnings,
+#   ServiceConnection, Organization, SeverityThreshold, FailOnIssues, AdditionalArguments) are public,
+#   because consumers set them through the Checks parameter. What is passed through AdditionalArguments
+#   is not covered. The steps in this file are internal and can change, as long as the behaviour stays the same.
+#
+# Consumer usage (through a build job's Checks parameter):
+#   Checks:
+#     - Check: SnykIac
+#       ServiceConnection: Snyk
+#       Organization: my-team
+#     - Check: SnykIac
+#       Name: HighOnly
+#       ServiceConnection: Snyk
+#       Organization: my-team
+#       SeverityThreshold: high
+#       TreatAsWarnings: true
+#
+# Parameters:
+#   Supplied by the calling job (consumers never set this):
+#   - WorkingDirectory (string, required): Folder containing the Terraform files.
+#   Common check contract:
+#   - Name (string, optional): Label for this entry. Required (and unique) when the check is listed more
+#     than once. Letters, digits and underscores only, because it becomes part of the step name. Default: ''
+#   - TreatAsWarnings (boolean, optional): Report issues and scan errors as a warning (SucceededWithIssues)
+#     instead of failing the job. Default: false
+#   SnykIac settings:
+#   - ServiceConnection (string, required): Snyk Authentication service connection name.
+#   - Organization (string, required): Snyk organisation slug or ID.
+#   - SeverityThreshold (string, optional): Lowest severity that fails the check. Values: low, medium, high, critical. Default: 'low'
+#   - FailOnIssues (boolean, optional): When false, the step always succeeds - including when the scan
+#     itself errors (bad token, nothing to scan). Prefer TreatAsWarnings. Default: true
+#   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
+#
+# Notes:
+#   - Prerequisites: the UKHO Snyk extension installed in the organisation, a Snyk Authentication service
+#     connection authorised for the pipeline, and outbound internet access to Snyk from the agent.
+#   - The scan is recursive and runs after 'terraform init', so module source downloaded into .terraform/
+#     is scanned too.
+#   - Reports are attached to the build (not packaged), named 'snyk-iac' or 'snyk-iac-<Name>'.
+#   - TreatAsWarnings uses the step's native continueOnError.
+
+parameters:
+  # Supplied by the calling job
+  - name: WorkingDirectory
+    type: string
+    # NO default - the calling job must provide this
+    displayName: 'Folder containing the Terraform files (supplied by the job)'
+
+  # Common check contract
+  - name: Name
+    type: string
+    default: ''
+    displayName: 'Label for this check entry (letters, digits and underscores)'
+
+  - name: TreatAsWarnings
+    type: boolean
+    default: false
+    displayName: 'Report issues as a warning instead of failing the job'
+
+  # SnykIac settings
+  - name: ServiceConnection
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Snyk Authentication service connection (required)'
+
+  - name: Organization
+    type: string
+    # NO default - Consumer must provide this
+    displayName: 'Snyk organisation slug or ID (required)'
+
+  - name: SeverityThreshold
+    type: string
+    default: 'low'
+    values:
+      - low
+      - medium
+      - high
+      - critical
+    displayName: 'Lowest severity that fails the check'
+
+  - name: FailOnIssues
+    type: boolean
+    default: true
+    displayName: 'Fail the check when issues are found'
+
+  - name: AdditionalArguments
+    type: string
+    default: ''
+    displayName: 'Extra Snyk CLI arguments'
+
+steps:
+  # 1. Validate settings: the parameter types cover everything. Azure DevOps itself rejects missing or
+  #    empty required settings, misspelled settings, unknown SeverityThreshold values and non-booleans.
+
+  # 2. Ensure the tool exists: the Snyk task downloads the Snyk CLI itself.
+
+  # 3. Run the check
+  - template: /tasks/snyk_scan.yml
+    parameters:
+      ServiceConnection: ${{ parameters.ServiceConnection }}
+      Organization: ${{ parameters.Organization }}
+      WorkingDirectory: ${{ parameters.WorkingDirectory }}
+      TestType: iac
+      SeverityThreshold: ${{ parameters.SeverityThreshold }}
+      FailOnIssues: ${{ parameters.FailOnIssues }}
+      AdditionalArguments: ${{ parameters.AdditionalArguments }}
+      ReportFileName: snyk-iac${{ iif(ne(parameters.Name, ''), format('-{0}', parameters.Name), '') }}
+      TaskNameUniqueSlug: ${{ parameters.Name }}
+      ContinueOnError: ${{ parameters.TreatAsWarnings }}
