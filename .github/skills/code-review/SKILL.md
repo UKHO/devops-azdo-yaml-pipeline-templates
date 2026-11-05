@@ -52,7 +52,7 @@ If the user has not told you the scope, determine it from the diff (`get_changed
 
 ## How to run a review
 
-1. **Scope the change.** Get the list of changed files (staged and unstaged, or the PR's files). Group them by area: `pipelines/`, `jobs/`, `stages/`, `tasks/`, `utils/`, `schemas/`, `scripts/`, `tools/`, `tests/`, `docs/`, `.github/`, `cicd/`, and root files (`README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`).
+1. **Scope the change.** Get the list of changed files (staged and unstaged, or the PR's files). Group them by area: `pipelines/`, `jobs/`, `stages/`, `checks/`, `tasks/`, `utils/`, `schemas/`, `scripts/`, `tools/`, `tests/`, `docs/`, `.github/`, `cicd/`, and root files (`README.md`, `CHANGELOG.md`, `ARCHITECTURE.md`, `CONTRIBUTING.md`).
 2. **Read each changed file in full**, plus anything it depends on for context (the template a test exercises, the schema a job includes, the doc a template mirrors).
 3. **Apply the checklist for each area.** Each folder has a different documentation and testing contract (see `ARCHITECTURE.md` → Documentation Location by Folder). Do not apply job rules to a task, or the reverse.
 4. **Verify the sibling files.** A single logical change usually touches a template _and_ its docs _and_ its tests _and_ `CHANGELOG.md`. A missing sibling is the most common and most important finding.
@@ -68,7 +68,7 @@ If the user has not told you the scope, determine it from the diff (`get_changed
 - **Azure DevOps YAML limits**: no anchors/aliases, merge keys, custom tags, or multi-document `---`. (`yaml-standards.md`)
 - **Template filenames** are `lowercase_snakecase`, with no type in the name (`template.yml`, not `job_template.yml`); list templates use a suffix such as `_job_list`. (`yaml-standards.md`)
 - **Placement**: runtime scripts that ship to consumers go in `scripts/`; scripts for maintaining this repo go in `tools/`; templates go in the folder matching their level; no new top-level folders without team discussion. (`ARCHITECTURE.md` → Placement Rules)
-- **Public vs internal**: only `pipelines/` and `jobs/` are public and versioned. Internal folders must not be referenced by consumers or presented as consumer-facing in docs. (`ARCHITECTURE.md`)
+- **Public vs internal**: only `pipelines/` and `jobs/` are public and versioned, plus the check names and settings in `checks/` (selected through a build job's `Checks` parameter; the files themselves are never referenced directly). Internal folders must not be referenced by consumers or presented as consumer-facing in docs. (`ARCHITECTURE.md`)
 - **Cross-platform scripting**: `pwsh`, not `powershell` or `bash`; PowerShell is preferred, Bash is allowed only for rare Linux file operations PowerShell cannot do, Batch is prohibited; no hardcoded path separators or OS-specific built-ins; no assumed agent image. (`scripts-and-tooling.md`, `design-philosophy.md`)
 - **Paths** are based on standard Azure DevOps variables such as `$(Pipeline.Workspace)`. (`scripts-and-tooling.md`)
 - **Open-source / built-in tasks only**: nothing that forces consumers to install a paid Marketplace extension. (`design-philosophy.md` → Cross-Platform and Open-Source by Default)
@@ -116,6 +116,18 @@ Source: `ARCHITECTURE.md` → Documentation Location by Folder, and `update-docu
 - [ ] Injection points use the established `*InjectionSteps` pattern (for example `TerraformBuildInjectionSteps`).
 - [ ] Terraform-family jobs expose consistent `TerraformVersion`, `EnvironmentName`, and config-object parameters; check the sibling job for the established shape.
 - [ ] Jobs that check out this repository for their own scripts take a `CheckoutAlias` parameter defaulting to `AzDOPipelineTemplates` (see `jobs/terraform_deploy.yml`), and double-checkout jobs set an explicit `path` as described in `checkout-and-path-behaviour.md`.
+
+### `checks/` — public interface, selected via a build job's `Checks` parameter
+
+Source: `ARCHITECTURE.md`, `versioning-policy.md` → Build Checks, `azure-devops-pipelines.instructions.md` → Build Checks, `update-documentation.instructions.md` section 2b.
+
+- [ ] File is named after the check in lowercase (`TerraformFormat` → `checks/terraformformat.yml`) and has a short interface comment block listing every setting with type and default.
+- [ ] Accepts `WorkingDirectory`, `Name` (default `''`) and `TreatAsWarnings` (default `false`); every check-specific setting has a sensible default so `- Check: <Name>` alone is valid.
+- [ ] `Name` keeps step names unique; `TreatAsWarnings` maps to the step's `continueOnError`.
+- [ ] The check is added to the supported list in the build job's schema **only**; the list is not duplicated in the job.
+- [ ] Has a `*.CompileTests.ps1` next to it, the schema's tests cover the new name, and there is an end-to-end `*_test.yml` under `tests/jobs/<build_job>/` that finishes green.
+- [ ] Has a user page in `docs/user-docs/checks/`, rows in both Available Checks tables, and a name-only entry in each supporting job doc.
+- [ ] Removing or renaming a check or setting, changing a default, or making a check stricter is treated as **breaking**.
 
 ### `schemas/` — brief in-file block, external definition doc
 
@@ -180,6 +192,8 @@ Source: `update-documentation.instructions.md` → Downstream Documentation Effe
 | A `schemas/` rule                      | Schema comment block, `docs/definition_docs/`, and `InvalidTestCases`/`ValidTestCases`; the user doc too if it affects usage |
 | A new `jobs/` or `pipelines/` template | User doc, `docs/user-docs/README.md` entry, root `README.md` catalogue row, and a test fixture                               |
 | A new `tasks/` or `utils/` template    | In-file comment block, plus tests where behaviour warrants it                                                                |
+| A new check in `checks/`               | Supporting job's schema + tests, check compile tests, e2e fixture, `docs/user-docs/checks/` page and tables, job doc entry, CHANGELOG |
+| A check setting                        | Check comment block and `docs/user-docs/checks/<name>.md`                                                                    |
 | A convention or policy                 | The matching `docs/developers/` page and `.github/` instruction file                                                         |
 | Any breaking change                    | `CHANGELOG.md` entry prefixed **BREAKING**, a major bump, a migration guide, and inline comments in the affected template    |
 | Any notable change                     | A `CHANGELOG.md` entry under `## [Unreleased]`                                                                               |
@@ -192,7 +206,7 @@ A missing sibling is a real finding. Treat it as satisfied only if the PR descri
 
 Source: `versioning-policy.md`, `release-a-version.md`, `update-the-changelog.md`.
 
-- The breaking-change boundary is the **public API**: the parameters, outputs, and documented behaviour of `pipelines/` and `jobs/` templates. An internal change that is invisible to consumers is not breaking.
+- The breaking-change boundary is the **public API**: the parameters, outputs, and documented behaviour of `pipelines/` and `jobs/` templates, plus check names and settings in `checks/`. An internal change that is invisible to consumers is not breaking.
 - Treat these as breaking even when they look minor: removing or renaming a parameter, changing a default, renaming a stage, job, or step that consumers reference, rearranging jobs or steps, and upgrading a tool version that has its own breaking changes (for example Terraform). Prefer optional parameters with safe defaults, and deprecate before removing.
 - A breaking change needs a major bump, a `CHANGELOG.md` entry prefixed `**BREAKING**:`, a migration guide, and inline comments in the affected templates.
 - CHANGELOG entries go under `## [Unreleased]` in the right subsection (Added, Changed, Deprecated, Fixed, Removed, Security), in the same PR as the change. They describe user impact in plain language, not file paths or implementation, give replacement guidance for deprecations, and leave out empty subsections.

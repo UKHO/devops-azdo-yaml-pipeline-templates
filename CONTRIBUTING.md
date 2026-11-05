@@ -55,7 +55,7 @@ Before modifying an existing template, review the [Versioning Policy](docs/devel
 - Renaming, removing, or changing parameters, outputs, or defaults is a **breaking change**.
 - Breaking changes require a **major version bump**, a CHANGELOG entry, and a migration guide.
 - Adding optional parameters or new templates is non-breaking.
-- Only `pipelines/` and `jobs/` templates carry these guarantees — see [Architecture](ARCHITECTURE.md#invariants).
+- Only `pipelines/` and `jobs/` templates, plus check names and settings in `checks/`, carry these guarantees — see [Architecture](ARCHITECTURE.md#invariants).
 
 ---
 
