@@ -4,17 +4,12 @@
 # This test verifies the terraform_build job template with different parameter combinations.
 #
 # Tests cover:
-# - Artifact naming and configuration
-# - Terraform version specification and validation
-# - Repository checkout paths and working directories
-# - Build injection steps (custom pre-build steps)
-# - Additional files packaging (copying extra resources into artifact)
-# - Checks (TerraformFormat): order, settings pass-through, duplicates and rejected input
-# - Combined scenarios with multiple parameters
+# - TerraformBuildConfig: artifact name, Terraform version, path, injection steps, additional files
+# - Checks (TerraformFormat, SnykIac): order, settings pass-through, duplicates and rejected input
+# - Deprecated top-level parameters: still work, log a warning, and can't be combined with the config
+# - Job orchestration: Condition, DependsOn, Pool
 #
-# NOTE: Job templates that reference other templates (tasks, jobs, steps) may experience
-# resolution issues during testing. These test cases focus on parameter validation.
-# Full integration testing requires the pipeline to be run in Azure DevOps.
+# Field-level validation of TerraformBuildConfig is covered in schemas/terraform_build_config.CompileTests.ps1.
 
 # Load framework (only if not already loaded)
 if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
@@ -26,34 +21,28 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # ============================================================================
 # DEFINE TEST CASES
 # ============================================================================
-# These test cases validate parameter combinations and their correct passage to the template.
-# Each test case documents a realistic usage scenario.
 
 $validTestCases = @(
+  # --- Defaults ------------------------------------------------------------
   @{
-    Description = "with default parameters (no injection steps, no additional files)"
-    Parameters = @{
-    }
+    Description = "with default parameters"
+    Parameters = @{ }
     ExpectedYaml = @(
       'job: TerraformBuild_TerraformArtifact',
       "displayName:*Build 'TerraformArtifact' Terraform Artifact",
       'artifact:*TerraformArtifact',
-      'inputs:*TerraformVersion:**1.14.0'
-    )
-  },
-  @{
-    Description = "expected terraform commands"
-    Parameters = @{
-    }
-    ExpectedYaml = @(
+      'inputs:*TerraformVersion:**1.14.0',
+      'value: $(RepositoryDirectory)/',
       'terraform init -backend=false',
       'terraform validate'
     )
   },
+
+  # --- TerraformBuildConfig ------------------------------------------------
   @{
-    Description = "with custom artifact name"
+    Description = "TerraformBuildConfig.ArtifactName names the job and artifact"
     Parameters = @{
-      ArtifactName = 'CustomTerraformArtifact'
+      TerraformBuildConfig = "ArtifactName: CustomTerraformArtifact"
     }
     ExpectedYaml = @(
       'job: TerraformBuild_CustomTerraformArtifact',
@@ -62,67 +51,218 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "with custom terraform version"
+    Description = "TerraformBuildConfig.TerraformVersion is passed to the installer"
     Parameters = @{
-      TerraformVersion = '1.15.0'
-    }
-    ExpectedYaml = @(
-      'inputs:*TerraformVersion:**1.15.0'
-    )
-  },
-  @{
-    Description = "with latest terraform version"
-    Parameters = @{
-      TerraformVersion = 'latest'
+      TerraformBuildConfig = "TerraformVersion: latest"
     }
     ExpectedYaml = @(
       'inputs:*TerraformVersion:**latest'
     )
   },
   @{
-    Description = "with relative path to terraform files"
+    Description = "TerraformBuildConfig.RelativePathToTerraformFiles sets the working directory"
     Parameters = @{
-      RelativePathToTerraformFiles = 'terraform/production'
+      TerraformBuildConfig = "RelativePathToTerraformFiles: terraform/production"
     }
     ExpectedYaml = @(
       'value: $(RepositoryDirectory)/terraform/production'
     )
   },
   @{
-    Description = "with custom artifact name and latest terraform"
+    Description = "TerraformBuildConfig.InjectionSteps run before init"
     Parameters = @{
-      ArtifactName = 'LatestTerraformArtifact'
-      TerraformVersion = 'latest'
+      TerraformBuildConfig = @"
+InjectionSteps:
+  - script: echo "Step 1"
+    displayName: Pre-build step 1
+  - script: echo "Step 2"
+    displayName: Pre-build step 2
+"@
     }
     ExpectedYaml = @(
-      'artifact:*LatestTerraformArtifact',
-      'inputs:*TerraformVersion:**latest'
+      'Pre-build step 1*Pre-build step 2*terraform init',
+      'echo "Step 1"'
     )
   },
   @{
-    Description = "with single TerraformBuildInjectionStep"
+    Description = "TerraformBuildConfig.AdditionalFilesToPackage copies each entry"
+    Parameters = @{
+      TerraformBuildConfig = @"
+AdditionalFilesToPackage:
+  - FilesPattern: '**'
+    SourceDirectory: resources/keyvault
+    TargetSubdirectoryName: newresourcedirectoryone
+  - FilesPattern: '**'
+    SourceDirectory: resources/storageaccount
+"@
+    }
+    ExpectedYaml = @(
+      'CopyFiles@2',
+      'resources/keyvault',
+      'newresourcedirectoryone',
+      'resources/storageaccount'
+    )
+  },
+  @{
+    Description = "TerraformBuildConfig with every field logs no deprecation warning"
+    Parameters = @{
+      TerraformBuildConfig = @"
+ArtifactName: Everything
+TerraformVersion: 1.13.0
+RelativePathToTerraformFiles: infra
+AdditionalFilesToPackage:
+  - SourceDirectory: scripts
+    FilesPattern: '**'
+InjectionSteps:
+  - script: echo hi
+Checks:
+  - Check: TerraformFormat
+"@
+    }
+    ExpectedYaml = @(
+      'job: TerraformBuild_Everything',
+      'inputs:*TerraformVersion:**1.13.0',
+      'value: $(RepositoryDirectory)/infra'
+    )
+    UnexpectedYaml = @(
+      'DeprecatedParametersWarning'
+    )
+  },
+
+  # --- Checks --------------------------------------------------------------
+  @{
+    Description = "Checks with TerraformFormat run after validate and before packaging"
+    Parameters = @{
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*name: TerraformTask_fmt*RemoveTerraformDirectory',
+      'terraform fmt -check -diff -recursive'
+    )
+  },
+  @{
+    Description = "Checks settings are passed through to the check"
+    Parameters = @{
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
+    Name: Modules
+    Recursive: false
+    TreatAsWarnings: true
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_fmt_Modules',
+      'continueOnError: true'
+    )
+  },
+  @{
+    Description = "Checks with TerraformFormat listed twice with different Names"
+    Parameters = @{
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
+    Name: Root
+    Recursive: false
+  - Check: TerraformFormat
+    Name: All
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_fmt_Root*name: TerraformTask_fmt_All'
+    )
+  },
+  @{
+    Description = "Checks with SnykIac scans the Terraform working directory after validate"
+    Parameters = @{
+      TerraformBuildConfig = @"
+Checks:
+  - Check: SnykIac
+    ServiceConnection: Snyk
+    Organization: my-team
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*task: UkhoSnykScanTask@0*RemoveTerraformDirectory',
+      'testType: iac',
+      'testDirectory: $(TerraformWorkingDirectory)',
+      'reportFileName: snyk-iac'
+    )
+  },
+  @{
+    Description = "Checks with SnykIac listed twice with different Names"
+    Parameters = @{
+      TerraformBuildConfig = @"
+Checks:
+  - Check: SnykIac
+    Name: All
+    ServiceConnection: Snyk
+    Organization: my-team
+  - Check: SnykIac
+    Name: HighOnly
+    ServiceConnection: Snyk
+    Organization: my-team
+    SeverityThreshold: high
+    TreatAsWarnings: true
+"@
+    }
+    ExpectedYaml = @(
+      'name: SnykScanTask_iac_All*name: SnykScanTask_iac_HighOnly',
+      'reportFileName: snyk-iac-HighOnly',
+      'severityThreshold: high'
+    )
+  },
+
+  # --- Deprecated top-level parameters (backwards compatibility) ----------
+  @{
+    Description = "deprecated ArtifactName still works and logs a warning"
+    Parameters = @{
+      ArtifactName = 'LegacyArtifact'
+    }
+    ExpectedYaml = @(
+      'job: TerraformBuild_LegacyArtifact',
+      'artifact:*LegacyArtifact',
+      "DeprecatedParametersWarning*'ArtifactName' is deprecated. Use 'TerraformBuildConfig.ArtifactName' instead."
+    )
+  },
+  @{
+    Description = "deprecated TerraformVersion still works and logs a warning"
+    Parameters = @{
+      TerraformVersion = '1.15.0'
+    }
+    ExpectedYaml = @(
+      'inputs:*TerraformVersion:**1.15.0',
+      "'TerraformVersion' is deprecated. Use 'TerraformBuildConfig.TerraformVersion' instead."
+    )
+  },
+  @{
+    Description = "deprecated RelativePathToTerraformFiles still works and logs a warning"
+    Parameters = @{
+      RelativePathToTerraformFiles = 'terraform/production'
+    }
+    ExpectedYaml = @(
+      'value: $(RepositoryDirectory)/terraform/production',
+      "'RelativePathToTerraformFiles' is deprecated. Use 'TerraformBuildConfig.RelativePathToTerraformFiles' instead."
+    )
+  },
+  @{
+    Description = "deprecated TerraformBuildInjectionSteps still work and log a warning"
     Parameters = @{
       TerraformBuildInjectionSteps = @"
 - script: echo "Pre-build step"
   displayName: Run pre-build validation
 "@
     }
-    ExpectedYaml = @('CmdLine@2', 'Run pre-build validation', 'echo "Pre-build step"')
+    ExpectedYaml = @(
+      'Run pre-build validation*terraform init',
+      "'TerraformBuildInjectionSteps' is deprecated. Use 'TerraformBuildConfig.InjectionSteps' instead."
+    )
   },
   @{
-    Description = "with multiple TerraformBuildInjectionSteps"
-    Parameters = @{
-      TerraformBuildInjectionSteps = @"
-- script: echo "Step 1"
-  displayName: Pre-build step 1
-- script: echo "Step 2"
-  displayName: Pre-build step 2
-"@
-    }
-    ExpectedYaml = @('CmdLine@2', 'Pre-build step 1', 'Pre-build step 2', 'echo "Step 1"', 'echo "Step 2"')
-  },
-  @{
-    Description = "with single AdditionalFileToPackage"
+    Description = "deprecated AdditionalFilesToPackage still work and log a warning"
     Parameters = @{
       AdditionalFilesToPackage = @"
 - FilesPattern: '**'
@@ -130,37 +270,29 @@ $validTestCases = @(
   TargetSubdirectoryName: keyvault
 "@
     }
-    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'keyvault')
+    ExpectedYaml = @(
+      'CopyFiles@2',
+      'resources/keyvault',
+      "'AdditionalFilesToPackage' is deprecated. Use 'TerraformBuildConfig.AdditionalFilesToPackage' instead."
+    )
   },
   @{
-    Description = "with multiple AdditionalFilesToPackage"
+    Description = "deprecated parameter alongside a different TerraformBuildConfig field"
     Parameters = @{
-      AdditionalFilesToPackage = @"
-- FilesPattern: '**'
-  SourceDirectory: resources/keyvault
-  TargetSubdirectoryName: newresourcedirectoryone
-- FilesPattern: '**'
-  SourceDirectory: resources/storageaccount
-  TargetSubdirectoryName: newresourcedirectorytwo
+      ArtifactName = 'LegacyArtifact'
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
 "@
     }
-    ExpectedYaml = @('CopyFiles@2', 'resources/keyvault', 'resources/storageaccount', 'newresourcedirectoryone', 'newresourcedirectorytwo')
+    ExpectedYaml = @(
+      'job: TerraformBuild_LegacyArtifact',
+      'name: TerraformTask_fmt',
+      "'ArtifactName' is deprecated."
+    )
   },
-  @{
-    Description = "with both TerraformBuildInjectionSteps and AdditionalFilesToPackage"
-    Parameters = @{
-      TerraformBuildInjectionSteps = @"
-- script: echo "Validating configuration"
-  displayName: Validate configuration
-"@
-      AdditionalFilesToPackage = @"
-- FilesPattern: '**'
-  SourceDirectory: scripts
-  TargetSubdirectoryName: terraform_scripts
-"@
-    }
-    ExpectedYaml = @('CmdLine@2', 'Validate configuration', 'CopyFiles@2', 'scripts', 'terraform_scripts')
-  },
+
+  # --- Job orchestration ---------------------------------------------------
   @{
     Description = "Condition is applied to the job"
     Parameters = @{
@@ -187,106 +319,43 @@ $validTestCases = @(
     ExpectedYaml = @(
       'pool:*name: Custom-Agent-Pool'
     )
-  },
-  @{
-    Description = "Checks with TerraformFormat runs after validate and before packaging"
-    Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
-"@
-    }
-    ExpectedYaml = @(
-      'name: TerraformTask_validate*name: TerraformTask_fmt*RemoveTerraformDirectory',
-      'terraform fmt -check -diff -recursive'
-    )
-  },
-  @{
-    Description = "Checks settings are passed through to the check"
-    Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
-   Name: Modules
-   Recursive: false
-   TreatAsWarnings: true
-"@
-    }
-    ExpectedYaml = @(
-      'name: TerraformTask_fmt_Modules',
-      'continueOnError: true'
-    )
-  },
-  @{
-    Description = "Checks with TerraformFormat listed twice with different Names"
-    Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
-   Name: Root
-   Recursive: false
- - Check: TerraformFormat
-   Name: All
-"@
-    }
-    ExpectedYaml = @(
-      'name: TerraformTask_fmt_Root*name: TerraformTask_fmt_All'
-    )
-  },
-  @{
-    Description = "Checks with SnykIac scans the Terraform working directory after validate"
-    Parameters = @{
-      Checks = @"
- - Check: SnykIac
-   ServiceConnection: Snyk
-   Organization: my-team
-"@
-    }
-    ExpectedYaml = @(
-      'name: TerraformTask_validate*task: UkhoSnykScanTask@0*RemoveTerraformDirectory',
-      'testType: iac',
-      'testDirectory: $(TerraformWorkingDirectory)',
-      'reportFileName: snyk-iac'
-    )
-  },
-  @{
-    Description = "Checks with SnykIac listed twice with different Names"
-    Parameters = @{
-      Checks = @"
- - Check: SnykIac
-   Name: All
-   ServiceConnection: Snyk
-   Organization: my-team
- - Check: SnykIac
-   Name: HighOnly
-   ServiceConnection: Snyk
-   Organization: my-team
-   SeverityThreshold: high
-   TreatAsWarnings: true
-"@
-    }
-    ExpectedYaml = @(
-      'name: SnykScanTask_iac_All*name: SnykScanTask_iac_HighOnly',
-      'reportFileName: snyk-iac-HighOnly',
-      'severityThreshold: high'
-    )
   }
 )
 
 $invalidTestCases = @(
   @{
-    Description = "with invalid terraform version format"
+    Description = "with an invalid TerraformBuildConfig.TerraformVersion"
     Parameters = @{
-      TerraformVersion = '1.0.x'
+      TerraformBuildConfig = "TerraformVersion: 1.0.x"
     }
-    ErrorMessage = "terraform_installer' task error: TerraformVersion is not properly defined. Must either be 'latest' or an exact numeric semantic version 'x.y.z' (digits only). Wildcards, comparators, and other non-semver formats are not allowed."
+    ErrorMessage = "terraform_installer' task error: TerraformVersion is not properly defined."
   },
   @{
-    Description = "with invalid AdditionalFilesToPackage parameter"
+    Description = "with an unknown TerraformBuildConfig field"
     Parameters = @{
-      AdditionalFilesToPackage = "junk"
+      TerraformBuildConfig = "Checkz: []"
     }
-    ErrorMessage = "Expected a sequence or mapping. Actual value 'junk'"
+    ErrorMessage = "Invalid TerraformBuildConfig: unknown field 'Checkz'."
   },
   @{
-    Description = "with invalid TerraformBuildInjectionSteps parameter"
+    Description = "with the top-level Checks parameter (only supported inside TerraformBuildConfig)"
+    Parameters = @{
+      Checks = @"
+- Check: TerraformFormat
+"@
+    }
+    ErrorMessage = "Checks"
+  },
+  @{
+    Description = "with a field set both in TerraformBuildConfig and as a deprecated parameter"
+    Parameters = @{
+      RelativePathToTerraformFiles = 'old'
+      TerraformBuildConfig = "RelativePathToTerraformFiles: new"
+    }
+    ErrorMessage = "use either 'RelativePathToTerraformFiles' (deprecated) or 'TerraformBuildConfig.RelativePathToTerraformFiles', not both."
+  },
+  @{
+    Description = "with an invalid deprecated TerraformBuildInjectionSteps parameter"
     Parameters = @{
       TerraformBuildInjectionSteps = "junk"
     }
@@ -295,49 +364,42 @@ $invalidTestCases = @(
   @{
     Description = "Checks with an unsupported check"
     Parameters = @{
-      Checks = @"
- - Check: TFLint
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TFLint
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
+    ErrorMessage = "Invalid TerraformBuildConfig.Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
   },
   @{
     # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.
     Description = "Checks with a path-like check name"
     Parameters = @{
-      Checks = @"
- - Check: ../tasks/terraform
+      TerraformBuildConfig = @"
+Checks:
+  - Check: ../tasks/terraform
 "@
     }
-    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build."
+    ErrorMessage = "Invalid TerraformBuildConfig.Checks: '../tasks/terraform' is not a supported check for terraform_build."
   },
   @{
     Description = "Checks with a misspelled TerraformFormat setting"
     Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
-   Recursiv: false
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
+    Recursiv: false
 "@
     }
     ErrorMessage = "Recursiv"
   },
   @{
-    Description = "Checks with TerraformFormat listed twice without Names"
-    Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
- - Check: TerraformFormat
-   Recursive: false
-"@
-    }
-    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'."
-  },
-  @{
     Description = "Checks that try to override the job-supplied WorkingDirectory"
     Parameters = @{
-      Checks = @"
- - Check: TerraformFormat
-   WorkingDirectory: somewhere/else
+      TerraformBuildConfig = @"
+Checks:
+  - Check: TerraformFormat
+    WorkingDirectory: somewhere/else
 "@
     }
     ErrorMessage = "WorkingDirectory"
@@ -345,9 +407,10 @@ $invalidTestCases = @(
   @{
     Description = "Checks with SnykIac missing its required Organization"
     Parameters = @{
-      Checks = @"
- - Check: SnykIac
-   ServiceConnection: Snyk
+      TerraformBuildConfig = @"
+Checks:
+  - Check: SnykIac
+    ServiceConnection: Snyk
 "@
     }
     ErrorMessage = "A value for the 'Organization' parameter must be provided."

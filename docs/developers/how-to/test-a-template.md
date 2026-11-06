@@ -108,7 +108,7 @@ Run-Tests `
   -InvalidTestCases $invalidTestCases
 ```
 
-Use `ValidTestCases` with `ExpectedYaml` to assert the compiled output, and `InvalidTestCases` with `ErrorMessage` to assert that a schema/guard rejects bad input. See `tests/framework/example_echo_task.CompileTests.ps1` for a complete example.
+Use `ValidTestCases` with `ExpectedYaml` (and optionally `UnexpectedYaml`) to assert the compiled output, and `InvalidTestCases` with `ErrorMessage` to assert that a schema/guard rejects bad input. See `tests/framework/example_echo_task.CompileTests.ps1` for a complete example.
 
 Rules the framework enforces before making any compile call (a file that breaks them fails without running):
 
@@ -121,6 +121,7 @@ How values are matched:
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ErrorMessage` | **Literal**, case-insensitive substring of the Azure DevOps error message. `*`, `?`, `[` and `]` have no special meaning.                                                                                                  |
 | `ExpectedYaml` | **Wildcard** (`-like "*<value>*"`). `*` matches any text, including line breaks, so `'inputs:*TerraformVersion:**1.14.0'` spans lines. `?`, `[` and `]` are also pattern characters: avoid them, or escape them with a backtick. |
+| `UnexpectedYaml` | Optional, valid cases only. The same wildcard matching as `ExpectedYaml`, but the case fails if **any** value is found. Use it to prove something is left out, for example that a warning step is not added. |
 
 ## Pull Request Process
 

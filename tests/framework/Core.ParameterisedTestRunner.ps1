@@ -162,7 +162,8 @@ function script:Get-ValidPassCriteriaFunction
     $hasValidId = $null -ne $result.id -and $result.id -eq -1
     $hasFinalYaml = $null -ne $result.finalYaml
     $expectedYamlFound = $null -eq $testCase.ExpectedYaml -or @($testCase.ExpectedYaml | Where-Object { $result.finalYaml -notlike "*$_*" }).Count -eq 0
-    return ($hasValidId -and $hasFinalYaml -and $expectedYamlFound)
+    $unexpectedYamlAbsent = $null -eq $testCase.UnexpectedYaml -or @($testCase.UnexpectedYaml | Where-Object { $result.finalYaml -like "*$_*" }).Count -eq 0
+    return ($hasValidId -and $hasFinalYaml -and $expectedYamlFound -and $unexpectedYamlAbsent)
   }
 }
 
@@ -180,6 +181,11 @@ function script:Get-ValidErrorMessageFunction
     }
     else
     {
+      $unexpectedFound = @($testCase.UnexpectedYaml | Where-Object { $_ -and $result.finalYaml -like "*$_*" })
+      if ($unexpectedFound.Count -gt 0)
+      {
+        return "Final YAML contained unexpected content:  $( $unexpectedFound -join ", " )`nActual content: $( $result.finalYaml )"
+      }
       return "Final YAML did not contain expected content:  $( $testCase.ExpectedYaml -join ", " )`nActual content: $( $result.finalYaml )"
     }
   }
