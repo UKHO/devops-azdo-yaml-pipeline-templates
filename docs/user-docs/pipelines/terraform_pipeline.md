@@ -27,11 +27,18 @@ extends:
             RunMode: PlanVerifyApply                  # PlanVerifyApply, PlanOnly, or ApplyOnly.
             VerificationMode: VerifyOnDestroy         # Required for PlanVerifyApply: VerifyOnDestroy, VerifyOnAny, or VerifyDisabled.
 
-      # RelativePathToTerraformFiles: ''              # Path to terraform files relative to repo root; empty defaults to repo root.
-      # TerraformVersion: '1.14.0'                    # Exact terraform version, or 'latest'; wildcards like '1.5.x' are not allowed.
-      # AdditionalFilesToPackage:                     # (list) Extra files to bundle into the terraform artifact. Defaults to an empty list.
-      # TerraformBuildInjectionSteps:                 # (stepList) Custom steps run before terraform init/validate. Defaults to an empty list.
+      # TerraformVersion: '1.14.0'                    # (string) Exact terraform version, or 'latest'; wildcards like '1.5.x' are not allowed. Shared by the build and deploy stages.
+
+      # TerraformBuildConfig:                         # (object) What to build - the same object as the Terraform Build Job, except ArtifactName and TerraformVersion. Defaults to an empty object.
+      #   RelativePathToTerraformFiles: ''            # (string) Path to terraform files relative to repo root; empty defaults to repo root.
+      #   AdditionalFilesToPackage:                   # (list) Extra files to bundle into the terraform artifact. Defaults to an empty list.
+      #   InjectionSteps:                             # (list) Custom steps run before terraform init/validate. Defaults to an empty list.
+      #   Checks:                                     # (list) Quality checks run after terraform validate. Defaults to an empty list.
+      #     - Check: TerraformFormat
+      #     - Check: SnykIac
 ```
+
+See the [Terraform Build Job](../jobs/terraform_build.md) for every `TerraformBuildConfig` field and the supported checks. The older top-level `RelativePathToTerraformFiles`, `AdditionalFilesToPackage` and `TerraformBuildInjectionSteps` parameters are deprecated but still work; see the [upgrade guide](../upgrades/0.4.x-to-0.5.0-terraform-build-config.md).
 
 The `EnvironmentConfigs` object is the heart of this pipeline. For its full structure see the [EnvironmentConfig](../../definition_docs/terraform_pipeline/environment_config.md) and [TerraformDeploymentConfig](../../definition_docs/terraform_pipeline/terraform_job_config.md) definition docs, or the [Parameters in Detail](terraform_pipeline_parameters_in_detail.md) guide.
 
@@ -64,8 +71,9 @@ Deploy to dev automatically, then require approval before production (main branc
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
+    TerraformBuildConfig:
+      RelativePathToTerraformFiles: infrastructure/terraform
     EnvironmentConfigs:
       - Name: dev
         Stage:
@@ -110,8 +118,9 @@ extends:
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
+    TerraformBuildConfig:
+      RelativePathToTerraformFiles: infrastructure/terraform
     EnvironmentConfigs:
       - Name: precheck
         Stage:
@@ -131,8 +140,9 @@ extends:
 extends:
   template: pipelines/terraform_pipeline.yml@AzDOPipelineTemplates
   parameters:
-    RelativePathToTerraformFiles: infrastructure/terraform
     TerraformVersion: '1.5.0'
+    TerraformBuildConfig:
+      RelativePathToTerraformFiles: infrastructure/terraform
     EnvironmentConfigs:
       - Name: production
         Stage:

@@ -7,7 +7,7 @@ it does not restate policy. If anything here conflicts with a linked page, the l
 
 A library whose **public API is the reusable templates in `pipelines/` and `jobs/` only**. These are the sole directories external consumers are meant to reference, and they carry SemVer guarantees (see [Versioning Policy](docs/developers/reference/versioning-policy.md)).
 
-`checks/` is a special case: consumers never reference its files, but they select checks by name through a build job's `Checks` parameter, so **check names and their settings are public and versioned** too.
+`checks/` is a special case: consumers never reference its files, but they select checks by name through a build job's `Checks` list, so **check names and their settings are public and versioned** too.
 
 Everything else is **internal** — `tasks/`, `stages/`, `schemas/`, `utils/`, and the supporting PowerShell (`scripts/`, `tools/`) are private building blocks consumed only by the templates in this repo. They are **not** part of the reuse surface, must not be referenced directly by external pipelines, and carry **no** versioning guarantees — they may change at any time.
 

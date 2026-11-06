@@ -78,7 +78,7 @@ Each check is one file named after the check in lowercase (`TerraformFormat` →
 - Use `Name` to keep step names unique and map `TreatAsWarnings` to the step's native `continueOnError`.
 - Have a `*.CompileTests.ps1` next to it.
 
-The list of checks a build job supports lives **only** in that job's schema (e.g. `schemas/terraform_build.yml`); do not duplicate it in the job. Check names and settings are public API — see [Versioning Policy](../../docs/developers/reference/versioning-policy.md#build-checks). User docs live in `docs/user-docs/checks/`.
+The list of checks a build job supports lives **only** in that job's schema (e.g. `schemas/terraform_build_config.yml`); do not duplicate it in the job. Check names and settings are public API — see [Versioning Policy](../../docs/developers/reference/versioning-policy.md#build-checks). User docs live in `docs/user-docs/checks/`.
 
 ### Schemas (`schemas/`) - Brief Comments Only
 

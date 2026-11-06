@@ -20,6 +20,10 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # A minimal plan-only environment, so the pipeline compiles.
 $environmentConfigs = @"
 - Name: dev
+  Stage:
+    DependsOn:
+      - build_terraform
+    Condition: succeeded('build_terraform')
   TerraformDeploymentConfig:
     AzureServiceConnection: DevOps Chapter Dev
     AzDOEnvironmentName: Discovery
@@ -105,7 +109,20 @@ $invalidTestCases = @(
 # RUN TESTS
 # ============================================================================
 
+# The deploy stages check out the 'AzDOPipelineTemplates' repository, so declare it as a resource, the
+# same way the end-to-end pipelines in tests/pipelines/terraform_pipeline/ do.
+$resources = @"
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+
+"@
+
 Run-Tests `
   -YamlPath "pipelines/terraform_pipeline.yml" `
+  -TransformYamlFunction { param($yaml) return $resources + $yaml } `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

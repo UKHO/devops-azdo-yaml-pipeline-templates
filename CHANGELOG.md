@@ -6,10 +6,16 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
-- Added an optional `Checks` list to `terraform_build`, so you can switch on extra quality checks that run after `terraform validate` and before the artifact is packaged. Each entry is `- Check: <Name>` plus any settings for that check; every check accepts `Name` (needed when the same check is listed more than once) and `TreatAsWarnings` (report problems as warnings instead of failing the build). Unsupported or misspelt checks are rejected when the pipeline is queued. Defaults to an empty list, so existing builds are unchanged.
+- Added an optional `TerraformBuildConfig` object to `terraform_build` (job), `stages/terraform_build.yml` and `terraform_pipeline`, grouping the build settings `ArtifactName`, `TerraformVersion`, `RelativePathToTerraformFiles`, `AdditionalFilesToPackage`, `InjectionSteps` and `Checks`. Only `Condition`, `DependsOn` and `Pool` stay top-level on the job. In `terraform_pipeline`, `TerraformVersion` stays top-level because it is shared with deployment. Validated in `schemas/terraform_build_config.yml`. See the [upgrade guide](docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md).
+- Added an optional `Checks` list to `TerraformBuildConfig`, so you can switch on extra quality checks that run after `terraform validate` and before the artifact is packaged. Each entry is `- Check: <Name>` plus any settings for that check; every check accepts `Name` (needed when the same check is listed more than once) and `TreatAsWarnings` (report problems as warnings instead of failing the build). Unsupported or misspelt checks are rejected when the pipeline is queued. Defaults to an empty list, so existing builds are unchanged.
 - Added the `TerraformFormat` check, which fails the build when Terraform files are not formatted canonically (`terraform fmt -check`). Set `Recursive: false` to check only the top-level folder.
 - Added the `SnykIac` check, which scans the build's Terraform for security misconfigurations with Snyk and fails on issues at or above `SeverityThreshold` (default `low`). It needs the UKHO Snyk extension and a Snyk Authentication service connection; `ServiceConnection` and `Organization` are required.
 - Added Build Checks user documentation, with a page per check.
+- Added `UnexpectedYaml` support to the compile-test framework, to assert that text is absent from the compiled pipeline.
+
+### Deprecated
+
+- Deprecated the top-level `ArtifactName`, `TerraformVersion`, `RelativePathToTerraformFiles`, `AdditionalFilesToPackage` and `TerraformBuildInjectionSteps` parameters of `terraform_build`, and the matching build parameters of `terraform_pipeline`. They still work but log a warning on every run, and will be removed in the next major release. Use the matching `TerraformBuildConfig` fields instead (`TerraformBuildInjectionSteps` becomes `InjectionSteps`). Setting both the deprecated parameter and its `TerraformBuildConfig` field is rejected when the pipeline is queued.
 
 ## 0.4.0 - 2026-10-23
 

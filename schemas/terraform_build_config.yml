@@ -109,12 +109,12 @@ steps:
       # top-level parameter. (A deprecated parameter left at its default counts as not set.)
       # -------------------------------------------------------------------------------------------------
       - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"ArtifactName"'), ne(parameters.DeprecatedArtifactName, 'TerraformArtifact')) }}:
-          - "Invalid TerraformBuildConfig: use either 'ArtifactName' (deprecated) or 'TerraformBuildConfig.ArtifactName', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+          - "Invalid TerraformBuildConfig: use either 'ArtifactName' (deprecated) or 'TerraformBuildConfig.ArtifactName', not both. See: docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md": "Error"
       - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"TerraformVersion"'), ne(parameters.DeprecatedTerraformVersion, '1.14.0')) }}:
-          - "Invalid TerraformBuildConfig: use either 'TerraformVersion' (deprecated) or 'TerraformBuildConfig.TerraformVersion', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+          - "Invalid TerraformBuildConfig: use either 'TerraformVersion' (deprecated) or 'TerraformBuildConfig.TerraformVersion', not both. See: docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md": "Error"
       - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"RelativePathToTerraformFiles"'), ne(parameters.DeprecatedRelativePathToTerraformFiles, '')) }}:
-          - "Invalid TerraformBuildConfig: use either 'RelativePathToTerraformFiles' (deprecated) or 'TerraformBuildConfig.RelativePathToTerraformFiles', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+          - "Invalid TerraformBuildConfig: use either 'RelativePathToTerraformFiles' (deprecated) or 'TerraformBuildConfig.RelativePathToTerraformFiles', not both. See: docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md": "Error"
       - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"AdditionalFilesToPackage"'), ne(length(parameters.DeprecatedAdditionalFilesToPackage), 0)) }}:
-          - "Invalid TerraformBuildConfig: use either 'AdditionalFilesToPackage' (deprecated) or 'TerraformBuildConfig.AdditionalFilesToPackage', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+          - "Invalid TerraformBuildConfig: use either 'AdditionalFilesToPackage' (deprecated) or 'TerraformBuildConfig.AdditionalFilesToPackage', not both. See: docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md": "Error"
       - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"InjectionSteps"'), ne(length(parameters.DeprecatedTerraformBuildInjectionSteps), 0)) }}:
-          - "Invalid TerraformBuildConfig: use either 'TerraformBuildInjectionSteps' (deprecated) or 'TerraformBuildConfig.InjectionSteps', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+          - "Invalid TerraformBuildConfig: use either 'TerraformBuildInjectionSteps' (deprecated) or 'TerraformBuildConfig.InjectionSteps', not both. See: docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md": "Error"

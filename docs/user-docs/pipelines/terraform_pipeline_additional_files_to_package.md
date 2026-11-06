@@ -1,6 +1,18 @@
 # AdditionalFilesToPackage – Detailed Guide
 
-This document provides comprehensive guidance on using the `AdditionalFilesToPackage` parameter in the Terraform Pipeline template.
+This document provides comprehensive guidance on using `AdditionalFilesToPackage` in the Terraform Pipeline and Terraform Build Job templates.
+
+`AdditionalFilesToPackage` is a field of `TerraformBuildConfig`. The examples below show just the `AdditionalFilesToPackage:` part; in your pipeline it goes under `TerraformBuildConfig:`, for example:
+
+```yaml
+TerraformBuildConfig:
+  AdditionalFilesToPackage:
+    - SourceDirectory: 'config'
+      FilesPattern: '*.tfvars'
+      TargetSubdirectoryName: 'configs'
+```
+
+The top-level `AdditionalFilesToPackage` parameter still works but is deprecated; see the [upgrade guide](../upgrades/0.4.x-to-0.5.0-terraform-build-config.md).
 
 **Quick Start:** See [terraform_pipeline_parameters_in_detail.md](./terraform_pipeline_parameters_in_detail.md#additionalfilestopackage) for the quick reference and basic examples.
 
@@ -139,9 +151,9 @@ AdditionalFilesToPackage:
 
 **Purpose:** Include PowerShell or other scripts needed during deployment.
 
-**Usage in TerraformBuildInjectionSteps:**
+**Usage in InjectionSteps:**
 ```yaml
-TerraformBuildInjectionSteps:
+InjectionSteps:
   - task: PowerShell@2
     displayName: 'Run validation script'
     inputs:

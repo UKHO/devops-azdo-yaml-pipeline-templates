@@ -10,7 +10,7 @@ This is the codemap for this repository: what lives where, and the invariants th
 | `jobs/` | Self-contained, reusable job-level templates. Includes parameter validation and may use schemas for complex objects. |
 | `stages/` | Stage templates that group jobs for specific pipeline goals (e.g., environments or milestones). |
 | `pipelines/` | Entry-point templates that assemble stages into complete pipelines. |
-| `checks/` | Optional build checks (one file per check, lowercase name) that build jobs run via their `Checks` parameter. |
+| `checks/` | Optional build checks (one file per check, lowercase name) that build jobs run via their `Checks` list. |
 | `utils/` | Shared YAML snippets that support other templates. |
 | `schemas/` | Validation templates for complex object parameters passed through pipelines. |
 | `scripts/` | PowerShell scripts invoked **by templates at pipeline runtime**. These ship to consumers as part of the templates. |
@@ -35,18 +35,18 @@ This is the codemap for this repository: what lives where, and the invariants th
 This is the most important boundary in the repository. Treat it as an invariant.
 
 - **Public / external** — Only `pipelines/` and `jobs/` are the reuse surface. These are the *only* directories external consumers may reference, and they carry SemVer compatibility guarantees (see [Versioning Policy](docs/developers/reference/versioning-policy.md)).
-- **Public interface, not directly referenced** — `checks/`. Consumers never reference these files; they select them through a build job's `Checks` parameter. The check names and their settings are therefore part of the public API and carry SemVer guarantees, while the step implementation inside each check may change freely.
+- **Public interface, not directly referenced** — `checks/`. Consumers never reference these files; they select them through a build job's `Checks` list. The check names and their settings are therefore part of the public API and carry SemVer guarantees, while the step implementation inside each check may change freely.
 - **Internal** — `tasks/`, `stages/`, `schemas/`, `utils/`, `scripts/`, and `tools/` are private building blocks consumed only by templates inside this repo. They are **not** reusable by external pipelines, must not be referenced directly from a consumer, and carry **no** versioning guarantees — they may change at any time, provided no public template's parameters, outputs, or documented behaviour change as a result.
 
 | Directory | Audience | Versioned (SemVer) |
 | --- | --- | --- |
 | `pipelines/`, `jobs/` | External consumers | Yes |
-| `checks/` | External consumers, via a build job's `Checks` parameter | Yes (check names and settings) |
+| `checks/` | External consumers, via a build job's `Checks` list | Yes (check names and settings) |
 | `tasks/`, `stages/`, `schemas/`, `utils/`, `scripts/`, `tools/` | Internal only | No |
 
 ## Set Menu vs. Salad Bar
 
-The repository follows a "set-menu with salad bar" model: **set-menu** = `pipelines/` (complete, ready-to-use pipelines) and **salad bar** = `jobs/` (self-contained templates teams combine), with `checks/` as optional toppings added to a build job through its `Checks` parameter. `tasks/`, `stages/`, and `utils/` are internal building blocks used to compose them. See [Design Philosophy](docs/developers/explanation/design-philosophy.md) for the rationale.
+The repository follows a "set-menu with salad bar" model: **set-menu** = `pipelines/` (complete, ready-to-use pipelines) and **salad bar** = `jobs/` (self-contained templates teams combine), with `checks/` as optional toppings added to a build job through its `Checks` list. `tasks/`, `stages/`, and `utils/` are internal building blocks used to compose them. See [Design Philosophy](docs/developers/explanation/design-philosophy.md) for the rationale.
 
 ## What Does Not Need to Be a Template
 
@@ -66,7 +66,7 @@ The repository follows a "set-menu with salad bar" model: **set-menu** = `pipeli
 
 These rarely change. If one of them needs to change, update the relevant reference or [Design Philosophy](docs/developers/explanation/design-philosophy.md) page in the same Pull Request and call the change out in the PR description, rather than treating it as routine:
 
-- **Public API**: Only `pipelines/` and `jobs/` templates, plus the check names and settings in `checks/` (selected through a build job's `Checks` parameter), carry SemVer compatibility guarantees. Everything else can change freely as long as no public template's parameters, outputs, or documented behaviour change as a result. See [Versioning Policy](docs/developers/reference/versioning-policy.md).
+- **Public API**: Only `pipelines/` and `jobs/` templates, plus the check names and settings in `checks/` (selected through a build job's `Checks` list), carry SemVer compatibility guarantees. Everything else can change freely as long as no public template's parameters, outputs, or documented behaviour change as a result. See [Versioning Policy](docs/developers/reference/versioning-policy.md).
 - **Tags are immutable**: Releases are tagged `MAJOR.MINOR.PATCH` only. No moving tags (`v1`), no re-pointing a pushed tag.
 - **No double-wrapping**: A template must not wrap another template purely to preset defaults. See [Double Wrapping](docs/developers/explanation/double-wrapping.md).
 - **PowerShell is the default scripting language** for anything YAML compile-time expressions and built-in tasks cannot do. See [Scripts & Tooling](docs/developers/reference/scripts-and-tooling.md).

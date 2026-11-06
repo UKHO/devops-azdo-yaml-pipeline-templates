@@ -25,7 +25,7 @@ Complete end-to-end pipeline templates for specific use cases.
 
 ### Available Checks
 
-Optional quality checks enabled through a build job's `Checks` parameter. See **[Build Checks](./checks/README.md)** for how they work.
+Optional quality checks enabled through a build job's `Checks` list. See **[Build Checks](./checks/README.md)** for how they work.
 
 | Check                                              | Purpose                                                  |
 |----------------------------------------------------|----------------------------------------------------------|
@@ -38,6 +38,7 @@ Guides for upgrading between versions of this repository.
 
 | Upgrade Path                                                                      | Changes                                                                |
 |-----------------------------------------------------------------------------------|------------------------------------------------------------------------|
+| **[0.4.x → 0.5.0](./upgrades/0.4.x-to-0.5.0-terraform-build-config.md)**          | No breaking changes. Build parameters move into the new `TerraformBuildConfig` object; the old top-level parameters are deprecated (they log a warning) and will be removed in the next major release. Build Checks are only available in `TerraformBuildConfig`. |
 | **0.3.x → 0.4.0**                                                                 | No breaking changes. The new `ApplyEvenIfNoChanges` field is additive and optional (defaults to `false`); existing configurations continue to work without modification. |
 | **0.2.0 → 0.3.0**                                                                 | No breaking changes. All new fields (`VerificationTimeoutInMinutes`, `VerificationTimeoutBehaviour`, `TerraformDestroyConfig`) are additive and optional; existing configurations continue to work without modification. |
 | **[0.1.0 → 0.2.0](./upgrades/0.1.0-to-0.2.0-keyvaultconfig-to-configsources.md)** | Migrate from `KeyVaultConfig` to `ConfigSources` (multi-vault support) |

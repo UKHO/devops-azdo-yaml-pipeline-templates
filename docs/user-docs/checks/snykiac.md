@@ -16,7 +16,7 @@ Checks:
     # AdditionalArguments: ''       # (string) Extra Snyk CLI arguments, passed through as-is (for example '--report'). Not covered by versioning.
 ```
 
-The check scans the build job's Terraform working directory (`RelativePathToTerraformFiles`) and everything below it.
+The check scans the build job's Terraform working directory (`TerraformBuildConfig.RelativePathToTerraformFiles`) and everything below it.
 
 **Supported by:** [Terraform Build Job](../jobs/terraform_build.md)
 
@@ -48,11 +48,12 @@ The check scans the build job's Terraform working directory (`RelativePathToTerr
 jobs:
   - template: jobs/terraform_build.yml
     parameters:
-      RelativePathToTerraformFiles: terraform
-      Checks:
-        - Check: SnykIac
-          ServiceConnection: Snyk
-          Organization: my-team
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: terraform
+        Checks:
+          - Check: SnykIac
+            ServiceConnection: Snyk
+            Organization: my-team
 ```
 
 ### Only Fail on High and Critical Issues

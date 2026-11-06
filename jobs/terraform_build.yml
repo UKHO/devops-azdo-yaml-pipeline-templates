@@ -155,7 +155,7 @@ jobs:
               TaskName: 'DeprecatedParametersWarning'
               TargetType: 'inline'
               InlineScript: |
-                $guide = 'docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md'
+                $guide = 'docs/user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md'
                 ${{ iif(ne(parameters.ArtifactName, 'TerraformArtifact'), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''ArtifactName'' is deprecated. Use ''TerraformBuildConfig.ArtifactName'' instead. See $guide"', '') }}
                 ${{ iif(ne(parameters.TerraformVersion, '1.14.0'), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''TerraformVersion'' is deprecated. Use ''TerraformBuildConfig.TerraformVersion'' instead. See $guide"', '') }}
                 ${{ iif(ne(parameters.RelativePathToTerraformFiles, ''), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''RelativePathToTerraformFiles'' is deprecated. Use ''TerraformBuildConfig.RelativePathToTerraformFiles'' instead. See $guide"', '') }}

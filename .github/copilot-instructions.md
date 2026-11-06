@@ -1,4 +1,4 @@
-﻿# GitHub Copilot Custom Instructions
+# GitHub Copilot Custom Instructions
 
 This repository (`devops-azdo-yaml-pipeline-templates`) is a centralised source for reusable Azure DevOps YAML pipeline templates. The goal is to maintain high standards, reliability, and reusability for pipelines used across multiple projects.
 
@@ -10,7 +10,7 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md) for the full folder layout, documentat
 rules, and invariants. In short: this repository follows a "set-menu with salad bar" approach—
 `pipelines/` is the set-menu (ready-to-use), `jobs/` is the salad bar (modular, combinable
 templates). `checks/` holds optional build checks that consumers select by name through a build
-job's `Checks` parameter; the check names and settings are public and versioned, but the files
+job's `Checks` list; the check names and settings are public and versioned, but the files
 are never referenced directly. `tasks/`, `stages/`, and `utils/` are internal building blocks, not for direct
 external consumption.
 
