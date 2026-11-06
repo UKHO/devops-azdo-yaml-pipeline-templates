@@ -24,13 +24,15 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: artifact1
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: $(terraform_path)
+        ArtifactName: artifact1
 
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: artifact2
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: $(terraform_path)
+        ArtifactName: artifact2
 
   - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
     parameters:

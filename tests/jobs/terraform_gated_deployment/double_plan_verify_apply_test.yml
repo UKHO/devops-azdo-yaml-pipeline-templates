@@ -28,8 +28,9 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: ${{ variables.artifact_name_one }}
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: $(terraform_path)
+        ArtifactName: ${{ variables.artifact_name_one }}
       
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
@@ -64,8 +65,9 @@ jobs:
 
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: $(terraform_path)
-      ArtifactName: ${{ variables.artifact_name_two }}
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: $(terraform_path)
+        ArtifactName: ${{ variables.artifact_name_two }}
       
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
     parameters:
