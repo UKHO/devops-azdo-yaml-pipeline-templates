@@ -2,14 +2,19 @@
 
 A list object that specifies additional files to include in the terraform artifact during the build stage. Each item describes a set of files to copy from a source directory to a target subdirectory within the packaged artifact.
 
+It is a field of `TerraformBuildConfig` (`TerraformBuildConfig.AdditionalFilesToPackage`). The top-level `AdditionalFilesToPackage` parameter is deprecated; see the [upgrade guide](../../user-docs/upgrades/0.4.x-to-0.5.0-terraform-build-config.md).
+
 ## Definition
 
 ```yaml
-AdditionalFilesToPackage:
-  - SourceDirectory: string         # REQUIRED - relative path from repo root
-    FilesPattern: string            # REQUIRED - glob pattern for files to copy
-    TargetSubdirectoryName: string  # REQUIRED - subdirectory in artifact
+TerraformBuildConfig:
+  AdditionalFilesToPackage:
+    - SourceDirectory: string         # REQUIRED - relative path from repo root
+      FilesPattern: string            # REQUIRED - glob pattern for files to copy
+      TargetSubdirectoryName: string  # OPTIONAL - subdirectory in artifact; empty copies to the artifact root
 ```
+
+Unknown properties and entries missing `SourceDirectory` or `FilesPattern` fail the pipeline when it compiles.
 
 AdditionalFilesToPackage is a list of objects. Each object in the list represents one file copy operation.
 

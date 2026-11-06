@@ -21,7 +21,7 @@ The reuse surface is deliberately narrow. The public API — everything covered 
 
 - **`pipelines/`** — complete, ready-to-use pipelines that consumers reference directly.
 - **`jobs/`** — modular job templates that consumers reference directly and combine as they need.
-- **The checks in `checks/`** — consumers never reference these files, but they select checks by name, with settings, through a build job's `Checks` parameter (`- Check: <Name>`). Those names and settings are the contract, so they are versioned like any other public input.
+- **The checks in `checks/`** — consumers never reference these files, but they select checks by name, with settings, through a build job's `Checks` list (`- Check: <Name>`). Those names and settings are the contract, so they are versioned like any other public input.
 
 Treating checks as data that consumers select, rather than as templates they reference, is deliberate: new quality checks can be added to a build job without growing its parameter list, and the check implementation stays free to change behind a stable name.
 

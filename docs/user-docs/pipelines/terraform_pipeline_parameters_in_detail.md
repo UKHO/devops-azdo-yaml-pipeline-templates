@@ -41,13 +41,13 @@ The deploy stage behaviour is controlled by `RunMode` and `VerificationMode` par
 
 These parameters apply to the entire pipeline and all environments:
 
-| Parameter                                                     | Type     | Required | Default    | Description                                                                        |
-|---------------------------------------------------------------|----------|----------|------------|------------------------------------------------------------------------------------|
-| [RelativePathToTerraformFiles](#relativepathtoterraformfiles) | string   |          | `''`       | Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact.  |
-| [AdditionalFilesToPackage](#additionalfilestopackage)         | object   |          | `[ ]`      | List of additional files to include in the terraform artifact (see details below). |
-| [TerraformVersion](#terraformversion)                         | string   |          | `'1.14.0'` | Version of Terraform CLI tool to use ('latest' or semantic version x.y.z).         |
-| [TerraformBuildInjectionSteps](#terraformbuildinjectionsteps) | stepList |          | `[ ]`      | Steps to be carried out before the terraform is init, validated, and packaged.     |
-| [EnvironmentConfigs](#environmentconfigs)                     | object   | ❗        | -          | List of environment configurations (see dev docs for complete structure).          |
+| Parameter                                         | Type   | Required | Default    | Description                                                                                         |
+|---------------------------------------------------|--------|----------|------------|-----------------------------------------------------------------------------------------------------|
+| [TerraformVersion](#terraformversion)             | string |          | `'1.14.0'` | Version of Terraform CLI tool to use ('latest' or semantic version x.y.z), shared by every stage.   |
+| [TerraformBuildConfig](#terraformbuildconfig)     | object |          | `{}`       | What to build: Terraform files, additional files, injection steps and checks (see details below).   |
+| [EnvironmentConfigs](#environmentconfigs)         | object | ❗        | -          | List of environment configurations (see dev docs for complete structure).                           |
+
+**Deprecated:** the top-level `RelativePathToTerraformFiles`, `AdditionalFilesToPackage` and `TerraformBuildInjectionSteps` parameters still work until the next major release, but log a warning on every run. Use the matching `TerraformBuildConfig` fields instead; see the [upgrade guide](../upgrades/0.4.x-to-0.5.0-terraform-build-config.md).
 
 ## Environment Configuration
 
@@ -88,61 +88,6 @@ EnvironmentConfigs:
 
 Below are all the pipeline-level parameters to this template with further details.
 
-### RelativePathToTerraformFiles
-
-State where the terraform files that need packaging and then deploying are located.
-
-```yaml
-RelativePathToTerraformFiles: 'infrastructure/terraform'
-```
-
-The path prepended with `$(Pipeline.Workspace)/$(Build.Repository.Name)/` for creating an absolute path to the terraform files.
-
-### AdditionalFilesToPackage
-
-This parameter allows you to include additional files (beyond the Terraform files in `RelativePathToTerraformFiles`) in the terraform artifact that gets deployed.
-
-**For comprehensive guide, see:** [AdditionalFilesToPackage - Detailed Guide](./terraform_pipeline_additional_files_to_package.md)
-
-**For object structure, see:** [AdditionalFilesToPackage Definition](../../definition_docs/terraform_pipeline/additional_files_to_package.md)
-
-#### Quick Reference
-
-Each item in `AdditionalFilesToPackage` is an object with three required properties:
-
-| Property               | Type   | Description                                                |
-|------------------------|--------|------------------------------------------------------------|
-| SourceDirectory        | string | Relative path from repository root to the source directory |
-| FilesPattern           | string | Glob pattern for files to copy (e.g., `**/*.json`)         |
-| TargetSubdirectoryName | string | Subdirectory within the artifact to place the copied files |
-
-#### Basic Example
-
-```yaml
-AdditionalFilesToPackage:
-  - SourceDirectory: 'config/shared'
-    FilesPattern: '*.tfvars'
-    TargetSubdirectoryName: 'shared-config'
-  - SourceDirectory: 'scripts'
-    FilesPattern: '**/*.ps1'
-    TargetSubdirectoryName: 'scripts'
-```
-
-This copies all `.tfvars` files from `config/shared/` to `{artifact}/shared-config/` and all PowerShell scripts from `scripts/` to `{artifact}/scripts/`.
-
-#### Common Patterns
-
-| Pattern       | Use Case                                                 |
-|---------------|----------------------------------------------------------|
-| `*.tfvars`    | All variable files in the root directory (non-recursive) |
-| `**/*.tfvars` | All variable files recursively                           |
-| `**/*.tf`     | All Terraform files recursively                          |
-| `**/*`        | All files recursively                                    |
-
-For more patterns and detailed examples, see the [Detailed Guide](./terraform_pipeline_additional_files_to_package.md#glob-pattern-matching).
-
----
-
 ### TerraformVersion
 
 State which terraform version you require.
@@ -161,9 +106,81 @@ TerraformVersion: '1.6.0'
 
 The default version is `'1.14.0'`.
 
-### TerraformBuildInjectionSteps
+### TerraformBuildConfig
 
-This parameter allows you to inject custom steps that will be executed before the terraform files are validated and packaged. The steps run once, before `terraform init` and `terraform validate`.
+Everything about how the Terraform artifact is built. It is the same object as the [Terraform Build Job](../jobs/terraform_build.md)'s, except that `ArtifactName` and `TerraformVersion` are not allowed here: the deploy stages always use the artifact `TerraformArtifact`, and the version comes from the pipeline's [TerraformVersion](#terraformversion).
+
+```yaml
+TerraformBuildConfig:
+  RelativePathToTerraformFiles: 'infrastructure/terraform'
+  AdditionalFilesToPackage: []
+  InjectionSteps: []
+  Checks:
+    - Check: TerraformFormat
+```
+
+Unknown or misspelled fields fail the pipeline when it compiles. The fields are described below; for `Checks`, see [Build Checks](../checks/README.md).
+
+#### RelativePathToTerraformFiles
+
+State where the terraform files that need packaging and then deploying are located.
+
+```yaml
+TerraformBuildConfig:
+  RelativePathToTerraformFiles: 'infrastructure/terraform'
+```
+
+The path prepended with `$(Pipeline.Workspace)/$(Build.Repository.Name)/` for creating an absolute path to the terraform files.
+
+#### AdditionalFilesToPackage
+
+This parameter allows you to include additional files (beyond the Terraform files in `RelativePathToTerraformFiles`) in the terraform artifact that gets deployed.
+
+**For comprehensive guide, see:** [AdditionalFilesToPackage - Detailed Guide](./terraform_pipeline_additional_files_to_package.md)
+
+**For object structure, see:** [AdditionalFilesToPackage Definition](../../definition_docs/terraform_pipeline/additional_files_to_package.md)
+
+#### Quick Reference
+
+Each item in `AdditionalFilesToPackage` is an object with these properties:
+
+| Property               | Type   | Description                                                                         |
+|------------------------|--------|-------------------------------------------------------------------------------------|
+| SourceDirectory        | string | Required. Relative path from repository root to the source directory                |
+| FilesPattern           | string | Required. Glob pattern for files to copy (e.g., `**/*.json`)                        |
+| TargetSubdirectoryName | string | Optional. Subdirectory within the artifact; empty copies to the artifact root       |
+
+#### Basic Example
+
+```yaml
+TerraformBuildConfig:
+  AdditionalFilesToPackage:
+    - SourceDirectory: 'config/shared'
+      FilesPattern: '*.tfvars'
+      TargetSubdirectoryName: 'shared-config'
+    - SourceDirectory: 'scripts'
+      FilesPattern: '**/*.ps1'
+      TargetSubdirectoryName: 'scripts'
+```
+
+This copies all `.tfvars` files from `config/shared/` to `{artifact}/shared-config/` and all PowerShell scripts from `scripts/` to `{artifact}/scripts/`.
+
+#### Common Patterns
+
+| Pattern       | Use Case                                                 |
+|---------------|----------------------------------------------------------|
+| `*.tfvars`    | All variable files in the root directory (non-recursive) |
+| `**/*.tfvars` | All variable files recursively                           |
+| `**/*.tf`     | All Terraform files recursively                          |
+| `**/*`        | All files recursively                                    |
+
+For more patterns and detailed examples, see the [Detailed Guide](./terraform_pipeline_additional_files_to_package.md#glob-pattern-matching).
+
+---
+
+#### InjectionSteps
+
+Formerly the top-level `TerraformBuildInjectionSteps` parameter. Inject custom steps that will be executed before the terraform files are validated and packaged. The steps run once, before `terraform init` and `terraform validate`.
 
 Common use cases include:
 
@@ -173,7 +190,8 @@ Common use cases include:
 - Custom validation or security scanning
 
 ```yaml
-TerraformBuildInjectionSteps:
+TerraformBuildConfig:
+  InjectionSteps:
   - task: PowerShell@2
     displayName: 'Generate backend config'
     inputs:
