@@ -1,9 +1,4 @@
 parameters:
-  - name: ArtifactName
-    type: string
-    default: 'TerraformArtifact'
-    displayName: 'Artifact Name for Target Path to be saved as'
-
   - name: Condition
     type: string
     default: succeeded()
@@ -19,34 +14,44 @@ parameters:
     default: ''
     displayName: 'The pool that this job will run on'
 
-  - name: RelativePathToTerraformFiles
-    type: string
-    default: ''
-    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
-
-  - name: AdditionalFilesToPackage
+  - name: TerraformBuildConfig
     type: object
-    default: []
-    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
+    default: {}
+    displayName: 'Terraform build configuration object (see docs/user-docs/jobs/terraform_build.md)'
+
+  # DEPRECATED parameters: use the matching TerraformBuildConfig field instead. Kept for backwards
+  # compatibility until the next MAJOR release. Using one logs a warning; setting both a deprecated
+  # parameter and its TerraformBuildConfig field fails the compile.
+  - name: ArtifactName
+    type: string
+    default: 'TerraformArtifact'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.ArtifactName'
 
   - name: TerraformVersion
     type: string
     default: '1.14.0'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.TerraformVersion'
+
+  - name: RelativePathToTerraformFiles
+    type: string
+    default: ''
+    displayName: 'DEPRECATED: use TerraformBuildConfig.RelativePathToTerraformFiles'
+
+  - name: AdditionalFilesToPackage
+    type: object
+    default: []
+    displayName: 'DEPRECATED: use TerraformBuildConfig.AdditionalFilesToPackage'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: []
-    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
-
-  - name: Checks
-    type: object
-    default: []
-    displayName: 'Build checks to run after terraform validate, in order (for example "- Check: TerraformFormat")'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.InjectionSteps'
 
 jobs:
-  - job: TerraformBuild_${{ parameters.ArtifactName }}
-    displayName: "Build '${{ parameters.ArtifactName }}' Terraform Artifact"
+  # Effective values: the TerraformBuildConfig field when set, otherwise the deprecated parameter (whose
+  # default is the documented default). The schema guarantees the two are never both set.
+  - job: TerraformBuild_${{ coalesce(parameters.TerraformBuildConfig.ArtifactName, parameters.ArtifactName) }}
+    displayName: "Build '${{ coalesce(parameters.TerraformBuildConfig.ArtifactName, parameters.ArtifactName) }}' Terraform Artifact"
 
     condition: ${{ parameters.Condition }}
     dependsOn: ${{ parameters.DependsOn }}
@@ -63,14 +68,18 @@ jobs:
         value: $(Pipeline.Workspace)/$(RepositoryCheckoutFolderName)
         readonly: true
       - name: TerraformWorkingDirectory
-        value: $(RepositoryDirectory)/${{ parameters.RelativePathToTerraformFiles }}
+        value: $(RepositoryDirectory)/${{ coalesce(parameters.TerraformBuildConfig.RelativePathToTerraformFiles, parameters.RelativePathToTerraformFiles) }}
         readonly: true
 
     steps:
-      - ${{ if ne(length(parameters.Checks), 0) }}:
-          - template: /schemas/terraform_build.yml
-            parameters:
-              Checks: ${{ parameters.Checks }}
+      - template: /schemas/terraform_build_config.yml
+        parameters:
+          TerraformBuildConfig: ${{ parameters.TerraformBuildConfig }}
+          DeprecatedArtifactName: ${{ parameters.ArtifactName }}
+          DeprecatedTerraformVersion: ${{ parameters.TerraformVersion }}
+          DeprecatedRelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
+          DeprecatedAdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
+          DeprecatedTerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
       - checkout: self
         displayName: 'Checkout self repository'
@@ -79,9 +88,19 @@ jobs:
 
       - download: none
 
+      # Only one of these two is ever non-empty (the schema rejects both).
       - ${{ parameters.TerraformBuildInjectionSteps }}
+      - ${{ each step in parameters.TerraformBuildConfig.InjectionSteps }}:
+          - ${{ step }}
 
+      # Only one of these two is ever non-empty (the schema rejects both).
       - ${{ each additionalFileToPackage in parameters.AdditionalFilesToPackage }}:
+          - template: /tasks/copy_files.yml
+            parameters:
+              SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
+              FilesPattern: ${{ additionalFileToPackage.FilesPattern }}
+              TargetFolder: $(TerraformWorkingDirectory)/${{ additionalFileToPackage.TargetSubdirectoryName }}
+      - ${{ each additionalFileToPackage in parameters.TerraformBuildConfig.AdditionalFilesToPackage }}:
           - template: /tasks/copy_files.yml
             parameters:
               SourceFolder: $(RepositoryDirectory)/${{ additionalFileToPackage.SourceDirectory }}
@@ -90,7 +109,7 @@ jobs:
 
       - template: /tasks/terraform_installer.yml
         parameters:
-          TerraformVersion: ${{ parameters.TerraformVersion }}
+          TerraformVersion: ${{ coalesce(parameters.TerraformBuildConfig.TerraformVersion, parameters.TerraformVersion) }}
 
       - template: /tasks/terraform.yml
         parameters:
@@ -104,9 +123,9 @@ jobs:
           WorkingDirectory: $(TerraformWorkingDirectory)
 
       # User checks: run after the mandatory checks (init, validate) and before packaging.
-      # schemas/terraform_build.yml (above) holds the only list of supported checks. It rejects unknown
-      # check names, which fails the whole compile, so an unknown name never runs.
-      - ${{ each check in parameters.Checks }}:
+      # schemas/terraform_build_config.yml (above) holds the only list of supported checks. It rejects
+      # unknown check names, which fails the whole compile, so an unknown name never runs.
+      - ${{ each check in parameters.TerraformBuildConfig.Checks }}:
           - template: /checks/${{ lower(check.Check) }}.yml
             parameters:
               WorkingDirectory: $(TerraformWorkingDirectory)
@@ -126,4 +145,20 @@ jobs:
       - template: /tasks/publish_pipeline_artifact.yml
         parameters:
           TargetPath: $(TerraformWorkingDirectory)
-          ArtifactName: ${{ parameters.ArtifactName }}
+          ArtifactName: ${{ coalesce(parameters.TerraformBuildConfig.ArtifactName, parameters.ArtifactName) }}
+
+      # Deprecation warnings. Only added when a deprecated parameter differs from its default (one set to
+      # its default value can't be told apart from not being set, and behaves identically anyway).
+      - ${{ if or(ne(parameters.ArtifactName, 'TerraformArtifact'), ne(parameters.TerraformVersion, '1.14.0'), ne(parameters.RelativePathToTerraformFiles, ''), ne(length(parameters.AdditionalFilesToPackage), 0), ne(length(parameters.TerraformBuildInjectionSteps), 0)) }}:
+          - template: /tasks/powershell.yml
+            parameters:
+              TaskName: 'DeprecatedParametersWarning'
+              TargetType: 'inline'
+              InlineScript: |
+                $guide = 'docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md'
+                ${{ iif(ne(parameters.ArtifactName, 'TerraformArtifact'), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''ArtifactName'' is deprecated. Use ''TerraformBuildConfig.ArtifactName'' instead. See $guide"', '') }}
+                ${{ iif(ne(parameters.TerraformVersion, '1.14.0'), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''TerraformVersion'' is deprecated. Use ''TerraformBuildConfig.TerraformVersion'' instead. See $guide"', '') }}
+                ${{ iif(ne(parameters.RelativePathToTerraformFiles, ''), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''RelativePathToTerraformFiles'' is deprecated. Use ''TerraformBuildConfig.RelativePathToTerraformFiles'' instead. See $guide"', '') }}
+                ${{ iif(ne(length(parameters.AdditionalFilesToPackage), 0), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''AdditionalFilesToPackage'' is deprecated. Use ''TerraformBuildConfig.AdditionalFilesToPackage'' instead. See $guide"', '') }}
+                ${{ iif(ne(length(parameters.TerraformBuildInjectionSteps), 0), 'Write-Host "##vso[task.logissue type=warning]terraform_build: ''TerraformBuildInjectionSteps'' is deprecated. Use ''TerraformBuildConfig.InjectionSteps'' instead. See $guide"', '') }}
+              FailOnStandardError: false

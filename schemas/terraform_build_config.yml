@@ -1,0 +1,120 @@
+# Schema Template: Terraform Build Config
+# Validates the TerraformBuildConfig object for jobs/terraform_build.yml, and that no field is set both in
+# TerraformBuildConfig and through its deprecated top-level parameter.
+# See: docs/user-docs/jobs/terraform_build.md
+#
+# Each check's own settings are validated by the check template itself (checks/<name>.yml) through its
+# typed parameters; this schema validates the Checks list and each entry's 'Check' and 'Name' only.
+
+parameters:
+  - name: TerraformBuildConfig
+    type: object
+    default: {}
+    displayName: 'Terraform build configuration object'
+
+  # Values of the deprecated top-level job parameters, to detect a field set in both places.
+  # Defaults must match jobs/terraform_build.yml.
+  - name: DeprecatedArtifactName
+    type: string
+    default: 'TerraformArtifact'
+  - name: DeprecatedTerraformVersion
+    type: string
+    default: '1.14.0'
+  - name: DeprecatedRelativePathToTerraformFiles
+    type: string
+    default: ''
+  - name: DeprecatedAdditionalFilesToPackage
+    type: object
+    default: []
+  - name: DeprecatedTerraformBuildInjectionSteps
+    type: stepList
+    default: []
+
+steps:
+  # ---------------------------------------------------------------------------------------------------
+  # Shape: must be an object with only known fields.
+  # ---------------------------------------------------------------------------------------------------
+  - ${{ if not(startsWith(convertToJson(parameters.TerraformBuildConfig), '{')) }}:
+      - "Invalid TerraformBuildConfig: must be an object, for example 'TerraformBuildConfig: { RelativePathToTerraformFiles: infra }'. See: docs/user-docs/jobs/terraform_build.md": "Error"
+  - ${{ else }}:
+      - ${{ each field in parameters.TerraformBuildConfig }}:
+          - ${{ if notIn(field.key, 'ArtifactName', 'TerraformVersion', 'RelativePathToTerraformFiles', 'AdditionalFilesToPackage', 'InjectionSteps', 'Checks') }}:
+              - "Invalid TerraformBuildConfig: unknown field '${{ field.key }}'. Supported: ArtifactName, TerraformVersion, RelativePathToTerraformFiles, AdditionalFilesToPackage, InjectionSteps, Checks. See: docs/user-docs/jobs/terraform_build.md": "Error"
+
+      # -------------------------------------------------------------------------------------------------
+      # String fields: non-empty strings when provided. TerraformVersion's format is validated by
+      # tasks/terraform_installer.yml.
+      # -------------------------------------------------------------------------------------------------
+      - ${{ each name in split('ArtifactName,TerraformVersion,RelativePathToTerraformFiles', ',') }}:
+          - ${{ if contains(convertToJson(parameters.TerraformBuildConfig), format('"{0}"', name)) }}:
+              - ${{ if or(eq(parameters.TerraformBuildConfig[name], ''), or(contains(convertToJson(parameters.TerraformBuildConfig[name]), '{'), contains(convertToJson(parameters.TerraformBuildConfig[name]), '['))) }}:
+                  - "Invalid TerraformBuildConfig: '${{ name }}' must be a non-empty string when provided. See: docs/user-docs/jobs/terraform_build.md": "Error"
+
+      # -------------------------------------------------------------------------------------------------
+      # AdditionalFilesToPackage: list of { SourceDirectory, FilesPattern, TargetSubdirectoryName? }.
+      # -------------------------------------------------------------------------------------------------
+      - ${{ if contains(convertToJson(parameters.TerraformBuildConfig), '"AdditionalFilesToPackage"') }}:
+          - ${{ if not(startsWith(convertToJson(parameters.TerraformBuildConfig.AdditionalFilesToPackage), '[')) }}:
+              - "Invalid TerraformBuildConfig: 'AdditionalFilesToPackage' must be a list of objects with SourceDirectory and FilesPattern. See: docs/user-docs/jobs/terraform_build.md": "Error"
+          - ${{ else }}:
+              - ${{ each file in parameters.TerraformBuildConfig.AdditionalFilesToPackage }}:
+                  - ${{ if not(startsWith(convertToJson(file), '{')) }}:
+                      - "Invalid TerraformBuildConfig: each 'AdditionalFilesToPackage' entry must be an object with SourceDirectory and FilesPattern. See: docs/user-docs/jobs/terraform_build.md": "Error"
+                  - ${{ else }}:
+                      - ${{ if or(not(file.SourceDirectory), eq(file.SourceDirectory, '')) }}:
+                          - "Invalid TerraformBuildConfig: an 'AdditionalFilesToPackage' entry is missing required field 'SourceDirectory'. See: docs/user-docs/jobs/terraform_build.md": "Error"
+                      - ${{ if or(not(file.FilesPattern), eq(file.FilesPattern, '')) }}:
+                          - "Invalid TerraformBuildConfig: an 'AdditionalFilesToPackage' entry is missing required field 'FilesPattern'. See: docs/user-docs/jobs/terraform_build.md": "Error"
+                      - ${{ each setting in file }}:
+                          - ${{ if notIn(setting.key, 'SourceDirectory', 'FilesPattern', 'TargetSubdirectoryName') }}:
+                              - "Invalid TerraformBuildConfig: unknown 'AdditionalFilesToPackage' field '${{ setting.key }}'. Supported: SourceDirectory, FilesPattern, TargetSubdirectoryName. See: docs/user-docs/jobs/terraform_build.md": "Error"
+
+      # -------------------------------------------------------------------------------------------------
+      # InjectionSteps: a list. Each step's own content is validated by Azure DevOps when it is inserted.
+      # -------------------------------------------------------------------------------------------------
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"InjectionSteps"'), not(startsWith(convertToJson(parameters.TerraformBuildConfig.InjectionSteps), '['))) }}:
+          - "Invalid TerraformBuildConfig: 'InjectionSteps' must be a list of steps. See: docs/user-docs/jobs/terraform_build.md": "Error"
+
+      # -------------------------------------------------------------------------------------------------
+      # Checks
+      # -------------------------------------------------------------------------------------------------
+      - ${{ if contains(convertToJson(parameters.TerraformBuildConfig), '"Checks"') }}:
+          - ${{ if not(startsWith(convertToJson(parameters.TerraformBuildConfig.Checks), '[')) }}:
+              - "Invalid TerraformBuildConfig.Checks: must be a list of check objects, for example '- Check: TerraformFormat'. See: docs/user-docs/checks/README.md": "Error"
+          - ${{ else }}:
+              - ${{ each check in parameters.TerraformBuildConfig.Checks }}:
+                  # Entry must be an object.
+                  - ${{ if not(startsWith(convertToJson(check), '{')) }}:
+                      - "Invalid TerraformBuildConfig.Checks: each entry must be an object with a 'Check' field, for example '- Check: TerraformFormat'. See: docs/user-docs/checks/README.md": "Error"
+                  - ${{ else }}:
+                      # Discriminator: required, string, supported by this build.
+                      - ${{ if or(or(not(check.Check), eq(check.Check, '')), or(contains(convertToJson(check.Check), '{'), contains(convertToJson(check.Check), '['))) }}:
+                          - "Invalid TerraformBuildConfig.Checks: entry is missing required string field 'Check'. Supported: TerraformFormat, SnykIac. See: docs/user-docs/checks/README.md": "Error"
+                      - ${{ elseif notIn(check.Check, 'TerraformFormat', 'SnykIac') }}:
+                          - "Invalid TerraformBuildConfig.Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac. See: docs/user-docs/checks/README.md": "Error"
+
+                      # Optional Name: non-empty string when provided.
+                      - ${{ if and(contains(convertToJson(check), '"Name"'), or(eq(check.Name, ''), or(contains(convertToJson(check.Name), '{'), contains(convertToJson(check.Name), '[')))) }}:
+                          - "Invalid TerraformBuildConfig.Checks: 'Name' must be a non-empty string when provided. See: docs/user-docs/checks/README.md": "Error"
+
+                      # Duplicates: when the same Check is listed more than once, every entry for it needs a Name.
+                      # Template expressions have no loop index, so entries are compared by content.
+                      - ${{ if or(not(check.Name), eq(check.Name, '')) }}:
+                          - ${{ each other in parameters.TerraformBuildConfig.Checks }}:
+                              - ${{ if and(eq(other.Check, check.Check), ne(convertToJson(other), convertToJson(check))) }}:
+                                  - "Invalid TerraformBuildConfig.Checks: '${{ check.Check }}' is listed more than once, so every '${{ check.Check }}' entry needs a unique 'Name'. See: docs/user-docs/checks/README.md": "Error"
+
+      # -------------------------------------------------------------------------------------------------
+      # Deprecated parameters: a field can't be set both in TerraformBuildConfig and through its deprecated
+      # top-level parameter. (A deprecated parameter left at its default counts as not set.)
+      # -------------------------------------------------------------------------------------------------
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"ArtifactName"'), ne(parameters.DeprecatedArtifactName, 'TerraformArtifact')) }}:
+          - "Invalid TerraformBuildConfig: use either 'ArtifactName' (deprecated) or 'TerraformBuildConfig.ArtifactName', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"TerraformVersion"'), ne(parameters.DeprecatedTerraformVersion, '1.14.0')) }}:
+          - "Invalid TerraformBuildConfig: use either 'TerraformVersion' (deprecated) or 'TerraformBuildConfig.TerraformVersion', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"RelativePathToTerraformFiles"'), ne(parameters.DeprecatedRelativePathToTerraformFiles, '')) }}:
+          - "Invalid TerraformBuildConfig: use either 'RelativePathToTerraformFiles' (deprecated) or 'TerraformBuildConfig.RelativePathToTerraformFiles', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"AdditionalFilesToPackage"'), ne(length(parameters.DeprecatedAdditionalFilesToPackage), 0)) }}:
+          - "Invalid TerraformBuildConfig: use either 'AdditionalFilesToPackage' (deprecated) or 'TerraformBuildConfig.AdditionalFilesToPackage', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
+      - ${{ if and(contains(convertToJson(parameters.TerraformBuildConfig), '"InjectionSteps"'), ne(length(parameters.DeprecatedTerraformBuildInjectionSteps), 0)) }}:
+          - "Invalid TerraformBuildConfig: use either 'TerraformBuildInjectionSteps' (deprecated) or 'TerraformBuildConfig.InjectionSteps', not both. See: docs/user-docs/upgrades/0.3.x-to-0.4.0-terraform-build-config.md": "Error"
