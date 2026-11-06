@@ -35,7 +35,8 @@ stages:
     jobs:
       - template: jobs/terraform_build.yml@AzDOPipelineTemplates
         parameters:
-          RelativePathToTerraformFiles: $(terraform_path)
+          TerraformBuildConfig:
+            RelativePathToTerraformFiles: $(terraform_path)
 
       - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
         parameters:
