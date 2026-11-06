@@ -5,7 +5,8 @@
 #
 # Tests cover:
 # - TerraformBuildConfig: artifact name, Terraform version, path, injection steps, additional files
-# - Checks (TerraformFormat, SnykIac): order, settings pass-through, duplicates and rejected input
+# - Checks (TerraformFormat, UkhoSnykIac): each runs after validate and before packaging, and unsupported
+#   checks are rejected. Each check's own settings are tested in checks/<name>.CompileTests.ps1.
 # - Deprecated top-level parameters: still work, log a warning, and can't be combined with the config
 # - Job orchestration: Condition, DependsOn, Pool
 #

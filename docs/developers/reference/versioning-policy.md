@@ -16,7 +16,7 @@ SemVer compatibility guarantees apply to templates in `pipelines/` and `jobs/` �
 
 ### Build Checks
 
-`checks/` sits between the two. Consumers never reference check files directly; they select them through a build job's `Checks` parameter. That makes the following part of the public API:
+`checks/` sits between the two. Consumers never reference check files directly; they select them through a build job's `Checks` list. That makes the following part of the public API:
 
 - **Check names** (e.g. `TerraformFormat`) — removing or renaming a check is **MAJOR**.
 - **Check settings** (e.g. `Name`, `TreatAsWarnings`, `Recursive`) — removing or renaming a setting, or changing its default, is **MAJOR**; adding an optional setting is **MINOR**.

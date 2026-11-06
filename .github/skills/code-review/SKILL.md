@@ -68,7 +68,7 @@ If the user has not told you the scope, determine it from the diff (`get_changed
 - **Azure DevOps YAML limits**: no anchors/aliases, merge keys, custom tags, or multi-document `---`. (`yaml-standards.md`)
 - **Template filenames** are `lowercase_snakecase`, with no type in the name (`template.yml`, not `job_template.yml`); list templates use a suffix such as `_job_list`. (`yaml-standards.md`)
 - **Placement**: runtime scripts that ship to consumers go in `scripts/`; scripts for maintaining this repo go in `tools/`; templates go in the folder matching their level; no new top-level folders without team discussion. (`ARCHITECTURE.md` → Placement Rules)
-- **Public vs internal**: only `pipelines/` and `jobs/` are public and versioned, plus the check names and settings in `checks/` (selected through a build job's `Checks` parameter; the files themselves are never referenced directly). Internal folders must not be referenced by consumers or presented as consumer-facing in docs. (`ARCHITECTURE.md`)
+- **Public vs internal**: only `pipelines/` and `jobs/` are public and versioned, plus the check names and settings in `checks/` (selected through a build job's `Checks` list; the files themselves are never referenced directly). Internal folders must not be referenced by consumers or presented as consumer-facing in docs. (`ARCHITECTURE.md`)
 - **Cross-platform scripting**: `pwsh`, not `powershell` or `bash`; PowerShell is preferred, Bash is allowed only for rare Linux file operations PowerShell cannot do, Batch is prohibited; no hardcoded path separators or OS-specific built-ins; no assumed agent image. (`scripts-and-tooling.md`, `design-philosophy.md`)
 - **Paths** are based on standard Azure DevOps variables such as `$(Pipeline.Workspace)`. (`scripts-and-tooling.md`)
 - **Open-source / built-in tasks only**: nothing that forces consumers to install a paid Marketplace extension. The only exception is an opt-in check in `checks/` that lists the extension under Prerequisites on its page. (`design-philosophy.md` → Cross-Platform and Open-Source by Default)
@@ -113,11 +113,11 @@ Source: `ARCHITECTURE.md` → Documentation Location by Folder, and `update-docu
 - [ ] `jobs/` and `pipelines/`: the mirrored user doc exists and is updated (`jobs/<name>.yml` → `docs/user-docs/jobs/<name>.md`; same for `pipelines/`). `stages/` get external docs where complex enough to need one.
 - [ ] The user doc follows the concise skeleton: H1 and a one-line description, a commented-defaults invocation block, `---` rules, an Output/Artifact section where relevant, `## Examples` with `**Live example**:` links to real `tests/.../*.yml` fixtures, and `## See Also`. It must not grow verbose parameter tables.
 - [ ] A **new** public template is added to the user docs index (`docs/user-docs/README.md`) **and** to the "What is available" tables in the root `README.md`.
-- [ ] Injection points use the established `*InjectionSteps` pattern (for example `TerraformBuildInjectionSteps`).
+- [ ] Injection points use the established `*InjectionSteps` pattern (for example `TerraformBuildConfig.InjectionSteps`).
 - [ ] Terraform-family jobs expose consistent `TerraformVersion`, `EnvironmentName`, and config-object parameters; check the sibling job for the established shape.
 - [ ] Jobs that check out this repository for their own scripts take a `CheckoutAlias` parameter defaulting to `AzDOPipelineTemplates` (see `jobs/terraform_deploy.yml`), and double-checkout jobs set an explicit `path` as described in `checkout-and-path-behaviour.md`.
 
-### `checks/` — public interface, selected via a build job's `Checks` parameter
+### `checks/` — public interface, selected via a build job's `Checks` list
 
 Source: `ARCHITECTURE.md`, `versioning-policy.md` → Build Checks, `azure-devops-pipelines.instructions.md` → Build Checks, `update-documentation.instructions.md` section 2b.
 
