@@ -20,17 +20,18 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
-      TerraformBuildInjectionSteps:
-        - task: PowerShell@2
-          displayName: 'Inject: Setup Environment'
-          inputs:
-            targetType: 'inline'
-            script: |
-              Write-Host "Setting up build environment..."
-              Set-Item -Path Env:BUILD_INJECTED -Value "true"
-        - script: echo "Pre-build validation step"
-          displayName: 'Inject: Pre-build validation'
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+        InjectionSteps:
+          - task: PowerShell@2
+            displayName: 'Inject: Setup Environment'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "Setting up build environment..."
+                Set-Item -Path Env:BUILD_INJECTED -Value "true"
+          - script: echo "Pre-build validation step"
+            displayName: 'Inject: Pre-build validation'
 
   - job: ValidateResults
     dependsOn:

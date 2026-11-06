@@ -24,13 +24,15 @@ variables:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
-      ArtifactName: infra_one
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+        ArtifactName: infra_one
 
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
-      ArtifactName: infra_two
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+        ArtifactName: infra_two
 
   - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
     parameters:

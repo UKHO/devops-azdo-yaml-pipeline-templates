@@ -27,9 +27,10 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      TerraformVersion: 1.13.0
-      RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
-      Checks:
-        - Check: SnykIac
-          ServiceConnection: Snyk
-          Organization: snyk-test-org
+      TerraformBuildConfig:
+        TerraformVersion: 1.13.0
+        RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
+        Checks:
+          - Check: SnykIac
+            ServiceConnection: Snyk
+            Organization: snyk-test-org

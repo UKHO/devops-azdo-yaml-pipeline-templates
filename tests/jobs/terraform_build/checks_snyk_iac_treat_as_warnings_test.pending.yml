@@ -29,13 +29,14 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      TerraformVersion: 1.13.0
-      RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/insecure
-      Checks:
-        - Check: SnykIac
-          ServiceConnection: Snyk
-          Organization: snyk-test-org
-          TreatAsWarnings: true
+      TerraformBuildConfig:
+        TerraformVersion: 1.13.0
+        RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/insecure
+        Checks:
+          - Check: SnykIac
+            ServiceConnection: Snyk
+            Organization: snyk-test-org
+            TreatAsWarnings: true
 
   - job: ValidateResults
     dependsOn:

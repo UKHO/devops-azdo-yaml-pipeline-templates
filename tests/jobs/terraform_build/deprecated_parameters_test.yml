@@ -1,0 +1,44 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+# Backwards compatibility: every deprecated top-level parameter still works until the next MAJOR release.
+# Expected result: the build succeeds, the artifact is published with the additional files, and the
+# DeprecatedParametersWarning step logs one warning per deprecated parameter (warnings don't change
+# the run result, so the run still succeeds).
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      ArtifactName: DeprecatedArtifact
+      TerraformVersion: 1.13.0
+      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+      AdditionalFilesToPackage:
+        - SourceDirectory: tests/shared_resources/resource_group_terraform
+          FilesPattern: '*.tf'
+          TargetSubdirectoryName: extra
+      TerraformBuildInjectionSteps:
+        - script: echo "Deprecated injection step"
+          displayName: 'Inject: deprecated parameter'
+
+  - job: ValidateResults
+    dependsOn:
+      - TerraformBuild_DeprecatedArtifact
+    steps:
+      - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
+        parameters:
+          ArtifactName: DeprecatedArtifact

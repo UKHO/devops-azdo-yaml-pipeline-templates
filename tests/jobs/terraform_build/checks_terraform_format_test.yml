@@ -22,7 +22,8 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      TerraformVersion: 1.13.0
-      RelativePathToTerraformFiles: tests/shared_resources/terraform_format/formatted
-      Checks:
-        - Check: TerraformFormat
+      TerraformBuildConfig:
+        TerraformVersion: 1.13.0
+        RelativePathToTerraformFiles: tests/shared_resources/terraform_format/formatted
+        Checks:
+          - Check: TerraformFormat

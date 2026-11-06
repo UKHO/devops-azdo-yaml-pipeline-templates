@@ -23,12 +23,13 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      TerraformVersion: 1.13.0
-      RelativePathToTerraformFiles: tests/shared_resources/terraform_format/unformatted_subfolder
-      Checks:
-        - Check: TerraformFormat
-          Name: RootOnly
-          Recursive: false
-        - Check: TerraformFormat
-          Name: RootAgain
-          Recursive: false
+      TerraformBuildConfig:
+        TerraformVersion: 1.13.0
+        RelativePathToTerraformFiles: tests/shared_resources/terraform_format/unformatted_subfolder
+        Checks:
+          - Check: TerraformFormat
+            Name: RootOnly
+            Recursive: false
+          - Check: TerraformFormat
+            Name: RootAgain
+            Recursive: false

@@ -2,22 +2,28 @@ parameters:
   - name: TerraformVersion
     type: string
     default: '1.14.0'
-    displayName: 'Version of Terraform CLI tool to use with the terraform files'
+    displayName: 'Version of Terraform CLI tool to use with the terraform files (shared by the build and deploy stages)'
 
+  - name: TerraformBuildConfig
+    type: object
+    default: {}
+    displayName: 'Terraform build configuration object, without ArtifactName and TerraformVersion (see docs/user-docs/pipelines/terraform_pipeline.md)'
+
+  # DEPRECATED parameters: use the matching TerraformBuildConfig field instead.
   - name: RelativePathToTerraformFiles
     type: string
     default: ''
-    displayName: 'Target Path to Terraform files (.tf,.tfvars) that require publishing as artifact'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.RelativePathToTerraformFiles'
 
   - name: AdditionalFilesToPackage
     type: object
     default: [ ]
-    displayName: 'List of additional files to include in the terraform artifact (SourceDirectory, FilesPattern, TargetSubdirectoryName)'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.AdditionalFilesToPackage'
 
   - name: TerraformBuildInjectionSteps
     type: stepList
     default: [ ]
-    displayName: 'Steps to be carried out before the terraform is init, validated, and packaged'
+    displayName: 'DEPRECATED: use TerraformBuildConfig.InjectionSteps'
 
   - name: EnvironmentConfigs
     type: object
@@ -27,9 +33,19 @@ parameters:
 stages:
   - template: /stages/terraform_build.yml
     parameters:
+      # The deploy stages use the pipeline's TerraformVersion and the default artifact name, so the build
+      # must too: these two fields can't be set in TerraformBuildConfig at pipeline level.
+      ${{ if contains(convertToJson(parameters.TerraformBuildConfig), '"TerraformVersion"') }}:
+        "Invalid TerraformBuildConfig: 'TerraformVersion' is not supported by terraform_pipeline. Set the pipeline's TerraformVersion parameter instead, which is shared by the build and deploy stages.": "Error"
+      ${{ if contains(convertToJson(parameters.TerraformBuildConfig), '"ArtifactName"') }}:
+        "Invalid TerraformBuildConfig: 'ArtifactName' is not supported by terraform_pipeline, because the deploy stages always use the artifact 'TerraformArtifact'.": "Error"
+      TerraformBuildConfig:
+        ${{ each field in parameters.TerraformBuildConfig }}:
+          ${{ field.key }}: ${{ field.value }}
+        ${{ if not(contains(convertToJson(parameters.TerraformBuildConfig), '"TerraformVersion"')) }}:
+          TerraformVersion: ${{ parameters.TerraformVersion }}
       RelativePathToTerraformFiles: ${{ parameters.RelativePathToTerraformFiles }}
       AdditionalFilesToPackage: ${{ parameters.AdditionalFilesToPackage }}
-      TerraformVersion: ${{ parameters.TerraformVersion }}
       TerraformBuildInjectionSteps: ${{ parameters.TerraformBuildInjectionSteps }}
 
   - ${{ each environmentConfig in parameters.EnvironmentConfigs }}:

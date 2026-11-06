@@ -24,7 +24,8 @@ variables:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: ${{ variables.TerraformPath }}
 
   - template: jobs/terraform_deploy.yml@AzDOPipelineTemplates
     parameters:

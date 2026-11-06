@@ -27,11 +27,12 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      TerraformVersion: 1.13.0
-      RelativePathToTerraformFiles: tests/shared_resources/terraform_format/unformatted
-      Checks:
-        - Check: TerraformFormat
-          TreatAsWarnings: true
+      TerraformBuildConfig:
+        TerraformVersion: 1.13.0
+        RelativePathToTerraformFiles: tests/shared_resources/terraform_format/unformatted
+        Checks:
+          - Check: TerraformFormat
+            TreatAsWarnings: true
 
   - job: ValidateResults
     dependsOn:
