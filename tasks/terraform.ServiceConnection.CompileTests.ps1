@@ -10,7 +10,7 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # ============================================================================
 
 $validTestCases = @(
-# INIT Command Tests
+  # INIT Command Tests
   @{
     Description = "init command with full backend configuration"
     Parameters = @{

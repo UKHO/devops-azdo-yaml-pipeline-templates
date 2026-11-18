@@ -4,6 +4,10 @@
 # Main entry point for the testing framework.
 # Initializes environment, loads modules, and exposes public test functions.
 
+# $RepositoryRoot is read by the other Core.*.ps1 files, which are dot-sourced into the same scope.
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'RepositoryRoot', Justification = 'Read by the dot-sourced Core.*.ps1 files.')]
+param()
+
 $RepositoryRoot = git rev-parse --show-toplevel 2> $null
 $frameworkRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Config = & (Join-Path $frameworkRoot "Config.ps1")
