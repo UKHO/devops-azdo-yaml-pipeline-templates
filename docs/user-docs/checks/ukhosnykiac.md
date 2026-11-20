@@ -1,18 +1,19 @@
-# SnykIac Check
+# UkhoSnykIac Check
 
-Scans your Terraform for security misconfigurations with Snyk (`snyk iac test`) and fails the build when it finds issues at or above the severity threshold. The scan reports are attached to the pipeline run.
+Scans your Terraform for security misconfigurations with Snyk (`snyk iac test`) and fails the build when it finds issues at or above the severity threshold. A JSON report of the scan is attached to the pipeline run.
+
+The check runs the **UKHO Snyk scan task** (`UkhoSnykScanTask`) from the UKHO Azure Pipeline Scan Task extension, not the Snyk CLI directly. Its settings and prerequisites, including the Snyk Authentication service connection, come from that task.
 
 ```yaml
 Checks:
-  - Check: SnykIac                  # (string, required) Selects this check.
+  - Check: UkhoSnykIac              # (string, required) Selects this check.
     ServiceConnection: Snyk         # (string, required) Name of your Snyk Authentication service connection.
     Organization: my-team           # (string, required) Snyk organisation slug or ID.
     # Only the settings above are required - every value below is shown at its default. Uncomment and change a value to override it.
 
-    # Name: ''                      # (string) Unique suffix for the step and report names. Required, and must be unique, when SnykIac is listed more than once.
+    # Name: ''                      # (string) Unique suffix for the step and report names. Required, and must be unique, when UkhoSnykIac is listed more than once.
     # TreatAsWarnings: false        # (boolean) When true, issues or scan errors produce a warning and the run is "partially succeeded" instead of failing.
     # SeverityThreshold: low        # (string) Lowest severity that fails the check: low, medium, high or critical.
-    # FailOnIssues: true            # (boolean) When false, the check always succeeds - including when the scan itself fails. Prefer TreatAsWarnings.
     # AdditionalArguments: ''       # (string) Extra Snyk CLI arguments, passed through as-is (for example '--report'). Not covered by versioning.
 ```
 
@@ -32,10 +33,9 @@ The check scans the build job's Terraform working directory (`RelativePathToTerr
 
 ## Behaviour
 
-- **What fails the build:** any issue at or above `SeverityThreshold`, and any scan error such as an invalid token or no Terraform files found.
-- **`TreatAsWarnings` vs `FailOnIssues`:** `TreatAsWarnings: true` still shows issues and scan errors as a warning. `FailOnIssues: false` makes the step succeed whatever happens, so a broken scan looks the same as a clean one. Use `TreatAsWarnings` unless you have a reason not to.
+- **What fails the build:** any issue at or above `SeverityThreshold`, and any scan error such as an invalid token or no Terraform files found. To report these as a warning instead, set `TreatAsWarnings: true`; there is no setting that hides them.
 - **Downloaded modules are scanned:** the check runs after `terraform init`, so module source downloaded into `.terraform/` is scanned along with your own files.
-- **Reports:** JSON and HTML reports named `snyk-iac` (or `snyk-iac-<Name>`) are attached to the run and shown on the scan report tab. They are not added to the Terraform artifact.
+- **Reports:** a JSON report named `snyk-iac` (or `snyk-iac-<Name>`) is attached to the run. It is not added to the Terraform artifact. The task currently also attaches an HTML report and shows the results on a scan report tab; these come from the task and are not covered by versioning.
 - **Results in Snyk:** results are not uploaded to Snyk unless you add `--report` to `AdditionalArguments`.
 
 ---
@@ -50,7 +50,7 @@ jobs:
     parameters:
       RelativePathToTerraformFiles: terraform
       Checks:
-        - Check: SnykIac
+        - Check: UkhoSnykIac
           ServiceConnection: Snyk
           Organization: my-team
 ```
@@ -59,7 +59,7 @@ jobs:
 
 ```yaml
 Checks:
-  - Check: SnykIac
+  - Check: UkhoSnykIac
     ServiceConnection: Snyk
     Organization: my-team
     SeverityThreshold: high
@@ -69,7 +69,7 @@ Checks:
 
 ```yaml
 Checks:
-  - Check: SnykIac
+  - Check: UkhoSnykIac
     ServiceConnection: Snyk
     Organization: my-team
     TreatAsWarnings: true
@@ -79,10 +79,10 @@ Checks:
 
 ```yaml
 Checks:
-  - Check: SnykIac
+  - Check: UkhoSnykIac
     ServiceConnection: Snyk
     Organization: my-team
-    AdditionalArguments: --report --project-name=my-infrastructure
+    AdditionalArguments: --report --target-name=my-infrastructure
 ```
 
 ---

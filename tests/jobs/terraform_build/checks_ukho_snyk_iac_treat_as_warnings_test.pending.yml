@@ -17,7 +17,7 @@ pr:
       - main
   drafts: false
 
-# SnykIac with TreatAsWarnings on Terraform with deliberate security issues. The scan fails, but the step
+# UkhoSnykIac with TreatAsWarnings on Terraform with deliberate security issues. The scan fails, but the step
 # uses continueOnError, so it's marked SucceededWithIssues and the job carries on to package and publish
 # the artifact. The ValidateResults job proves the artifact was still published.
 # Expected result: the run is "partially succeeded".
@@ -32,7 +32,7 @@ jobs:
       TerraformVersion: 1.13.0
       RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/insecure
       Checks:
-        - Check: SnykIac
+        - Check: UkhoSnykIac
           ServiceConnection: Snyk
           Organization: snyk-test-org
           TreatAsWarnings: true
