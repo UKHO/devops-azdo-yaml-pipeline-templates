@@ -74,7 +74,7 @@ parameter names and `displayName`, and document comprehensively in `docs/` inste
 Each check is one file named after the check in lowercase (`TerraformFormat` → `checks/terraformformat.yml`). It must:
 
 - Start with a short comment block describing the public interface: check name, purpose, and every setting with type and default.
-- Accept `WorkingDirectory` (supplied by the build job, not the consumer), plus the common settings `Name` (string, default `''`) and `TreatAsWarnings` (boolean, default `false`), plus its own settings with sensible defaults so `- Check: <Name>` alone is valid.
+- Accept `WorkingDirectory` (supplied by the consuming template job, not the consumer user), plus the common settings `Name` (string, default `''`) and `TreatAsWarnings` (boolean, default `false`), plus its own settings with sensible defaults so `- Check: <Name>` alone is valid.
 - Use `Name` to keep step names unique and map `TreatAsWarnings` to the step's native `continueOnError`.
 - Have a `*.CompileTests.ps1` next to it.
 
