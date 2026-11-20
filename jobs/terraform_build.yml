@@ -103,16 +103,14 @@ jobs:
           Command: validate
           WorkingDirectory: $(TerraformWorkingDirectory)
 
-      # User checks: run after the mandatory checks (init, validate) and before packaging.
-      # schemas/terraform_build.yml (above) holds the only list of supported checks. It rejects unknown
-      # check names, which fails the whole compile, so an unknown name never runs.
-      - ${{ each check in parameters.Checks }}:
-          - template: /checks/${{ lower(check.Check) }}.yml
-            parameters:
-              WorkingDirectory: $(TerraformWorkingDirectory)
-              ${{ each setting in check }}:
-                ${{ if ne(setting.key, 'Check') }}:
-                  ${{ setting.key }}: ${{ setting.value }}
+      - ${{ if ne(length(parameters.Checks), 0) }}:
+          - ${{ each check in parameters.Checks }}:
+              - template: /checks/${{ lower(check.Check) }}.yml
+                parameters:
+                  WorkingDirectory: $(TerraformWorkingDirectory)
+                  ${{ each setting in check }}:
+                    ${{ if ne(setting.key, 'Check') }}:
+                      ${{ setting.key }}: ${{ setting.value }}
 
       - template: /tasks/powershell.yml
         parameters:
