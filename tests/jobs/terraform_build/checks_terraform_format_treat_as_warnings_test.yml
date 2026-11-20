@@ -36,7 +36,18 @@ jobs:
   - job: ValidateResults
     dependsOn:
       - TerraformBuild_TerraformArtifact
+    variables:
+      - name: TerraformBuildResult
+        value: $[ dependencies.TerraformBuild_TerraformArtifact.result ]
+        readonly: true
     steps:
+      - pwsh: |
+          if ($env:TERRAFORM_BUILD_RESULT -ne 'SucceededWithIssues') {
+            throw "Expected TerraformFormat to produce SucceededWithIssues, got '$env:TERRAFORM_BUILD_RESULT'."
+          }
+        displayName: 'Assert TerraformFormat reported a warning'
+        env:
+          TERRAFORM_BUILD_RESULT: $(TerraformBuildResult)
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
           ArtifactName: TerraformArtifact
