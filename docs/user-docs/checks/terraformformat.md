@@ -7,7 +7,7 @@ Checks:
   - Check: TerraformFormat     # (string, required) Selects this check.
     # Only Check is required - every value below is shown at its default. Uncomment and change a value to override it.
 
-    # Name: ''                 # (string) Unique suffix for the step name. Required, and must be unique, when TerraformFormat is listed more than once.
+    # Name: ''                 # (string) Unique step-name suffix (letters, digits and underscores only). Required and unique when TerraformFormat is listed more than once.
     # TreatAsWarnings: false   # (boolean) When true, unformatted files produce a warning and the run is "partially succeeded" instead of failing.
     # Recursive: true          # (boolean) When true, also checks files in subdirectories (adds -recursive).
 ```
