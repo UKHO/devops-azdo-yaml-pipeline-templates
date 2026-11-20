@@ -201,10 +201,10 @@ $validTestCases = @(
     )
   },
   @{
-    Description = "Checks with SnykIac scans the Terraform working directory after validate"
+    Description = "Checks with UkhoSnykIac scans the Terraform working directory after validate"
     Parameters = @{
       Checks = @"
- - Check: SnykIac
+ - Check: UkhoSnykIac
    ServiceConnection: Snyk
    Organization: my-team
 "@
@@ -254,7 +254,7 @@ $invalidTestCases = @(
  - Check: NotValidCheck
 "@
     }
-    ErrorMessage = "Invalid Checks: 'NotValidCheck' is not a supported check for terraform_build. Supported: TerraformFormat, SnykIac."
+    ErrorMessage = "Invalid Checks: 'NotValidCheck' is not a supported check for terraform_build. Supported: TerraformFormat, UkhoSnykIac."
   },
   @{
     # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.

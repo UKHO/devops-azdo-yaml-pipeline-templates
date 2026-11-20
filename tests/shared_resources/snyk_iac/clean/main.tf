@@ -1,4 +1,4 @@
-// Fixture for the SnykIac check: a single resource group, which no Snyk IaC rule flags, so the scan passes.
+// Fixture for the Snyk IaC checks: a single resource group, which no Snyk IaC rule flags, so the scan passes.
 // Nothing here is ever applied; the build only runs init, validate and the checks.
 
 terraform {

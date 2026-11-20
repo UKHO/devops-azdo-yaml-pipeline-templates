@@ -17,7 +17,7 @@ pr:
       - main
   drafts: false
 
-# SnykIac on Terraform with no security issues.
+# UkhoSnykIac on Terraform with no security issues.
 # Expected result: the build job succeeds and the Snyk reports are attached to the run.
 #
 # PENDING: named *.pending.yml so cicd/ does not deploy it yet. Rename to *_test.yml once these exist:
@@ -30,6 +30,6 @@ jobs:
       TerraformVersion: 1.13.0
       RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
       Checks:
-        - Check: SnykIac
+        - Check: UkhoSnykIac
           ServiceConnection: Snyk
           Organization: snyk-test-org
