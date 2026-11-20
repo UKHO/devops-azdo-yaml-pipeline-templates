@@ -1,21 +1,25 @@
-# Check: SnykIac
+# Check: UkhoSnykIac
 #
 # Purpose:
 #   Scans the build's Terraform for security misconfigurations with Snyk ('snyk iac test'), using the
-#   UKHO Snyk extension task. Fails the build when issues at or above SeverityThreshold are found.
+#   UKHO Snyk extension task (UkhoSnykScanTask). Fails the build when issues at or above SeverityThreshold
+#   are found. This check is tied to that task and its Snyk Authentication service connection type; a
+#   check that calls the Snyk CLI directly would be a separate check with its own settings.
 #
 # Public interface (SemVer):
-#   The check name 'SnykIac' and the consumer-facing parameters below (Name, TreatAsWarnings,
-#   ServiceConnection, Organization, SeverityThreshold, FailOnIssues, AdditionalArguments) are public,
-#   because consumers set them through the Checks parameter. What is passed through AdditionalArguments
-#   is not covered. The steps in this file are internal and can change, as long as the behaviour stays the same.
+#   The check name 'UkhoSnykIac' and the consumer-facing parameters below (Name, TreatAsWarnings,
+#   ServiceConnection, Organization, SeverityThreshold, AdditionalArguments) are public, because consumers
+#   set them through the Checks parameter. Also public: the JSON report attached to the run, named
+#   'snyk-iac' or 'snyk-iac-<Name>'. What is passed through AdditionalArguments, and anything else the
+#   task adds (such as the HTML report and the scan report tab), is not covered. The steps in this file
+#   are internal and can change, as long as the behaviour stays the same.
 #
 # Consumer usage (through a build job's Checks parameter):
 #   Checks:
-#     - Check: SnykIac
+#     - Check: UkhoSnykIac
 #       ServiceConnection: Snyk
 #       Organization: my-team
-#     - Check: SnykIac
+#     - Check: UkhoSnykIac
 #       Name: HighOnly
 #       ServiceConnection: Snyk
 #       Organization: my-team
@@ -30,12 +34,10 @@
 #     than once. Letters, digits and underscores only, because it becomes part of the step name. Default: ''
 #   - TreatAsWarnings (boolean, optional): Report issues and scan errors as a warning (SucceededWithIssues)
 #     instead of failing the job. Default: false
-#   SnykIac settings:
+#   UkhoSnykIac settings:
 #   - ServiceConnection (string, required): Snyk Authentication service connection name.
 #   - Organization (string, required): Snyk organisation slug or ID.
 #   - SeverityThreshold (string, optional): Lowest severity that fails the check. Values: low, medium, high, critical. Default: 'low'
-#   - FailOnIssues (boolean, optional): When false, the step always succeeds - including when the scan
-#     itself errors (bad token, nothing to scan). Prefer TreatAsWarnings. Default: true
 #   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
 #
 # Notes:
@@ -43,6 +45,8 @@
 #     connection authorised for the pipeline, and outbound internet access to Snyk from the agent.
 #   - The scan is recursive and runs after 'terraform init', so module source downloaded into .terraform/
 #     is scanned too.
+#   - Any issue at or above SeverityThreshold, and any scan error, fails the step. The task's own
+#     failOnIssues switch is deliberately not exposed, because turning it off also hides scan errors.
 #   - Reports are attached to the build (not packaged), named 'snyk-iac' or 'snyk-iac-<Name>'.
 #   - TreatAsWarnings uses the step's native continueOnError.
 
@@ -64,7 +68,7 @@ parameters:
     default: false
     displayName: 'Report issues as a warning instead of failing the job'
 
-  # SnykIac settings
+  # UkhoSnykIac settings
   - name: ServiceConnection
     type: string
     # NO default - Consumer must provide this
@@ -85,11 +89,6 @@ parameters:
       - critical
     displayName: 'Lowest severity that fails the check'
 
-  - name: FailOnIssues
-    type: boolean
-    default: true
-    displayName: 'Fail the check when issues are found'
-
   - name: AdditionalArguments
     type: string
     default: ''
@@ -102,14 +101,13 @@ steps:
   # 2. Ensure the tool exists: the Snyk task downloads the Snyk CLI itself.
 
   # 3. Run the check
-  - template: /tasks/snyk_scan.yml
+  - template: /tasks/ukho_snyk_scan.yml
     parameters:
       ServiceConnection: ${{ parameters.ServiceConnection }}
       Organization: ${{ parameters.Organization }}
       WorkingDirectory: ${{ parameters.WorkingDirectory }}
       TestType: iac
       SeverityThreshold: ${{ parameters.SeverityThreshold }}
-      FailOnIssues: ${{ parameters.FailOnIssues }}
       AdditionalArguments: ${{ parameters.AdditionalArguments }}
       ReportFileName: snyk-iac${{ iif(ne(parameters.Name, ''), format('-{0}', parameters.Name), '') }}
       TaskNameUniqueSlug: ${{ parameters.Name }}

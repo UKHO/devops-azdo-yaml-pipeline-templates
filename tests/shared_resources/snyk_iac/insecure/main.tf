@@ -1,4 +1,4 @@
-// Fixture for the SnykIac check: a storage account with deliberate security misconfigurations
+// Fixture for the Snyk IaC checks: a storage account with deliberate security misconfigurations
 // (public blob access, TLS 1.0, HTTP allowed, open network access), so the scan reports issues.
 // Nothing here is ever applied; the build only runs init, validate and the checks. Do not copy this.
 

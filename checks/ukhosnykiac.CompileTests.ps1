@@ -1,7 +1,7 @@
 # ============================================================================
-# TEST: SnykIac Check Template
+# TEST: UkhoSnykIac Check Template
 # ============================================================================
-# Tests for checks/snykiac.yml, which runs a Snyk iac scan through /tasks/snyk_scan.yml.
+# Tests for checks/ukhosnykiac.yml, which runs a Snyk iac scan through /tasks/ukho_snyk_scan.yml.
 # Covers the defaults, each setting, and that bad input is rejected (missing required settings,
 # wrong types and values, and unknown settings forwarded from Checks).
 # Requires the UKHO Snyk extension to be installed in the test Azure DevOps organisation.
@@ -58,13 +58,11 @@ $validTestCases = @(
       Name = 'HighOnly'
       TreatAsWarnings = $true
       SeverityThreshold = 'high'
-      FailOnIssues = $false
       AdditionalArguments = '--report'
     }
     ExpectedYaml = @(
       'name: SnykScanTask_iac_HighOnly'
       'severityThreshold: high'
-      'failOnIssues: false'
       'additionalArguments: --report'
       'continueOnError: true'
     )
@@ -93,8 +91,8 @@ $invalidTestCases = @(
     ErrorMessage = "SeverityThreshold"
   },
   @{
-    Description = "with a non-boolean FailOnIssues"
-    Parameters = $required.Clone() + @{ FailOnIssues = 'maybe' }
+    Description = "with FailOnIssues, which is not supported (use TreatAsWarnings)"
+    Parameters = $required.Clone() + @{ FailOnIssues = $false }
     ErrorMessage = "FailOnIssues"
   },
   @{
@@ -109,6 +107,6 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "checks/snykiac.yml" `
+  -YamlPath "checks/ukhosnykiac.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

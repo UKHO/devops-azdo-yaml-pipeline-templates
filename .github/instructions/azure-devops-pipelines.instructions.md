@@ -113,7 +113,7 @@ steps:
 
 **Prefer built-in or open-source tasks over paid Marketplace extensions.** Where a built-in Azure DevOps task, a `script`/`pwsh` step, or an open-source equivalent can do the job, use it. Do not introduce tasks that require a consumer organisation to install a licensed/paid Marketplace extension.
 
-**Exception — opt-in checks:** a build check in `checks/` may use a licensed or internal extension (for example `SnykIac` uses the UKHO Snyk extension), because only consumers who list that check need it. The check's user page must list the extension and any licence or service connection under **Prerequisites**, and no other template may depend on it.
+**Exception — opt-in checks:** a build check in `checks/` may use a licensed or internal extension (for example `UkhoSnykIac` uses the UKHO Snyk extension), because only consumers who list that check need it. The check's user page must list the extension and any licence or service connection under **Prerequisites**, and no other template may depend on it.
 
 This repository runs Terraform commands through `cmdline`/`script` steps, but installing the CLI still requires the free Microsoft DevLabs Terraform extension that supplies `TerraformInstaller@1`. See [Design Philosophy](../../docs/developers/explanation/design-philosophy.md#cross-platform-and-open-source-by-default).
 

@@ -1,7 +1,7 @@
 # ============================================================================
-# TEST: Snyk Scan Task Template
+# TEST: UKHO Snyk Scan Task Template
 # ============================================================================
-# Tests for tasks/snyk_scan.yml, a wrapper around UkhoSnykScanTask@0 (iac only for now).
+# Tests for tasks/ukho_snyk_scan.yml, a wrapper around UkhoSnykScanTask@0 (iac only for now).
 # Requires the UKHO Snyk extension to be installed in the test Azure DevOps organisation.
 
 # Load framework (only if not already loaded)
@@ -41,7 +41,6 @@ $validTestCases = @(
     Description = "with every optional parameter"
     Parameters = $required.Clone() + @{
       SeverityThreshold = 'critical'
-      FailOnIssues = $false
       AdditionalArguments = '--report'
       ReportFileName = 'snyk-iac-Root'
       TaskNameUniqueSlug = 'Root'
@@ -51,7 +50,7 @@ $validTestCases = @(
       'name: SnykScanTask_iac_Root'
       'displayName: Snyk iac scan (Root)'
       'severityThreshold: critical'
-      'failOnIssues: false'
+      'failOnIssues: true'
       'additionalArguments: --report'
       'reportFileName: snyk-iac-Root'
       'continueOnError: true'
@@ -81,6 +80,11 @@ $invalidTestCases = @(
     ErrorMessage = "TestType"
   },
   @{
+    Description = "with FailOnIssues, which is not supported (failOnIssues is always true)"
+    Parameters = $required.Clone() + @{ FailOnIssues = $false }
+    ErrorMessage = "FailOnIssues"
+  },
+  @{
     Description = "with an invalid SeverityThreshold"
     Parameters = $required.Clone() + @{ SeverityThreshold = 'severe' }
     ErrorMessage = "SeverityThreshold"
@@ -92,6 +96,6 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "tasks/snyk_scan.yml" `
+  -YamlPath "tasks/ukho_snyk_scan.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

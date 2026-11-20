@@ -27,10 +27,10 @@ Complete end-to-end pipeline templates for specific use cases.
 
 Optional quality checks enabled through a build job's `Checks` parameter. See **[Build Checks](./checks/README.md)** for how they work.
 
-| Check                                              | Purpose                                                  |
-|----------------------------------------------------|----------------------------------------------------------|
-| **[TerraformFormat](./checks/terraformformat.md)** | Fails when Terraform files are not formatted canonically |
-| **[SnykIac](./checks/snykiac.md)**                 | Scans Terraform for security misconfigurations with Snyk |
+| Check                                              | Purpose                                                                     |
+|----------------------------------------------------|-----------------------------------------------------------------------------|
+| **[TerraformFormat](./checks/terraformformat.md)** | Fails when Terraform files are not formatted canonically                    |
+| **[UkhoSnykIac](./checks/ukhosnykiac.md)**         | Scans Terraform for security misconfigurations with the UKHO Snyk scan task |
 
 ## 📦 Upgrade Guides
 
