@@ -125,7 +125,9 @@ jobs:
       # User checks: run after the mandatory checks (init, validate) and before packaging.
       # schemas/terraform_build_config.yml (above) holds the only list of supported checks. It rejects
       # unknown check names, which fails the whole compile, so an unknown name never runs.
-      - ${{ if ne(length(parameters.TerraformBuildConfig.Checks), 0) }}:
+      # Checks is null when TerraformBuildConfig doesn't set it, and length() rejects null, so test for it
+      # first (and() stops at the first false value).
+      - ${{ if and(parameters.TerraformBuildConfig.Checks, ne(length(parameters.TerraformBuildConfig.Checks), 0)) }}:
           - ${{ each check in parameters.TerraformBuildConfig.Checks }}:
               - template: /checks/${{ lower(check.Check) }}.yml
                 parameters:
