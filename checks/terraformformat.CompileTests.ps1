@@ -73,7 +73,10 @@ $validTestCases = @(
       TreatAsWarnings = $true
     }
     ExpectedYaml = @(
+      'terraform fmt -check -diff'
       'name: TerraformTask_fmt_Root_Only'
+      "workingDirectory: $workingDirectory"
+      'displayName: Terraform fmt'
       'continueOnError: true'
     )
   }
@@ -91,7 +94,7 @@ $invalidTestCases = @(
     Parameters = @{
       WorkingDirectory = ""
     }
-    ErrorMessage = "The 'WorkingDirectory' parameter"
+    ErrorMessage = "The 'WorkingDirectory' parameter is not a valid String."
   },
   @{
     Description = "with a misspelled setting (Recursiv)"
@@ -99,7 +102,7 @@ $invalidTestCases = @(
       WorkingDirectory = $workingDirectory
       Recursiv = $false
     }
-    ErrorMessage = "Recursiv"
+    ErrorMessage = "Unexpected parameter 'Recursiv'"
   },
   @{
     Description = "with a non-boolean TreatAsWarnings"
@@ -107,7 +110,7 @@ $invalidTestCases = @(
       WorkingDirectory = $workingDirectory
       TreatAsWarnings = "sometimes"
     }
-    ErrorMessage = "TreatAsWarnings"
+    ErrorMessage = "The 'TreatAsWarnings' parameter value 'sometimes' is not a valid Boolean."
   },
   @{
     Description = "with a non-boolean Recursive"
@@ -115,7 +118,7 @@ $invalidTestCases = @(
       WorkingDirectory = $workingDirectory
       Recursive = "yes please"
     }
-    ErrorMessage = "Recursive"
+    ErrorMessage = "The 'Recursive' parameter value 'yes please' is not a valid Boolean."
   },
   @{
     Description = "with a Name containing a space (invalid step name)"
@@ -123,7 +126,7 @@ $invalidTestCases = @(
       WorkingDirectory = $workingDirectory
       Name = "My Modules"
     }
-    ErrorMessage = "TerraformTask_fmt_My Modules"
+    ErrorMessage = "Step TerraformTask_fmt_My Modules has an invalid name. Valid names may only contain alphanumeric characters and '_' and may not start with a number."
   }
 )
 
