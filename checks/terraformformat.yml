@@ -13,7 +13,6 @@
 # Consumer usage (through a build job's Checks parameter):
 #   Checks:
 #     - Check: TerraformFormat
-#     - Check: TerraformFormat
 #       Name: Modules
 #       Recursive: false
 #       TreatAsWarnings: true
@@ -30,7 +29,7 @@
 #   - Recursive (boolean, optional): Also check Terraform files in subfolders. Default: true
 #
 # Notes:
-#   - Terraform must already be installed (the build job's Prepare phase does this).
+#   - Terraform must already be installed
 #   - Runs through /tasks/terraform.yml. TreatAsWarnings uses the step's native continueOnError, so a
 #     failure shows as a warning and the job finishes as SucceededWithIssues.
 

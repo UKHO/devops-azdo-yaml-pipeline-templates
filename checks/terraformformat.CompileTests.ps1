@@ -93,7 +93,6 @@ $invalidTestCases = @(
     Parameters = @{
       WorkingDirectory = ""
     }
-    # Rejected natively by Azure DevOps: a required string parameter can't be empty.
     ErrorMessage = "The 'WorkingDirectory' parameter"
   },
   @{
