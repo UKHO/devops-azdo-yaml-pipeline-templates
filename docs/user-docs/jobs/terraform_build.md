@@ -23,7 +23,18 @@ jobs:
       # TerraformBuildInjectionSteps:                # (list) Custom steps run once, before terraform init/validate. Defaults to an empty list. Example item structure:
       #   - pwsh: |
       #       Write-Host "Custom preprocessing..."
+
+      # Checks:                                      # (list) Quality checks run after terraform validate, before packaging. Defaults to an empty list. Each check has its own settings - see Supported Checks below. Example:
+      #   - Check: TerraformFormat
 ```
+
+---
+
+## Supported Checks
+
+The `Checks` parameter accepts the following checks. See [Build Checks](../checks/README.md) for how checks run and the settings every check shares.
+
+- [TerraformFormat](../checks/terraformformat.md) – Fails when Terraform files are not formatted canonically (`terraform fmt -check`).
 
 ---
 
@@ -111,10 +122,24 @@ jobs:
 
 **Live example**: [`tests/jobs/terraform_build/injection_steps_test.yml`](../../../tests/jobs/terraform_build/injection_steps_test.yml)
 
+### With Checks
+
+```yaml
+jobs:
+  - template: jobs/terraform_build.yml
+    parameters:
+      RelativePathToTerraformFiles: terraform
+      Checks:
+        - Check: TerraformFormat
+```
+
+**Live example**: [`tests/jobs/terraform_build/checks_terraform_format_test.yml`](../../../tests/jobs/terraform_build/checks_terraform_format_test.yml) – more examples in the [TerraformFormat check docs](../checks/terraformformat.md#examples)
+
 ---
 
 ## See Also
 
+- [Build Checks](../checks/README.md) – Optional quality checks for this job
 - [Terraform Deploy Job](./terraform_deploy.md) – Uses artifact from this job
 - [Terraform Gated Deployment Job](./terraform_gated_deployment.md) – Orchestrates build with deploy
 - [Terraform Pipeline](../pipelines/terraform_pipeline.md) – Complete pipeline using this job

@@ -17,7 +17,15 @@ Templates are composed in layers by scope: **tasks → jobs → stages → pipel
 
 ## Public vs. Internal
 
-The reuse surface is deliberately narrow. **Only `pipelines/` and `jobs/` are public** — they are the only directories external consumers may reference, and they are the only ones under SemVer. Everything else (`tasks/`, `stages/`, `schemas/`, `utils/`, `scripts/`, `tools/`) is an **internal** building block used to compose the public templates; it is not for direct external use and carries no versioning guarantees. Keeping this surface small is what lets the internals evolve freely without breaking consumers.
+The reuse surface is deliberately narrow. The public API — everything covered by SemVer — is made up of three things:
+
+- **`pipelines/`** — complete, ready-to-use pipelines that consumers reference directly.
+- **`jobs/`** — modular job templates that consumers reference directly and combine as they need.
+- **The checks in `checks/`** — consumers never reference these files, but they select checks by name, with settings, through a build job's `Checks` parameter (`- Check: <Name>`). Those names and settings are the contract, so they are versioned like any other public input.
+
+Treating checks as data that consumers select, rather than as templates they reference, is deliberate: new quality checks can be added to a build job without growing its parameter list, and the check implementation stays free to change behind a stable name.
+
+Everything else (`tasks/`, `stages/`, `schemas/`, `utils/`, `scripts/`, `tools/`) is an **internal** building block used to compose the public API; it is not for direct external use and carries no versioning guarantees. Keeping the public surface small is what lets the internals evolve freely without breaking consumers.
 
 ## Behavioural Solutions, Not Building Blocks
 

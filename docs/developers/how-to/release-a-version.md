@@ -1,6 +1,6 @@
 # Release a Version
 
-This is the process for shipping a change that affects the public API (`pipelines/`/`jobs/`) — see [Versioning Policy](../reference/versioning-policy.md) for what counts as MAJOR/MINOR/PATCH and what the public API is.
+This is the process for shipping a change that affects the public API: the templates in `pipelines/` and `jobs/`, and the checks in `checks/` (selected by name and settings). See [Versioning Policy](../reference/versioning-policy.md) for what counts as MAJOR/MINOR/PATCH and what the public API is.
 
 ## Breaking Change Process
 

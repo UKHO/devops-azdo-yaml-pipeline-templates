@@ -9,6 +9,7 @@
 # - Repository checkout paths and working directories
 # - Build injection steps (custom pre-build steps)
 # - Additional files packaging (copying extra resources into artifact)
+# - Checks (TerraformFormat): order, settings pass-through, duplicates and rejected input
 # - Combined scenarios with multiple parameters
 #
 # NOTE: Job templates that reference other templates (tasks, jobs, steps) may experience
@@ -186,6 +187,18 @@ $validTestCases = @(
     ExpectedYaml = @(
       'pool:*name: Custom-Agent-Pool'
     )
+  },
+  @{
+    Description = "Checks with TerraformFormat runs after validate and before packaging"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+"@
+    }
+    ExpectedYaml = @(
+      'name: TerraformTask_validate*name: TerraformTask_fmt*RemoveTerraformDirectory',
+      'terraform fmt -check -diff -recursive'
+    )
   }
 )
 
@@ -210,6 +223,32 @@ $invalidTestCases = @(
       TerraformBuildInjectionSteps = "junk"
     }
     ErrorMessage = "The 'TerraformBuildInjectionSteps' parameter is not a valid StepList."
+  },
+  @{
+    Description = "empty Checks parameter"
+    Parameters = @{
+      Checks = ""
+    }
+    ErrorMessage = "The 'Checks' parameter is not a valid Object."
+  },
+  @{
+    Description = "Checks with an unsupported check"
+    Parameters = @{
+      Checks = @"
+ - Check: NotValidCheck
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'NotValidCheck' is not a supported check for terraform_build. Supported: TerraformFormat."
+  },
+  @{
+    # Without a guard in the job, this builds the path /checks/../tasks/terraform.yml; the schema error must still fail the compile.
+    Description = "Checks with a path-like check name"
+    Parameters = @{
+      Checks = @"
+ - Check: ../tasks/terraform
+"@
+    }
+    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build."
   }
 )
 

@@ -14,6 +14,17 @@ We use [Semantic Versioning 2.0.0](https://semver.org/) for all pipeline templat
 
 SemVer compatibility guarantees apply to templates in `pipelines/` and `jobs/` — these are this repository's **public API**. Everything else (`tasks/`, `stages/`, `utils/`, `schemas/`, `scripts/`) is internal implementation and may be changed freely, **as long as no public `pipelines/`/`jobs/` template's parameters, outputs, or documented behaviour change as a result**. If an internal change is invisible to a consumer of a `pipelines/`/`jobs/` template, it is not a breaking change in SemVer terms, even if it would be breaking in isolation.
 
+### Build Checks
+
+`checks/` sits between the two. Consumers never reference check files directly; they select them through a build job's `Checks` parameter. That makes the following part of the public API:
+
+- **Check names** (e.g. `TerraformFormat`) — removing or renaming a check is **MAJOR**.
+- **Check settings** (e.g. `Name`, `TreatAsWarnings`, `Recursive`) — removing or renaming a setting, or changing its default, is **MAJOR**; adding an optional setting is **MINOR**.
+- **Support for a check in a build job** — removing a check from a job's supported list is **MAJOR**; adding a new check, or adding support for an existing check to another build job, is **MINOR**.
+- **What a check enforces** — making a check stricter, so that previously passing builds now fail, is **MAJOR**.
+
+The steps a check emits (step names aside — see [Subtle Breaking Changes](#subtle-breaking-changes)) are implementation detail and may change freely.
+
 ## Version Segment Guide
 
 | Change Type         | Description                                                                            | Version Segment |

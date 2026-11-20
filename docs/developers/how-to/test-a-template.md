@@ -122,6 +122,16 @@ How values are matched:
 | `ErrorMessage` | **Literal**, case-insensitive substring of the Azure DevOps error message. `*`, `?`, `[` and `]` have no special meaning.                                                                                                  |
 | `ExpectedYaml` | **Wildcard** (`-like "*<value>*"`). `*` matches any text, including line breaks, so `'inputs:*TerraformVersion:**1.14.0'` spans lines. `?`, `[` and `]` are also pattern characters: avoid them, or escape them with a backtick. |
 
+### Writing an `ErrorMessage`
+
+Set `ErrorMessage` to the **full** error message the case should produce, not a single word or a fragment such as a parameter name. A fragment like `"Recursive"` also matches unrelated errors that mention the same word, so the case can pass even when the template rejects the input for the wrong reason.
+
+| Avoid         | Use                                                                      |
+| ------------- | ------------------------------------------------------------------------ |
+| `"Recursive"` | `"The 'Recursive' parameter value 'yes please' is not a valid Boolean."` |
+
+To find the exact text, run the case once with a placeholder `ErrorMessage`; the failure output shows the message Azure DevOps returned. Leave out only parts that come from the test harness rather than the template, such as a `Job Job:` prefix.
+
 ## Pull Request Process
 
 1. Create a **draft PR** early for initial feedback.
