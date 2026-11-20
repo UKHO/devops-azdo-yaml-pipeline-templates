@@ -40,8 +40,6 @@ $validTestCases = @(
       Recursive = $false
     }
     ExpectedYaml = @(
-      # The framework can only assert text is present, so this confirms the command compiles.
-      # That '-recursive' is dropped is proven end to end by tests/jobs/terraform_build/checks_terraform_format_not_recursive_test.yml.
       'terraform fmt -check -diff'
     )
   },

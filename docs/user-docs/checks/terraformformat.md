@@ -4,7 +4,7 @@ Runs `terraform fmt -check -diff` against your Terraform files and fails when an
 
 ```yaml
 Checks:
-  - Check: TerraformFormat     # (string, required) Selects this check.
+  - Check: TerraformFormat # (string, required) Selects this check.
     # Only Check is required - every value below is shown at its default. Uncomment and change a value to override it.
 
     # Name: ''                 # (string) Unique step-name suffix (letters, digits and underscores only). Required and unique when TerraformFormat is listed more than once.
@@ -45,8 +45,6 @@ Checks:
     Recursive: false
 ```
 
-**Live example**: [`tests/jobs/terraform_build/checks_terraform_format_not_recursive_test.yml`](../../../tests/jobs/terraform_build/checks_terraform_format_not_recursive_test.yml)
-
 ### Listed Twice With Different Settings
 
 ```yaml
@@ -60,8 +58,6 @@ Checks:
 ```
 
 Each entry gets its own step (`TerraformTask_fmt_RootOnly` and `TerraformTask_fmt_RootAgain`).
-
-**Live example**: [`tests/jobs/terraform_build/checks_terraform_format_named_twice_test.yml`](../../../tests/jobs/terraform_build/checks_terraform_format_named_twice_test.yml)
 
 ### Warn Instead of Fail
 
