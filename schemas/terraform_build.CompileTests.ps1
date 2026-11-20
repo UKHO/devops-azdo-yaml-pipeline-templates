@@ -16,6 +16,8 @@ if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
 # DEFINE TEST CASES
 # ============================================================================
 
+$seeDocs = "See: docs/user-docs/checks/README.md"
+
 $validTestCases = @(
   @{
     Description = "with a single TerraformFormat entry"
@@ -46,6 +48,17 @@ $validTestCases = @(
    Name: Modules
 "@
     }
+  },
+  @{
+    Description = "with one Name that starts with another (Root and Root_All)"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name: Root
+ - Check: TerraformFormat
+   Name: Root_All
+"@
+    }
   }
 )
 
@@ -55,7 +68,7 @@ $invalidTestCases = @(
     Parameters = @{
       Checks = "TerraformFormat"
     }
-    ErrorMessage = "Invalid Checks: must be a list of check objects"
+    ErrorMessage = "Invalid Checks: must be a list of check objects, for example '- Check: TerraformFormat'. $seeDocs"
   },
   @{
     Description = "with an entry that is a string, not an object"
@@ -64,7 +77,7 @@ $invalidTestCases = @(
  - TerraformFormat
 "@
     }
-    ErrorMessage = "Invalid Checks: each entry must be an object with a 'Check' field"
+    ErrorMessage = "Invalid Checks: each entry must be an object with a 'Check' field, for example '- Check: TerraformFormat'. $seeDocs"
   },
   @{
     Description = "with an entry missing the Check field"
@@ -73,7 +86,7 @@ $invalidTestCases = @(
  - Name: Modules
 "@
     }
-    ErrorMessage = "Invalid Checks: entry is missing required string field 'Check'."
+    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat. $seeDocs"
   },
   @{
     Description = "with an empty Check field"
@@ -82,7 +95,7 @@ $invalidTestCases = @(
  - Check: ''
 "@
     }
-    ErrorMessage = "Invalid Checks: entry is missing required string field 'Check'."
+    ErrorMessage = "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat. $seeDocs"
   },
   @{
     Description = "with a Check field that is a list"
@@ -92,7 +105,17 @@ $invalidTestCases = @(
      - TerraformFormat
 "@
     }
-    ErrorMessage = "Invalid Checks: entry is missing required string field 'Check'."
+    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat. $seeDocs"
+  },
+  @{
+    Description = "with a Check field that is an object"
+    Parameters = @{
+      Checks = @"
+ - Check:
+     Name: TerraformFormat
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat. $seeDocs"
   },
   @{
     Description = "with an unsupported check"
@@ -101,7 +124,7 @@ $invalidTestCases = @(
  - Check: TFLint
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat."
+    ErrorMessage = "Invalid Checks: 'TFLint' is not a supported check for terraform_build. Supported: TerraformFormat. $seeDocs"
   },
   @{
     Description = "with a path-like Check value"
@@ -110,7 +133,7 @@ $invalidTestCases = @(
  - Check: ../tasks/terraform
 "@
     }
-    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build."
+    ErrorMessage = "Invalid Checks: '../tasks/terraform' is not a supported check for terraform_build. Supported: TerraformFormat. $seeDocs"
   },
   @{
     Description = "with an empty Name"
@@ -120,7 +143,18 @@ $invalidTestCases = @(
    Name: ''
 "@
     }
-    ErrorMessage = "Invalid Checks: 'Name' must be a non-empty string when provided."
+    ErrorMessage = "Invalid Checks: 'Name' must be a non-empty string when provided. $seeDocs"
+  },
+  @{
+    Description = "with a Name that is a list"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name:
+     - Root
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'Name' must be a string. $seeDocs"
   },
   @{
     Description = "with TerraformFormat listed twice and one Name missing"
@@ -131,7 +165,7 @@ $invalidTestCases = @(
    Name: Modules
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'."
+    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'. $seeDocs"
   },
   @{
     Description = "with TerraformFormat listed twice with different settings and no Names"
@@ -142,7 +176,52 @@ $invalidTestCases = @(
    Recursive: false
 "@
     }
-    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'."
+    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'. $seeDocs"
+  },
+  @{
+    Description = "with two identical unnamed TerraformFormat entries"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+ - Check: TerraformFormat
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'. $seeDocs"
+  },
+  @{
+    Description = "with two unnamed entries whose Check differs only in case"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+ - Check: terraformformat
+"@
+    }
+    ErrorMessage = "Invalid Checks: 'TerraformFormat' is listed more than once, so every 'TerraformFormat' entry needs a unique 'Name'. $seeDocs"
+  },
+  @{
+    Description = "with two entries using the same Name"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name: Root
+ - Check: TerraformFormat
+   Name: Root
+   Recursive: false
+"@
+    }
+    ErrorMessage = "Invalid Checks: the Name 'Root' is used by more than one entry. Each 'Name' must be unique. $seeDocs"
+  },
+  @{
+    Description = "with two entries whose Names differ only in case"
+    Parameters = @{
+      Checks = @"
+ - Check: TerraformFormat
+   Name: Root
+ - Check: TerraformFormat
+   Name: ROOT
+"@
+    }
+    ErrorMessage = "Invalid Checks: the Name 'Root' is used by more than one entry. Each 'Name' must be unique. $seeDocs"
   }
 )
 
