@@ -20,7 +20,8 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
 
   - template: jobs/terraform_gated_deployment.yml@AzDOPipelineTemplates
     parameters:

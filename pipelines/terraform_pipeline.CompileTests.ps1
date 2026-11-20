@@ -1,6 +1,10 @@
-$repoRoot = git rev-parse --show-toplevel
-. (Join-Path $repoRoot "tests" "framework" "Core.ps1")
-
+# ============================================================================
+# TEST: Terraform Pipeline Template
+# ============================================================================
+# Tests for pipelines/terraform_pipeline.yml: the environment loop, and how the pipeline builds the
+# Terraform artifact. TerraformBuildConfig (including Checks) is passed to the build, the pipeline's
+# shared TerraformVersion is added to it, and the deprecated top-level build parameters still work.
+#
 # Branch coverage (pipelines/terraform_pipeline.yml):
 #   each EnvironmentConfigs          -> "with one environment", "with two environments, in order"
 #   if environmentConfig.Name empty  -> "environment without a Name" (entered), "with one environment" (not entered)
@@ -8,6 +12,17 @@ $repoRoot = git rev-parse --show-toplevel
 #
 # EnvironmentConfigs is passed as YAML text. Passed as JSON, the 'each' loop hands each entry on as a
 # value that cannot be converted back into a template token.
+
+# Load framework (only if not already loaded)
+if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
+{
+  $repoRoot = git rev-parse --show-toplevel 2> $null
+  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+}
+
+# ============================================================================
+# DEFINE TEST CASES
+# ============================================================================
 
 function New-EnvironmentConfigYaml
 {
@@ -27,11 +42,15 @@ ${nameLine}Stage:
 "@
 }
 
+# A minimal plan-only environment, so the pipeline compiles.
+$environmentConfigs = New-EnvironmentConfigYaml -Name "dev"
+
 $validTestCases = @(
+  # --- Environments --------------------------------------------------------
   @{
     Description = "with one environment"
     Parameters = @{
-      EnvironmentConfigs = (New-EnvironmentConfigYaml -Name "dev")
+      EnvironmentConfigs = $environmentConfigs
     }
     ExpectedYaml = @(
       "- stage: Build_Terraform"
@@ -51,15 +70,62 @@ $validTestCases = @(
     Description = "TerraformVersion is passed to the build and deploy stages"
     Parameters = @{
       TerraformVersion = "1.6.0"
-      EnvironmentConfigs = (New-EnvironmentConfigYaml -Name "dev")
+      EnvironmentConfigs = $environmentConfigs
     }
     ExpectedYaml = @(
       "- stage: Build_Terraform*TerraformVersion:* 1.6.0*- stage: Deploy_dev_Terraform*TerraformVersion:* 1.6.0"
+    )
+  },
+
+  # --- Build: TerraformBuildConfig -----------------------------------------
+  @{
+    Description = "with no build parameters"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+    }
+    ExpectedYaml = @(
+      'job: TerraformBuild_TerraformArtifact',
+      'inputs:*TerraformVersion:**1.14.0'
+    )
+    UnexpectedYaml = @(
+      'DeprecatedParametersWarning'
+    )
+  },
+  @{
+    Description = "TerraformBuildConfig with Checks, and the shared TerraformVersion added to it"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+      TerraformVersion = '1.13.0'
+      TerraformBuildConfig = @"
+RelativePathToTerraformFiles: infra
+Checks:
+  - Check: TerraformFormat
+"@
+    }
+    ExpectedYaml = @(
+      'value: $(RepositoryDirectory)/infra',
+      'name: TerraformTask_fmt',
+      'inputs:*TerraformVersion:**1.13.0'
+    )
+    UnexpectedYaml = @(
+      'DeprecatedParametersWarning'
+    )
+  },
+  @{
+    Description = "deprecated RelativePathToTerraformFiles still works and logs a warning"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+      RelativePathToTerraformFiles = 'infra'
+    }
+    ExpectedYaml = @(
+      'value: $(RepositoryDirectory)/infra',
+      "'RelativePathToTerraformFiles' is deprecated."
     )
   }
 )
 
 $invalidTestCases = @(
+  # --- Environments --------------------------------------------------------
   @{
     Description = "missing EnvironmentConfigs parameter"
     Parameters = @{ }
@@ -71,8 +137,39 @@ $invalidTestCases = @(
       EnvironmentConfigs = (New-EnvironmentConfigYaml)
     }
     ErrorMessage = "an environment name is not properly defined and is a required field."
+  },
+
+  # --- Build: TerraformBuildConfig -----------------------------------------
+  @{
+    Description = "with TerraformVersion inside TerraformBuildConfig"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+      TerraformBuildConfig = "TerraformVersion: 1.13.0"
+    }
+    ErrorMessage = "Invalid TerraformBuildConfig: 'TerraformVersion' is not supported by terraform_pipeline."
+  },
+  @{
+    Description = "with ArtifactName inside TerraformBuildConfig"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+      TerraformBuildConfig = "ArtifactName: Other"
+    }
+    ErrorMessage = "Invalid TerraformBuildConfig: 'ArtifactName' is not supported by terraform_pipeline"
+  },
+  @{
+    Description = "with a field set both in TerraformBuildConfig and as a deprecated parameter"
+    Parameters = @{
+      EnvironmentConfigs = $environmentConfigs
+      RelativePathToTerraformFiles = 'old'
+      TerraformBuildConfig = "RelativePathToTerraformFiles: new"
+    }
+    ErrorMessage = "use either 'RelativePathToTerraformFiles' (deprecated) or 'TerraformBuildConfig.RelativePathToTerraformFiles', not both."
   }
 )
+
+# ============================================================================
+# RUN TESTS
+# ============================================================================
 
 # The deployment jobs check out the AzDOPipelineTemplates repository, so the resource is declared
 # the same way consumers declare it (see tests/pipelines/terraform_pipeline/*_test.yml).
