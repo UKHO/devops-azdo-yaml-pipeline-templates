@@ -77,17 +77,17 @@ $invalidTestCases = @(
   @{
     Description = "with an unsupported TestType"
     Parameters = $required.Clone() + @{ TestType = 'container' }
-    ErrorMessage = "TestType"
+    ErrorMessage = "The 'TestType' parameter value 'container' is not a valid value."
   },
   @{
     Description = "with FailOnIssues, which is not supported (failOnIssues is always true)"
     Parameters = $required.Clone() + @{ FailOnIssues = $false }
-    ErrorMessage = "FailOnIssues"
+    ErrorMessage = "Unexpected parameter 'FailOnIssues'"
   },
   @{
     Description = "with an invalid SeverityThreshold"
     Parameters = $required.Clone() + @{ SeverityThreshold = 'severe' }
-    ErrorMessage = "SeverityThreshold"
+    ErrorMessage = "The 'SeverityThreshold' parameter value 'severe' is not a valid value."
   }
 )
 

@@ -61,7 +61,7 @@ Templates are built to run on **both Windows and Linux** agents. Scripting is Po
 
 We also deliberately favour **open-source, freely available task extensions** over proprietary or paid Marketplace tasks. Where a built-in Azure DevOps task or an open-source equivalent exists, we use it, so consumers do not need to install licensed extensions into their organisation to use these templates. This keeps the templates portable across organisations and avoids coupling consumers to paid dependencies.
 
-The one exception is an opt-in build check. Some checks are only worth having with a specific product, such as Snyk for security scanning. A check like that may use a licensed or internal extension, because consumers who don't list it in `Checks` never need it. Its user page lists the extension, licence and service connection under **Prerequisites**, and nothing else in the library may depend on it.
+The one exception is an opt-in build check. Some checks are only worth having with a specific product, such as Snyk for security scanning. A check like that may use a licensed or internal extension, because consumers who don't list it in `Checks` never need it. Its user page lists the extension, licence and service connection under **Prerequisites**. Task templates in `tasks/` may wrap such a task, but a public pipeline or job only reaches a licensed or internal extension through a check the consumer opts in to.
 
 ## What to Template
 

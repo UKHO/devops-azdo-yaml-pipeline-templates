@@ -27,6 +27,8 @@ jobs:
       # Checks:                                      # (list) Quality checks run after terraform validate, before packaging. Defaults to an empty list. Each check has its own settings - see Supported Checks below. Example:
       #   - Check: TerraformFormat
       #   - Check: UkhoSnykIac
+      #     ServiceConnection: Snyk                  # Required: your Snyk Authentication service connection.
+      #     Organization: my-team                    # Required: your Snyk organisation slug or ID.
 ```
 
 ---

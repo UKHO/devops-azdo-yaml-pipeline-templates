@@ -83,22 +83,22 @@ $invalidTestCases = @(
   @{
     Description = "with an empty Organization"
     Parameters = @{ WorkingDirectory = 'infra'; ServiceConnection = 'Snyk'; Organization = '' }
-    ErrorMessage = "The 'Organization' parameter"
+    ErrorMessage = "The 'Organization' parameter is not a valid String."
   },
   @{
     Description = "with an invalid SeverityThreshold"
     Parameters = $required.Clone() + @{ SeverityThreshold = 'severe' }
-    ErrorMessage = "SeverityThreshold"
+    ErrorMessage = "The 'SeverityThreshold' parameter value 'severe' is not a valid value."
   },
   @{
     Description = "with FailOnIssues, which is not supported (use TreatAsWarnings)"
     Parameters = $required.Clone() + @{ FailOnIssues = $false }
-    ErrorMessage = "FailOnIssues"
+    ErrorMessage = "Unexpected parameter 'FailOnIssues'"
   },
   @{
     Description = "with a misspelled setting (Organisation)"
     Parameters = $required.Clone() + @{ Organisation = 'my-team' }
-    ErrorMessage = "Organisation"
+    ErrorMessage = "Unexpected parameter 'Organisation'"
   }
 )
 

@@ -33,7 +33,11 @@
 #       ContinueOnError: true
 #
 # Notes:
-#   - Requires the UKHO 'ukho-azure-pipeline-scan-task' extension in the Azure DevOps organisation.
+#   - Requires the UKHO 'ukho-azure-pipeline-scan-task' extension in the Azure DevOps organisation. This is
+#     an internal extension, so public templates must only reach this through an opt-in check (see
+#     design-philosophy.md).
+#   - The task's projectName input is never set, because 'snyk iac test' rejects --project-name. To name
+#     the project in Snyk, pass '--report --target-name=<name>' in AdditionalArguments.
 #   - The task downloads the Snyk CLI from https://downloads.snyk.io on every run (no proxy support), so
 #     the agent needs outbound internet access to it and to the Snyk API.
 #   - Reports are written to $(Agent.TempDirectory) and added as build attachments, so they never end up

@@ -6,9 +6,9 @@ The check runs the **UKHO Snyk scan task** (`UkhoSnykScanTask`) from the UKHO Az
 
 ```yaml
 Checks:
-  - Check: UkhoSnykIac              # (string, required) Selects this check.
-    ServiceConnection: Snyk         # (string, required) Name of your Snyk Authentication service connection.
-    Organization: my-team           # (string, required) Snyk organisation slug or ID.
+  - Check: UkhoSnykIac # (string, required) Selects this check.
+    ServiceConnection: Snyk # (string, required) Name of your Snyk Authentication service connection.
+    Organization: my-team # (string, required) Snyk organisation slug or ID.
     # Only the settings above are required - every value below is shown at its default. Uncomment and change a value to override it.
 
     # Name: ''                      # (string) Unique suffix for the step and report names. Required, and must be unique, when UkhoSnykIac is listed more than once.
@@ -25,7 +25,8 @@ The check scans the build job's Terraform working directory (`RelativePathToTerr
 
 ## Prerequisites
 
-- The **UKHO Azure Pipeline Scan Task** extension installed in your Azure DevOps organisation.
+- The **UKHO Azure Pipeline Scan Task** extension (`ukho-azure-pipeline-scan-task`) installed in your Azure DevOps organisation. It provides the `UkhoSnykScanTask` task.
+- A Snyk **Enterprise** plan. The check authenticates with a Snyk service account, and [Snyk only offers service accounts on Enterprise plans](https://docs.snyk.io/platform-administration/service-accounts/service-accounts).
 - A Snyk service account for your team's Snyk organisation, and a **Snyk Authentication** service connection in your Azure DevOps project that uses it. The service connection must be authorised for the pipeline.
 - Agents with outbound internet access to `downloads.snyk.io` and the Snyk API. The task downloads the Snyk CLI on every run and does not support proxies.
 
@@ -34,7 +35,7 @@ The check scans the build job's Terraform working directory (`RelativePathToTerr
 ## Behaviour
 
 - **What fails the build:** any issue at or above `SeverityThreshold`, and any scan error such as an invalid token or no Terraform files found. To report these as a warning instead, set `TreatAsWarnings: true`; there is no setting that hides them.
-- **Downloaded modules are scanned:** the check runs after `terraform init`, so module source downloaded into `.terraform/` is scanned along with your own files.
+- **External modules are only partly covered:** the check runs after `terraform init`, so the `.tf` files of modules downloaded into `.terraform/` are scanned as files. However, [Snyk's static Terraform scan does not support external modules](https://docs.snyk.io/developer-tools/snyk-cli/scan-and-maintain-projects-using-the-cli/snyk-cli-for-iac/test-your-iac-files/terraform-files), so it does not check how you call a module or the input values you pass to it. To cover the resources your modules actually create, also scan a Terraform plan (`snyk iac test` on a `terraform show -json` plan file) (pending functionality for terraform_deploy.yml).
 - **Reports:** a JSON report named `snyk-iac` (or `snyk-iac-<Name>`) is attached to the run. It is not added to the Terraform artifact. The task currently also attaches an HTML report and shows the results on a scan report tab; these come from the task and are not covered by versioning.
 - **Results in Snyk:** results are not uploaded to Snyk unless you add `--report` to `AdditionalArguments`.
 

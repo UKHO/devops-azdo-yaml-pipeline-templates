@@ -41,10 +41,12 @@
 #   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
 #
 # Notes:
-#   - Prerequisites: the UKHO Snyk extension installed in the organisation, a Snyk Authentication service
-#     connection authorised for the pipeline, and outbound internet access to Snyk from the agent.
-#   - The scan is recursive and runs after 'terraform init', so module source downloaded into .terraform/
-#     is scanned too.
+#   - Prerequisites: the UKHO Snyk extension installed in the organisation, a Snyk Enterprise plan (for the
+#     service account), a Snyk Authentication service connection authorised for the pipeline, and outbound
+#     internet access to Snyk from the agent.
+#   - The scan is recursive and runs after 'terraform init', so the files of modules downloaded into
+#     .terraform/ are scanned too. Snyk's static scan does not support external modules, though, so module
+#     calls and their input values are not evaluated; that needs a separate Terraform plan scan.
 #   - Any issue at or above SeverityThreshold, and any scan error, fails the step. The task's own
 #     failOnIssues switch is deliberately not exposed, because turning it off also hides scan errors.
 #   - Reports are attached to the build (not packaged), named 'snyk-iac' or 'snyk-iac-<Name>'.
