@@ -20,14 +20,15 @@ pr:
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
-      RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
-      AdditionalFilesToPackage:
-        - SourceDirectory: tests/shared_resources/additional_files/policies
-          FilesPattern: '**/*.json'
-          TargetSubdirectoryName: policies
-        - SourceDirectory: tests/shared_resources/additional_files/configs
-          FilesPattern: '**/*.env'
-          TargetSubdirectoryName: configs
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: tests/shared_resources/basic_terraform
+        AdditionalFilesToPackage:
+          - SourceDirectory: tests/shared_resources/additional_files/policies
+            FilesPattern: '**/*.json'
+            TargetSubdirectoryName: policies
+          - SourceDirectory: tests/shared_resources/additional_files/configs
+            FilesPattern: '**/*.env'
+            TargetSubdirectoryName: configs
 
   - job: ValidateResults
     dependsOn:

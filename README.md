@@ -31,7 +31,7 @@ Use these to compose your own workflow.
 
 ### Build checks
 
-Optional quality checks (for example `TerraformFormat`) you switch on through a build job's `Checks` parameter. Check names and their settings are part of the public surface. See [Build Checks](docs/user-docs/checks/README.md) for the available checks and which build jobs support them.
+Optional quality checks (for example `TerraformFormat`) you switch on through a build job's `Checks` list. Check names and their settings are part of the public surface. See [Build Checks](docs/user-docs/checks/README.md) for the available checks and which build jobs support them.
 
 ## Reference this repository
 

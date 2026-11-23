@@ -1,6 +1,6 @@
 # Build Checks
 
-Checks are optional quality gates that run inside a build job, after the mandatory validation step and before the artifact is packaged. You enable them by adding entries to the `Checks` parameter of a build job template.
+Checks are optional quality gates that run inside a build job, after the mandatory validation step and before the artifact is packaged. You enable them by adding entries to the `Checks` list of a build job template.
 
 ## Available Checks
 
@@ -13,20 +13,21 @@ Listing a check that the build job does not support, or misspelling a check or s
 
 ## Versioning
 
-The check names and their settings are part of this repository's public API and follow [Semantic Versioning](../../developers/reference/versioning-policy.md). Reference checks only through the `Checks` parameter of a build job; do not reference files under `checks/` directly.
+The check names and their settings are part of this repository's public API and follow [Semantic Versioning](../../developers/reference/versioning-policy.md). Reference checks only through the `Checks` list of a build job; do not reference files under `checks/` directly.
 
 ---
 
 ## Using Checks
 
-The example below uses the [Terraform Build Job](../jobs/terraform_build.md), but checks are not limited to it. Any build job with a `Checks` parameter accepts them in the same way; see the **Supported By** column above for which checks each build job supports.
+The example below uses the [Terraform Build Job](../jobs/terraform_build.md), but checks are not limited to it. Any build job with a `Checks` list accepts them in the same way; see the **Supported By** column above for which checks each build job supports. Each build job keeps its `Checks` list in its configuration object (for the Terraform build, `TerraformBuildConfig.Checks`).
 
 ```yaml
 jobs:
   - template: jobs/terraform_build.yml
     parameters:
-      Checks:
-        - Check: TerraformFormat
+      TerraformBuildConfig:
+        Checks:
+          - Check: TerraformFormat
 ```
 
 Each entry names the check with `Check:` and may add any settings that check supports. Settings you leave out use the check's defaults. Most checks need nothing else, so `- Check: <Name>` on its own is enough; checks that need something only you can provide (such as a service connection) list their required settings on their own page.

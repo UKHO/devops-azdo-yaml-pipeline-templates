@@ -12,7 +12,7 @@ Checks:
     # Recursive: true          # (boolean) When true, also checks files in subdirectories (adds -recursive).
 ```
 
-The check runs in the build job's Terraform working directory (`RelativePathToTerraformFiles`) using the Terraform version installed by the job.
+The check runs in the build job's Terraform working directory (`TerraformBuildConfig.RelativePathToTerraformFiles`) using the Terraform version installed by the job.
 
 **Supported by:** [Terraform Build Job](../jobs/terraform_build.md)
 
@@ -30,9 +30,10 @@ Checks the Terraform folder and all subdirectories; any unformatted file fails t
 jobs:
   - template: jobs/terraform_build.yml
     parameters:
-      RelativePathToTerraformFiles: terraform
-      Checks:
-        - Check: TerraformFormat
+      TerraformBuildConfig:
+        RelativePathToTerraformFiles: terraform
+        Checks:
+          - Check: TerraformFormat
 ```
 
 **Live example**: [`tests/jobs/terraform_build/checks_terraform_format_test.yml`](../../../tests/jobs/terraform_build/checks_terraform_format_test.yml)
