@@ -6,6 +6,7 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- Added `CheckoutAlias` to the .NET build prototype so its PowerShell scripts run from the same repository revision as its YAML. Defaults to `AzDOPipelineTemplates`; set it to your resource alias, or `self` for local templates.
 - Added the `.NET Build` job prototype with ordered format and test checks, build-once Publish/NuGet packaging, reports and a `PipelineArtifact` destination.
 
 - Added an optional `Checks` list to `terraform_build`, so you can switch on extra quality checks that run after `terraform validate` and before the artifact is packaged. Each entry is `- Check: <Name>` plus any settings for that check; every check accepts `Name` (needed when the same check is listed more than once) and `TreatAsWarnings` (report problems as warnings instead of failing the build). Unsupported or misspelt checks are rejected when the pipeline is queued. Defaults to an empty list, so existing builds are unchanged.

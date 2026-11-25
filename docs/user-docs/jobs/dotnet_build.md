@@ -8,6 +8,7 @@ jobs:
     parameters:
       DotNetBuildConfig:                  # Required; SDK defaults to root global.json
         RelativePathToSolution: App.sln
+      # CheckoutAlias: AzDOPipelineTemplates # Must match the template resource alias; use self for local templates
       # ArtifactName: DotNetArtifact      # Also the DotNetBuild_<ArtifactName> job suffix
       # DependsOn: []                     # Job dependencies (list)
       # Condition: succeeded()            # Job condition

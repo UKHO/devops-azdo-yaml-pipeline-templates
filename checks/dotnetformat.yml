@@ -14,13 +14,12 @@ parameters:
     type: boolean
     default: false
 steps:
-  - pwsh: |
-      dotnet format whitespace $env:DOTNETTARGET --verify-no-changes --no-restore
-      $code = $LASTEXITCODE
-      $result = if (!$code) { 'Passed' } elseif ($env:WARN -eq 'true') { 'Warned' } else { 'Failed' }
-      Set-Content -LiteralPath (Join-Path $env:DOTNETREPORTS "$env:INSTANCE.txt") -Value $result
-      exit $code
-    workingDirectory: ${{ parameters.WorkingDirectory }}
+  - task: PowerShell@2
+    inputs:
+      targetType: filePath
+      pwsh: true
+      filePath: $(DotNetScriptRoot)/check_format.ps1
+      workingDirectory: ${{ parameters.WorkingDirectory }}
     name: PreFormat_${{ parameters.Name }}
     displayName: Verify whitespace ${{ parameters.Name }}
     continueOnError: ${{ parameters.TreatAsWarnings }}

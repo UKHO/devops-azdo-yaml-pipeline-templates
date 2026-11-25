@@ -41,6 +41,8 @@ Run the relevant test(s) for any template folder you change before opening a Pul
 ## Conventions an Agent Must Follow
 
 - Follow `.editorconfig` (UTF-8, LF, 2-space indent) for all files.
+- Follow [PowerShell job steps](docs/developers/reference/template-conventions.md#powershell-job-steps): invoke tested `.ps1` files, not inline PowerShell in job or check YAML.
+- **Script behaviour test:** Run `pwsh -NoProfile -File tests/jobs/dotnet_build/test_scripts.ps1` to exercise the .NET job scripts independently of Azure DevOps.
 - Do not hardcode secrets in any template or script.
 - Before changing a template in `pipelines/` or `jobs/`, or a check name/setting in `checks/`, read
   [Versioning Policy](docs/developers/reference/versioning-policy.md) —

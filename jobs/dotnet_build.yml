@@ -1,4 +1,8 @@
 parameters:
+  - name: CheckoutAlias
+    displayName: Resource alias for the repository containing this template (self for local templates)
+    type: string
+    default: AzDOPipelineTemplates
   - name: ArtifactName
     type: string
     default: DotNetArtifact
@@ -44,6 +48,12 @@ jobs:
       - name: DotNetSource
         value: $(Pipeline.Workspace)/dotnet-source
         readonly: true
+      - name: DotNetScriptRoot
+        ${{ if eq(parameters.CheckoutAlias, 'self') }}:
+          value: $(DotNetSource)/scripts/dotnet
+        ${{ else }}:
+          value: $(Pipeline.Workspace)/dotnet-templates/scripts/dotnet
+        readonly: true
       - name: DotNetTarget
         value: $(DotNetSource)/${{ parameters.DotNetBuildConfig.RelativePathToSolution }}
         readonly: true
@@ -66,33 +76,19 @@ jobs:
       - checkout: self
         clean: true
         path: dotnet-source
+      - ${{ if ne(parameters.CheckoutAlias, 'self') }}:
+          - checkout: ${{ parameters.CheckoutAlias }}
+            path: dotnet-templates
+            fetchDepth: 1
+            clean: true
       - download: none
-      - pwsh: |
-          $null = New-Item -ItemType Directory -Force $env:DOTNETREPORTS
-          $config = ConvertFrom-Json $env:CONFIG_JSON
-          function Assert-SourceFile($path) {
-            if (!$path -or [IO.Path]::IsPathRooted($path) -or $path -match '(^|[\\/])\.\.([\\/]|$)' -or !(Test-Path -LiteralPath $path -PathType Leaf)) {
-              throw "Expected an existing repository-relative file: '$path'"
-            }
-          }
-          Assert-SourceFile $config.RelativePathToSolution
-          if ($config.Restore.NuGetConfigPath) { Assert-SourceFile $config.Restore.NuGetConfigPath }
-          foreach ($phase in 'PRE_JSON','POST_JSON') {
-            foreach ($entry in (ConvertFrom-Json ([Environment]::GetEnvironmentVariable($phase)))) {
-              if ($entry.Name -and $entry.Name -notmatch '^[A-Za-z0-9_]+$') { throw 'Invalid check Name' }
-              if ($entry.Project) { Assert-SourceFile $entry.Project }
-            }
-          }
-          $names = @{}
-          foreach ($package in $config.Packages) {
-            Assert-SourceFile $package.Project
-            $name = if ($package.Name) { $package.Name } else { [IO.Path]::GetFileNameWithoutExtension($package.Project) }
-            if ($name -notmatch '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' -or $name.EndsWith('.') -or $names.ContainsKey($name)) { throw "Invalid or duplicate package name: $name" }
-            $names[$name] = $true
-          }
-          if (!$config.DotNetSdk.Version -and !(Test-Path -LiteralPath global.json)) { throw 'Provide DotNetSdk.Version or a global.json at the repository root.' }
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetScriptRoot)/validate_inputs.ps1
+          workingDirectory: $(DotNetSource)
         displayName: Validate build inputs and initialise reports
-        workingDirectory: $(DotNetSource)
         env:
           CONFIG_JSON: ${{ convertToJson(parameters.DotNetBuildConfig) }}
           PRE_JSON: ${{ convertToJson(parameters.PreBuildChecks) }}
@@ -106,13 +102,13 @@ jobs:
               ${{ else }}:
                 useGlobalJson: true
                 workingDirectory: $(DotNetSource)
-      - pwsh: |
-          $sdk = dotnet --version
-          if ($LASTEXITCODE) { throw 'The requested SDK is not available.' }
-          if ($env:EXPECTED -and $sdk -ne $env:EXPECTED) { throw "Expected SDK $env:EXPECTED, resolved $sdk" }
-          Set-Content -LiteralPath (Join-Path $env:DOTNETREPORTS sdk.txt) -Value $sdk
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetScriptRoot)/verify_sdk.ps1
+          workingDirectory: $(DotNetSource)
         displayName: Verify selected SDK
-        workingDirectory: $(DotNetSource)
         env:
           EXPECTED: ${{ coalesce(parameters.DotNetBuildConfig.DotNetSdk.Version, '') }}
       - ${{ if parameters.DotNetBuildConfig.ConfigSources }}:
@@ -120,14 +116,13 @@ jobs:
             parameters:
               ConfigSources: ${{ parameters.DotNetBuildConfig.ConfigSources }}
       - task: NuGetAuthenticate@1
-      - pwsh: |
-          $options = @("-p:Configuration=$env:DOTNETCONFIGURATION")
-          $restore = if ($env:RESTORE_JSON) { ConvertFrom-Json $env:RESTORE_JSON }
-          if ($restore.UseLockedMode -eq $true) { $options += '--locked-mode' }
-          if ($restore.NuGetConfigPath) { $options += '--configfile', $restore.NuGetConfigPath }
-          dotnet restore $env:DOTNETTARGET @options
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetScriptRoot)/restore.ps1
+          workingDirectory: $(DotNetSource)
         displayName: Restore
-        workingDirectory: $(DotNetSource)
         env:
           RESTORE_JSON: ${{ convertToJson(parameters.DotNetBuildConfig.Restore) }}
       - ${{ each check in parameters.PreBuildChecks }}:
@@ -137,8 +132,12 @@ jobs:
               ${{ each setting in check }}:
                 ${{ if notIn(setting.key, 'Check', 'WorkingDirectory') }}:
                   ${{ setting.key }}: ${{ setting.value }}
-      - pwsh: dotnet build $env:DOTNETTARGET --no-restore --configuration $env:DOTNETCONFIGURATION
-        workingDirectory: $(DotNetSource)
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetScriptRoot)/build.ps1
+          workingDirectory: $(DotNetSource)
         displayName: Build once
       - ${{ each check in parameters.PostBuildChecks }}:
           - template: /checks/dotnettest.yml
@@ -154,39 +153,20 @@ jobs:
               summaryFileLocation: $(DotNetReports)/**/coverage.cobertura.xml
               failIfCoverageEmpty: false
       - ${{ if parameters.DotNetBuildConfig.Packages[0].Type }}:
-          - pwsh: |
-              foreach ($package in (ConvertFrom-Json $env:PACKAGES_JSON)) {
-                $name = if ($package.Name) { $package.Name } else { [IO.Path]::GetFileNameWithoutExtension($package.Project) }
-                $argsList = @($package.Project, '--no-build', '--no-restore', '-c', $env:DOTNETCONFIGURATION)
-                if ($package.Type -eq 'NuGet') {
-                  dotnet pack @argsList -o (Join-Path $env:DOTNETPACKAGES nuget $name)
-                } else {
-                  $out = Join-Path $env:DOTNETPACKAGES publish $name
-                  dotnet publish @argsList -o $out
-                  if (!$LASTEXITCODE -and $package.ZipAfterPublish -ne $false) {
-                    [IO.Compression.ZipFile]::CreateFromDirectory($out, "$out.zip")
-                    Remove-Item -Recurse -LiteralPath $out
-                  }
-                }
-                if ($LASTEXITCODE) { exit $LASTEXITCODE }
-              }
+          - task: PowerShell@2
+            inputs:
+              targetType: filePath
+              pwsh: true
+              filePath: $(DotNetScriptRoot)/package.ps1
+              workingDirectory: $(DotNetSource)
             displayName: Package compiled output
-            workingDirectory: $(DotNetSource)
             env:
               PACKAGES_JSON: ${{ convertToJson(parameters.DotNetBuildConfig.Packages) }}
-      - pwsh: |
-          $summary = Join-Path $env:DOTNETREPORTS summary.md
-          $lines = @('### .NET build', "Job status before publication: $env:AGENT_JOBSTATUS")
-          $entries = @(ConvertFrom-Json $env:PRE_JSON) + @(ConvertFrom-Json $env:POST_JSON)
-          if (!$entries.Count) { $lines += 'No checks configured' }
-          foreach ($entry in $entries) {
-            $key = "$($entry.Check.ToLowerInvariant())_$($entry.Name)"
-            $file = Join-Path $env:DOTNETREPORTS "$key.txt"
-            $status = if (Test-Path -LiteralPath $file -PathType Leaf) { Get-Content -LiteralPath $file } else { 'Skipped or unavailable' }
-            $lines += "- ${key}: $status"
-          }
-          Set-Content -LiteralPath $summary -Value $lines
-          Write-Host "##vso[task.uploadsummary]$summary"
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetScriptRoot)/write_summary.ps1
         condition: succeededOrFailed()
         displayName: Summarise checks
         env:

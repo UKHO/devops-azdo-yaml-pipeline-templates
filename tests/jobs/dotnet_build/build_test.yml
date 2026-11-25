@@ -42,17 +42,15 @@ jobs:
   - job: Verify
     dependsOn: DotNetBuild_Sample
     steps:
-      - checkout: none
+      - checkout: self
+        path: verification
       - download: current
         artifact: Sample
       - download: current
         artifact: Sample_Reports
-      - pwsh: |
-          $zip = [IO.Compression.ZipFile]::OpenRead("$(Pipeline.Workspace)/Sample/publish/SampleApp.zip")
-          try { if (!$zip.GetEntry('SampleApp.dll')) { throw 'Missing compiled app' } } finally { $zip.Dispose() }
-          foreach ($name in 'Unit','Integration') {
-            $root = "$(Pipeline.Workspace)/Sample_Reports/dotnettest_$name"
-            if (!(Get-ChildItem $root -Filter *.trx -Recurse)) { throw "Missing TRX: $name" }
-          }
-          if (!(Get-ChildItem "$(Pipeline.Workspace)/Sample_Reports" -Filter coverage.cobertura.xml -Recurse)) { throw 'Missing coverage' }
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(Pipeline.Workspace)/verification/tests/jobs/dotnet_build/verify_artifacts.ps1
         displayName: Verify package and test evidence

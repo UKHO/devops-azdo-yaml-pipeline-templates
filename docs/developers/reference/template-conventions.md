@@ -1,5 +1,11 @@
 # Template Development
 
+## PowerShell Job Steps
+
+YAML orchestrates steps; it does not contain PowerShell programs. Put production scripts in `scripts/<area>/` and fixture-only assertions beside their tests. Invoke the checked-in file with PowerShell Core (`PowerShell@2`, `targetType: filePath`, `pwsh: true`). This also applies to checks and helper templates called by jobs. Do not move the same inline block into a YAML wrapper.
+
+Use the same template repository resource and ref for scripts as for YAML; a consumer's `checkout: self` does not fetch the template scripts. Keep the working directory (consumer inputs) separate from the script path (template checkout). Exercise behaviour, output and failures by running the `.ps1` files without Azure DevOps. Compile tests verify task wiring, not script behaviour.
+
 ## Parameters
 
 - **Required parameters**: Do not set a default. Add a comment: `# no default, consumer must supply this`, and end the `displayName` with `(required)`.
