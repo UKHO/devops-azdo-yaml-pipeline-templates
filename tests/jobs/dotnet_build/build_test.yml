@@ -26,6 +26,13 @@ jobs:
         Packages:
           - Type: Publish
             Project: tests/shared_resources/dotnet/SampleApp/SampleApp.csproj
+          - Type: NuGet
+            Name: SdkPackage
+            Project: tests/shared_resources/dotnet/SampleApp/SampleApp.csproj
+          - Type: Publish
+            Name: ExpandedApp
+            ZipAfterPublish: false
+            Project: tests/shared_resources/dotnet/SampleApp/SampleApp.csproj
       PreBuildChecks:
         - Check: DotNetFormat
       PostBuildChecks:

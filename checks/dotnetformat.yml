@@ -14,15 +14,12 @@ parameters:
     type: boolean
     default: false
 steps:
-  - task: PowerShell@2
-    inputs:
-      targetType: filePath
-      pwsh: true
-      filePath: $(DotNetScriptRoot)/check_format.ps1
-      workingDirectory: ${{ parameters.WorkingDirectory }}
+  - task: DotNetCoreCLI@2
     name: PreFormat_${{ parameters.Name }}
     displayName: Verify whitespace ${{ parameters.Name }}
     continueOnError: ${{ parameters.TreatAsWarnings }}
-    env:
-      INSTANCE: dotnetformat_${{ parameters.Name }}
-      WARN: ${{ format('{0}', parameters.TreatAsWarnings) }}
+    inputs:
+      command: custom
+      custom: format
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      arguments: whitespace "$(DotNetTarget)" --verify-no-changes --no-restore

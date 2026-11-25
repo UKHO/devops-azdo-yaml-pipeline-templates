@@ -116,15 +116,18 @@ jobs:
             parameters:
               ConfigSources: ${{ parameters.DotNetBuildConfig.ConfigSources }}
       - task: NuGetAuthenticate@1
-      - task: PowerShell@2
-        inputs:
-          targetType: filePath
-          pwsh: true
-          filePath: $(DotNetScriptRoot)/restore.ps1
-          workingDirectory: $(DotNetSource)
+      - task: DotNetCoreCLI@2
         displayName: Restore
-        env:
-          RESTORE_JSON: ${{ convertToJson(parameters.DotNetBuildConfig.Restore) }}
+        inputs:
+          # Keep ordinary NuGet config discovery; the dedicated restore mode generates a config.
+          command: custom
+          custom: restore
+          projects: $(DotNetTarget)
+          workingDirectory: $(DotNetSource)
+          arguments: >-
+            -p:Configuration="$(DotNetConfiguration)"
+            ${{ iif(eq(parameters.DotNetBuildConfig.Restore.UseLockedMode, true), '--locked-mode', '') }}
+            ${{ iif(parameters.DotNetBuildConfig.Restore.NuGetConfigPath, format('--configfile "$(DotNetSource)/{0}"', parameters.DotNetBuildConfig.Restore.NuGetConfigPath), '') }}
       - ${{ each check in parameters.PreBuildChecks }}:
           - template: /checks/dotnetformat.yml
             parameters:
@@ -132,13 +135,13 @@ jobs:
               ${{ each setting in check }}:
                 ${{ if notIn(setting.key, 'Check', 'WorkingDirectory') }}:
                   ${{ setting.key }}: ${{ setting.value }}
-      - task: PowerShell@2
-        inputs:
-          targetType: filePath
-          pwsh: true
-          filePath: $(DotNetScriptRoot)/build.ps1
-          workingDirectory: $(DotNetSource)
+      - task: DotNetCoreCLI@2
         displayName: Build once
+        inputs:
+          command: build
+          projects: $(DotNetTarget)
+          workingDirectory: $(DotNetSource)
+          arguments: --no-restore --configuration "$(DotNetConfiguration)"
       - ${{ each check in parameters.PostBuildChecks }}:
           - template: /checks/dotnettest.yml
             parameters:
@@ -152,16 +155,47 @@ jobs:
             inputs:
               summaryFileLocation: $(DotNetReports)/**/coverage.cobertura.xml
               failIfCoverageEmpty: false
-      - ${{ if parameters.DotNetBuildConfig.Packages[0].Type }}:
-          - task: PowerShell@2
-            inputs:
-              targetType: filePath
-              pwsh: true
-              filePath: $(DotNetScriptRoot)/package.ps1
-              workingDirectory: $(DotNetSource)
-            displayName: Package compiled output
-            env:
-              PACKAGES_JSON: ${{ convertToJson(parameters.DotNetBuildConfig.Packages) }}
+      - ${{ each package in parameters.DotNetBuildConfig.Packages }}:
+          - ${{ if not(package.Name) }}:
+              - task: PowerShell@2
+                displayName: Resolve default package name for ${{ package.Project }}
+                inputs:
+                  targetType: filePath
+                  pwsh: true
+                  filePath: $(DotNetScriptRoot)/resolve_package_name.ps1
+                env:
+                  PACKAGE_PROJECT: ${{ package.Project }}
+          - ${{ if eq(package.Type, 'NuGet') }}:
+              - task: DotNetCoreCLI@2
+                displayName: Pack ${{ package.Project }}
+                inputs:
+                  command: pack
+                  packagesToPack: $(DotNetSource)/${{ package.Project }}
+                  configuration: $(DotNetConfiguration)
+                  nobuild: true
+                  versioningScheme: 'off'
+                  packDirectory: $(DotNetPackages)/nuget/${{ coalesce(package.Name, '$(DotNetDefaultPackageName)') }}
+          - ${{ else }}:
+              - task: DotNetCoreCLI@2
+                displayName: Publish ${{ package.Project }}
+                inputs:
+                  command: publish
+                  workingDirectory: $(DotNetSource)
+                  publishWebProjects: false
+                  projects: $(DotNetSource)/${{ package.Project }}
+                  modifyOutputPath: false
+                  zipAfterPublish: false
+                  arguments: >-
+                    --no-build --no-restore -c "$(DotNetConfiguration)"
+                    --output "${{ iif(eq(lower(format('{0}', package.ZipAfterPublish)), 'false'), '$(DotNetPackages)/publish', '$(Build.ArtifactStagingDirectory)/zip-input') }}/${{ coalesce(package.Name, '$(DotNetDefaultPackageName)') }}"
+              - ${{ if ne(lower(format('{0}', package.ZipAfterPublish)), 'false') }}:
+                  - task: ArchiveFiles@2
+                    displayName: Archive ${{ package.Project }}
+                    inputs:
+                      rootFolderOrFile: $(Build.ArtifactStagingDirectory)/zip-input/${{ coalesce(package.Name, '$(DotNetDefaultPackageName)') }}
+                      includeRootFolder: false
+                      archiveType: zip
+                      archiveFile: $(DotNetPackages)/publish/${{ coalesce(package.Name, '$(DotNetDefaultPackageName)') }}.zip
       - task: PowerShell@2
         inputs:
           targetType: filePath
@@ -170,6 +204,7 @@ jobs:
         condition: succeededOrFailed()
         displayName: Summarise checks
         env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
           PRE_JSON: ${{ convertToJson(parameters.PreBuildChecks) }}
           POST_JSON: ${{ convertToJson(parameters.PostBuildChecks) }}
       - task: PublishPipelineArtifact@1

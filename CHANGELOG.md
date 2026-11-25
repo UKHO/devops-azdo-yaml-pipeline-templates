@@ -6,6 +6,7 @@ All notable changes to this repository are documented in this file.
 
 ### Added
 
+- The .NET build prototype now uses native .NET CLI tasks for restore, format, build, test, publish and pack. Package paths and build-once behaviour are unchanged.
 - Added `CheckoutAlias` to the .NET build prototype so its PowerShell scripts run from the same repository revision as its YAML. Defaults to `AzDOPipelineTemplates`; set it to your resource alias, or `self` for local templates.
 - Added the `.NET Build` job prototype with ordered format and test checks, build-once Publish/NuGet packaging, reports and a `PipelineArtifact` destination.
 

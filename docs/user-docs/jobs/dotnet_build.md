@@ -20,6 +20,8 @@ jobs:
 
 ---
 
+SDK installation uses `UseDotNet@2`. `DotNetCoreCLI@2` runs the build commands; restore honours normal NuGet config discovery unless `Restore.NuGetConfigPath` is supplied. Tests publish TRX separately so the task does not relocate results. The summary reads native task verdicts from the current job timeline; unavailable verdicts are not counted as passes.
+
 ## Output
 
 `Publish` writes `publish/<Name>.zip` (or a directory with `ZipAfterPublish: false`). `NuGet` writes `nuget/<Name>/*.nupkg`. Both go into one pipeline artifact. An empty package list publishes no package artifact. `<ArtifactName>_Reports` contains the summary, resolved SDK and available check evidence, including TRX and coverage when collected.
