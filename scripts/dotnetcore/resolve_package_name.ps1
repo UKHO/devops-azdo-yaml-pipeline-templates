@@ -2,4 +2,4 @@
 $ErrorActionPreference = 'Stop'
 $name = [IO.Path]::GetFileNameWithoutExtension($env:PACKAGE_PROJECT)
 if ($name -notmatch '^[A-Za-z0-9_][A-Za-z0-9_.-]*$') { throw 'Invalid default package name' }
-Write-Host "##vso[task.setvariable variable=DotNetDefaultPackageName]$name"
+Write-Host "##vso[task.setvariable variable=DotNetCoreDefaultPackageName]$name"

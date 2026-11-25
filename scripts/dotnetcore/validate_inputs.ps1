@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$null = New-Item -ItemType Directory -Force $env:DOTNETREPORTS
+$null = New-Item -ItemType Directory -Force $env:DOTNETCOREREPORTS
 $config = ConvertFrom-Json $env:CONFIG_JSON
 function Assert-SourceFile($path) {
   if (!$path -or [IO.Path]::IsPathRooted($path) -or $path -match '(^|[\\/])\.\.([\\/]|$)' -or !(Test-Path -LiteralPath $path -PathType Leaf)) {
@@ -22,4 +22,4 @@ foreach ($package in $config.Packages) {
   if ($name -notmatch '^[A-Za-z0-9_][A-Za-z0-9_.-]*$' -or $name.EndsWith('.') -or $names.ContainsKey($name)) { throw "Invalid or duplicate package name: $name" }
   $names[$name] = $true
 }
-if (!$config.DotNetSdk.Version -and !(Test-Path -LiteralPath global.json)) { throw 'Provide DotNetSdk.Version or a global.json at the repository root.' }
+if (!$config.DotNetCoreSdk.Version -and !(Test-Path -LiteralPath global.json)) { throw 'Provide DotNetCoreSdk.Version or a global.json at the repository root.' }

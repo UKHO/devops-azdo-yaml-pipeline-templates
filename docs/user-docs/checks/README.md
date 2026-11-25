@@ -1,13 +1,13 @@
 # Build Checks
 
-Terraform uses `Checks` after validation. The .NET job uses `PreBuildChecks` after restore and `PostBuildChecks` after compile. Both run checks before packaging.
+Terraform uses `Checks` after validation. The .NET Core job uses `PreBuildChecks` after restore and `PostBuildChecks` after compile. Both run checks before packaging.
 
 ## Available Checks
 
 | Check                                       | Purpose                                                  | Supported By                                      |
 | ------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------- |
-| **[DotNetFormat](./dotnetformat.md)** | Verify whitespace | [.NET Build Job](../jobs/dotnet_build.md) |
-| **[DotNetTest](./dotnettest.md)** | Test compiled output | [.NET Build Job](../jobs/dotnet_build.md) |
+| **[DotNetCoreFormat](./dotnetcoreformat.md)** | Verify whitespace | [.NET Core Build Job](../jobs/dotnetcore_build.md) |
+| **[DotNetCoreTest](./dotnetcoretest.md)** | Test compiled output | [.NET Core Build Job](../jobs/dotnetcore_build.md) |
 | **[TerraformFormat](./terraformformat.md)** | Fails when Terraform files are not formatted canonically | [Terraform Build Job](../jobs/terraform_build.md) |
 
 Listing a check that the build job does not support, or misspelling a check or setting name, fails the pipeline at compile time with an error message listing the supported checks.

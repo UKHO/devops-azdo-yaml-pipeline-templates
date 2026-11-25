@@ -1,6 +1,6 @@
-# Schema Template: DotNet Build
+# Schema Template: DotNetCore Build
 # Validates the build configuration, phased checks and package destination before execution.
-# See: docs/definition_docs/dotnet_build/config.md
+# See: docs/definition_docs/dotnetcore_build/config.md
 parameters:
   - name: Config
     displayName: Build configuration
@@ -20,37 +20,37 @@ parameters:
 
 steps:
   - ${{ if not(parameters.Config.RelativePathToSolution) }}:
-      - 'RelativePathToSolution is required. See: docs/definition_docs/dotnet_build/config.md': error
+      - 'RelativePathToSolution is required. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ each field in parameters.Config }}:
-      - ${{ if notIn(field.key, 'RelativePathToSolution', 'BuildConfiguration', 'DotNetSdk', 'Restore', 'ConfigSources', 'Packages') }}:
-          - 'Unknown config setting ${{ field.key }}. See: docs/definition_docs/dotnet_build/config.md': error
-  - ${{ each field in parameters.Config.DotNetSdk }}:
+      - ${{ if notIn(field.key, 'RelativePathToSolution', 'BuildConfiguration', 'DotNetCoreSdk', 'Restore', 'ConfigSources', 'Packages') }}:
+          - 'Unknown config setting ${{ field.key }}. See: docs/definition_docs/dotnetcore_build/config.md': error
+  - ${{ each field in parameters.Config.DotNetCoreSdk }}:
       - ${{ if notIn(field.key, 'Version', 'Install') }}:
-          - 'Unknown SDK setting. See: docs/definition_docs/dotnet_build/config.md': error
+          - 'Unknown SDK setting. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ each field in parameters.Config.Restore }}:
       - ${{ if notIn(field.key, 'UseLockedMode', 'NuGetConfigPath') }}:
-          - 'Unknown restore setting. See: docs/definition_docs/dotnet_build/config.md': error
+          - 'Unknown restore setting. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ each pkg in parameters.Config.Packages }}:
       - ${{ if or(not(pkg.Project), notIn(pkg.Type, 'Publish', 'NuGet')) }}:
-          - 'Packages require Project and Type Publish or NuGet. See: docs/definition_docs/dotnet_build/config.md': error
+          - 'Packages require Project and Type Publish or NuGet. See: docs/definition_docs/dotnetcore_build/config.md': error
       - ${{ each field in pkg }}:
           - ${{ if and(notIn(field.key, 'Type', 'Name', 'Project'), not(and(eq(pkg.Type, 'Publish'), eq(field.key, 'ZipAfterPublish')))) }}:
-              - 'Unsupported package setting. See: docs/definition_docs/dotnet_build/config.md': error
+              - 'Unsupported package setting. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ if or(not(startsWith(convertToJson(parameters.Destinations), '[')), gt(length(parameters.Destinations), 1)) }}:
-      - 'Expected a list with at most one PipelineArtifact destination. See: docs/definition_docs/dotnet_build/config.md': error
+      - 'Expected a list with at most one PipelineArtifact destination. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ each destination in parameters.Destinations }}:
       - ${{ if ne(destination.Type, 'PipelineArtifact') }}:
-          - 'Only PipelineArtifact is supported. See: docs/definition_docs/dotnet_build/config.md': error
+          - 'Only PipelineArtifact is supported. See: docs/definition_docs/dotnetcore_build/config.md': error
       - ${{ each field in destination }}:
           - ${{ if notIn(field.key, 'Type', 'Name') }}:
-              - 'Unsupported destination setting. See: docs/definition_docs/dotnet_build/config.md': error
+              - 'Unsupported destination setting. See: docs/definition_docs/dotnetcore_build/config.md': error
   - ${{ each phase in split('Pre,Post', ',') }}:
       - ${{ if not(startsWith(convertToJson(parameters[phase]), '[')) }}:
           - 'Expected a list of checks. See: docs/user-docs/checks/README.md': error
       - ${{ else }}:
           - ${{ each check in parameters[phase] }}:
-              - ${{ if or(and(eq(phase, 'Pre'), ne(check.Check, 'DotNetFormat')), and(eq(phase, 'Post'), ne(check.Check, 'DotNetTest'))) }}:
-                  - 'Invalid check phase. Use DotNetFormat before build and DotNetTest after build. See: docs/user-docs/checks/README.md': error
+              - ${{ if or(and(eq(phase, 'Pre'), ne(check.Check, 'DotNetCoreFormat')), and(eq(phase, 'Post'), ne(check.Check, 'DotNetCoreTest'))) }}:
+                  - 'Invalid check phase. Use DotNetCoreFormat before build and DotNetCoreTest after build. See: docs/user-docs/checks/README.md': error
               - ${{ if and(gt(length(parameters[phase]), 1), not(check.Name)) }}:
                   - 'Repeated checks need unique names. See: docs/user-docs/checks/README.md': error
               - ${{ each field in check }}:

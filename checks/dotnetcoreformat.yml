@@ -1,4 +1,4 @@
-# DotNetFormat: verify whitespace after restore without writing files.
+# DotNetCoreFormat: verify whitespace after restore without writing files.
 # WorkingDirectory: job-owned source root. Name (string, '') labels the instance.
 # TreatAsWarnings (boolean, false) allows compilation after a formatting violation.
 parameters:
@@ -22,4 +22,4 @@ steps:
       command: custom
       custom: format
       workingDirectory: ${{ parameters.WorkingDirectory }}
-      arguments: whitespace "$(DotNetTarget)" --verify-no-changes --no-restore
+      arguments: whitespace "$(DotNetCoreTarget)" --verify-no-changes --no-restore

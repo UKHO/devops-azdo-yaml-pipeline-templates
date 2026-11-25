@@ -1,6 +1,6 @@
 # VSTest can exit successfully with zero matches. A native test failure is handled by DotNetCoreCLI itself.
 $ErrorActionPreference = 'Stop'
-$out = Join-Path $env:DOTNETREPORTS $env:INSTANCE
+$out = Join-Path $env:DOTNETCOREREPORTS $env:INSTANCE
 $count = 0
 foreach ($trx in (Get-ChildItem -LiteralPath $out -Filter *.trx -Recurse -ErrorAction SilentlyContinue)) {
   $count += [int]([xml](Get-Content -LiteralPath $trx.FullName -Raw)).TestRun.ResultSummary.Counters.executed

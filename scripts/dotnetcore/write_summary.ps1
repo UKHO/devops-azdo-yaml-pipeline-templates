@@ -10,12 +10,12 @@ if ($entries.Count -and !$PSBoundParameters.ContainsKey('Records') -and $env:SYS
     $Records = @($timeline.records | Where-Object { $_.parentId -eq $env:SYSTEM_JOBID -and $_.type -eq 'Task' })
   } catch { Write-Warning 'Task timeline unavailable; see the native task results.' }
 }
-$lines = @('### .NET build', "Job status before publication: $env:AGENT_JOBSTATUS")
+$lines = @('### .NET Core build', "Job status before publication: $env:AGENT_JOBSTATUS")
 if (!$entries.Count) { $lines += 'No checks configured' }
 foreach ($entry in $entries) {
-  $id = if ($entry.Check -eq 'DotNetFormat') { 'PreFormat_' } else { 'PostTest_' }
+  $id = if ($entry.Check -eq 'DotNetCoreFormat') { 'PreFormat_' } else { 'PostTest_' }
   $ids = @("$id$($entry.Name)")
-  if ($entry.Check -eq 'DotNetTest') { $ids += "PostEvidence_$($entry.Name)" }
+  if ($entry.Check -eq 'DotNetCoreTest') { $ids += "PostEvidence_$($entry.Name)" }
   $results = foreach ($ref in $ids) {
     $record = $Records | Where-Object refName -eq $ref | Select-Object -Last 1
     if ($record.result) { $record.result } else { 'unknown' }
@@ -23,6 +23,6 @@ foreach ($entry in $entries) {
   $status = if ($results -contains 'failed') { 'Failed' } elseif ($results -contains 'canceled') { 'Canceled' } elseif ($results -contains 'unknown') { 'Unavailable' } elseif ($results -contains 'skipped') { 'Skipped' } elseif ($results -contains 'succeededWithIssues') { 'Warned' } elseif (!(@($results | Where-Object { $_ -ne 'succeeded' }).Count)) { 'Passed' } else { 'Unavailable' }
   $lines += "- $($entry.Check) $($entry.Name): $status"
 }
-$summary = Join-Path $env:DOTNETREPORTS summary.md
+$summary = Join-Path $env:DOTNETCOREREPORTS summary.md
 Set-Content -LiteralPath $summary -Value $lines
 Write-Host "##vso[task.uploadsummary]$summary"
