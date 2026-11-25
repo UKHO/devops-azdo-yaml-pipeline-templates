@@ -9,17 +9,11 @@ resources:
 trigger: none
 pr: none
 
-parameters:
-  - name: Image
-    displayName: Hosted image for the fixture
-    type: string
-    default: ubuntu-latest
-    values:
-      - ubuntu-latest
-      - windows-latest
+variables:
+  FixtureImage: ubuntu-latest
 
 pool:
-  vmImage: ${{ parameters.Image }}
+  vmImage: $(FixtureImage)
 
 jobs:
   - template: jobs/dotnet_build.yml@AzDOPipelineTemplates
