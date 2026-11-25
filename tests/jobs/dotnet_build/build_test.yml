@@ -1,0 +1,64 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+trigger: none
+pr: none
+
+parameters:
+  - name: Image
+    displayName: Hosted image for the fixture
+    type: string
+    default: ubuntu-latest
+    values:
+      - ubuntu-latest
+      - windows-latest
+
+pool:
+  vmImage: ${{ parameters.Image }}
+
+jobs:
+  - template: jobs/dotnet_build.yml@AzDOPipelineTemplates
+    parameters:
+      ArtifactName: Sample
+      DotNetBuildConfig:
+        RelativePathToSolution: tests/shared_resources/dotnet/Sample.sln
+        DotNetSdk:
+          Version: 8.0.428
+        Packages:
+          - Type: Publish
+            Project: tests/shared_resources/dotnet/SampleApp/SampleApp.csproj
+      PreBuildChecks:
+        - Check: DotNetFormat
+      PostBuildChecks:
+        - Check: DotNetTest
+          Name: Unit
+          Filter: TestCategory=Unit
+        - Check: DotNetTest
+          Name: Integration
+          Filter: TestCategory=Integration
+          CollectCoverage: false
+      Destinations:
+        - Type: PipelineArtifact
+          Name: BuildOutput
+  - job: Verify
+    dependsOn: DotNetBuild_Sample
+    steps:
+      - checkout: none
+      - download: current
+        artifact: Sample
+      - download: current
+        artifact: Sample_Reports
+      - pwsh: |
+          $zip = [IO.Compression.ZipFile]::OpenRead("$(Pipeline.Workspace)/Sample/publish/SampleApp.zip")
+          try { if (!$zip.GetEntry('SampleApp.dll')) { throw 'Missing compiled app' } } finally { $zip.Dispose() }
+          foreach ($name in 'Unit','Integration') {
+            $root = "$(Pipeline.Workspace)/Sample_Reports/dotnettest_$name"
+            if (!(Get-ChildItem $root -Filter *.trx -Recurse)) { throw "Missing TRX: $name" }
+          }
+          if (!(Get-ChildItem "$(Pipeline.Workspace)/Sample_Reports" -Filter coverage.cobertura.xml -Recurse)) { throw 'Missing coverage' }
+        displayName: Verify package and test evidence

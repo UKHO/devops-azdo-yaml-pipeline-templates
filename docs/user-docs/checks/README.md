@@ -1,18 +1,20 @@
 # Build Checks
 
-Checks are optional quality gates that run inside a build job, after the mandatory validation step and before the artifact is packaged. You enable them by adding entries to the `Checks` parameter of a build job template.
+Terraform uses `Checks` after validation. The .NET job uses `PreBuildChecks` after restore and `PostBuildChecks` after compile. Both run checks before packaging.
 
 ## Available Checks
 
 | Check                                       | Purpose                                                  | Supported By                                      |
 | ------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| **[DotNetFormat](./dotnetformat.md)** | Verify whitespace | [.NET Build Job](../jobs/dotnet_build.md) |
+| **[DotNetTest](./dotnettest.md)** | Test compiled output | [.NET Build Job](../jobs/dotnet_build.md) |
 | **[TerraformFormat](./terraformformat.md)** | Fails when Terraform files are not formatted canonically | [Terraform Build Job](../jobs/terraform_build.md) |
 
 Listing a check that the build job does not support, or misspelling a check or setting name, fails the pipeline at compile time with an error message listing the supported checks.
 
 ## Versioning
 
-The check names and their settings are part of this repository's public API and follow [Semantic Versioning](../../developers/reference/versioning-policy.md). Reference checks only through the `Checks` parameter of a build job; do not reference files under `checks/` directly.
+The check names and their settings are part of this repository's public API and follow [Semantic Versioning](../../developers/reference/versioning-policy.md). Reference checks only through the documented check lists of a build job; do not reference files under `checks/` directly.
 
 ---
 
@@ -51,7 +53,7 @@ Checks:
 
 ## Where Checks Run
 
-Every build job runs in the same order:
+The Terraform build job runs in this order:
 
 1. **Prepare** – the job gets the source and tools ready (for example checkout, custom steps, tool installation and initialisation).
 2. **Mandatory** – the job's built-in validation, which always runs.

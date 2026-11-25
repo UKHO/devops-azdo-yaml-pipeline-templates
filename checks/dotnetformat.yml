@@ -1,0 +1,29 @@
+# DotNetFormat: verify whitespace after restore without writing files.
+# WorkingDirectory: job-owned source root. Name (string, '') labels the instance.
+# TreatAsWarnings (boolean, false) allows compilation after a formatting violation.
+parameters:
+  - name: WorkingDirectory
+    displayName: Job-owned source root
+    type: string
+  - name: Name
+    displayName: Instance label
+    type: string
+    default: ''
+  - name: TreatAsWarnings
+    displayName: Treat check failures as warnings
+    type: boolean
+    default: false
+steps:
+  - pwsh: |
+      dotnet format whitespace $env:DOTNETTARGET --verify-no-changes --no-restore
+      $code = $LASTEXITCODE
+      $result = if (!$code) { 'Passed' } elseif ($env:WARN -eq 'true') { 'Warned' } else { 'Failed' }
+      Set-Content -LiteralPath (Join-Path $env:DOTNETREPORTS "$env:INSTANCE.txt") -Value $result
+      exit $code
+    workingDirectory: ${{ parameters.WorkingDirectory }}
+    name: PreFormat_${{ parameters.Name }}
+    displayName: Verify whitespace ${{ parameters.Name }}
+    continueOnError: ${{ parameters.TreatAsWarnings }}
+    env:
+      INSTANCE: dotnetformat_${{ parameters.Name }}
+      WARN: ${{ format('{0}', parameters.TreatAsWarnings) }}

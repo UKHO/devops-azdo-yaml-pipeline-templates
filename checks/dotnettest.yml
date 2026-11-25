@@ -1,0 +1,67 @@
+# DotNetTest: execute previously compiled VSTest projects.
+# WorkingDirectory: job-owned source root. Name (string, '') labels this instance.
+# TreatAsWarnings (boolean, false); Project (string, '' = build target);
+# Filter (string, '' = all); TestRunTitle (string, '' = instance or target);
+# CollectCoverage (boolean, true) requests a project-provided XPlat collector.
+parameters:
+  - name: WorkingDirectory
+    type: string
+    displayName: Job-owned source root
+  - name: Name
+    type: string
+    displayName: Instance label
+    default: ''
+  - name: TreatAsWarnings
+    type: boolean
+    displayName: Treat check failures as warnings
+    default: false
+  - name: Project
+    type: string
+    displayName: Built solution or test project
+    default: ''
+  - name: Filter
+    type: string
+    displayName: VSTest filter
+    default: ''
+  - name: TestRunTitle
+    type: string
+    displayName: Tests tab title
+    default: ''
+  - name: CollectCoverage
+    type: boolean
+    displayName: Collect Cobertura coverage
+    default: true
+steps:
+  - pwsh: |
+      $out = Join-Path $env:DOTNETREPORTS $env:INSTANCE
+      $options = @('--no-build', '--no-restore', '-c', $env:DOTNETCONFIGURATION, '--results-directory', $out, '--logger', 'trx')
+      if ($env:TEST_FILTER) { $options += '--filter', $env:TEST_FILTER }
+      if ($env:COVERAGE -eq 'true') { $options += '--collect', 'XPlat Code Coverage' }
+      dotnet test $env:TEST_PROJECT @options
+      $code = $LASTEXITCODE
+      $count = 0
+      foreach ($trx in (Get-ChildItem -LiteralPath $out -Filter *.trx -Recurse -ErrorAction SilentlyContinue)) {
+        $count += [int]([xml](Get-Content -LiteralPath $trx.FullName -Raw)).TestRun.ResultSummary.Counters.executed
+      }
+      if (!$count) { Write-Warning 'No executed tests in TRX results'; $code = 1 }
+      if ($env:COVERAGE -eq 'true' -and !(Get-ChildItem -LiteralPath $out -Filter coverage.cobertura.xml -Recurse -ErrorAction SilentlyContinue)) { Write-Warning 'Requested coverage unavailable' }
+      $result = if (!$code) { 'Passed' } elseif ($env:WARN -eq 'true') { 'Warned' } else { 'Failed' }
+      Set-Content -LiteralPath (Join-Path $env:DOTNETREPORTS "$env:INSTANCE.txt") -Value "$result ($count executed)"
+      exit $code
+    workingDirectory: ${{ parameters.WorkingDirectory }}
+    name: PostTest_${{ parameters.Name }}
+    displayName: Run tests ${{ parameters.Name }}
+    continueOnError: ${{ parameters.TreatAsWarnings }}
+    env:
+      TEST_PROJECT: ${{ coalesce(parameters.Project, '$(DotNetTarget)') }}
+      TEST_FILTER: ${{ parameters.Filter }}
+      INSTANCE: dotnettest_${{ parameters.Name }}
+      COVERAGE: ${{ format('{0}', parameters.CollectCoverage) }}
+      WARN: ${{ format('{0}', parameters.TreatAsWarnings) }}
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      searchFolder: $(DotNetReports)
+      testResultsFiles: dotnettest_${{ parameters.Name }}/**/*.trx
+      testRunTitle: ${{ coalesce(parameters.TestRunTitle, parameters.Name, parameters.Project, '$(DotNetTarget)') }}

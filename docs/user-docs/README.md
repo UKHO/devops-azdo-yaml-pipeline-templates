@@ -16,6 +16,7 @@ Complete end-to-end pipeline templates for specific use cases.
 
 | Job                                                                        | Purpose                                                                                                            |
 |----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| **[.NET Build Job](./jobs/dotnet_build.md)** | Build, check and package .NET projects |
 | **[Manual Verification Job](./jobs/manual_verification.md)**               | Reusable approval gate for manual workflow validation with configurable timeouts and notifications                 |
 | **[Terraform Build Job](./jobs/terraform_build.md)**                       | Builds, validates, and packages Terraform files with support for additional files and custom injection steps       |
 | **[Terraform Deploy Job](./jobs/terraform_deploy.md)**                     | Handles individual Terraform deployment steps (plan or apply) with environment variables and Key Vault integration |
@@ -25,10 +26,12 @@ Complete end-to-end pipeline templates for specific use cases.
 
 ### Available Checks
 
-Optional quality checks enabled through a build job's `Checks` parameter. See **[Build Checks](./checks/README.md)** for how they work.
+Optional quality checks enabled through a build job's check lists. See **[Build Checks](./checks/README.md)** for how they work.
 
 | Check                                              | Purpose                                                  |
 |----------------------------------------------------|----------------------------------------------------------|
+| **[DotNetFormat](./checks/dotnetformat.md)** | Verify .NET whitespace before build |
+| **[DotNetTest](./checks/dotnettest.md)** | Test compiled .NET projects |
 | **[TerraformFormat](./checks/terraformformat.md)** | Fails when Terraform files are not formatted canonically |
 
 ## 📦 Upgrade Guides
