@@ -25,20 +25,4 @@ locals {
     azdo_name = "compile_tests"
     file_path = "cicd/pipelines/compile_tests.yml"
   }
-
-  pipeline_authorizations = merge([
-    for pipeline_key in keys(local.template_tests_to_deploy) : {
-      for auth_type, resource_id in {
-        "queue"         = data.azuredevops_agent_queue.this.id
-        "environment"   = data.azuredevops_environment.this.id
-        "endpoint"      = data.azuredevops_serviceendpoint_azurerm.this.id
-        "variablegroup" = data.azuredevops_variable_group.this.id
-      } :
-      "${pipeline_key}_${auth_type}" => {
-        pipeline_key = pipeline_key
-        type         = auth_type
-        resource_id  = resource_id
-      }
-    }
-  ]...)
 }
