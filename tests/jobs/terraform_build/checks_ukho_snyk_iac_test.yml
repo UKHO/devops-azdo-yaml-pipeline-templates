@@ -20,11 +20,6 @@ pr:
 # UkhoSnykIac on Terraform with no security issues.
 # Expected result: the build job succeeds, and the ValidateResults job proves the public 'snyk-iac' JSON
 # report was attached to the run.
-#
-# PENDING: named *.pending.yml so cicd/ does not deploy it yet. Rename to *_test.yml once these exist:
-#   - the UKHO Snyk extension installed in the organisation
-#   - a Snyk Authentication service connection named 'Snyk', authorised for this pipeline
-#   - a Snyk organisation for testing (replace 'snyk-test-org')
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
@@ -33,7 +28,7 @@ jobs:
       Checks:
         - Check: UkhoSnykIac
           ServiceConnection: Snyk
-          Organization: snyk-test-org
+          Organization: devops-chapter
 
   - job: ValidateResults
     dependsOn:

@@ -21,11 +21,6 @@ pr:
 # uses continueOnError, so it's marked SucceededWithIssues and the job carries on to package and publish
 # the artifact. The ValidateResults job proves the artifact was still published.
 # Expected result: the run is "partially succeeded".
-#
-# PENDING: named *.pending.yml so cicd/ does not deploy it yet. Rename to *_test.yml once these exist:
-#   - the UKHO Snyk extension installed in the organisation
-#   - a Snyk Authentication service connection named 'Snyk', authorised for this pipeline
-#   - a Snyk organisation for testing (replace 'snyk-test-org')
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
@@ -34,10 +29,10 @@ jobs:
       Checks:
         - Check: UkhoSnykIac
           ServiceConnection: Snyk
-          Organization: snyk-test-org
+          Organization: devops-chapter
           TreatAsWarnings: true
 
-  - job: ValidateResults
+  - job: ValidateResults # SRJ: Ok this needs reworking to check that the UkhoSynkIac has successfully resulted in a warning and be successful///
     dependsOn:
       - TerraformBuild_TerraformArtifact
     steps:
