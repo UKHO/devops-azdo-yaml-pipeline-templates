@@ -12,21 +12,6 @@ data "azuredevops_agent_queue" "this" {
   project_id = data.azuredevops_project.this.id
 }
 
-data "azuredevops_environment" "this" {
-  name       = var.azdo_environment_name
-  project_id = data.azuredevops_project.this.id
-}
-
-data "azuredevops_serviceendpoint_azurerm" "this" {
-  service_endpoint_name = var.azurerm_serviceconnection_name
-  project_id            = data.azuredevops_project.this.id
-}
-
-data "azuredevops_variable_group" "this" {
-  name       = "DevOpsChapterAzureSubscription"
-  project_id = data.azuredevops_project.this.id
-}
-
 resource "azuredevops_build_definition" "template_tests" {
   project_id = data.azuredevops_project.this.id
   for_each   = local.template_tests_to_deploy
@@ -57,13 +42,28 @@ resource "azuredevops_build_definition" "template_tests" {
   }
 }
 
-resource "azuredevops_pipeline_authorization" "this" {
-  for_each = local.pipeline_authorizations
+# Pipeline authorizations are intentionally NOT managed here. With one test
+# pipeline per template test, per-pipeline authorizations made plan/apply very
+# slow. The shared resources (agent queue, environment, service connection,
+# variable group) are configured as "Open access" in Azure DevOps instead.
+#
+# The removed blocks below drop the previously managed authorizations from state
+# without revoking them in Azure DevOps. They can be deleted once the change has
+# been applied.
+removed {
+  from = azuredevops_pipeline_authorization.this
 
-  project_id  = data.azuredevops_project.this.id
-  type        = each.value.type
-  pipeline_id = azuredevops_build_definition.template_tests[each.value.pipeline_key].id
-  resource_id = each.value.resource_id
+  lifecycle {
+    destroy = false
+  }
+}
+
+removed {
+  from = azuredevops_pipeline_authorization.compile_tests_queue
+
+  lifecycle {
+    destroy = false
+  }
 }
 
 
@@ -98,13 +98,4 @@ resource "azuredevops_build_definition" "compile_tests" {
       share_secrets = false
     }
   }
-}
-
-# Only the agent queue is needed: the job deploys nothing and uses no service
-# connections, environments or variable groups.
-resource "azuredevops_pipeline_authorization" "compile_tests_queue" {
-  project_id  = data.azuredevops_project.this.id
-  type        = "queue"
-  pipeline_id = azuredevops_build_definition.compile_tests.id
-  resource_id = data.azuredevops_agent_queue.this.id
 }

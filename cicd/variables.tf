@@ -27,19 +27,6 @@ variable "github_serviceconnection_name" {
   }
 }
 
-variable "azurerm_serviceconnection_name" {
-  type        = string
-  description = "Name of the service connection that has permissions to the azure subscription which pipelines use to deploy resources via"
-  validation {
-    condition = (
-      length(var.azurerm_serviceconnection_name) > 0 &&
-      length(var.azurerm_serviceconnection_name) <= 128 &&
-      can(regex("^[^'\"/\\\\\\[\\]:|<>+=;?*]+$", var.azurerm_serviceconnection_name))
-    )
-    error_message = "Service connection name must be 1-128 characters and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
-  }
-}
-
 variable "azdo_agent_pool_name" {
   type        = string
   description = "Name of the Azure DevOps agent pool to use for pipeline execution"
@@ -50,18 +37,5 @@ variable "azdo_agent_pool_name" {
       can(regex("^[^'\"/\\\\\\[\\]:|<>+=;?*]+$", var.azdo_agent_pool_name))
     )
     error_message = "Agent pool name must be 1-128 characters and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
-  }
-}
-
-variable "azdo_environment_name" {
-  type        = string
-  description = "Name of the Azure DevOps environment for pipeline deployments"
-  validation {
-    condition = (
-      length(var.azdo_environment_name) > 0 &&
-      length(var.azdo_environment_name) <= 128 &&
-      can(regex("^[^'\"/\\\\\\[\\]:|<>+=;?*]+$", var.azdo_environment_name))
-    )
-    error_message = "Environment name must be 1-128 characters and cannot contain: ' \" / \\ [ ] : | < > + = ; ? *"
   }
 }
