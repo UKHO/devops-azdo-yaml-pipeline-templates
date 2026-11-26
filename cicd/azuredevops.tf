@@ -46,25 +46,6 @@ resource "azuredevops_build_definition" "template_tests" {
 # pipeline per template test, per-pipeline authorizations made plan/apply very
 # slow. The shared resources (agent queue, environment, service connection,
 # variable group) are configured as "Open access" in Azure DevOps instead.
-#
-# The removed blocks below drop the previously managed authorizations from state
-# without revoking them in Azure DevOps. They can be deleted once the change has
-# been applied.
-removed {
-  from = azuredevops_pipeline_authorization.this
-
-  lifecycle {
-    destroy = false
-  }
-}
-
-removed {
-  from = azuredevops_pipeline_authorization.compile_tests_queue
-
-  lifecycle {
-    destroy = false
-  }
-}
 
 
 # ---------------------------------------------------------------------------
