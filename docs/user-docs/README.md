@@ -30,7 +30,7 @@ Optional quality checks enabled through a build job's `Checks` parameter. See **
 | Check                                              | Purpose                                                                     |
 |----------------------------------------------------|-----------------------------------------------------------------------------|
 | **[TerraformFormat](./checks/terraformformat.md)** | Fails when Terraform files are not formatted canonically                    |
-| **[UkhoSnykIac](./checks/ukhosnykiac.md)**         | Scans Terraform for security misconfigurations with the UKHO Snyk scan task |
+| **[UkhoSnykIacScan](./checks/ukhosnykiacscan.md)**         | Scans Terraform for security misconfigurations with the UKHO Snyk scan task |
 
 ## 📦 Upgrade Guides
 

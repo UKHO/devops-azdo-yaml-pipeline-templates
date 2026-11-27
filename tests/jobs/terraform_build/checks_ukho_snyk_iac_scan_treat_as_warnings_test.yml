@@ -17,25 +17,32 @@ pr:
       - main
   drafts: false
 
-# UkhoSnykIac with TreatAsWarnings on Terraform with deliberate security issues. The scan fails, but the step
-# uses continueOnError, so it's marked SucceededWithIssues and the job carries on to package and publish
-# the artifact. The ValidateResults job proves the artifact was still published.
-# Expected result: the run is "partially succeeded".
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
       TerraformVersion: 1.13.0
       RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/insecure
       Checks:
-        - Check: UkhoSnykIac
+        - Check: UkhoSnykIacScan
           ServiceConnection: Snyk
           Organization: devops-chapter
           TreatAsWarnings: true
 
-  - job: ValidateResults # SRJ: Ok this needs reworking to check that the UkhoSynkIac has successfully resulted in a warning and be successful///
+  - job: ValidateResults
     dependsOn:
       - TerraformBuild_TerraformArtifact
+    variables:
+      - name: TerraformBuildResult
+        value: $[ dependencies.TerraformBuild_TerraformArtifact.result ]
+        readonly: true
     steps:
+      - pwsh: |
+          if ($env:TERRAFORM_BUILD_RESULT -ne 'SucceededWithIssues') {
+            throw "Expected UkhoSnykIacScan to produce SucceededWithIssues, got '$env:TERRAFORM_BUILD_RESULT'."
+          }
+        displayName: 'Assert UkhoSnykIacScan reported a warning'
+        env:
+          TERRAFORM_BUILD_RESULT: $(TerraformBuildResult)
       - template: tasks/download_pipeline_artifact.yml@AzDOPipelineTemplates
         parameters:
           ArtifactName: TerraformArtifact

@@ -1,25 +1,20 @@
-# Check: UkhoSnykIac
+# Check: UkhoSnykIacScan
 #
 # Purpose:
 #   Scans the build's Terraform for security misconfigurations with Snyk ('snyk iac test'), using the
-#   UKHO Snyk extension task (UkhoSnykScanTask). Fails the build when issues at or above SeverityThreshold
-#   are found. This check is tied to that task and its Snyk Authentication service connection type; a
-#   check that calls the Snyk CLI directly would be a separate check with its own settings.
+#   UKHO Snyk extension task (UkhoSnykScanTask).
 #
 # Public interface (SemVer):
-#   The check name 'UkhoSnykIac' and the consumer-facing parameters below (Name, TreatAsWarnings,
-#   ServiceConnection, Organization, SeverityThreshold, AdditionalArguments) are public, because consumers
-#   set them through the Checks parameter. Also public: the JSON report attached to the run, named
-#   'snyk-iac' or 'snyk-iac-<Name>'. What is passed through AdditionalArguments, and anything else the
-#   task adds (such as the HTML report and the scan report tab), is not covered. The steps in this file
-#   are internal and can change, as long as the behaviour stays the same.
+#   The check name 'UkhoSnykIacScan' and its consumer-facing parameters are public and versioned. What the
+#   task does with AdditionalArguments, and the reports it generates, are not covered.
 #
 # Consumer usage (through a build job's Checks parameter):
 #   Checks:
-#     - Check: UkhoSnykIac
+#     - Check: UkhoSnykIacScan
+#       Name: AllIssues
 #       ServiceConnection: Snyk
 #       Organization: my-team
-#     - Check: UkhoSnykIac
+#     - Check: UkhoSnykIacScan
 #       Name: HighOnly
 #       ServiceConnection: Snyk
 #       Organization: my-team
@@ -34,7 +29,7 @@
 #     than once. Letters, digits and underscores only, because it becomes part of the step name. Default: ''
 #   - TreatAsWarnings (boolean, optional): Report issues and scan errors as a warning (SucceededWithIssues)
 #     instead of failing the job. Default: false
-#   UkhoSnykIac settings:
+#   UkhoSnykIacScan settings:
 #   - ServiceConnection (string, required): Snyk Authentication service connection name.
 #   - Organization (string, required): Snyk organisation slug or ID.
 #   - SeverityThreshold (string, optional): Lowest severity that fails the check. Values: low, medium, high, critical. Default: 'low'
@@ -70,7 +65,7 @@ parameters:
     default: false
     displayName: 'Report issues as a warning instead of failing the job'
 
-  # UkhoSnykIac settings
+  # UkhoSnykIacScan settings
   - name: ServiceConnection
     type: string
     # NO default - Consumer must provide this

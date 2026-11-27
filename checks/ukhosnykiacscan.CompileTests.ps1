@@ -1,7 +1,7 @@
 # ============================================================================
-# TEST: UkhoSnykIac Check Template
+# TEST: UkhoSnykIacScan Check Template
 # ============================================================================
-# Tests for checks/ukhosnykiac.yml, which runs a Snyk iac scan through /tasks/ukho_snyk_scan.yml.
+# Tests for checks/ukhosnykiacscan.yml, which runs a Snyk iac scan through /tasks/ukho_snyk_scan.yml.
 # Covers the defaults, each setting, and that bad input is rejected (missing required settings,
 # wrong types and values, and unknown settings forwarded from Checks).
 # Requires the UKHO Snyk extension to be installed in the test Azure DevOps organisation.
@@ -107,6 +107,6 @@ $invalidTestCases = @(
 # ============================================================================
 
 Run-Tests `
-  -YamlPath "checks/ukhosnykiac.yml" `
+  -YamlPath "checks/ukhosnykiacscan.yml" `
   -ValidTestCases $validTestCases `
   -InvalidTestCases $invalidTestCases

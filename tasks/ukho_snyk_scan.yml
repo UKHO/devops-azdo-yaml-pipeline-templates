@@ -33,6 +33,10 @@
 #       ContinueOnError: true
 #
 # Notes:
+#   - Partial wrapper: this template does not expose every option of UkhoSnykScanTask. It only implements
+#     what the UkhoSnykIacScan check needs (IaC scanning). Other test types (app, code, container) and their
+#     inputs (such as targetFile, dockerImageName, codeSeverityThreshold, monitorWhen, failOnType and
+#     projectName) are deliberately not wired up yet; add them here when a check or template needs them.
 #   - Requires the UKHO 'ukho-azure-pipeline-scan-task' extension in the Azure DevOps organisation. This is
 #     an internal extension, so public templates must only reach this through an opt-in check (see
 #     design-philosophy.md).

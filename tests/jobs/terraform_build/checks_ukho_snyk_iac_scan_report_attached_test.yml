@@ -17,16 +17,13 @@ pr:
       - main
   drafts: false
 
-# UkhoSnykIac on Terraform with no security issues.
-# Expected result: the build job succeeds, and the ValidateResults job proves the public 'snyk-iac' JSON
-# report was attached to the run.
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
       TerraformVersion: 1.13.0
       RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
       Checks:
-        - Check: UkhoSnykIac
+        - Check: UkhoSnykIacScan
           ServiceConnection: Snyk
           Organization: devops-chapter
 
@@ -49,7 +46,7 @@ jobs:
 
           if ($names -notcontains $expectedName)
           {
-            Write-Error "Expected the UkhoSnykIac check to attach '$expectedName' to the run, but it was not found."
+            Write-Error "Expected the UkhoSnykIacScan check to attach '$expectedName' to the run, but it was not found."
           }
           Write-Host "Found the '$expectedName' report attachment."
         displayName: 'Verify the snyk-iac JSON report is attached'

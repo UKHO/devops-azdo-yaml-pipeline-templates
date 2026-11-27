@@ -7,7 +7,7 @@ Checks are optional quality gates that run inside a build job, after the mandato
 | Check                                       | Purpose                                                                     | Supported By                                      |
 | ------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------- |
 | **[TerraformFormat](./terraformformat.md)** | Fails when Terraform files are not formatted canonically                    | [Terraform Build Job](../jobs/terraform_build.md) |
-| **[UkhoSnykIac](./ukhosnykiac.md)**         | Scans Terraform for security misconfigurations with the UKHO Snyk scan task | [Terraform Build Job](../jobs/terraform_build.md) |
+| **[UkhoSnykIacScan](./ukhosnykiacscan.md)**         | Scans Terraform for security misconfigurations with the UKHO Snyk scan task | [Terraform Build Job](../jobs/terraform_build.md) |
 
 Listing a check that the build job does not support, or misspelling a check or setting name, fails the pipeline at compile time with an error message listing the supported checks.
 
