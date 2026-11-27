@@ -17,6 +17,7 @@ external consumption.
 ## Key Principles
 
 - **Formatting:** Follow `.editorconfig` (UTF-8, LF line endings, 2-space indent)
+- **Job PowerShell:** Use version-controlled `.ps1` files and test them directly. Never embed inline PowerShell in job steps or the check templates they call; see [PowerShell job steps](../docs/developers/reference/template-conventions.md#powershell-job-steps).
 - **Reusability:** Design templates to be modular and consumable by other repositories
 - **Cross-platform:** Templates must run on both Windows and Linux agents. Use `pwsh` for scripting and avoid OS-specific assumptions (path separators, shell built-ins)
 - **Open-source tasks:** Prefer built-in Azure DevOps tasks or open-source equivalents over paid Marketplace extensions, so consumers need not install licensed extensions

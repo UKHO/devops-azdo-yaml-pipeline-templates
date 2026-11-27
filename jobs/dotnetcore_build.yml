@@ -1,0 +1,220 @@
+parameters:
+  - name: CheckoutAlias
+    displayName: Resource alias for the repository containing this template (self for local templates)
+    type: string
+    default: AzDOPipelineTemplates
+  - name: ArtifactName
+    type: string
+    default: DotNetCoreArtifact
+    displayName: Package artifact and job suffix
+  - name: Condition
+    type: string
+    default: succeeded()
+    displayName: Job condition
+  - name: DependsOn
+    type: object
+    default: []
+    displayName: Job dependencies
+  - name: Pool
+    type: string
+    default: ''
+    displayName: Optional agent pool name
+  - name: DotNetCoreBuildConfig
+    type: object
+    displayName: Solution or project and package requests
+  - name: PreBuildChecks
+    type: object
+    default: []
+    displayName: Ordered checks after restore
+  - name: PostBuildChecks
+    type: object
+    default: []
+    displayName: Ordered checks after compilation
+  - name: Destinations
+    type: object
+    default: []
+    displayName: Package destinations (defaults to PipelineArtifact)
+
+jobs:
+  - job: DotNetCoreBuild_${{ parameters.ArtifactName }}
+    displayName: Build ${{ parameters.ArtifactName }}
+    dependsOn: ${{ parameters.DependsOn }}
+    condition: ${{ parameters.Condition }}
+    ${{ if parameters.Pool }}:
+      pool: ${{ parameters.Pool }}
+    workspace:
+      clean: all
+    variables:
+      - name: DotNetCoreSource
+        value: $(Pipeline.Workspace)/dotnetcore-source
+        readonly: true
+      - name: DotNetCoreScriptRoot
+        ${{ if eq(parameters.CheckoutAlias, 'self') }}:
+          value: $(DotNetCoreSource)/scripts/dotnetcore
+        ${{ else }}:
+          value: $(Pipeline.Workspace)/dotnetcore-templates/scripts/dotnetcore
+        readonly: true
+      - name: DotNetCoreTarget
+        value: $(DotNetCoreSource)/${{ parameters.DotNetCoreBuildConfig.RelativePathToSolution }}
+        readonly: true
+      - name: DotNetCoreConfiguration
+        value: ${{ coalesce(parameters.DotNetCoreBuildConfig.BuildConfiguration, 'Release') }}
+        readonly: true
+      - name: DotNetCoreReports
+        value: $(Build.ArtifactStagingDirectory)/reports
+        readonly: true
+      - name: DotNetCorePackages
+        value: $(Build.ArtifactStagingDirectory)/packages
+        readonly: true
+    steps:
+      - template: /schemas/dotnetcore_build.yml
+        parameters:
+          Config: ${{ parameters.DotNetCoreBuildConfig }}
+          Pre: ${{ parameters.PreBuildChecks }}
+          Post: ${{ parameters.PostBuildChecks }}
+          Destinations: ${{ parameters.Destinations }}
+      - checkout: self
+        clean: true
+        path: dotnetcore-source
+      - ${{ if ne(parameters.CheckoutAlias, 'self') }}:
+          - checkout: ${{ parameters.CheckoutAlias }}
+            path: dotnetcore-templates
+            fetchDepth: 1
+            clean: true
+      - download: none
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetCoreScriptRoot)/validate_inputs.ps1
+          workingDirectory: $(DotNetCoreSource)
+        displayName: Validate build inputs and initialise reports
+        env:
+          CONFIG_JSON: ${{ convertToJson(parameters.DotNetCoreBuildConfig) }}
+          PRE_JSON: ${{ convertToJson(parameters.PreBuildChecks) }}
+          POST_JSON: ${{ convertToJson(parameters.PostBuildChecks) }}
+      - ${{ if ne(lower(format('{0}', parameters.DotNetCoreBuildConfig.DotNetCoreSdk.Install)), 'false') }}:
+          - task: UseDotNet@2
+            inputs:
+              packageType: sdk
+              ${{ if parameters.DotNetCoreBuildConfig.DotNetCoreSdk.Version }}:
+                version: ${{ parameters.DotNetCoreBuildConfig.DotNetCoreSdk.Version }}
+              ${{ else }}:
+                useGlobalJson: true
+                workingDirectory: $(DotNetCoreSource)
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetCoreScriptRoot)/verify_sdk.ps1
+          workingDirectory: $(DotNetCoreSource)
+        displayName: Verify selected SDK
+        env:
+          EXPECTED: ${{ coalesce(parameters.DotNetCoreBuildConfig.DotNetCoreSdk.Version, '') }}
+      - ${{ if parameters.DotNetCoreBuildConfig.ConfigSources }}:
+          - template: /utils/config_sources_task_list.yml
+            parameters:
+              ConfigSources: ${{ parameters.DotNetCoreBuildConfig.ConfigSources }}
+      - task: NuGetAuthenticate@1
+      - task: DotNetCoreCLI@2
+        displayName: Restore
+        inputs:
+          # Keep ordinary NuGet config discovery; the dedicated restore mode generates a config.
+          command: custom
+          custom: restore
+          projects: $(DotNetCoreTarget)
+          workingDirectory: $(DotNetCoreSource)
+          arguments: >-
+            -p:Configuration="$(DotNetCoreConfiguration)"
+            ${{ iif(eq(parameters.DotNetCoreBuildConfig.Restore.UseLockedMode, true), '--locked-mode', '') }}
+            ${{ iif(parameters.DotNetCoreBuildConfig.Restore.NuGetConfigPath, format('--configfile "$(DotNetCoreSource)/{0}"', parameters.DotNetCoreBuildConfig.Restore.NuGetConfigPath), '') }}
+      - ${{ each check in parameters.PreBuildChecks }}:
+          - template: /checks/dotnetcoreformat.yml
+            parameters:
+              WorkingDirectory: $(DotNetCoreSource)
+              ${{ each setting in check }}:
+                ${{ if notIn(setting.key, 'Check', 'WorkingDirectory') }}:
+                  ${{ setting.key }}: ${{ setting.value }}
+      - task: DotNetCoreCLI@2
+        displayName: Build once
+        inputs:
+          command: build
+          projects: $(DotNetCoreTarget)
+          workingDirectory: $(DotNetCoreSource)
+          arguments: --no-restore --configuration "$(DotNetCoreConfiguration)"
+      - ${{ each check in parameters.PostBuildChecks }}:
+          - template: /checks/dotnetcoretest.yml
+            parameters:
+              WorkingDirectory: $(DotNetCoreSource)
+              ${{ each setting in check }}:
+                ${{ if notIn(setting.key, 'Check', 'WorkingDirectory') }}:
+                  ${{ setting.key }}: ${{ setting.value }}
+      - ${{ if parameters.PostBuildChecks[0].Check }}:
+          - task: PublishCodeCoverageResults@2
+            condition: succeededOrFailed()
+            inputs:
+              summaryFileLocation: $(DotNetCoreReports)/**/coverage.cobertura.xml
+              failIfCoverageEmpty: false
+      - ${{ each package in parameters.DotNetCoreBuildConfig.Packages }}:
+          - ${{ if not(package.Name) }}:
+              - task: PowerShell@2
+                displayName: Resolve default package name for ${{ package.Project }}
+                inputs:
+                  targetType: filePath
+                  pwsh: true
+                  filePath: $(DotNetCoreScriptRoot)/resolve_package_name.ps1
+                env:
+                  PACKAGE_PROJECT: ${{ package.Project }}
+          - ${{ if eq(package.Type, 'NuGet') }}:
+              - task: DotNetCoreCLI@2
+                displayName: Pack ${{ package.Project }}
+                inputs:
+                  command: pack
+                  packagesToPack: $(DotNetCoreSource)/${{ package.Project }}
+                  configuration: $(DotNetCoreConfiguration)
+                  nobuild: true
+                  versioningScheme: 'off'
+                  packDirectory: $(DotNetCorePackages)/nuget/${{ coalesce(package.Name, '$(DotNetCoreDefaultPackageName)') }}
+          - ${{ else }}:
+              - task: DotNetCoreCLI@2
+                displayName: Publish ${{ package.Project }}
+                inputs:
+                  command: publish
+                  workingDirectory: $(DotNetCoreSource)
+                  publishWebProjects: false
+                  projects: $(DotNetCoreSource)/${{ package.Project }}
+                  modifyOutputPath: false
+                  zipAfterPublish: false
+                  arguments: >-
+                    --no-build --no-restore -c "$(DotNetCoreConfiguration)"
+                    --output "${{ iif(eq(lower(format('{0}', package.ZipAfterPublish)), 'false'), '$(DotNetCorePackages)/publish', '$(Build.ArtifactStagingDirectory)/zip-input') }}/${{ coalesce(package.Name, '$(DotNetCoreDefaultPackageName)') }}"
+              - ${{ if ne(lower(format('{0}', package.ZipAfterPublish)), 'false') }}:
+                  - task: ArchiveFiles@2
+                    displayName: Archive ${{ package.Project }}
+                    inputs:
+                      rootFolderOrFile: $(Build.ArtifactStagingDirectory)/zip-input/${{ coalesce(package.Name, '$(DotNetCoreDefaultPackageName)') }}
+                      includeRootFolder: false
+                      archiveType: zip
+                      archiveFile: $(DotNetCorePackages)/publish/${{ coalesce(package.Name, '$(DotNetCoreDefaultPackageName)') }}.zip
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(DotNetCoreScriptRoot)/write_summary.ps1
+        condition: succeededOrFailed()
+        displayName: Summarise checks
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          PRE_JSON: ${{ convertToJson(parameters.PreBuildChecks) }}
+          POST_JSON: ${{ convertToJson(parameters.PostBuildChecks) }}
+      - task: PublishPipelineArtifact@1
+        displayName: Publish available reports
+        condition: succeededOrFailed()
+        inputs:
+          targetPath: $(DotNetCoreReports)
+          artifact: ${{ parameters.ArtifactName }}_Reports
+      - ${{ if parameters.DotNetCoreBuildConfig.Packages[0].Type }}:
+          - template: /tasks/publish_pipeline_artifact.yml
+            parameters:
+              TargetPath: $(DotNetCorePackages)
+              ArtifactName: ${{ parameters.ArtifactName }}

@@ -1,0 +1,63 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }}
+
+trigger: none
+pr: none
+
+variables:
+  FixtureImage: ubuntu-latest
+
+pool:
+  vmImage: $(FixtureImage)
+
+jobs:
+  - template: jobs/dotnetcore_build.yml@AzDOPipelineTemplates
+    parameters:
+      ArtifactName: Sample
+      DotNetCoreBuildConfig:
+        RelativePathToSolution: tests/shared_resources/dotnetcore/Sample.sln
+        DotNetCoreSdk:
+          Version: 8.0.428
+        Packages:
+          - Type: Publish
+            Project: tests/shared_resources/dotnetcore/SampleApp/SampleApp.csproj
+          - Type: NuGet
+            Name: SdkPackage
+            Project: tests/shared_resources/dotnetcore/SampleApp/SampleApp.csproj
+          - Type: Publish
+            Name: ExpandedApp
+            ZipAfterPublish: false
+            Project: tests/shared_resources/dotnetcore/SampleApp/SampleApp.csproj
+      PreBuildChecks:
+        - Check: DotNetCoreFormat
+      PostBuildChecks:
+        - Check: DotNetCoreTest
+          Name: Unit
+          Filter: TestCategory=Unit
+        - Check: DotNetCoreTest
+          Name: Integration
+          Filter: TestCategory=Integration
+          CollectCoverage: false
+      Destinations:
+        - Type: PipelineArtifact
+          Name: BuildOutput
+  - job: Verify
+    dependsOn: DotNetCoreBuild_Sample
+    steps:
+      - checkout: self
+        path: verification
+      - download: current
+        artifact: Sample
+      - download: current
+        artifact: Sample_Reports
+      - task: PowerShell@2
+        inputs:
+          targetType: filePath
+          pwsh: true
+          filePath: $(Pipeline.Workspace)/verification/tests/jobs/dotnetcore_build/verify_artifacts.ps1
+        displayName: Verify package and test evidence

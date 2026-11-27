@@ -107,7 +107,7 @@ steps:
 
 **Templates must run on both Windows and Linux agents.** Do not assume an OS or shell:
 
-- Use `pwsh` (PowerShell Core) for scripting steps, not `powershell` (Windows-only) or `bash` (Unix-only).
+- For PowerShell in job steps (including checks and jobs in test pipelines), use `PowerShell@2` with `pwsh: true`, `targetType: filePath`, and a checked-in `.ps1` file. Never embed commands in `pwsh:`, `powershell:`, `script:`, or an inline task input, even for one line. Test the script directly as well as compiling its YAML wiring. See [PowerShell job steps](../../docs/developers/reference/template-conventions.md#powershell-job-steps).
 - Avoid hardcoded path separators and OS-specific shell built-ins; use cross-platform constructs.
 - Do not assume a specific agent image — consumers choose their pool.
 

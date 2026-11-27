@@ -1,0 +1,25 @@
+# DotNetCoreFormat: verify whitespace after restore without writing files.
+# WorkingDirectory: job-owned source root. Name (string, '') labels the instance.
+# TreatAsWarnings (boolean, false) allows compilation after a formatting violation.
+parameters:
+  - name: WorkingDirectory
+    displayName: Job-owned source root
+    type: string
+  - name: Name
+    displayName: Instance label
+    type: string
+    default: ''
+  - name: TreatAsWarnings
+    displayName: Treat check failures as warnings
+    type: boolean
+    default: false
+steps:
+  - task: DotNetCoreCLI@2
+    name: PreFormat_${{ parameters.Name }}
+    displayName: Verify whitespace ${{ parameters.Name }}
+    continueOnError: ${{ parameters.TreatAsWarnings }}
+    inputs:
+      command: custom
+      custom: format
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      arguments: whitespace "$(DotNetCoreTarget)" --verify-no-changes --no-restore

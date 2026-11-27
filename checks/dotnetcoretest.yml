@@ -1,0 +1,69 @@
+# DotNetCoreTest: execute previously compiled VSTest projects.
+# WorkingDirectory: job-owned source root. Name (string, '') labels this instance.
+# TreatAsWarnings (boolean, false); Project (string, '' = build target);
+# Filter (string, '' = all); TestRunTitle (string, '' = instance or target);
+# CollectCoverage (boolean, true) requests a project-provided XPlat collector.
+parameters:
+  - name: WorkingDirectory
+    type: string
+    displayName: Job-owned source root
+  - name: Name
+    type: string
+    displayName: Instance label
+    default: ''
+  - name: TreatAsWarnings
+    type: boolean
+    displayName: Treat check failures as warnings
+    default: false
+  - name: Project
+    type: string
+    displayName: Built solution or test project
+    default: ''
+  - name: Filter
+    type: string
+    displayName: VSTest filter
+    default: ''
+  - name: TestRunTitle
+    type: string
+    displayName: Tests tab title
+    default: ''
+  - name: CollectCoverage
+    type: boolean
+    displayName: Collect Cobertura coverage
+    default: true
+steps:
+  - task: DotNetCoreCLI@2
+    name: PostTest_${{ parameters.Name }}
+    displayName: Run tests ${{ parameters.Name }}
+    continueOnError: ${{ parameters.TreatAsWarnings }}
+    inputs:
+      command: test
+      publishTestResults: false
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      ${{ if parameters.Project }}:
+        projects: $(DotNetCoreSource)/${{ parameters.Project }}
+      ${{ else }}:
+        projects: $(DotNetCoreTarget)
+      arguments: >-
+        --no-build --no-restore -c "$(DotNetCoreConfiguration)"
+        --results-directory "$(DotNetCoreReports)/dotnetcoretest_${{ parameters.Name }}" --logger trx
+        ${{ iif(parameters.Filter, format('--filter "{0}"', replace(parameters.Filter, '"', '\"')), '') }}
+        ${{ iif(parameters.CollectCoverage, '--collect "XPlat Code Coverage"', '') }}
+  - task: PowerShell@2
+    name: PostEvidence_${{ parameters.Name }}
+    displayName: Validate test evidence ${{ parameters.Name }}
+    continueOnError: ${{ parameters.TreatAsWarnings }}
+    inputs:
+      targetType: filePath
+      pwsh: true
+      filePath: $(DotNetCoreScriptRoot)/validate_test_evidence.ps1
+    env:
+      INSTANCE: dotnetcoretest_${{ parameters.Name }}
+      COVERAGE: ${{ format('{0}', parameters.CollectCoverage) }}
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: VSTest
+      searchFolder: $(DotNetCoreReports)
+      testResultsFiles: dotnetcoretest_${{ parameters.Name }}/**/*.trx
+      testRunTitle: ${{ coalesce(parameters.TestRunTitle, parameters.Name, parameters.Project, '$(DotNetCoreTarget)') }}
