@@ -34,6 +34,7 @@
 #   - Organization (string, required): Snyk organisation slug or ID.
 #   - SeverityThreshold (string, optional): Lowest severity that fails the check. Values: low, medium, high, critical. Default: 'low'
 #   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
+#   - Debug (boolean, optional): Turn on Snyk CLI debug logging ('-d'). The log output is not covered by versioning. Default: false
 #
 # Notes:
 #   - Prerequisites: the UKHO Snyk extension installed in the organisation, a Snyk Enterprise plan (for the
@@ -91,6 +92,11 @@ parameters:
     default: ''
     displayName: 'Extra Snyk CLI arguments'
 
+  - name: Debug
+    type: boolean
+    default: false
+    displayName: 'Turn on Snyk CLI debug logging (-d)'
+
 steps:
   # 1. Validate settings: the parameter types cover everything. Azure DevOps itself rejects missing or
   #    empty required settings, misspelled settings, unknown SeverityThreshold values and non-booleans.
@@ -106,6 +112,7 @@ steps:
       TestType: iac
       SeverityThreshold: ${{ parameters.SeverityThreshold }}
       AdditionalArguments: ${{ parameters.AdditionalArguments }}
+      Debug: ${{ parameters.Debug }}
       ReportFileName: snyk-iac${{ iif(ne(parameters.Name, ''), format('-{0}', parameters.Name), '') }}
       TaskNameUniqueSlug: ${{ parameters.Name }}
       ContinueOnError: ${{ parameters.TreatAsWarnings }}

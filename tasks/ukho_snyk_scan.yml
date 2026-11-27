@@ -12,6 +12,7 @@
 #   - TestType (string, optional): What to scan. Values: iac. Default: 'iac'
 #   - SeverityThreshold (string, optional): Lowest severity that is reported and fails the scan. Values: low, medium, high, critical. Default: 'low'
 #   - AdditionalArguments (string, optional): Extra Snyk CLI arguments, passed through as-is. Default: ''
+#   - Debug (boolean, optional): When true, adds '-d' to the Snyk CLI arguments for debug logging. Default: false
 #   - ReportFileName (string, optional): File name (without extension) for the JSON and HTML reports; empty uses the task's timestamped default. Default: ''
 #   - TaskNameUniqueSlug (string, optional): Unique string to add to the step name if the scan is repeated in a job. Default: ''
 #   - ContinueOnError (boolean, optional): When true, a failure marks the step as SucceededWithIssues (a warning) and the job carries on. Default: false
@@ -91,6 +92,11 @@ parameters:
     default: ''
     displayName: 'Extra Snyk CLI arguments'
 
+  - name: Debug
+    type: boolean
+    default: false
+    displayName: 'Add -d to the Snyk CLI for debug logging'
+
   - name: ReportFileName
     type: string
     default: ''
@@ -117,8 +123,8 @@ steps:
       testDirectory: ${{ parameters.WorkingDirectory }}
       severityThreshold: ${{ parameters.SeverityThreshold }}
       failOnIssues: true
-      ${{ if ne(parameters.AdditionalArguments, '') }}:
-        additionalArguments: ${{ parameters.AdditionalArguments }}
+      ${{ if or(parameters.Debug, ne(parameters.AdditionalArguments, '')) }}:
+        additionalArguments: ${{ trim(format('{0} {1}', iif(parameters.Debug, '-d', ''), parameters.AdditionalArguments)) }}
       ${{ if ne(parameters.ReportFileName, '') }}:
         reportFileName: ${{ parameters.ReportFileName }}
     ${{ if parameters.ContinueOnError }}:

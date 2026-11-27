@@ -38,6 +38,20 @@ $validTestCases = @(
     )
   },
   @{
+    Description = "with Debug true, which adds -d to additionalArguments"
+    Parameters = $required.Clone() + @{ Debug = $true }
+    ExpectedYaml = @(
+      'additionalArguments: -d'
+    )
+  },
+  @{
+    Description = "with Debug true and AdditionalArguments, which puts -d first"
+    Parameters = $required.Clone() + @{ Debug = $true; AdditionalArguments = '--report' }
+    ExpectedYaml = @(
+      'additionalArguments: -d --report'
+    )
+  },
+  @{
     Description = "with every optional parameter"
     Parameters = $required.Clone() + @{
       SeverityThreshold = 'critical'

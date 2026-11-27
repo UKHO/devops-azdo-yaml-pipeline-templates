@@ -13,6 +13,7 @@ Checks:
     # TreatAsWarnings: false      # (boolean) When true, issues or scan errors produce a warning and the run is "partially succeeded" instead of failing.
     # SeverityThreshold: low      # (string) Lowest severity that fails the check: low, medium, high or critical.
     # AdditionalArguments: ''     # (string) Extra Snyk CLI arguments, passed through as-is (for example '--report'). Not covered by versioning.
+    # Debug: false                # (boolean) When true, turns on Snyk CLI debug logging (-d) in the step log.
 ```
 
 The check scans the build job's Terraform working directory (`RelativePathToTerraformFiles`) and everything below it.

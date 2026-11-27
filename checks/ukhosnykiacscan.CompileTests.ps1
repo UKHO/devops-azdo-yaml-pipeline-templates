@@ -53,17 +53,25 @@ $validTestCases = @(
     )
   },
   @{
+    Description = "with Debug true, which adds -d to the Snyk CLI arguments"
+    Parameters = $required.Clone() + @{ Debug = $true }
+    ExpectedYaml = @(
+      'additionalArguments: -d'
+    )
+  },
+  @{
     Description = "with every setting"
     Parameters = $required.Clone() + @{
       Name = 'HighOnly'
       TreatAsWarnings = $true
       SeverityThreshold = 'high'
       AdditionalArguments = '--report'
+      Debug = $true
     }
     ExpectedYaml = @(
       'name: SnykScanTask_iac_HighOnly'
       'severityThreshold: high'
-      'additionalArguments: --report'
+      'additionalArguments: -d --report'
       'continueOnError: true'
     )
   }
