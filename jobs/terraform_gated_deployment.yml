@@ -62,13 +62,16 @@ jobs:
           TerraformDeploymentConfig: ${{ parameters.TerraformDeploymentConfig }}
           EnvironmentName: ${{ parameters.EnvironmentName }}
 
-  - ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply') }}:
+  - ${{ if or(eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanVerifyApply'), and(eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly'), in(parameters.TerraformDeploymentConfig.VerificationMode, 'VerifyOnAny', 'VerifyOnDestroy'))) }}:
       - template: /jobs/manual_verification.yml
         parameters:
           JobName: ManualVerification_${{ parameters.TerraformArtifactName }}
           Condition: and(succeeded(), eq(dependencies.TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.outputs['TerraformDeployPlan_${{ parameters.TerraformArtifactName }}.TerraformChangesCheck.ChangesNeedManualVerification'], 'true'))
           DependsOn: TerraformDeployPlan_${{ parameters.TerraformArtifactName }}
-          Instructions: 'Please validate the terraform plan is acceptable to apply'
+          ${{ if eq(parameters.TerraformDeploymentConfig.RunMode, 'PlanOnly') }}:
+            Instructions: 'Please review the Terraform plan. Approval completes verification without applying changes.'
+          ${{ else }}:
+            Instructions: 'Please validate the terraform plan is acceptable to apply'
           ${{ if parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour }}:
             OnTimeoutBehaviour: ${{ parameters.TerraformDeploymentConfig.VerificationTimeoutBehaviour }}
           ${{ if parameters.TerraformDeploymentConfig.VerificationTimeoutInMinutes }}:

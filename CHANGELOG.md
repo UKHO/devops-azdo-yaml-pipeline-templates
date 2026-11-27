@@ -10,6 +10,10 @@ All notable changes to this repository are documented in this file.
 - Added the `TerraformFormat` check, which fails the build when Terraform files are not formatted canonically (`terraform fmt -check`). Set `Recursive: false` to check only the top-level folder.
 - Added Build Checks user documentation, with a page per check.
 
+### Changed
+
+- **BREAKING**: Terraform gated deployment now honours `VerificationMode: VerifyOnAny` and `VerifyOnDestroy` in `PlanOnly`. Matching changes can pause CI for review, but approval never applies the plan. To keep existing runs unattended, omit `VerificationMode` or use `VerifyDisabled`.
+
 ## 0.4.0 - 2026-10-23
 
 ### Added

@@ -19,7 +19,7 @@ Each object has a set of **core fields** consumed by the leaf job (`terraform_de
 TerraformDeploymentConfig:
   AzDOEnvironmentName: string                   # REQUIRED - leaf job (terraform_deploy.yml)
   RunMode: string                               # REQUIRED - gated job only (terraform_gated_deployment.yml); PlanVerifyApply | PlanOnly | ApplyOnly
-  VerificationMode: string                      # OPTIONAL - leaf job (only meaningful when RunMode is PlanVerifyApply)
+  VerificationMode: string                      # OPTIONAL - leaf job (required for PlanVerifyApply, optional for PlanOnly)
   BackendConfig: object                         # OPTIONAL - leaf job
   AzureServiceConnection: string                # OPTIONAL - leaf job
   KeyVaultConfig:                               # OPTIONAL (legacy, all-or-nothing) - leaf job - use ConfigSources instead
@@ -36,8 +36,8 @@ TerraformDeploymentConfig:
   EnvironmentVariableMappings: object           # OPTIONAL - leaf job
   VariableFiles: list                           # OPTIONAL - leaf job
   OutputVariables: list                         # OPTIONAL - leaf job
-  VerificationTimeoutInMinutes: number          # OPTIONAL - gated job only (only used when RunMode is PlanVerifyApply)
-  VerificationTimeoutBehaviour: string          # OPTIONAL - gated job only ('reject' | 'resume', only used when RunMode is PlanVerifyApply)
+  VerificationTimeoutInMinutes: number          # OPTIONAL - gated job only (used when the manual gate runs)
+  VerificationTimeoutBehaviour: string          # OPTIONAL - gated job only ('reject' | 'resume', used when the manual gate runs)
   ApplyEvenIfNoChanges: boolean                 # OPTIONAL - gated job only (default false; true only allowed when RunMode is PlanVerifyApply)
 ```
 
@@ -65,7 +65,7 @@ Controls whether `terraform_deploy.yml`'s Plan job adds the plan-verification st
 
 - `'VerifyOnDestroy'` - Manual verification only when resources will be destroyed
 - `'VerifyOnAny'` - Manual verification for any infrastructure changes
-- `'VerifyDisabled'` - No manual verification (auto-apply if changes detected)
+- `'VerifyDisabled'` - No manual verification (`PlanOnly` still never applies)
 
 **Example:** `'VerifyOnAny'`
 
@@ -266,13 +266,13 @@ Controls which deployment jobs the orchestrator creates.
 
 **Type:** `number` · **Optional** · **Allowed Range:** `1` - `43200` (30 days)
 
-How long to wait for manual approval before applying `VerificationTimeoutBehaviour`. Only applicable when `RunMode` is `PlanVerifyApply`. Defaults to `60` when omitted.
+How long to wait for manual approval before applying `VerificationTimeoutBehaviour`. Applies to manual verification in `PlanVerifyApply` and `PlanOnly`. Defaults to `60` when omitted.
 
 #### VerificationTimeoutBehaviour
 
 **Type:** `string` · **Optional** · **Allowed Values:** `'reject'` | `'resume'`
 
-Action to take if manual verification is not actioned within `VerificationTimeoutInMinutes`. Only applicable when `RunMode` is `PlanVerifyApply`. Defaults to `'reject'` when omitted.
+Action to take if manual verification is not actioned within `VerificationTimeoutInMinutes`. Applies to manual verification in `PlanVerifyApply` and `PlanOnly`. Defaults to `'reject'` when omitted.
 
 - `'reject'` - The job fails, halting the pipeline (default behaviour)
 - `'resume'` - The job automatically succeeds as if approved, and the pipeline continues

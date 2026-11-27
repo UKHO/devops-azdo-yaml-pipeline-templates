@@ -13,10 +13,10 @@ jobs:
         AzDOEnvironmentName: dev-environment        # Azure DevOps environment for deployment association.
         RunMode: PlanVerifyApply                    # One of: PlanVerifyApply, PlanOnly, ApplyOnly.
 
-        # Required when RunMode is PlanVerifyApply
+        # Required for PlanVerifyApply; optional for PlanOnly
         # VerificationMode: VerifyOnDestroy         # One of: VerifyOnDestroy, VerifyOnAny, VerifyDisabled.
 
-        # Optional - used only when RunMode is PlanVerifyApply
+        # Optional
         # VerificationTimeoutInMinutes: 60          # Number between 1 and 43200 (30 days).
         # VerificationTimeoutBehaviour: reject      # 'reject' or 'resume'.
         # ApplyEvenIfNoChanges: false               # true runs Apply even when the plan has no changes (PlanVerifyApply only).
@@ -48,17 +48,17 @@ Based on the `RunMode` configuration, this job creates one to three sub-jobs:
 
 | RunMode            | Plan | Manual Verification    | Apply                   |
 |----------------------|------|--------------------------|-------------------------|
-| `PlanOnly`           | Yes  | No                       | No                      |
+| `PlanOnly`           | Yes  | Conditional (see below)  | No                      |
 | `ApplyOnly`          | No   | No                       | Yes                     |
 | `PlanVerifyApply`    | Yes  | Conditional (see below)  | Conditional (see below) |
 
-For `PlanVerifyApply`, the manual verification job only runs if the plan detects changes **and** `VerificationMode` determines approval is required:
+For `PlanVerifyApply` and `PlanOnly`, the manual verification job only runs if the plan detects changes **and** `VerificationMode` determines approval is required:
 
 - **`VerifyOnDestroy`** – approval only triggered if the plan shows resources being destroyed
 - **`VerifyOnAny`** – approval triggered if any infrastructure changes are detected
-- **`VerifyDisabled`** – no approval gate, apply runs automatically
+- **`VerifyDisabled`** – no approval gate (also the default for `PlanOnly` when omitted)
 
-If the plan detects **no changes**, Manual Verification and Apply are both skipped by default. Set `ApplyEvenIfNoChanges: true` to run Apply anyway (see [Always Applying](#always-applying-applyevenifnochanges)).
+If the plan detects **no changes**, Manual Verification and Apply are both skipped by default. In `PlanVerifyApply`, set `ApplyEvenIfNoChanges: true` to run Apply anyway (see [Always Applying](#always-applying-applyevenifnochanges)).
 
 ```text
 Plan Job
@@ -81,7 +81,8 @@ jobs:
       EnvironmentName: validation
       TerraformDeploymentConfig:
         AzDOEnvironmentName: validation-environment
-        RunMode: PlanOnly  # Only plan, no apply
+        RunMode: PlanOnly  # Never apply, even after approval
+        VerificationMode: VerifyOnAny  # Review CI plans that contain changes
         BackendConfig:
           resource_group_name: rg-state
           storage_account_name: tfstate
@@ -89,7 +90,7 @@ jobs:
           key: validation.tfstate
 ```
 
-**Live example**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml) (also see [`double_plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml))
+**Live example**: [PlanOnly with review on any change](../../../tests/jobs/terraform_gated_deployment/plan_only_verify_on_any_test.yml). For unattended plans, see the [single](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml) and [double](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml) PlanOnly examples.
 
 ### ApplyOnly Mode (Development Auto-Deploy)
 
@@ -212,7 +213,7 @@ jobs:
 
 ### Always Applying (ApplyEvenIfNoChanges)
 
-When the plan has no changes, Apply is skipped by default, so `OutputVariables` are not exported and jobs depending on Apply do not run. Set `ApplyEvenIfNoChanges: true` to always run Apply:
+When the plan has no changes, Apply is skipped by default, so `OutputVariables` are not exported and jobs depending on Apply do not run. In `PlanVerifyApply`, set `ApplyEvenIfNoChanges: true` to always run Apply:
 
 ```yaml
 jobs:
