@@ -2,13 +2,13 @@
 
 This template allows a pipeline to deploy resources via Terraform with an optional manual verification step, aka gate, for any resources planned to be changed. This functionality is controlled by two parameters: a `RunMode` parameter, and a `VerificationMode` parameter. The `RunMode` parameter has three settings:
 
-- `PlanOnly`: Runs only the Terraform `plan` and does not trigger the gate or the `apply` stage
+- `PlanOnly`: Runs the Terraform plan and optionally gates on `VerificationMode`; never applies
 - `PlanVerifyApply`: Runs the Terraform `plan`, applies verification logic based on `VerificationMode`, and then runs `apply`
 - `ApplyOnly`: Skips the plan step and applies the configuration directly
 
-When `RunMode` is `PlanOnly`, the pipeline terminates after the plan step. When `RunMode` is `ApplyOnly`, the configuration is applied directly without any verification. When `RunMode` is `PlanVerifyApply`, the `VerificationMode` parameter determines how the gate behaves and has three settings:
+When `VerificationMode` is omitted in `PlanOnly`, the pipeline finishes after the plan. When `RunMode` is `ApplyOnly`, the configuration is applied directly without any verification. Both planning modes support the same verification settings:
 
-- `VerifyDisabled`: Do not trigger the gate at all; apply changes automatically
+- `VerifyDisabled`: Do not trigger the gate
 - `VerifyOnDestroy`: Trigger the gate only if the changes are destructive
 - `VerifyOnAny`: Trigger the gate for adds, changes, and deletions
 
@@ -17,7 +17,7 @@ If the Terraform `plan` indicates that any resources will be changed (in `PlanVe
 The template is broken into three jobs:
 
 - plan job (runs only in `PlanVerifyApply` and `PlanOnly` modes)
-- gate (manual verification) job (runs only in `PlanVerifyApply` mode)
+- gate (manual verification) job (conditional in `PlanVerifyApply` and `PlanOnly`)
 - apply job (runs only in `PlanVerifyApply` and `ApplyOnly` modes)
 
 ## RunMode Flows
@@ -26,7 +26,7 @@ The flow depends on the `RunMode` setting. Below are the three possible executio
 
 ### PlanOnly Flow
 
-When `RunMode` is set to `PlanOnly`, the pipeline runs the plan job and then terminates without applying any changes:
+When `RunMode` is set to `PlanOnly`, the pipeline runs the plan and requests review only for changes matching the configured verification mode. Approval completes verification without applying changes:
 
 ```mermaid
 ---
@@ -38,7 +38,11 @@ flowchart TD
     succeeded([Template Succeeded])
 
     pipeline-->plan
-    plan-->succeeded
+    plan-->review{Review required?}
+    review--No-->succeeded
+    review--Yes-->gate[[Manual verification]]
+    gate--Approved or resumed-->succeeded
+    gate--Rejected-->failed([Template Failed])
 ```
 
 ### ApplyOnly Flow

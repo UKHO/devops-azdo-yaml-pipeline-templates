@@ -34,6 +34,22 @@ $validTestCases = @(
   },
 
   @{
+    Description = "PlanOnly with VerifyOnAny includes the conditional review job"
+    Parameters = @{
+      EnvironmentName = "dev"
+      TerraformDeploymentConfig = @{
+        AzDOEnvironmentName = "compile-tests-only"
+        RunMode = "PlanOnly"
+        VerificationMode = "VerifyOnAny"
+      }
+    }
+    ExpectedYAML = @(
+      "job: ManualVerification_TerraformArtifact"
+      "ChangesNeedManualVerification'?, 'true')"
+    )
+  },
+
+  @{
     Description = "ApplyOnly mode - includes only Apply job without plan"
     Parameters = @{
       EnvironmentName = "prod"
