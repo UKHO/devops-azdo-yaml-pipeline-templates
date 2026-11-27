@@ -38,7 +38,7 @@ jobs:
         RunMode: 'PlanOnly'
         VerificationMode: VerifyOnAny
         VerificationTimeoutInMinutes: 1
-        VerificationTimeoutBehaviour: resume
+        VerificationTimeoutBehaviour: reject
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
         EnvironmentVariableMappings:
