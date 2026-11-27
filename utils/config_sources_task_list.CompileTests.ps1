@@ -86,6 +86,24 @@ $validTestCases = @(
       "KeyVaultName: tenant-vault"
       "SecretsFilter: tenant-*"
     )
+  },
+  @{
+    Description = "with optional RunAsPreJob set on one entry only, without leaking into the next entry"
+    Parameters = @{
+      ConfigSources = @"
+ - Type: KeyVault
+   Name: "shared-vault"
+   ServiceConnection: "Azure-Shared-SC"
+   RunAsPreJob: true
+ - Type: KeyVault
+   Name: "tenant-vault"
+   ServiceConnection: "Azure-Tenant-SC"
+"@
+    }
+    ExpectedYaml = @(
+      "KeyVaultName: shared-vault*SecretsFilter: '*'*RunAsPreJob: True"
+      "KeyVaultName: tenant-vault*SecretsFilter: '*'*RunAsPreJob: False"
+    )
   }
 )
 
