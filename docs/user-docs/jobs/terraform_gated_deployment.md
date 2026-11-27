@@ -90,7 +90,7 @@ jobs:
           key: validation.tfstate
 ```
 
-**Live example**: [`tests/jobs/terraform_gated_deployment/plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml) (also see [`double_plan_only_test.yml`](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml))
+**Live example**: [PlanOnly with review on any change](../../../tests/jobs/terraform_gated_deployment/plan_only_verify_on_any_test.yml). For unattended plans, see the [single](../../../tests/jobs/terraform_gated_deployment/plan_only_test.yml) and [double](../../../tests/jobs/terraform_gated_deployment/double_plan_only_test.yml) PlanOnly examples.
 
 ### ApplyOnly Mode (Development Auto-Deploy)
 

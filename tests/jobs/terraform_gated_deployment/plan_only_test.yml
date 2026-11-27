@@ -36,9 +36,6 @@ jobs:
           container_name: tfstate-devops-azdo-yaml-pipeline-templates
           key: template_test.$(Build.DefinitionName).tfstate
         RunMode: 'PlanOnly'
-        VerificationMode: VerifyOnAny
-        VerificationTimeoutInMinutes: 1
-        VerificationTimeoutBehaviour: resume
         JobsVariableMappings:
           - group: DevOpsChapterAzureSubscription
         EnvironmentVariableMappings:
