@@ -17,6 +17,9 @@ pr:
       - main
   drafts: false
 
+variables:
+  - group: DevOpsChapterAzureSubscription
+
 jobs:
   - template: jobs/terraform_build.yml@AzDOPipelineTemplates
     parameters:
@@ -25,4 +28,4 @@ jobs:
       Checks:
         - Check: UkhoSnykIacScan
           ServiceConnection: Snyk
-          Organization: devops-chapter
+          Organization: $(SnykOrgId)
