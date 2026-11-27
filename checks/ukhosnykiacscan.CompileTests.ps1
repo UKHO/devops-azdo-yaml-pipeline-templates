@@ -1,0 +1,120 @@
+# ============================================================================
+# TEST: UkhoSnykIacScan Check Template
+# ============================================================================
+# Tests for checks/ukhosnykiacscan.yml, which runs a Snyk iac scan through /tasks/ukho_snyk_scan.yml.
+# Covers the defaults, each setting, and that bad input is rejected (missing required settings,
+# wrong types and values, and unknown settings forwarded from Checks).
+# Requires the UKHO Snyk extension to be installed in the test Azure DevOps organisation.
+
+# Load framework (only if not already loaded)
+if (-not (Get-Command -Name 'Run-Tests' -ErrorAction SilentlyContinue))
+{
+  $repoRoot = git rev-parse --show-toplevel 2> $null
+  . (Join-Path $repoRoot "tests" "framework" "Core.ps1")
+}
+
+# ============================================================================
+# DEFINE TEST CASES
+# ============================================================================
+
+$required = @{
+  WorkingDirectory = '$(Pipeline.Workspace)/infra'
+  ServiceConnection = 'Snyk'
+  Organization = 'my-team'
+}
+
+$validTestCases = @(
+  @{
+    Description = "with only the required settings"
+    Parameters = $required.Clone()
+    ExpectedYaml = @(
+      'task: UkhoSnykScanTask@0'
+      'name: SnykScanTask_iac'
+      'testType: iac'
+      'testDirectory: $(Pipeline.Workspace)/infra'
+      'severityThreshold: low'
+      'failOnIssues: true'
+      'reportFileName: snyk-iac'
+    )
+  },
+  @{
+    Description = "with a Name, which makes the step and report names unique"
+    Parameters = $required.Clone() + @{ Name = 'Modules' }
+    ExpectedYaml = @(
+      'name: SnykScanTask_iac_Modules'
+      'reportFileName: snyk-iac-Modules'
+    )
+  },
+  @{
+    Description = "with TreatAsWarnings true, which sets continueOnError"
+    Parameters = $required.Clone() + @{ TreatAsWarnings = $true }
+    ExpectedYaml = @(
+      'continueOnError: true'
+    )
+  },
+  @{
+    Description = "with Debug true, which adds -d to the Snyk CLI arguments"
+    Parameters = $required.Clone() + @{ Debug = $true }
+    ExpectedYaml = @(
+      'additionalArguments: -d'
+    )
+  },
+  @{
+    Description = "with every setting"
+    Parameters = $required.Clone() + @{
+      Name = 'HighOnly'
+      TreatAsWarnings = $true
+      SeverityThreshold = 'high'
+      AdditionalArguments = '--report'
+      Debug = $true
+    }
+    ExpectedYaml = @(
+      'name: SnykScanTask_iac_HighOnly'
+      'severityThreshold: high'
+      'additionalArguments: -d --report'
+      'continueOnError: true'
+    )
+  }
+)
+
+$invalidTestCases = @(
+  @{
+    Description = "missing ServiceConnection"
+    Parameters = @{ WorkingDirectory = 'infra'; Organization = 'my-team' }
+    ErrorMessage = "A value for the 'ServiceConnection' parameter must be provided."
+  },
+  @{
+    Description = "missing Organization"
+    Parameters = @{ WorkingDirectory = 'infra'; ServiceConnection = 'Snyk' }
+    ErrorMessage = "A value for the 'Organization' parameter must be provided."
+  },
+  @{
+    Description = "with an empty Organization"
+    Parameters = @{ WorkingDirectory = 'infra'; ServiceConnection = 'Snyk'; Organization = '' }
+    ErrorMessage = "The 'Organization' parameter is not a valid String."
+  },
+  @{
+    Description = "with an invalid SeverityThreshold"
+    Parameters = $required.Clone() + @{ SeverityThreshold = 'severe' }
+    ErrorMessage = "The 'SeverityThreshold' parameter value 'severe' is not a valid value."
+  },
+  @{
+    Description = "with FailOnIssues, which is not supported (use TreatAsWarnings)"
+    Parameters = $required.Clone() + @{ FailOnIssues = $false }
+    ErrorMessage = "Unexpected parameter 'FailOnIssues'"
+  },
+  @{
+    Description = "with a misspelled setting (Organisation)"
+    Parameters = $required.Clone() + @{ Organisation = 'my-team' }
+    ErrorMessage = "Unexpected parameter 'Organisation'"
+  }
+)
+
+# ============================================================================
+# RUN TESTS
+# ============================================================================
+
+Run-Tests `
+  -YamlPath "checks/ukhosnykiacscan.yml" `
+  -ValidTestCases $validTestCases `
+  -InvalidTestCases $invalidTestCases

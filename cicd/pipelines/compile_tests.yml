@@ -28,7 +28,7 @@ pr:
 
 # Must match var.azdo_agent_pool_name in cicd/ukho.tfvars (the pipeline is authorised for that queue)
 pool:
-  name: Azure-UKHO-Engineering
+  name: Mare Nectaris
 
 jobs:
   - job: CompileTests

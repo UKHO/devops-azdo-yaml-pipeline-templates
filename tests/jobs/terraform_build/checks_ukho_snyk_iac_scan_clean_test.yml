@@ -1,0 +1,32 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nubium'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+variables:
+  - group: DevOpsChapterAzureSubscription
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformVersion: 1.13.0
+      RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
+      Checks:
+        - Check: UkhoSnykIacScan
+          ServiceConnection: Snyk
+          Organization: $(SnykOrgId)
+          Debug: true

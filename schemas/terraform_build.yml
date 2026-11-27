@@ -33,15 +33,15 @@ steps:
 
               # Check: required
               - ${{ if or(not(check.Check), eq(check.Check, '')) }}:
-                  - "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat. See: docs/user-docs/checks/README.md": "Error"
+                  - "Invalid Checks: entry is missing required field 'Check'. Supported: TerraformFormat, UkhoSnykIacScan. See: docs/user-docs/checks/README.md": "Error"
 
               # Check: must be a string, not an object or list
               - ${{ elseif or(startsWith(convertToJson(check.Check), '{'), startsWith(convertToJson(check.Check), '[')) }}:
-                  - "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat. See: docs/user-docs/checks/README.md": "Error"
+                  - "Invalid Checks: 'Check' must be a string. Supported: TerraformFormat, UkhoSnykIacScan. See: docs/user-docs/checks/README.md": "Error"
 
               # Check: must be supported by this build job
-              - ${{ elseif notIn(check.Check, 'TerraformFormat') }}:
-                  - ? "Invalid Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat. See: docs/user-docs/checks/README.md"
+              - ${{ elseif notIn(check.Check, 'TerraformFormat', 'UkhoSnykIacScan') }}:
+                  - ? "Invalid Checks: '${{ check.Check }}' is not a supported check for terraform_build. Supported: TerraformFormat, UkhoSnykIacScan. See: docs/user-docs/checks/README.md"
                     : "Error"
 
               # Check listed more than once: every entry for it needs a Name

@@ -1,0 +1,57 @@
+resources:
+  repositories:
+    - repository: AzDOPipelineTemplates
+      type: github
+      endpoint: UKHO
+      name: UKHO/devops-azdo-yaml-pipeline-templates
+      ref: ${{ variables['Build.SourceBranch'] }} # Build.SourceBranch doesn't work when you click 'Validate' must click the 'Download full YAML' button as it triggers a build
+
+pool:
+  name: 'Mare Nectaris'
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  drafts: false
+
+jobs:
+  - template: jobs/terraform_build.yml@AzDOPipelineTemplates
+    parameters:
+      TerraformVersion: 1.13.0
+      RelativePathToTerraformFiles: tests/shared_resources/snyk_iac/clean
+      Checks:
+        - Check: UkhoSnykIacScan
+          ServiceConnection: Snyk
+          Organization: devops-chapter
+
+  - job: ValidateResults
+    dependsOn:
+      - TerraformBuild_TerraformArtifact
+    steps:
+      - checkout: none
+
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+          $expectedName = 'snyk-iac.json'
+          $uri = '{0}{1}/_apis/build/builds/{2}/attachments/JSON_ATTACHMENT_TYPE?api-version=7.1' -f `
+            $env:COLLECTION_URI, [uri]::EscapeDataString($env:TEAM_PROJECT), $env:BUILD_ID
+          $headers = @{ Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN" }
+
+          $attachments = (Invoke-RestMethod -Uri $uri -Headers $headers -Method Get).value
+          $names = @($attachments | ForEach-Object { $_.name })
+          Write-Host "JSON attachments on this run: $($names -join ', ')"
+
+          if ($names -notcontains $expectedName)
+          {
+            Write-Error "Expected the UkhoSnykIacScan check to attach '$expectedName' to the run, but it was not found."
+          }
+          Write-Host "Found the '$expectedName' report attachment."
+        displayName: 'Verify the snyk-iac JSON report is attached'
+        env:
+          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+          COLLECTION_URI: $(System.CollectionUri)
+          TEAM_PROJECT: $(System.TeamProject)
+          BUILD_ID: $(Build.BuildId)
